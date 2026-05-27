@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'sige_api.urls'
+ROOT_URLCONF = 'estrategia_api.urls'
 
 TEMPLATES = [
     {
@@ -66,7 +66,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'sige_api.wsgi.application'
+WSGI_APPLICATION = 'estrategia_api.wsgi.application'
 
 
 # Database
