@@ -1,6 +1,5 @@
-from django.http import JsonResponse
+from django.http import HttpResponse
+from django.shortcuts import render
 
-def usuarios(request):
-    if request.method == "GET":
-        usuarios = {"id": 1, "nome": "Andr", "idade": 21}
-        return JsonResponse(usuarios)
+def home(request):
+     return HttpResponse('hello world')
