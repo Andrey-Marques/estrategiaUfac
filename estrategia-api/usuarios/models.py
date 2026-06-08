@@ -4,11 +4,11 @@ from django.contrib.auth.models import AbstractUser
 class Usuario(AbstractUser):
     PAPEL_CHOICES = [
         ('ADMIN', 'Administrador'),
-        ('SERVI', 'Servidor'),
+        ('UNIDADE', 'Unidade'),
+        ('SERVIDOR', 'Servidor'),
     ]
-    id = models.AutoField(primary_key=True)
-    papel = models.CharField(max_length=5, choices = PAPEL_CHOICES, default ='SERVI')
-    
+    papel = models.CharField(max_length=10, choices = PAPEL_CHOICES, default ='SERVIDOR')
+    unidade = models.ForeignKey('unidades.Unidade', on_delete=models.SET_NULL, null=True,blank=True, related_name='usuarios')
     class Meta:
         verbose_name = 'Usuário'
         verbose_name_plural = 'Usuários'
