@@ -7,7 +7,7 @@ class Usuario(AbstractUser):
         ('UNIDADE', 'Unidade'),
         ('SERVIDOR', 'Servidor'),
     ]
-    papel = models.CharField(max_length=10, choices = PAPEL_CHOICES, default ='SERVIDOR')
+    papel = models.CharField(max_length=10, choices = PAPEL_CHOICES, default ='SERVIDOR ')
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.SET_NULL, null=True,blank=True, related_name='usuarios')
     class Meta:
         verbose_name = 'Usuário'

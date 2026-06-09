@@ -11,7 +11,7 @@ class ProjetoEstrategico(models.Model):
     nome = models.CharField(max_length=255)
     descricao = models.TextField()
     tempo_estimado = models.CharField(max_length=100)
-    custo_estimado = models.DecimalField(max_digits=10, decimal_places=2)
+    custo_estimado = models.DecimalField(max_digits=20, decimal_places=2)
     ultima_atualizacao = models.DateTimeField(auto_now=True)
     percentual_progresso = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default= 'PLANEJAMENTO') 

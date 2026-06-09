@@ -1,7 +1,6 @@
 from django.db import models
 
 class Unidade(models.Model):
-    id = models.AutoField(primary_key=True)
     nome = models.CharField(max_length=255)
     sigla = models.CharField(max_length=10, unique=True)
     
