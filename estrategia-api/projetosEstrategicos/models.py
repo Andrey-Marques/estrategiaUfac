@@ -1,22 +1,16 @@
 from django.db import models
 
 class ProjetoEstrategico(models.Model):
-    STATUS_CHOICES = [
-        ('PLANEJAMENTO', 'Planejamento'),
-        ('ANDAMENTO', 'Em andamento'),
-        ('CONCLUIDA', 'Concluída'),
-        ('CANCELADA', 'Cancelada'),
-    ]
-    
+  
     nome = models.CharField(max_length=255)
     descricao = models.TextField()
     tempo_estimado = models.CharField(max_length=100)
     custo_estimado = models.DecimalField(max_digits=20, decimal_places=2)
     ultima_atualizacao = models.DateTimeField(auto_now=True)
     percentual_progresso = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default= 'PLANEJAMENTO') 
-    unidade = models.ForeignKey('unidades.Unidade', on_delete=models.SET_NULL, null=True, blank=True, related_name='projetos_estrategicos')
-    responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, null=True, blank=True, related_name='projetos_estrategicos')
+    acoes_previstas = models.TextField()
+    unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='projetos_estrategicos')
+    responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos')
 
 
     class Meta: 
@@ -25,3 +19,29 @@ class ProjetoEstrategico(models.Model):
         
     def __str__(self):
         return self.nome
+    
+    
+class EvolucaoProjeto(models.Model):
+    realizacao = models.TextField()
+    proximo_passo = models.TextField()
+    fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'Evolucoes')
+    
+    class Meta:
+        verbose_name = 'Evolução do Projeto'
+        verbose_name_plural = 'Evoluções do Projeto'
+        
+    def __str__(self):
+        return f'Evolução do Projeto: {self.fk_projeto.nome}'
+
+
+class EvolucaoOrcamentaria(models.Model):
+    valor = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    data_registro = models.DateTimeField(auto_now_add=True)
+    fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'EvolucoesOrcamentarias')
+    
+    class Meta:
+        verbose_name = 'Evolução Orçamentaria'
+        verbose_name_plural = 'Evoluções Orçamentarias'
+        
+    def __str__(self):
+        return f'Investido em {self.data_registro.strftime("%d/%m/%y")}: R$ {self.valor}'
