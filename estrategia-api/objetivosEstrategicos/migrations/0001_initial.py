@@ -8,19 +8,21 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('unidades', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Unidade',
+            name='ObjetivoEstrategico',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nome', models.CharField(max_length=255)),
-                ('sigla', models.CharField(max_length=10, unique=True)),
+                ('codigo', models.CharField(max_length=8)),
+                ('descricao', models.TextField()),
+                ('unidade', models.ManyToManyField(related_name='objetivos_estrategicos', to='unidades.unidade')),
             ],
             options={
-                'verbose_name': 'Unidade',
-                'verbose_name_plural': 'Unidades',
+                'verbose_name': 'Objetivo Estratégico',
+                'verbose_name_plural': 'Objetivos Estratégicos',
             },
         ),
     ]

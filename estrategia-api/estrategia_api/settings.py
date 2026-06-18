@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'unidades',
     'iniciativasEstrategicas',
     'projetosEstrategicos',
+    'objetivosEstrategicos',
 ]
 
 MIDDLEWARE = [
