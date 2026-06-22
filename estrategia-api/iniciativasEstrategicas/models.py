@@ -8,9 +8,9 @@ class IniciativaEstrategica(models.Model):
     data_preenchimento = models.DateTimeField(auto_now_add=True)
     observacao = models.TextField(blank=True, null=True)
     percentual_evolucao = models.DecimalField(max_digits=5, decimal_places=2, default=0.00) 
-    unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, null=True, blank=True, related_name='iniciativas_estrategicas')
-    responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, null=True, blank=True, related_name='iniciativas_estrategicas')
-
+    unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='iniciativas_estrategicas')
+    responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='iniciativas_estrategicas')
+    projeto = models.ForeignKey('projetosEstrategicos.ProjetoEstrategico', on_delete=models.PROTECT, null=True, blank=True, related_name='iniciativas_estrategicas')
 
     class Meta: 
         verbose_name = 'Iniciativa Estratégica'
