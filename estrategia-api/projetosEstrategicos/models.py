@@ -11,7 +11,7 @@ class ProjetoEstrategico(models.Model):
     acoes_previstas = models.TextField()
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='projetos_estrategicos')
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos')
-    objetivo_estrategico = models.ForeignKey('objetivosEstrategicos.ObjetivoEstrategico', on_delete=models.PROTECT, related_name='projetos_estrategicos')
+    objetivos = models.ManyToManyField( 'objetivosEstrategicos.ObjetivoEstrategico', related_name='projetos')
 
 
     class Meta: 
