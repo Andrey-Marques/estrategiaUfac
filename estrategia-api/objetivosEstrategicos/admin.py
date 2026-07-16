@@ -5,5 +5,4 @@ from .models import ObjetivoEstrategico
 class ObjetivosEstrategicosAdmin(admin.ModelAdmin):
     list_display = ('codigo', 'descricao')
     search_fields = ('codigo', 'descricao')
-    filter_horizontal = ('unidade',)
 

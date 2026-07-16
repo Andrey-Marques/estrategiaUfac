@@ -1,4 +1,5 @@
 from django.db import models
+from objetivosEstrategicos.models import ObjetivoEstrategico
 
 class ProjetoEstrategico(models.Model):
   
@@ -11,7 +12,7 @@ class ProjetoEstrategico(models.Model):
     acoes_previstas = models.TextField()
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='projetos_estrategicos')
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos')
-    objetivos = models.ManyToManyField( 'objetivosEstrategicos.ObjetivoEstrategico', related_name='projetos')
+    objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoProjeto',related_name='projetos')
 
 
     class Meta: 
@@ -46,3 +47,9 @@ class EvolucaoOrcamentaria(models.Model):
         
     def __str__(self):
         return f'Investido em {self.data_registro.strftime("%d/%m/%y")}: R$ {self.valor}'
+    
+class ObjetivoProjeto(models.Model):
+    objetivo = models.ForeignKey(ObjetivoEstrategico,on_delete=models.CASCADE)
+    projeto = models.ForeignKey(ProjetoEstrategico,on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('objetivo', 'projeto')

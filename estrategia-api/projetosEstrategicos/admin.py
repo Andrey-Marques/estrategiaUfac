@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ProjetoEstrategico, EvolucaoProjeto, EvolucaoOrcamentaria
+from .models import ProjetoEstrategico, EvolucaoProjeto, EvolucaoOrcamentaria, ObjetivoProjeto
 
 class EvolucaoProjetoInline(admin.TabularInline):
     model = EvolucaoProjeto
@@ -8,13 +8,18 @@ class EvolucaoProjetoInline(admin.TabularInline):
 class EvolucaoOrcamentariaInline(admin.TabularInline):
     model = EvolucaoOrcamentaria
     extra = 0
+    
+class ObjetivoProjetoInline(admin.TabularInline):
+    model = ObjetivoProjeto
+    extra = 1
 
 @admin.register(ProjetoEstrategico)
 class ProjetoEstrategicoAdmin(admin.ModelAdmin):
     list_display = ('id', 'nome', 'tempo_estimado', 'custo_estimado','unidade')
     search_fields = ('nome',)
     list_filter = ('unidade', 'responsavel')
-    inlines = [EvolucaoProjetoInline, EvolucaoOrcamentariaInline]
+    inlines = [ObjetivoProjetoInline, EvolucaoProjetoInline, EvolucaoOrcamentariaInline]
+    
     
 @admin.register(EvolucaoProjeto)
 class EvolucaoProjetoAdmin(admin.ModelAdmin):

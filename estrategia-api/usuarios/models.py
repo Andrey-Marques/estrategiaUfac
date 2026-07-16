@@ -7,6 +7,7 @@ class Usuario(AbstractUser):
         ('UNIDADE', 'Unidade'),
         ('SERVIDOR', 'Servidor'),
     ]
+    nome_completo = models.CharField(max_length=255)
     papel = models.CharField(max_length=10, choices = PAPEL_CHOICES, default ='SERVIDOR ')
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.SET_NULL, null=True,blank=True, related_name='usuarios')
     class Meta:
@@ -14,5 +15,5 @@ class Usuario(AbstractUser):
         verbose_name_plural = 'Usuários'
     
     def __str__(self):
-        return self.get_full_name() or self.username
-    
+        return self.nome_completo or self.username
+
