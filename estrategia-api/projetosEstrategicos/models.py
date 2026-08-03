@@ -26,7 +26,7 @@ class ProjetoEstrategico(models.Model):
 class EvolucaoProjeto(models.Model):
     realizacao = models.TextField()
     proximo_passo = models.TextField()
-    fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'Evolucoes')
+    fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'evolucoes')
     
     class Meta:
         verbose_name = 'Evolução do Projeto'
@@ -39,7 +39,7 @@ class EvolucaoProjeto(models.Model):
 class EvolucaoOrcamentaria(models.Model):
     valor = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
     data_registro = models.DateTimeField(auto_now_add=True)
-    fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'EvolucoesOrcamentarias')
+    fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'evolucoesOrcamentarias')
     
     class Meta:
         verbose_name = 'Evolução Orçamentaria'

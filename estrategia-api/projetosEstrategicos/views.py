@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from rest_framework.viewsets import ModelViewSet
+from .models import ProjetoEstrategico
+from .serializers import ProjetoEstrategicoSerializer
 
-# Create your views here.
+class ProjetoEstrategicoViewSet(ModelViewSet):
+    queryset = ProjetoEstrategico.objects.all()
+    serializer_class = ProjetoEstrategicoSerializer 
+    

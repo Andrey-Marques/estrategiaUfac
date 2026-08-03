@@ -1,4 +1,4 @@
-from rest_framework import ModelViewSet
+from rest_framework.viewsets import ModelViewSet
 from .models import ObjetivoEstrategico
 from .serializers import ObjetivoEstrategicoSerializer
 
