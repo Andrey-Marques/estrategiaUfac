@@ -1,7 +1,7 @@
-<div class=" modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+<!-- <div class=" modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
   <div class=" modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-      <!--cabeçalho do modal -->
+
        <div class="d-flex justify-content-between p-3 bg-primary-subtle">
         <div>
           <div>
@@ -11,7 +11,7 @@
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <!-- ----------corpo do modal----------- -->
+
       <div class="etapas-form d-flex gap-5">
         <span>1. Apresentação</span>
         <span>2. Ações e Evolução</span>
@@ -68,7 +68,17 @@
       </div>
     </div>
   </div>
-  
+
 </div>
-<button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">abrir formulario</button>
+<button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">abrir formulario</button> -->
+<br>
+<br>
+<br>
+<h1>TESTE</h1>
+
+<p>Total de objetivos: {{ objetivos().length }}</p>
+
+<div *ngFor="let objetivo of objetivos()">
+  <p>{{ objetivo.codigo }} - {{ objetivo.descricao }}</p>
+</div>
 

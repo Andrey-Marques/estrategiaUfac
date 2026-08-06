@@ -3,3 +3,8 @@ export interface ObjetivoEstrategico{
     codigo: string;
     descricao: string;
 }
+
+export interface CriarObjetivoEstrategico {
+  codigo: string;
+  descricao: string;
+}
