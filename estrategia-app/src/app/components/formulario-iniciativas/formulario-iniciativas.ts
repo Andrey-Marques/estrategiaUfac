@@ -19,7 +19,7 @@ export class FormularioIniciativas implements OnInit {
 
   ngOnInit(): void {
 
-    this.objetivoService.listar().subscribe({
+    this.objetivoService.get().subscribe({
       next: (dados) => {
         console.log('Dados recebidos:', dados);
         this.objetivos.set(dados);

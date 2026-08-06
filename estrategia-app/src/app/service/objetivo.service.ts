@@ -11,7 +11,7 @@ export class ObjetivoService {
 
   constructor(private http: HttpClient){}
 
-  listar(){
+  get(){
     return this.http.get<ObjetivoEstrategico[]>(this.apiUrl);
   }
 
