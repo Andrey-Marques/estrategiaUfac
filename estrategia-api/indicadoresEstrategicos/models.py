@@ -23,13 +23,13 @@ class EvolucaoIndicador(models.Model):
     meta_prevista = models.CharField(max_length=25)
     meta_alcancada = models.CharField(max_length=25)
     ano = models.CharField(max_length=25)
-    indicador = models.ForeignKey(IndicadorEstrategico, on_delete=models.CASCADE, related_name='indicadore_estrategico')
+    indicador = models.ForeignKey(IndicadorEstrategico, on_delete=models.CASCADE, related_name='evolucao_indicador')
     
     class Meta:
         verbose_name = 'Evoluçaõ Indicador'
         verbose_name_plural = 'Evoluções indicador'
         
     def __str__(self):
-        return self.ano, self.meta_alcancada
+        return f"{self.ano} - {self.meta_alcancada}"
         
     

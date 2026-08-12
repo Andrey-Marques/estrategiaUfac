@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/', include('objetivosEstrategicos.urls')),
     path('api/', include('projetosEstrategicos.urls')),
     path('api/', include('iniciativasEstrategicas.urls')),
+    path('api/', include('indicadoresEstrategicos.urls')),
 ]

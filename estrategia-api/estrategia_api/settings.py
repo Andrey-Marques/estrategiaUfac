@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'projetosEstrategicos',
     'objetivosEstrategicos',
     'corsheaders',
+    'indicadoresEstrategicos',
 ]
 
 MIDDLEWARE = [
