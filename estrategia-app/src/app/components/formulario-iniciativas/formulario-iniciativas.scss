@@ -1,4 +1,185 @@
+.formulario-iniciativas {
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* CABEÇALHO*/
+
+.cabecalho-formulario {
+  min-height: 58px;
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #071a5c;
+  color: #ffffff;
+
+   h1 {
+    margin: 0rem;
+  
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+    p {
+    margin: 4px 0 0;
+    font-size: 10px;
+    color: #ffffff;
+  }
+}
+/* ETAPAS */
+
+.etapas-formulario {
+  min-height: 40px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.etapa-formulario {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 38px;
+  font-size: 12px;
+  color: #888888;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.etapa-formulario.etapa-atual {
+  color: #08206b;
+}
+
+.etapa-formulario.etapa-concluida {
+  color: #08206b;
+}
+
+.numero-etapa {
+  font-weight: 600;
+}
+
+/* CONTEÚDO */
+
+.conteudo-formulario {
+  padding: 17px 30px 25px;
+  .titulo-secao {
+    margin-bottom: 20px;
+    h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: #222222;
+    }
+    p {
+      margin: 3px 0 0;
+      font-size: 10px;
+      color: #777777;
+    }
+  }
+  hr{
+    margin: 0;
+  }
+}
+
+
+
+/* =========================================
+   CAMPOS
+   ========================================= */
+
+.campo-formulario {
+  display: flex;
+  flex-direction: column;
+}
+
+.campo-formulario label {
+  margin-bottom: 5px;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  color: #555555;
+}
+
+.campo-obrigatorio {
+  color: #333333;
+}
+
+.campo-formulario .form-control {
+  height: 27px;
+
+  padding: 4px 9px;
+
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+
+  font-size: 10px;
+
+  color: #555555;
+
+  box-shadow: none;
+}
+
+.campo-formulario .form-control::placeholder {
+  color: #999999;
+}
+
+.campo-formulario .form-control:focus {
+  border-color: #0d6efd;
+
+  box-shadow:
+    0 0 0 2px rgba(13, 110, 253, 0.08);
+}
+
+.campo-titulo-iniciativa {
+  margin-bottom: 17px;
+}
+
+
+/* =========================================
+   RESPONSÁVEL E UNIDADE
+   ========================================= */
+
+.linha-informacoes {
+  display: flex;
+
+  gap: 43px;
+
+  margin-bottom: 23px;
+}
+
+.campo-responsavel {
+  flex: 1;
+}
+
+.campo-unidade {
+  flex: 1;
+}
+
+
+/* OBJETIVOS ESTRATÉGICOS */
+
+.titulo-objetivos h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.titulo-objetivos p {
+  margin: 4px 0 8px;
+  font-size: 10px;
+  color: #777777;
+}
+
 .objetivos-area{
+    margin-top: 10px;
     display: grid;
     grid-template-columns: auto auto auto auto;
     gap: 10px;
@@ -23,3 +204,154 @@
         }
     }
 }
+/* =========================================
+   CARREGAMENTO
+   ========================================= */
+
+.mensagem-carregando {
+  min-height: 80px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  color: #777777;
+
+  font-size: 10px;
+}
+
+.mensagem-carregando .spinner-border {
+  color: #0d6efd;
+}
+
+
+/* =========================================
+   RODAPÉ
+   ========================================= */
+
+.rodape-formulario {
+  padding: 0 30px 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.texto-orientacao {
+  margin: 0;
+
+  font-size: 7px;
+
+  color: #888888;
+}
+
+.botoes-navegacao {
+  display: flex;
+
+  gap: 7px;
+}
+
+.botao-anterior,
+.botao-proximo {
+  min-width: 85px;
+  height: 31px;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.botao-anterior {
+  border: 1px solid #eeeeee;
+
+  background-color: #ffffff;
+
+  color: #cccccc;
+}
+
+.botao-anterior:not(:disabled):hover {
+  background-color: #f5f5f5;
+
+  color: #666666;
+}
+
+.botao-proximo {
+  border: 1px solid #06236e;
+
+  background-color: #06236e;
+
+  color: #ffffff;
+}
+
+.botao-proximo:hover {
+  border-color: #041b58;
+
+  background-color: #041b58;
+
+  color: #ffffff;
+}
+
+
+// /* =========================================
+//    RESPONSIVIDADE
+//    ========================================= */
+
+// @media (max-width: 768px) {
+
+//   .formulario-iniciativas {
+//     margin: 10px;
+//   }
+
+//   .conteudo-formulario {
+//     padding: 17px 20px 25px;
+//   }
+
+//   .linha-informacoes {
+//     flex-direction: column;
+
+//     gap: 15px;
+//   }
+
+//   .grade-objetivos {
+//     grid-template-columns: repeat(3, 1fr);
+//   }
+
+//   .etapa-formulario {
+//     margin-right: 15px;
+
+//     font-size: 10px;
+//   }
+
+//   .rodape-formulario {
+//     padding-left: 20px;
+//     padding-right: 20px;
+//   }
+// }
+
+
+// @media (max-width: 576px) {
+
+//   .cabecalho-formulario h1 {
+//     font-size: 11px;
+//   }
+
+//   .etapas-formulario {
+//     overflow-x: auto;
+//   }
+
+//   .grade-objetivos {
+//     grid-template-columns: repeat(2, 1fr);
+//   }
+
+//   .texto-orientacao {
+//     display: none;
+//   }
+
+//   .rodape-formulario {
+//     justify-content: flex-end;
+//   }
+
+// }

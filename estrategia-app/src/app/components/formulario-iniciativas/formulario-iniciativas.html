@@ -1,44 +1,87 @@
-<!-- <div class=" modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+<button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">abrir formulario</button>
+
+<div class=" modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
   <div class=" modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
+      <div class="formulario-iniciativas">
 
-       <div class="d-flex justify-content-between p-3 bg-primary-subtle">
-        <div>
+        <!-- CABEÇALHO -->
+        <div class="cabecalho-formulario">
           <div>
-            <h1 class="modal-title fs-5" id="exampleModalToggleLabel">RELATÓRIO DE MONITORAMENTO DAS INICIATIVAS ESTRATÉGICAS</h1>
-            <small class="m-0">Insira as informações técnicas para o preenchimento oficial do PDI</small>
+            <h1>RELATÓRIO DE MONITORAMENTO DAS INICIATIVAS ESTRATÉGICAS</h1>
+            <p>Insira as informações técnicas para o preenchimento oficial do PDI</p>
           </div>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+        <!-- ETAPAS DO FORMULÁRIO -->
+        <div class="etapas-formulario">
+          <div class="etapa-formulario etapa-atual" >
+            <span>1. Apresentação</span>
+          </div>
 
-      <div class="etapas-form d-flex gap-5">
-        <span>1. Apresentação</span>
-        <span>2. Ações e Evolução</span>
-        <span>3. Observações</span>
-      </div>
-      <hr class="m-0">
-      <div class="pt-0 modal-body ">
-        <form action="" class="mt-2">
+          <div class="etapa-formulario">
+            <span>2. Ações e Evolução</span>
+          </div>
 
-          <div class="etapa1">
-            <div class="titulo-etapa">
-              <h2 class="modal-title fs-5">Passo 1: Identificação Geral & Objetivos</h2>
-              <small>Informe os dados básicos da iniciativa </small>
-              <hr class="mt-0">
+          <div class="etapa-formulario">
+            <span>3. Observações</span>
+          </div>
+        </div>
+
+        <!-- PRIMEIRA ETAPA -->
+        <form>
+          <div class="conteudo-formulario">
+            <!-- TÍTULO DA SEÇÃO -->
+            <div class="titulo-secao">
+              <h2>Passo 1: Identificação Geral &amp; Objetivos</h2>
+              <p>
+                Informe os dados básicos da iniciativa
+              </p>
+              <hr>
             </div>
-            <div>
-              <label for="titulo-iniciativa">TITULO DA INICIATIVA <span>*</span></label>
-              <input type="text" name="titulo-iniciativa">
+            <!-- TÍTULO DA INICIATIVA -->
+            <div class="campo-formulario campo-titulo-iniciativa">
+              <label for="tituloIniciativa">
+                TÍTULO DA INICIATIVA
+                <span class="campo-obrigatorio">*</span>
+              </label>
 
-              <label for="responsavel">RESPONSAVEL PELO PREENCHIMENTO <span>*</span></label>
-              <input type="text" name="responsavel">
-
-              <label for="unidade">UNIDADE RESPONSAVEL <span>*</span></label>
-              <input type="text" name="unidade">
+              <input id="tituloIniciativa" type="text" class="form-control" placeholder="Insira o título aqui">
             </div>
-            <hr>
-            <div class="objetivos-area ">
+
+            <!-- RESPONSÁVEL E UNIDADE -->
+            <div class="linha-informacoes">
+              <!-- RESPONSÁVEL -->
+              <div class="campo-formulario campo-responsavel">
+                <label for="responsavelPreenchimento">
+                  RESPONSÁVEL PELO PREENCHIMENTO
+                  <span class="campo-obrigatorio">*</span>
+                </label>
+
+                <input id="responsavelPreenchimento" type="text" class="form-control"  placeholder="NOME COMPLETO " >
+              </div>
+
+              <!-- UNIDADE -->
+              <div class="campo-formulario campo-unidade">
+                <label for="unidadeResponsavel">
+                  UNIDADE RESPONSÁVEL
+                </label>
+
+                <input id="unidadeResponsavel" type="text" class="form-control"  placeholder="UNIDADE RESPONSÁVEL" >
+              </div>
+
+            </div>
+            <!-- OBJETIVOS ESTRATÉGICOS -->
+            <section class="secao-objetivos">
+              
+              <div class="titulo-objetivos">
+                <h2>Objetivos Estratégicos</h2>
+                <p>
+                  Selecione quais objetivos institucionais a iniciativa atende
+                </p>
+              </div>
+              <hr>
+              <!-- LISTA DE OBJETIVOS -->
+              <div class="objetivos-area ">
               <label class="objetivos-cards">
                 <input class="form-check-input rounded-circle" type="checkbox" name="OE1" id="">
                 <span class="codigoobj"><strong>OE1</strong></span><br>
@@ -60,25 +103,30 @@
                 <span class="nomeobj">Ampliar o numero de profissionais formados e qualificados</span>
               </label>
             </div>
+            </section>
+
+            <hr>
+          </div>
+          <!-- RODAPÉ -->
+          <div class="rodape-formulario">
+            <p class="texto-orientacao"> * Navegue de forma segura usando os botões ao lado</p>
+
+            <div class="botoes-navegacao">
+
+              <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1">
+                <i class="bi bi-chevron-left"></i> Anterior
+              </button>
+
+              <button type="button" class="btn botao-proximo" (click)="avancar()">
+                Próximo <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
           </div>
         </form>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-danger" data-bs-dismiss="modal" data-bs-toggle="modal">fechar</button>
-      </div>
     </div>
   </div>
-
 </div>
-<button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">abrir formulario</button> -->
-<br>
-<br>
-<br>
-<h1>TESTE</h1>
 
-<p>Total de objetivos: {{ objetivos().length }}</p>
 
-<div *ngFor="let objetivo of objetivos()">
-  <p>{{ objetivo.codigo }} - {{ objetivo.descricao }}</p>
-</div>
 
