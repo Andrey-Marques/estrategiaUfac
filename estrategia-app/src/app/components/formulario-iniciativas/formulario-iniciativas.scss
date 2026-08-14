@@ -1,8 +1,11 @@
+.modal-dialog {
+  max-width: 700px;
+}
 .formulario-iniciativas {
   width: 100%;
   background-color: #ffffff;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -19,19 +22,18 @@
 
    h1 {
     margin: 0rem;
-  
-    font-size: 15px;
+
+    font-size: 18px;
     font-weight: 700;
     line-height: 1.2;
   }
     p {
     margin: 4px 0 0;
-    font-size: 10px;
+    font-size: 12px;
     color: #ffffff;
   }
 }
 /* ETAPAS */
-
 .etapas-formulario {
   min-height: 40px;
   padding: 0 16px;
@@ -39,35 +41,33 @@
   align-items: center;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e5e5;
+  .etapa-formulario {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 38px;
+    font-size: 15px;
+    color: #888888;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+  .etapa-formulario.etapa-atual {
+    color: #08206b;
+  }
+
+  .etapa-formulario.etapa-concluida {
+    color: #08206b;
+  }
+
+  .numero-etapa {
+    font-weight: 600;
+  }
 }
 
-.etapa-formulario {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-right: 38px;
-  font-size: 12px;
-  color: #888888;
-  white-space: nowrap;
-  font-weight: bold;
-}
-
-.etapa-formulario.etapa-atual {
-  color: #08206b;
-}
-
-.etapa-formulario.etapa-concluida {
-  color: #08206b;
-}
-
-.numero-etapa {
-  font-weight: 600;
-}
-
-/* CONTEÚDO */
+/* titulo */
 
 .conteudo-formulario {
-  padding: 17px 30px 25px;
+  padding: 17px 30px ;
   .titulo-secao {
     margin-bottom: 20px;
     h2 {
@@ -89,9 +89,7 @@
 
 
 
-/* =========================================
-   CAMPOS
-   ========================================= */
+/* CAMPOS */
 
 .campo-formulario {
   display: flex;
@@ -100,10 +98,8 @@
 
 .campo-formulario label {
   margin-bottom: 5px;
-
-  font-size: 9px;
-  font-weight: 600;
-
+  font-size: 11px;
+  font-weight: 700;
   color: #555555;
 }
 
@@ -113,58 +109,43 @@
 
 .campo-formulario .form-control {
   height: 27px;
-
   padding: 4px 9px;
-
   border: 1px solid #dddddd;
   border-radius: 8px;
-
-  font-size: 10px;
-
-  color: #555555;
-
+  font-size: 11px;
+  color: #858484;
   box-shadow: none;
 }
 
 .campo-formulario .form-control::placeholder {
-  color: #999999;
+  color: #6e6e6e;
 }
 
 .campo-formulario .form-control:focus {
   border-color: #0d6efd;
-
   box-shadow:
     0 0 0 2px rgba(13, 110, 253, 0.08);
 }
-
 .campo-titulo-iniciativa {
   margin-bottom: 17px;
 }
 
 
-/* =========================================
-   RESPONSÁVEL E UNIDADE
-   ========================================= */
+/* RESPONSÁVEL E UNIDADE */
 
 .linha-informacoes {
   display: flex;
-
   gap: 43px;
-
   margin-bottom: 23px;
+  .campo-responsavel {
+    flex: 1;
+  }
+  .campo-unidade {
+    flex: 1;
+  }
 }
-
-.campo-responsavel {
-  flex: 1;
-}
-
-.campo-unidade {
-  flex: 1;
-}
-
 
 /* OBJETIVOS ESTRATÉGICOS */
-
 .titulo-objetivos h2 {
   margin: 0;
   font-size: 15px;
@@ -179,61 +160,43 @@
 }
 
 .objetivos-area{
-    margin-top: 10px;
+    margin: 10px 0 10px 0;
     display: grid;
     grid-template-columns: auto auto auto auto;
     gap: 10px;
-    .objetivos-cards{  
+
+    .objetivos-cards{
         padding: 5px;
         text-align: center;
-        display: inline-block;
-        width: 175px;
+        width: auto;
         border: solid 1px #e0e0e0;
-        border-radius: 10px; 
+        border-radius: 10px;
         display: grid;
         grid-template-columns: auto auto ;
+        cursor: pointer;
         input{
             border: 1px solid #7F7F7F;
             width: 20px;
         }
         .codigoobj{
-            font-size: 16px;
+          font-size: 13px;
+
+          transition: all 0.2s ease;
+        }
+        .codigoobj:hover {
+          color: #0d6efd;
+          text-decoration: underline;
         }
         .nomeobj{
-            font-size: 11px;
+            font-size: 10px;
         }
     }
 }
-/* =========================================
-   CARREGAMENTO
-   ========================================= */
 
-.mensagem-carregando {
-  min-height: 80px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  color: #777777;
-
-  font-size: 10px;
-}
-
-.mensagem-carregando .spinner-border {
-  color: #0d6efd;
-}
-
-
-/* =========================================
-   RODAPÉ
-   ========================================= */
+/* RODAPÉ */
 
 .rodape-formulario {
   padding: 0 30px 10px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -241,9 +204,7 @@
 
 .texto-orientacao {
   margin: 0;
-
-  font-size: 7px;
-
+  font-size: 11px;
   color: #888888;
 }
 
@@ -293,65 +254,3 @@
 
   color: #ffffff;
 }
-
-
-// /* =========================================
-//    RESPONSIVIDADE
-//    ========================================= */
-
-// @media (max-width: 768px) {
-
-//   .formulario-iniciativas {
-//     margin: 10px;
-//   }
-
-//   .conteudo-formulario {
-//     padding: 17px 20px 25px;
-//   }
-
-//   .linha-informacoes {
-//     flex-direction: column;
-
-//     gap: 15px;
-//   }
-
-//   .grade-objetivos {
-//     grid-template-columns: repeat(3, 1fr);
-//   }
-
-//   .etapa-formulario {
-//     margin-right: 15px;
-
-//     font-size: 10px;
-//   }
-
-//   .rodape-formulario {
-//     padding-left: 20px;
-//     padding-right: 20px;
-//   }
-// }
-
-
-// @media (max-width: 576px) {
-
-//   .cabecalho-formulario h1 {
-//     font-size: 11px;
-//   }
-
-//   .etapas-formulario {
-//     overflow-x: auto;
-//   }
-
-//   .grade-objetivos {
-//     grid-template-columns: repeat(2, 1fr);
-//   }
-
-//   .texto-orientacao {
-//     display: none;
-//   }
-
-//   .rodape-formulario {
-//     justify-content: flex-end;
-//   }
-
-// }
