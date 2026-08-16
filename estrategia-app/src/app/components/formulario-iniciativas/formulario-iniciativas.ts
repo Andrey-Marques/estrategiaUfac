@@ -1,244 +1,136 @@
-import { ObjetivoService } from './../../service/objetivo.service';
 import { Component, OnInit, signal } from '@angular/core';
-import {
-  ObjetivoEstrategico,
-  CriarObjetivoEstrategico
-} from '../../model/objetivoEstrategico';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ObjetivoService } from './../../service/objetivo.service';
+import { ObjetivoEstrategico } from '../../model/objetivoEstrategico';
+
+export interface AcaoIniciativa {
+  descricaoAcao: string;
+  prazoInicio: string;
+  prazoFim: string;
+  custoEstimado: string;
+  statusAtual: string;
+}
 
 @Component({
   selector: 'app-formulario-iniciativas',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule
-  ],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './formulario-iniciativas.html',
-  styleUrl: './formulario-iniciativas.scss',
+  styleUrls: ['./formulario-iniciativas.scss']
 })
 export class FormularioIniciativas implements OnInit {
-
   objetivos = signal<ObjetivoEstrategico[]>([]);
-
+  acoesIniciativa = signal<AcaoIniciativa[]>([]);
   formularioIniciativa: FormGroup;
-
+  formularioAcaoInterno: FormGroup;
   etapaAtual = 1;
+  submodalAcaoAberto = false;
 
-  constructor(
-    private objetivoService: ObjetivoService,
-    private construtorFormulario: FormBuilder
-  ) {
-
+  constructor(private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder) {
     this.formularioIniciativa = this.construtorFormulario.group({
-
-      tituloIniciativa: [
-        '',
-        Validators.required
-      ],
-
-      responsavelPreenchimento: [
-        '',
-        Validators.required
-      ],
-
-      unidadeResponsavel: [
-        ''
-      ],
-
-      objetivosEstrategicos: [
-        [],
-        Validators.required
-      ]
-
+      tituloIniciativa: ['', Validators.required],
+      responsavelPreenchimento: ['', Validators.required],
+      unidadeResponsavel: [''],
+      objetivosEstrategicos: [[], Validators.required],
+      evolucaoPercentual: [50, [Validators.required, Validators.min(0), Validators.max(100)]],
+      observacoes: ['']
     });
 
+    this.formularioAcaoInterno = this.construtorFormulario.group({
+      descricaoAcao: ['', Validators.required],
+      prazoInicio: ['', Validators.required],
+      prazoFim: ['', Validators.required],
+      custoEstimado: ['', Validators.required],
+      statusAtual: ['nao-iniciada', Validators.required]
+    });
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void { this.buscarObjetivosEstrategicos(); }
 
-    this.buscarObjetivosEstrategicos();
-
-  }
-
-
-  /**
-   * Busca os objetivos estratégicos cadastrados no sistema.
-   */
   buscarObjetivosEstrategicos(): void {
-
     this.objetivoService.get().subscribe({
-
-      next: (dados) => {
-
-        console.log('Dados recebidos:', dados);
-
-        this.objetivos.set(dados);
-
-        console.log(
-          'Quantidade de objetivos:',
-          this.objetivos().length
-        );
-
-      },
-
-      error: (erro) => {
-
-        console.error(
-          'Erro ao buscar objetivos estratégicos:',
-          erro
-        );
-
-      }
-
+      next: (dados) => this.objetivos.set(dados),
+      error: (erro) => console.error('Erro ao buscar objetivos estratégicos:', erro)
     });
-
   }
 
-
-  /**
-   * Adiciona ou remove um objetivo estratégico
-   * da lista de objetivos selecionados.
-   */
-  selecionarObjetivo(
-    objetivo: ObjetivoEstrategico,
-    evento: Event
-  ): void {
-
-    const caixaSelecao =
-      evento.target as HTMLInputElement;
-
-    const objetivosSelecionados =
-      this.formularioIniciativa.get(
-        'objetivosEstrategicos'
-      )?.value || [];
-
-    if (caixaSelecao.checked) {
-
-      this.formularioIniciativa.patchValue({
-
-        objetivosEstrategicos: [
-          ...objetivosSelecionados,
-          objetivo.id
-
-        ]
-
-      });
-
-    } else {
-
-      this.formularioIniciativa.patchValue({
-
-        objetivosEstrategicos:
-          objetivosSelecionados.filter(
-            (id: number) => id !== objetivo.id
-          )
-
-      });
-
-    }
-
+  selecionarObjetivo(objetivo: ObjetivoEstrategico, evento: Event): void {
+    const caixaSelecao = evento.target as HTMLInputElement;
+    const selecionados = this.formularioIniciativa.get('objetivosEstrategicos')?.value || [];
+    const novos = caixaSelecao.checked ? [...selecionados, objetivo.id] : selecionados.filter((id: number) => id !== objetivo.id);
+    this.formularioIniciativa.patchValue({ objetivosEstrategicos: novos });
+    this.formularioIniciativa.get('objetivosEstrategicos')?.markAsTouched();
   }
 
-
-  /**
-   * Verifica se determinado objetivo está selecionado.
-   */
-  objetivoEstaSelecionado(
-    objetivo: ObjetivoEstrategico
-  ): boolean {
-
-    const objetivosSelecionados =
-      this.formularioIniciativa.get(
-        'objetivosEstrategicos'
-      )?.value || [];
-
-    return objetivosSelecionados.includes(
-      objetivo.id
-    );
-
+  objetivoEstaSelecionado(objetivo: ObjetivoEstrategico): boolean {
+    return (this.formularioIniciativa.get('objetivosEstrategicos')?.value || []).includes(objetivo.id);
   }
 
+  abrirSubmodalAcao(): void {
+    this.formularioAcaoInterno.reset({ descricaoAcao: '', prazoInicio: '', prazoFim: '', custoEstimado: '', statusAtual: 'nao-iniciada' });
+    this.submodalAcaoAberto = true;
+  }
 
-  /**
-   * Avança para a próxima etapa do formulário.
-   */
-  avancar(): void {
+  fecharSubmodalAcao(): void { this.submodalAcaoAberto = false; }
 
-    if (this.etapaAtual === 1) {
-
-      if (
-        this.formularioIniciativa.get(
-          'tituloIniciativa'
-        )?.invalid
-      ) {
-
-        this.formularioIniciativa
-          .get('tituloIniciativa')
-          ?.markAsTouched();
-
-        return;
-
-      }
-
-      const objetivosSelecionados =
-        this.formularioIniciativa.get(
-          'objetivosEstrategicos'
-        )?.value || [];
-
-      if (objetivosSelecionados.length === 0) {
-
-        alert(
-          'Selecione pelo menos um Objetivo Estratégico.'
-        );
-
-        return;
-
-      }
-
-      this.etapaAtual = 2;
-
+  adicionarAcaoIniciativa(): void {
+    if (this.formularioAcaoInterno.invalid) {
+      this.formularioAcaoInterno.markAllAsTouched();
+      alert('Preencha todos os campos da ação.');
       return;
-
     }
-
-    if (this.etapaAtual < 3) {
-
-      this.etapaAtual++;
-
-    }
-
+    this.acoesIniciativa.update(lista => [...lista, this.formularioAcaoInterno.value]);
+    this.fecharSubmodalAcao();
   }
 
+  removerAcaoIniciativa(indiceAcao: number): void {
+    this.acoesIniciativa.update(lista => lista.filter((_, i) => i !== indiceAcao));
+  }
 
-  /**
-   * Volta para a etapa anterior do formulário.
-   */
-  voltar(): void {
+  validarEvolucaoPercentual(evento: Event): void {
+    const valor = Math.min(100, Math.max(0, Number((evento.target as HTMLInputElement).value)));
+    this.formularioIniciativa.patchValue({ evolucaoPercentual: valor });
+  }
 
-    if (this.etapaAtual > 1) {
+  obterRotuloStatus(status: string): string {
+    const mapa: Record<string, string> = { 'nao-iniciada': 'Não iniciada', 'em-execucao': 'Em execução', 'concluida': 'Concluída' };
+    return mapa[status] || status;
+  }
 
-      this.etapaAtual--;
+  irParaEtapa(numeroEtapa: number): void {
+    if (numeroEtapa === this.etapaAtual) return;
+    if (this.etapaAtual === 1 && numeroEtapa > 1 && !this.validarEtapaUm()) return;
+    this.etapaAtual = numeroEtapa;
+  }
 
+  private validarEtapaUm(): boolean {
+    const campoTitulo = this.formularioIniciativa.get('tituloIniciativa');
+    const campoResp = this.formularioIniciativa.get('responsavelPreenchimento');
+    if (campoTitulo?.invalid) campoTitulo.markAsTouched();
+    if (campoResp?.invalid) campoResp.markAsTouched();
+    const selecionados = this.formularioIniciativa.get('objetivosEstrategicos')?.value || [];
+    if (selecionados.length === 0) alert('Selecione pelo menos um Objetivo Estratégico.');
+    return !campoTitulo?.invalid && !campoResp?.invalid && selecionados.length > 0;
+  }
+
+  avancar(): void {
+    if (this.etapaAtual === 1) { if (this.validarEtapaUm()) this.etapaAtual = 2; return; }
+    if (this.etapaAtual < 3) this.etapaAtual++;
+  }
+
+  voltar(): void { if (this.etapaAtual > 1) this.etapaAtual--; }
+
+  salvarRascunho(): void {
+    console.log('Rascunho salvo:', { ...this.formularioIniciativa.value, acoes: this.acoesIniciativa() });
+  }
+
+  submeterParaAnalise(): void {
+    if (this.formularioIniciativa.invalid) {
+      this.formularioIniciativa.markAllAsTouched();
+      alert('Preencha todos os campos obrigatórios antes de submeter.');
+      return;
     }
-
+    console.log('Enviado para análise:', { ...this.formularioIniciativa.value, acoes: this.acoesIniciativa() });
   }
-
-
-  /**
-   * Retorna os dados preenchidos no formulário.
-   */
-  obterDadosFormulario(): void {
-
-    console.log(
-      'Dados do formulário:',
-      this.formularioIniciativa.value
-    );
-
-  }
-
 }
