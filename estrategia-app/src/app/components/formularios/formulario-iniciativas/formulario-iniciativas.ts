@@ -1,8 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ObjetivoService } from './../../service/objetivo.service';
-import { ObjetivoEstrategico } from '../../model/objetivoEstrategico';
+import { ObjetivoService } from '../../../service/objetivo.service';
+import { ObjetivoEstrategico } from '../../../model/objetivoEstrategico';
 
 export interface AcaoIniciativa {
   descricaoAcao: string;

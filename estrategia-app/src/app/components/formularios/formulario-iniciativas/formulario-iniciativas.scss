@@ -1,25 +1,4 @@
-$cor-primaria-cabecalho: #071a5c;
-$cor-primaria-botao: #06236e;
-$cor-primaria-botao-hover: #041b58;
-$cor-primaria-texto-destaque: #08206b;
-$cor-foco-formulario: #0d6efd;
-$cor-fundo-branco: #ffffff;
-$cor-texto-titulo: #222222;
-$cor-texto-subtitulo: #333333;
-$cor-texto-rotulo: #555555;
-$cor-texto-auxiliar: #777777;
-$cor-texto-desativado: #888888;
-$cor-texto-placeholder: #6e6e6e;
-$cor-obrigatorio: #ad0000;
-$cor-borda-principal: #dddddd;
-$cor-borda-secundaria: #e5e5e5;
-$cor-borda-card: #bbbbbb;
-$cor-fundo-cabecalho-tabela: #e9ecef;
-$cor-fundo-botao-cancelar: #e5e5e5;
-$cor-fundo-botao-cancelar-hover: #d8d8d8;
-$cor-sobreposicao-escuro: rgba(0, 0, 0, 0.4);
-$cor-sucesso-submeter: #0d6828;
-$cor-sucesso-submeter-hover: #084c19;
+@use '../../../../styles.scss' as *;
 
 .sumir { display: none !important; }
 .modal-dialog { max-width: 800px; }
@@ -40,7 +19,7 @@ $cor-sucesso-submeter-hover: #084c19;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: $cor-primaria-cabecalho;
+  background-color: $cor-primaria;
   color: $cor-fundo-branco;
 
   h1 { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.2; }
@@ -79,7 +58,7 @@ $cor-sucesso-submeter-hover: #084c19;
         position: absolute;
         bottom: -1px; left: 0;
         width: 100%; height: 3px;
-        background-color: $cor-primaria-cabecalho;
+        background-color: $cor-primaria;
         border-radius: 2px 2px 0 0;
       }
     }
@@ -152,7 +131,7 @@ $cor-sucesso-submeter-hover: #084c19;
       .selecao-objetivo {
         width: 22px; height: 22px; margin: 0;
         border: 1.5px solid #858585; border-radius: 6px; cursor: pointer;
-        &:checked { background-color: $cor-primaria-cabecalho; border-color: $cor-primaria-cabecalho; }
+        &:checked { background-color: $cor-primaria; border-color: $cor-primaria; }
         &:focus { box-shadow: none; }
       }
 
@@ -272,7 +251,7 @@ $cor-sucesso-submeter-hover: #084c19;
     border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
     .cabecalho-modal-acao {
-      background-color: $cor-primaria-cabecalho; color: $cor-fundo-branco;
+      background-color: $cor-primaria; color: $cor-fundo-branco;
       padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;
       .titulo-modal-acao { font-size: 15px; font-weight: 700; margin: 0; }
       .btn-close { filter: invert(1); }
@@ -334,7 +313,7 @@ $cor-sucesso-submeter-hover: #084c19;
 }
 
 .botao-salvar-rascunho {
-  padding: 0 16px; border: 1px solid $cor-primaria-cabecalho; background-color: $cor-primaria-cabecalho; color: $cor-fundo-branco;
+  padding: 0 16px; border: 1px solid $cor-primaria; background-color: $cor-primaria; color: $cor-fundo-branco;
   &:hover { background-color: $cor-primaria-botao-hover; border-color: $cor-primaria-botao-hover; color: $cor-fundo-branco; }
 }
 
