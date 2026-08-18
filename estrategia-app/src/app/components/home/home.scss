@@ -1,14 +1,201 @@
-body{
+
+.layout-principal{
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+//----------Conteudo Principal
+.conteudo-principal{
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+
+    padding: 40px 60px;
+    box-sizing: border-box;}
+
+
+.div-home{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    align-self: center;
+
+    width: 95%;           
+    height: auto;          
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f8f8;
+
+    padding: 40px;         
+    margin-bottom: 40px;   
+    
+    background-color: #003366; 
+    border-radius: 5px;    
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+
+    font-family: var(--fonte-padrao1);
+    color: var(--cor-branco);
 }
 
-header{
+.div-home p{
+    font-family: var(--fonte-padrao1);
+    font-weight: lighter;
+    max-width: 700px;
+}
+
+.div-home h3{
+    font-weight: 600;
+}
+
+.usuario-tipo {
+    display: inline-block;
+    padding: 4px 20px;
+    margin-bottom: 15px;
+
+    background-color: #26517C;
+    border: 1px solid   #6785A3; // Borda sutil azul mais clara
+    border-radius: 2px;       // Formato de "pílula"
+
+    font-size: 13px;
+    font-weight: 500;
+    color: #E5E7EB;            // Cor do texto combinando com a borda
+    letter-spacing: 0.5px;
+}
+
+//-------------tabela submissões
+.tabela-espera {
+    background-color: #ffffff;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-family: var(--fonte-padrao1, "Inter", sans-serif);
+    
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden; 
+}
+
+.tabela-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #E5E7EB;
+
+    h4 {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+        color: #6B7280;
+    }
+}
+
+.tabela-tabs {
+    display: flex;
+    flex-direction: row;
+    background-color: #F3F4F6; 
+    border-bottom: 1px solid #E5E7EB;
+
+    .tab-item {
+        flex: 1; 
+        padding: 16px 10px;
+        
+        border: none;
+        background: transparent;
+        
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        color: #4B5563;
+        
+        cursor: pointer;
+        text-align: center;
+        border-bottom: 2px solid transparent; 
+        transition: all 0.2s ease;
+
+        &:hover {
+            background-color: #E5E7EB;
+        }
+
+
+        &.ativo {
+            background-color: #FFFFFF;
+            color: var(--cor-detalhe-azul); 
+            border-bottom: 2px solid #152778; 
+        }
+    }
+}
+
+
+.tabela-conteudo {
+    padding: 40px 24px;
+    min-height: 250px; 
+    display: flex;
+    flex-direction: column;
+}
+
+
+.estado-vazio {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    padding: 20px 15px;
-    background-color: #f8f8f8 ;
+    justify-content: center;
+    flex: 1; 
+    gap: 15px;
+
+    p {
+        margin: 0;
+        font-size: 15px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+}
+
+
+.lista-registros {
+    display: flex;
+    flex-direction: column; 
+    width: 100%;
+
+    .registro-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        padding: 16px 0;
+        border-bottom: 1px solid #E5E7EB; 
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .registro-titulo {
+        font-size: 15px;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .registro-acao {
+        font-size: 13px;
+        color: #152778;
+        font-weight: 600;
+        cursor: pointer;
+        
+        background: #F3F4F6;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+        
+        &:hover {
+            background: #E5E7EB;
+        }
+    }
 }

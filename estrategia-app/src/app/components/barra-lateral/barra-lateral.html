@@ -1,0 +1,75 @@
+    <aside class="menu-lateral" id="menuLateral"  [class.menu-expandido]="menuExpandido">
+
+            <!-- ÁREA DO BOTÃO -->
+            <div class="menu-controle">
+                <button class="botao-recolher" id="botaoMenu" type="button"  (click)="alternarMenu()">
+
+                <svg
+                    class="perfil_menu_seta"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+
+                    <path
+                        d="M9 6L15 12L9 18"
+                        stroke="#9A9A9A"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+
+                </button>
+            </div>
+
+
+            <!-- CONTEÚDO DO MENU -->
+            <nav class="menu-conteudo">
+
+                <div class="menu-titulo">
+                    MENU DE NAVEGAÇÃO
+                </div>
+
+
+                <div class="menu-opcoes">
+
+                    <a href="#" class="menu-item">
+                        <img src="home.png" alt="">
+                        <span>Início</span>
+                    </a>
+
+                    <a href="#" class="menu-item">
+                        <img src="document.png" alt="">
+                        <span>Projetos Estratégicos</span>
+                    </a>
+
+                    <a href="#" class="menu-item">
+                        <img src="chart.png" alt="">
+                        <span>Indicadores Estratégicos</span>
+                    </a>
+
+                    <a href="#" class="menu-item">
+                        <img src="bulb.png" alt="">
+                        <span>Iniciativas Estratégicas</span>
+                    </a>
+
+
+                </div>
+
+
+                <div class="menu-divisor"></div>
+
+
+                <div class="menu-opcoes menu-opcoes-secundarias">
+
+                    <a href="#" class="menu-item">
+                        <img src="user2.png" alt="">
+                        <span>Meu Perfil</span>
+                    </a>
+
+                </div>
+
+            </nav>
+
+    </aside>

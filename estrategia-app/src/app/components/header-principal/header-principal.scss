@@ -1,0 +1,104 @@
+.header_principal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    height: 80px;
+    box-sizing: border-box;
+
+    padding: 0 40px;
+
+    background-color: var(--cor-branco);
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+
+    z-index: 1100;
+    
+    /* Opcional: Adicionar sombra para destacar ao rolar */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+.perfil_usuario{
+    appearance: none;
+    -webkit-appearance: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 240px;
+    height: 50px;
+    padding: 0 10px;
+
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+
+    background-color: #f4f4f4;
+
+}
+
+.perfil_usuario_infos{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.perfil_usuario_infos .unidade_usuario{
+    align-self: flex-start;
+    font-family: "Inter", sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    color: #8f8f8f;
+
+}
+
+.perfil_usuario_infos .nome_usuario{
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+
+}
+
+.perfil_usuario_avatar {
+    width: 30px;
+    height: 30px;
+}
+
+.perfil_usuario_seta {
+    flex-shrink: 0;
+}
+
+.header_infos{
+    display: flex;
+    width: 300px;
+    justify-content: space-between;
+
+    
+}
+.header_tag{
+    display: inline-block;
+
+    padding: 6px 10px;
+
+    background-color: #F3F4F6;
+    color: #1F1F1F;
+
+    border-radius: 3px;
+
+    font-family: "Inter", sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+
+    letter-spacing: 0.02em
+
+}
+
+.header__logo img{
+    width: 32px;
+    height: 32px;
+}

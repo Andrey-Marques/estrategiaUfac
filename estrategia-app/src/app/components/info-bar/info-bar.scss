@@ -1,0 +1,108 @@
+.info-bar {
+    margin-top: 80px;
+    min-height: 120px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    box-sizing: border-box;
+
+    padding: 0 40px;
+    background: linear-gradient(
+    90deg,
+    #223CB0,
+    #1C349E,
+    #182B84,
+    #152778,
+    #0C1B5F,
+    #09164D)
+}
+
+.info-bar_unidade{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+.info-bar_subtitulo{
+    display: block;
+    letter-spacing: 2px;
+    font-weight: 350;
+}
+
+.info-bar_titulo{
+    margin: 0px;
+    font-weight:650 ;
+}
+    
+.info-bar_descricao{
+    margin: 0px;   
+    font-weight: 500;
+}
+
+.info-bar_descricao, .info-bar_titulo, .info-bar_subtitulo{
+    color: #f8f8f8;
+    font-family: var(--fonte-padrao1);
+}
+
+
+.info-bar_contagem {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr 1px 1fr;
+
+    width: 338px;
+    height: 65px;
+
+    box-sizing: border-box;
+
+    padding: 0;
+
+    background-color: #004080;
+
+    border: 1px solid #0055A4;
+    border-radius: 2px;
+}
+
+
+.card-contagem {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 5px 10px;
+}
+
+.card-contagem_valor {
+    color: #f8f8f8;
+    font-family: var(--fonte-padrao1);
+    font-size: 21px;
+    font-weight: 600;
+
+    line-height: 1;
+}
+
+.card-contagem_label {
+    margin-top: 7px;
+
+    color: #f8f8f8;
+
+    font-family: var(--fonte-padrao1);
+    font-size: 8px;
+    font-weight: 500;
+
+    letter-spacing: 1px;
+    text-transform: uppercase;
+
+    line-height: 1;
+}
+
+.divisor_contagem {
+    align-self: center;
+
+    width: 1px;
+    height: 40px;
+
+    background-color: rgba(255, 255, 255, 0.15);
+}
