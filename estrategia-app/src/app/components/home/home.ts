@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BarraLateral } from '../barra-lateral/barra-lateral';
-import { HeaderPrincipal } from '../header-principal/header-principal';
-import { InfoBar } from '../info-bar/info-bar';
+import { BarraLateral } from '../utils/barra-lateral/barra-lateral';
+import { HeaderPrincipal } from '../utils/header-principal/header-principal';
+import { InfoBar } from '../utils/info-bar/info-bar';
 
 
 @Component({

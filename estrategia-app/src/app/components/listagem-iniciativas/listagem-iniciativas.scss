@@ -3,10 +3,11 @@
 body {
   margin: 0;
   width: 100vw;
+  margin-top: 30px;
   display: flex;
   justify-content: center;
 }
-.container {
+.container-fluid {
   margin: 0;
   width: 90%;
 }
@@ -29,8 +30,8 @@ body {
   }
 }
 .container-conteudo {
-  width: 100%;
-  border-radius: 16px;
+  
+  border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   overflow: hidden;

@@ -128,14 +128,12 @@
 .menu-controle {
     width: 100%;
     height: 58px;
-
     display: flex;
     align-items: center;
-    justify-content: center;
-
+    justify-content: flex-end;
     flex-shrink: 0;
-
     border-bottom: 1px solid #D1D5DB;
+    padding-right: 10px;
 }
 
 .menu-conteudo {

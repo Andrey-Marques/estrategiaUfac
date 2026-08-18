@@ -71,34 +71,26 @@
 .perfil_usuario_seta {
     flex-shrink: 0;
 }
-
 .header_infos{
     display: flex;
     width: 300px;
-    justify-content: space-between;
-
-    
+    justify-content: space-evenly;
+    align-items: center;
 }
 .header_tag{
     display: inline-block;
-
     padding: 6px 10px;
-
-    background-color: #F3F4F6;
+    background-color: #e6e6e6;
     color: #1F1F1F;
-
     border-radius: 3px;
-
     font-family: "Inter", sans-serif;
     font-size: 9px;
     font-weight: 700;
     text-transform: uppercase;
-
-    letter-spacing: 0.02em
-
+    letter-spacing: 0.02em;
+    height: 30px;
 }
 
 .header__logo img{
-    width: 32px;
-    height: 32px;
+    width: 60px;
 }
