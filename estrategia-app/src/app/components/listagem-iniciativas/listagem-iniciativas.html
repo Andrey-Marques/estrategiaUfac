@@ -39,10 +39,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="linha-tabela">
+              <tr class="linha-tabela" *ngFor="let iniciativas of iniciativas()">
                 <td class="ps-4">
                   <div class="titulo-iniciativa">
-                    Implantação do Observatório de Dados da Graduação – ODG
+                    {{iniciativas.nome}}
                   </div>
                   <div class="d-flex gap-1 mt-1">
                     <span class="etiqueta">OE2</span>
@@ -50,7 +50,7 @@
                   </div>
                 </td>
                 <td class="text-center">
-                  <strong class="d-block texto-data">20/07/2026</strong>
+                  <strong class="d-block texto-data">{{iniciativas.data_preenchimento | date: 'dd/MM/yyyy'}}</strong>
                   <small class="texto-subtitulo">Última atualização: 2026-07-09</small>
                 </td>
                 <td class="text-center">

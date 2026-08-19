@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ObjetivoService } from '../../../service/objetivo.service';
 import { ObjetivoEstrategico } from '../../../model/objetivoEstrategico';
+import { IniciativaService } from '../../../service/iniciativa.service';
 
 export interface AcaoIniciativa {
   descricaoAcao: string;
@@ -26,8 +27,9 @@ export class FormularioIniciativas implements OnInit {
   formularioAcaoInterno: FormGroup;
   etapaAtual = 1;
   submodalAcaoAberto = false;
+  objetivosSelecionados : number[] = [];
 
-  constructor(private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder) {
+  constructor(private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder, private iniciativaService: IniciativaService) {
     this.formularioIniciativa = this.construtorFormulario.group({
       tituloIniciativa: ['', Validators.required],
       responsavelPreenchimento: ['', Validators.required],
@@ -47,6 +49,38 @@ export class FormularioIniciativas implements OnInit {
   }
 
   ngOnInit(): void { this.buscarObjetivosEstrategicos(); }
+
+  salvarIniciativa():void{
+    const observacoes = this.formularioIniciativa.value.observacoes || '';
+    const dados = {
+      nome : this.formularioIniciativa.value.tituloIniciativa,
+      descricao : observacoes || this.formularioIniciativa.value.tituloIniciativa,
+      responsavel : this.formularioIniciativa.value.responsavelPreenchimento,
+      unidade : this.formularioIniciativa.value.unidadeResponsavel,
+      objetivos : this.formularioIniciativa.value.objetivosEstrategicos,
+      percentual_evolucao : this.formularioIniciativa.value.evolucaoPercentual,
+      observacao: observacoes,
+      status: 'PLANEJAMENTO',
+      acoes: this.acoesIniciativa().map(acao => ({
+        nome: acao.descricaoAcao,
+        prazo_inicio: this.converterDataParaApi(acao.prazoInicio),
+        prazo_fim: this.converterDataParaApi(acao.prazoFim),
+        custo: acao.custoEstimado,
+        status: this.converterStatusParaApi(acao.statusAtual)
+      }))
+    }
+
+    console.log('enviado', dados);
+
+    this.iniciativaService.criarIniciativa(dados).subscribe({
+      next: (resposta) => {
+        console.log('Iniciativa criada', resposta)
+      },
+      error: (erro) => {
+        console.error('Erro ao criar iniciativa', erro);
+      }
+    })
+  }
 
   buscarObjetivosEstrategicos(): void {
     this.objetivoService.get().subscribe({
@@ -93,6 +127,20 @@ export class FormularioIniciativas implements OnInit {
     this.formularioIniciativa.patchValue({ evolucaoPercentual: valor });
   }
 
+  private converterDataParaApi(data: string): string {
+    const partes = data.split('/');
+    return partes.length === 3 ? `${partes[2]}-${partes[1]}-${partes[0]}` : data;
+  }
+
+  private converterStatusParaApi(status: string): string {
+    const mapa: Record<string, string> = {
+      'nao-iniciada': 'PLANEJAMENTO',
+      'em-execucao': 'ANDAMENTO',
+      'concluida': 'CONCLUIDA'
+    };
+    return mapa[status] || status;
+  }
+
   obterRotuloStatus(status: string): string {
     const mapa: Record<string, string> = { 'nao-iniciada': 'Não iniciada', 'em-execucao': 'Em execução', 'concluida': 'Concluída' };
     return mapa[status] || status;
@@ -121,16 +169,6 @@ export class FormularioIniciativas implements OnInit {
 
   voltar(): void { if (this.etapaAtual > 1) this.etapaAtual--; }
 
-  salvarRascunho(): void {
-    console.log('Rascunho salvo:', { ...this.formularioIniciativa.value, acoes: this.acoesIniciativa() });
-  }
-
-  submeterParaAnalise(): void {
-    if (this.formularioIniciativa.invalid) {
-      this.formularioIniciativa.markAllAsTouched();
-      alert('Preencha todos os campos obrigatórios antes de submeter.');
-      return;
-    }
-    console.log('Enviado para análise:', { ...this.formularioIniciativa.value, acoes: this.acoesIniciativa() });
-  }
+  
+ 
 }
