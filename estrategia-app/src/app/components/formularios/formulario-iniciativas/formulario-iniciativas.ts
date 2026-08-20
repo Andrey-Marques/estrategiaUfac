@@ -54,7 +54,6 @@ export class FormularioIniciativas implements OnInit {
     const observacoes = this.formularioIniciativa.value.observacoes || '';
     const dados = {
       nome : this.formularioIniciativa.value.tituloIniciativa,
-      descricao : observacoes || this.formularioIniciativa.value.tituloIniciativa,
       responsavel : this.formularioIniciativa.value.responsavelPreenchimento,
       unidade : this.formularioIniciativa.value.unidadeResponsavel,
       objetivos : this.formularioIniciativa.value.objetivosEstrategicos,

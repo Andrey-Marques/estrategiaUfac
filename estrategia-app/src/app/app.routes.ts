@@ -9,10 +9,6 @@ export const routes: Routes = [
     component: Home
   },
   {
-    path: 'formulario-iniciativas',
-    component: FormularioIniciativas
-  },
-  {
     path: 'listagem-iniciativas',
     component: ListagemIniciativas
   }

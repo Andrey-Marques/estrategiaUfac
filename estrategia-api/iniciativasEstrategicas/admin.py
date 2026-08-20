@@ -1,9 +1,13 @@
 from django.contrib import admin
-from .models import IniciativaEstrategica, AcaoRealizada
+from .models import IniciativaEstrategica, AcaoRealizada, ObjetivoIniciativa
 
 class AcaoRealizadaInline(admin.TabularInline):
     model = AcaoRealizada
     extra = 0
+    
+class ObjetivoIniciativaInline(admin.TabularInline):
+    model = ObjetivoIniciativa
+    extra = 1
 
 @admin.register(IniciativaEstrategica)
 class IniciativaEstrategicaAdmin(admin.ModelAdmin):

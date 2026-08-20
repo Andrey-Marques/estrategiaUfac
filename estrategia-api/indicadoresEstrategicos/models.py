@@ -5,6 +5,7 @@ class IndicadorEstrategico(models.Model):
     nome = models.CharField(max_length=255)
     polaridade = models.CharField(max_length=50)
     finalidade = models.TextField()
+    status = models.CharField(max_length=20)
     metodo_Calculo = models.TextField()  
     formula = models.TextField() #-----deve armazenar o codigo latex da formula------
     unidade = models.ForeignKey('unidades.Unidade', on_delete= models.PROTECT, related_name= "indicador_estrategico" )
