@@ -4,6 +4,7 @@ import { ListagemIniciativas } from './components/listagem-iniciativas/listagem-
 import { Home } from './components/home/home';
 import { TelaCadastro } from './components/tela-cadastro/tela-cadastro';
 
+
 export const routes: Routes = [
   {
     path: 'home',
