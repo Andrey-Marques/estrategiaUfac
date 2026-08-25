@@ -1,18 +1,12 @@
-.layout-cadastro {
-    display: flex;
-    width: 100%;
-    min-height: calc(100vh - 200px);
-    box-sizing: border-box;
-}
-
-.conteudo-principal {
-    flex: 1;
-    padding: 30px 80px;
-    box-sizing: border-box;
-}
 
 
 //-------------CABEÇALHO
+
+.container-cadastro{
+    width: 95%;
+    height: auto;
+    margin: 0 auto;
+}
 .header-cadastro {
     display: flex;
     align-items: center;
@@ -25,7 +19,7 @@
     margin: 0;
     font-family: var(--fonte-padrao1);
     font-size: 26px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--cor-texto-cabecalho);
 
 }
@@ -104,6 +98,7 @@
     color: #333;
 
     line-height: 18px;
+    cursor: pointer;
 }
 
 .filtro-seta {
@@ -111,14 +106,33 @@
     height: 16px;
 
     flex-shrink: 0;
+    transition: transform 0.5s ease;
+}
+.filtro-seta-aberta {
+    transform: rotate(180deg);
+    transition: transform 0.5s;
 }
 
 .opcoes-unidades {
     display: flex;
     flex-wrap: wrap;
+    min-height: 0;
+    overflow: hidden;
 
     gap: 7px;
 }
+
+.opcoes-unidades-wrapper {
+    display: grid;
+    grid-template-rows: 0fr; // fechado = altura zero
+    transition: grid-template-rows 0.3s ease;
+    overflow: hidden;
+
+    &.aberto {
+        grid-template-rows: 1fr; // aberto = altura natural do conteúdo
+    }
+}
+
 
 .filtro-unidade {
     min-width: 58px;

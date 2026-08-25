@@ -25,4 +25,9 @@ export class TelaCadastro {
 
     }
 
+    filtroAberto = false;
+    alternarFiltro(): void{
+      this.filtroAberto = !this.filtroAberto;
+    }
+
 }

@@ -1,0 +1,19 @@
+
+.layout-principal {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: flex-start;
+    min-height: calc(100vh - var(--altura-header) + var(--altura-info-bar));
+}
+
+.conteudo-principal {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 40px 60px;
+}
+
+body {
+    margin: 0;
+}
