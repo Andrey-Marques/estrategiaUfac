@@ -1,0 +1,295 @@
+
+
+<div class="container-cadastro">
+        <header class="header-cadastro">
+
+            <h1 class="titulo-pagina">
+                Usuários Cadastrados
+            </h1>
+
+            <button type="button" class="btn-novo-usuario">
+                + Novo Usuário
+            </button>
+
+        </header>
+
+        <hr class="linha-divisor">
+
+        <section class="filtros-unidades">
+            <div class="filtro-cabecalho" >
+                <span>FILTRO POR UNIDADES</span>
+                <svg [class.filtro-seta-aberta]="filtroAberto" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"  (click)="alternarFiltro()">
+                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+ <!--  -->
+        <div class="opcoes-unidades-wrapper" [class.aberto]="filtroAberto">
+            <div class="opcoes-unidades">
+
+                    <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROPLAN')" (click)="filtrarUnidade('PROPLAN')">
+                        PROPLAN
+                    </button>
+
+                    <button type="button" class="filtro-unidade"[class.unidade-selecionada]="unidades_selecionadas.includes('PROPEG')" (click)="filtrarUnidade('PROPEG')">
+                        PROPEG
+                    </button>
+
+                    <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROGRAD')" (click)="filtrarUnidade('PROGRAD')">
+                        PROGRAD
+                    </button>
+
+                    <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROEX')" (click)="filtrarUnidade('PROEX')">
+                        PROEX
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        PROAS
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        PRAD
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        PRODGEP
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        ASCOM
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        ACI
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        UEPMV
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        UTAL
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        NIED
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        AC
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        EDUFAC
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        CAP
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        BC
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        PZ
+                    </button>
+
+                    <button type="button" class="filtro-unidade">
+                        PREFCAM
+                    </button>
+
+            </div>
+        </div>
+        </section>
+
+
+        <section class="area-tabela">
+
+            <table class="tabela-usuarios">
+
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Unidade</th>
+                        <th>Data de Cadastro</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Fulano Sicrano Da Silva</td>
+
+                        <td>PROGRAD</td>
+
+                        <td>2026-07-09</td>
+
+                        <td>
+                            <span class="status status-ativo">ATIVO</span>
+                        </td>
+
+                        <td class="acoes">
+
+                            <button
+                                type="button"
+                                class="btn-acao"
+                                aria-label="visualizar usuário">
+                                <svg
+                                        width="18"
+                                        height="18"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M2 12C2 12 5.5 6 12 6C18.5 6 22 12 22 12C22 12 18.5 18 12 18C5.5 18 2 12 2 12Z"
+                                            stroke="#667085"
+                                            stroke-width="1.7"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+
+                                        <circle
+                                            cx="12"
+                                            cy="12"
+                                            r="3"
+                                            stroke="#667085"
+                                            stroke-width="1.7"
+                                        />
+                                </svg>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn-acao"
+                                aria-label="excluir usuário">
+                                <svg
+                                        width="18"
+                                        height="18"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M5 7H19"
+                                            stroke="#667085"
+                                            stroke-width="1.7"
+                                            stroke-linecap="round"
+                                        />
+
+                                        <path
+                                            d="M10 4H14"
+                                            stroke="#667085"
+                                            stroke-width="1.7"
+                                            stroke-linecap="round"
+                                        />
+
+                                        <path
+                                            d="M7 7L8 20H16L17 7"
+                                            stroke="#667085"
+                                            stroke-width="1.7"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+
+                                        <path
+                                            d="M10 10V17"
+                                            stroke="#667085"
+                                            stroke-width="1.7"
+                                            stroke-linecap="round"
+                                        />
+
+                                        <path
+                                            d="M14 10V17"
+                                            stroke="#667085"
+                                            stroke-width="1.7"
+                                            stroke-linecap="round"
+                                        />
+                                    </svg>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn-acao"
+                                aria-label="desativar usuário">
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="8.5"
+                                        stroke="#667085"
+                                        stroke-width="1.7"
+                                    />
+
+                                    <path
+                                        d="M8.5 12H15.5"
+                                        stroke="#667085"
+                                        stroke-width="1.7"
+                                        stroke-linecap="round"
+                                    />
+                                </svg>
+
+                            </button>
+
+                        </td>
+                    </tr>
+              
+                </tbody>
+
+            </table>
+
+            <div class="rodape-tabela">
+
+                <span class="quantidade-resultados">
+                    Mostrando 1 até 5 de 97 resultados
+                </span>
+
+                <nav class="paginacao" aria-label="Paginação">
+
+                    <button
+                        type="button"
+                        aria-label="Página anterior"
+                    >
+                        &lt;
+                    </button>
+
+                    <button
+                        type="button"
+                        class="pagina-atual"
+                        aria-current="page"
+                    >
+                        1
+                    </button>
+
+                    <button type="button">
+                        2
+                    </button>
+
+                    <button type="button">
+                        3
+                    </button>
+
+                    <span>...</span>
+
+                    <button
+                        type="button"
+                        aria-label="Próxima página"
+                    >
+                        &gt;
+                    </button>
+
+                </nav>
+
+            </div>
+
+        </section>
+
+ </div>

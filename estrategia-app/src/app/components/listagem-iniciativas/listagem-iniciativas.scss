@@ -9,11 +9,13 @@ body {
 .container-fluid {
   margin: 0;
   width: 90%;
+  height: auto;
 }
 .titulo-pagina {
   color: $cor-primaria-texto-destaque;
   font-weight: 700;
   font-size: 26px;
+  font-family: var(--fonte-padrao1);
 }
 
 .botao-principal {
@@ -58,7 +60,7 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-
+  margin: 0;
 }
 
 .cabecalho-tabela {
@@ -143,8 +145,6 @@ table {
     }
   }
 }
-
-
 //--------------estilização para o modal----------------
 
 .sumir { display: none !important; }
@@ -468,5 +468,3 @@ table {
   padding: 0 16px; border: 1px solid $cor-sucesso-submeter; background-color: $cor-sucesso-submeter; color: $cor-fundo-branco;
   &:hover { background-color: $cor-sucesso-submeter-hover; border-color: $cor-sucesso-submeter-hover; color: $cor-fundo-branco; }
 }
-
-

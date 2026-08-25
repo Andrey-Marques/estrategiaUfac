@@ -1,8 +1,9 @@
 import { Component, HostBinding } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-barra-lateral',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './barra-lateral.html',
   styleUrl: './barra-lateral.scss',
 })

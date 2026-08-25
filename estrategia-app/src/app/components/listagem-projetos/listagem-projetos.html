@@ -1,0 +1,67 @@
+
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="titulo-pagina m-0">Projetos Estratégicos</h1>
+        <button class="btn botao-principal">+Nova Iniciativa</button>
+      </div>
+    
+      <div class="card container-conteudo">
+        <!-- Filtro -->
+        <ul class="nav filtro px-4 pt-3 border-bottom">
+          <li class="nav-item">
+            <button class="nav-link filtro-item">Todos</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link filtro-item ativa">Aprovados</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link filtro-item">Rejeitados</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link filtro-item">Rascunhos</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link filtro-item">Em Espera</button>
+          </li>
+        </ul>
+    
+        <!-- Tabela de Iniciativas -->
+        <div class="table-responsive pb-4">
+          <table class="table align-middle mb-0">
+            <thead class="cabecalho-tabela">
+              <tr class="linha-cabecalho-tabela">
+                <th scope="col" class="ps-4">PROJETO</th>
+                <th scope="col" class="text-center">DATA DE ENVIO</th>
+                <th scope="col" class="text-center">STATUS</th>
+                <th scope="col" class="text-center pe-4">AÇÕES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="linha-tabela">
+                <td class="ps-4">
+                  <div class="titulo-iniciativa">
+                    Implantação do Observatório de Dados da Graduação – ODG
+                  </div>
+                  <div class="d-flex gap-1 mt-1">
+                    <span class="etiqueta">OE2</span>
+                    <span class="etiqueta">OE1</span>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <strong class="d-block texto-data">20/07/2026</strong>
+                  <small class="texto-subtitulo">Última atualização: 2026-07-09</small>
+                </td>
+                <td class="text-center">
+                  <span class="badge status-aprovado">Aprovado/Público</span>
+                </td>
+                <td class="text-center pe-4">
+                  <button class="btn botao-visualizar">
+                    <i class="bi bi-eye"></i>Visualizar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>

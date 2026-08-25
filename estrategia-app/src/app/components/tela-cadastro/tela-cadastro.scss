@@ -1,0 +1,466 @@
+
+
+//-------------CABEÇALHO
+
+.container-cadastro{
+    width: 95%;
+    height: auto;
+    margin: 0 auto;
+}
+.header-cadastro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 48px;
+}
+
+.titulo-pagina {
+    margin: 0;
+    font-family: var(--fonte-padrao1);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--cor-texto-cabecalho);
+
+}
+
+.btn-novo-usuario {
+    border: none;
+    border-radius: 4px  ;
+    background-color: #003b95;
+    color: white;
+
+    padding: 11px 18px;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.btn-novo-usuario:hover {
+    background-color: #002f76;
+}
+
+.btn-novo-usuario:active {
+    background-color: #002f76;
+}
+
+
+
+/* =========================================
+   DIVISOR
+   ========================================= */
+
+.linha-divisor {
+    margin: 14px 0 30px;
+
+    border: none;
+    border-top: 1px solid #d9d9d9;
+}
+
+
+/* =========================================
+   FILTROS
+   ========================================= */
+
+.filtros-unidades {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    padding: 14px;
+
+    border: 1px solid #d0d0d0;
+    background-color: #fafafa;
+
+    margin-bottom: 22px;
+}
+
+
+
+.filtro-cabecalho{
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+
+    margin-bottom: 10px;
+}
+.filtro-cabecalho span {
+    font-family: "Inter", Arial, sans-serif;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    color: #333;
+
+    line-height: 18px;
+    cursor: pointer;
+}
+
+.filtro-seta {
+    width: 16px;
+    height: 16px;
+
+    flex-shrink: 0;
+    transition: transform 0.5s ease;
+}
+.filtro-seta-aberta {
+    transform: rotate(180deg);
+    transition: transform 0.5s;
+}
+
+.opcoes-unidades {
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 0;
+    overflow: hidden;
+
+    gap: 7px;
+}
+
+.opcoes-unidades-wrapper {
+    display: grid;
+    grid-template-rows: 0fr; // fechado = altura zero
+    transition: grid-template-rows 0.3s ease;
+    overflow: hidden;
+
+    &.aberto {
+        grid-template-rows: 1fr; // aberto = altura natural do conteúdo
+    }
+}
+
+
+.filtro-unidade {
+    min-width: 58px;
+    height: 25px;
+
+    padding: 0 11px;
+
+    border: 1px solid #09164D;
+    border-radius: 50px ;
+    background-color: var(--cor-cinza-claro);
+
+    color: var(--cor-texto-azul);
+
+    font-size: 10px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+
+    &:not(.unidade-selecionada):hovers {
+    background-color: #e6e5e5;
+   }
+
+
+    &.unidade-selecionada {
+    border-color: #75b8ff;
+    background-color:var(--cor-texto-azul);
+    color: var(--cor-branco);
+     }
+
+}
+
+
+
+
+
+/* =========================================
+   TABELA
+   ========================================= */
+
+.area-tabela {
+    width: 100%;
+    border: 1px solid #cfd5dc;
+
+    box-sizing: border-box;
+}
+
+.tabela-usuarios {
+    width: 100%;
+
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+
+/* Cabeçalho */
+
+.tabela-usuarios thead {
+    background-color: #f5f7f9;
+}
+
+.tabela-usuarios th {
+    height: 42px;
+
+    padding: 0 20px;
+
+    border-bottom: 1px solid #dce2e8;
+
+    text-align: left;
+
+    color: var(--cor-texto-azul);
+
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+
+
+/* Corpo */
+
+.tabela-usuarios td {
+    height: 60px;
+
+    padding: 0 20px;
+
+    border-bottom: 1px solid #dce2e8;
+
+    color: #50545a;
+
+    font-size: 14px;
+}
+
+
+
+.tabela-usuarios tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabela-usuarios tbody tr:hover {
+    background-color: #fafcff;
+}
+
+
+/* =========================================
+   LARGURA DAS COLUNAS
+   ========================================= */
+
+.tabela-usuarios th:nth-child(1),
+.tabela-usuarios td:nth-child(1) {
+    width: 30%;
+}
+
+.tabela-usuarios th:nth-child(2),
+.tabela-usuarios td:nth-child(2) {
+    width: 13%;
+}
+
+.tabela-usuarios th:nth-child(3),
+.tabela-usuarios td:nth-child(3) {
+    width: 24%;
+    text-align: center;
+}
+
+.tabela-usuarios th:nth-child(4),
+.tabela-usuarios td:nth-child(4) {
+    width: 15%;
+    text-align: center;
+}
+
+.tabela-usuarios th:nth-child(5),
+.tabela-usuarios td:nth-child(5) {
+    width: 18%;
+    text-align: center;
+}
+
+
+/* =========================================
+   STATUS
+   ========================================= */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 75px;
+    height: 21px;
+
+    box-sizing: border-box;
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.status-ativo {
+    border: 1px solid #24a148;
+    background-color: #eef9f1;
+    color: #168238;
+}
+
+.status-inativo {
+    border: 1px solid #9da8b5;
+    background-color: #eef0f2;
+    color: #67727e;
+}
+
+
+/* =========================================
+   AÇÕES
+   ========================================= */
+
+.acoes {
+    display: table-cell;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-acao {
+    border: none;
+    background: transparent;
+
+    padding: 5px;
+
+    color: #667085;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.btn-acao:hover {
+    color: #003b95;
+}
+
+
+/* =========================================
+   RODAPÉ DA TABELA
+   ========================================= */
+
+.rodape-tabela {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 58px;
+
+    padding: 0 20px;
+
+    box-sizing: border-box;
+
+    background-color: #ffffff;
+}
+
+.quantidade-resultados {
+    color: #59636f;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   PAGINAÇÃO
+   ========================================= */
+
+.paginacao {
+    display: flex;
+    align-items: center;
+}
+
+.paginacao button {
+    width: 39px;
+    height: 36px;
+
+    border: 1px solid #d4d9df;
+    border-right: none;
+
+    background-color: #ffffff;
+
+    color: #59636f;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.paginacao button:last-of-type {
+    border-right: 1px solid #d4d9df;
+}
+
+.paginacao button:hover {
+    background-color: #f5f7f9;
+}
+
+.paginacao .pagina-atual {
+    border-color: #0056d6;
+
+    background-color: #f1f6ff;
+
+    color: #0047ab;
+}
+
+.paginacao span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 39px;
+    height: 36px;
+
+    border-top: 1px solid #d4d9df;
+    border-bottom: 1px solid #d4d9df;
+
+    color: #59636f;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   RESPONSIVIDADE
+   ========================================= */
+
+@media (max-width: 900px) {
+
+    .conteudo-principal {
+        padding: 25px 20px;
+    }
+
+    .tabela-usuarios {
+        min-width: 850px;
+    }
+
+    .area-tabela {
+        overflow-x: auto;
+    }
+
+    .rodape-tabela {
+        min-width: 850px;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .header-cadastro {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn-novo-usuario {
+        width: 100%;
+    }
+
+    .filtros-unidades {
+        gap: 6px;
+    }
+
+    .rodape-tabela {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+
+        padding: 15px;
+    }
+}

@@ -168,6 +168,16 @@ export class FormularioIniciativas implements OnInit {
 
   voltar(): void { if (this.etapaAtual > 1) this.etapaAtual--; }
 
-  
- 
+  salvarRascunho(): void {
+    console.log('Rascunho salvo:', { ...this.formularioIniciativa.value, acoes: this.acoesIniciativa() });
+  }
+
+  submeterParaAnalise(): void {
+    if (this.formularioIniciativa.invalid) {
+      this.formularioIniciativa.markAllAsTouched();
+      alert('Preencha todos os campos obrigatórios antes de submeter.');
+      return;
+    }
+    console.log('Enviado para análise:', { ...this.formularioIniciativa.value, acoes: this.acoesIniciativa() });
+  }
 }

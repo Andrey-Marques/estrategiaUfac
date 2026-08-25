@@ -29,7 +29,7 @@
             </div>
 
             <div class="campo-formulario campo-titulo-iniciativa">
-              <label for="nome">TÍTULO DA INICIATIVA <span class="campo-obrigatorio">*</span></label>
+              <label for="tituloIniciativa">TÍTULO DA INICIATIVA <span class="campo-obrigatorio">*</span></label>
               <input id="tituloIniciativa" type="text" class="form-control" placeholder="Insira o título aqui" formControlName="tituloIniciativa">
             </div>
 
@@ -144,7 +144,7 @@
               <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1"><i class="bi bi-chevron-left"></i> Anterior</button>
               <button *ngIf="etapaAtual < 3" type="button" class="btn botao-proximo" (click)="avancar()">Próximo <i class="bi bi-chevron-compact-right"></i></button>
               <ng-container *ngIf="etapaAtual === 3">
-                <button type="button" class="btn botao-salvar-rascunho" >Salvar rascunho</button>
+                <button type="button" class="btn botao-salvar-rascunho" (click)="salvarRascunho()">Salvar rascunho</button>
                 <button type="button" class="btn botao-submeter-analise" (click)="salvarIniciativa()">Submeter à análise</button>
               </ng-container>
             </div>

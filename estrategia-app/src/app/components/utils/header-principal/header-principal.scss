@@ -6,6 +6,10 @@
     box-sizing: border-box;
     padding: 0 40px;
     background-color: var(--cor-branco);
+    position: sticky;
+    top: 0;
+    left: 0;
+
     width: 100%;
     /* Opcional: Adicionar sombra para destacar ao rolar */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
