@@ -11,6 +11,7 @@ import { UsuarioService } from '../../service/usuario.service';
 import { Usuario } from '../../model/usuario';
 import { UnidadeService } from '../../service/unidade.service';
 import { Unidade } from '../../model/unidade';
+import { Toast } from 'bootstrap';
 
 export interface AcaoIniciativa {
   descricaoAcao: string;
@@ -40,6 +41,7 @@ export class ListagemIniciativas {
   formularioAcaoInterno: FormGroup;
   etapaAtual = 1;
   submodalAcaoAberto = false;
+  visualizando = false;
   objetivosSelecionados : number[] = [];
   //----------------------------
   constructor(private iniciativaService: IniciativaService,private usuarioService: UsuarioService, private unidadeService: UnidadeService, private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder){
@@ -75,6 +77,49 @@ export class ListagemIniciativas {
       },
       error: (erro) => {console.error('erro ao buscar iniciativas:', erro)}
     })
+  }
+
+  abrirNovaIniciativa(): void {
+    this.visualizando = false;
+    this.formularioIniciativa.enable();
+    this.formularioIniciativa.reset({
+      tituloIniciativa: '', responsavelPreenchimento: [], unidadeResponsavel: [],
+      objetivosEstrategicos: [], evolucaoPercentual: 50, observacoes: ''
+    });
+    this.acoesIniciativa.set([]);
+    this.etapaAtual = 1;
+  }
+
+  visualizarIniciativa(iniciativa: IniciativaEstrategica): void {
+    this.visualizando = true;
+    this.iniciativaService.getById(iniciativa.id).subscribe({
+      next: (dados) => {
+        this.formularioIniciativa.enable();
+        this.formularioIniciativa.patchValue({
+          tituloIniciativa: dados.nome,
+          responsavelPreenchimento: dados.responsavel,
+          unidadeResponsavel: dados.unidade,
+          objetivosEstrategicos: dados.objetivos || [],
+          evolucaoPercentual: Number(dados.percentual_evolucao),
+          observacoes: dados.observacao || ''
+        });
+        this.formularioIniciativa.disable();
+        this.acoesIniciativa.set((dados.acoes_realizadas || []).map(acao => ({
+          descricaoAcao: acao.nome,
+          prazoInicio: acao.prazo_inicio,
+          prazoFim: acao.prazo_fim,
+          custoEstimado: acao.custo,
+          statusAtual: this.converterStatusParaFormulario(acao.status)
+        })));
+        this.etapaAtual = 1;
+      },
+      error: (erro) => console.error('Erro ao buscar iniciativa:', erro)
+    });
+  }
+
+  fecharFormulario(): void {
+    this.visualizando = false;
+    this.formularioIniciativa.enable();
   }
 
   //--------logica para o modal------------
@@ -181,6 +226,13 @@ export class ListagemIniciativas {
     return mapa[status] || status;
   }
 
+  private converterStatusParaFormulario(status: string): string {
+    const mapa: Record<string, string> = {
+      PLANEJAMENTO: 'nao-iniciada', ANDAMENTO: 'em-execucao', CONCLUIDA: 'concluida'
+    };
+    return mapa[status] || status;
+  }
+
   obterRotuloStatus(status: string): string {
     const mapa: Record<string, string> = { 'nao-iniciada': 'Não iniciada', 'em-execucao': 'Em execução', 'concluida': 'Concluída' };
     return mapa[status] || status;
@@ -188,7 +240,7 @@ export class ListagemIniciativas {
 
   irParaEtapa(numeroEtapa: number): void {
     if (numeroEtapa === this.etapaAtual) return;
-    if (this.etapaAtual === 1 && numeroEtapa > 1 && !this.validarEtapaUm()) return;
+    if (!this.visualizando && this.etapaAtual === 1 && numeroEtapa > 1 && !this.validarEtapaUm()) return;
     this.etapaAtual = numeroEtapa;
   }
 
@@ -203,7 +255,7 @@ export class ListagemIniciativas {
   }
 
   avancar(): void {
-    if (this.etapaAtual === 1) { if (this.validarEtapaUm()) this.etapaAtual = 2; return; }
+    if (!this.visualizando && this.etapaAtual === 1) { if (this.validarEtapaUm()) this.etapaAtual = 2; return; }
     if (this.etapaAtual < 3) this.etapaAtual++;
   }
 

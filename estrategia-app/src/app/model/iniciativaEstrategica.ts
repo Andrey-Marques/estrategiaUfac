@@ -18,5 +18,6 @@ export interface IniciativaEstrategica{
     unidade: number;
     responsavel: number;
     projeto: number;
-    acoesRealizadas: AcaoReslizada[];
+    objetivos?: number[];
+    acoes_realizadas: AcaoReslizada[];
 }

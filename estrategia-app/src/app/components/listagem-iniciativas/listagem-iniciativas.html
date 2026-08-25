@@ -1,12 +1,12 @@
 <app-info-bar></app-info-bar>
 <body>
-    
+
     <div class="container-fluid">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="titulo-pagina m-0">Iniciativas Estratégicas</h1>
-        <button class="btn botao-principal" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">+Nova Iniciativa</button>
+        <button class="btn botao-principal" (click)="abrirNovaIniciativa()" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">+Nova Iniciativa</button>
       </div>
-    
+
       <div class="card container-conteudo">
         <!-- Filtro -->
         <ul class="nav filtro px-4 pt-3 border-bottom">
@@ -26,7 +26,7 @@
             <button class="nav-link filtro-item">Em Espera</button>
           </li>
         </ul>
-    
+
         <!-- Tabela de Iniciativas -->
         <div class="table-responsive pb-4">
           <table class="table align-middle mb-0">
@@ -57,7 +57,7 @@
                   <span class="badge status-aprovado">Aprovado/Público</span>
                 </td>
                 <td class="text-center pe-4">
-                  <button class="btn botao-visualizar">
+                  <button type="button" class="btn botao-visualizar" (click)="visualizarIniciativa(iniciativas)" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">
                     <i class="bi bi-eye"></i>Visualizar
                   </button>
                 </td>
@@ -80,7 +80,7 @@
             <h1>RELATÓRIO DE MONITORAMENTO DAS INICIATIVAS ESTRATÉGICAS</h1>
             <p>Insira as informações técnicas para o preenchimento oficial do PDI</p>
           </div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="fecharFormulario()"></button>
         </div>
 
         <div class="etapas-formulario">
@@ -144,7 +144,7 @@
                 <h2>Passo 2: Ações Relacionadas à Iniciativa</h2>
                 <p>Adicione e edite prazos, custos e progressos das ações.</p>
               </div>
-              <button type="button" class="btn btn-adicionar-acao" (click)="abrirSubmodalAcao()">+ Adicionar Ação</button>
+              <button *ngIf="!visualizando" type="button" class="btn btn-adicionar-acao" (click)="abrirSubmodalAcao()">+ Adicionar Ação</button>
             </div>
 
             <div class="container-tabela-acoes">
@@ -170,7 +170,7 @@
                   <span class="badge-status" [ngClass]="acao.statusAtual">{{ obterRotuloStatus(acao.statusAtual) }}</span>
                 </div>
                 <div class="coluna col-acoes">
-                  <button type="button" class="btn-excluir-acao" (click)="removerAcaoIniciativa(indice)"><i class="bi bi-trash"></i></button>
+                  <button *ngIf="!visualizando" type="button" class="btn-excluir-acao" (click)="removerAcaoIniciativa(indice)"><i class="bi bi-trash"></i></button>
                 </div>
               </div>
             </div>
@@ -218,8 +218,10 @@
               <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1"><i class="bi bi-chevron-left"></i> Anterior</button>
               <button *ngIf="etapaAtual < 3" type="button" class="btn botao-proximo" (click)="avancar()">Próximo <i class="bi bi-chevron-compact-right"></i></button>
               <ng-container *ngIf="etapaAtual === 3">
-                <button type="button" class="btn botao-salvar-rascunho" >Salvar rascunho</button>
-                <button type="button" class="btn botao-submeter-analise" (click)="salvarIniciativa()">Submeter à análise</button>
+                <ng-container *ngIf="!visualizando">
+                  <button type="button" class="btn botao-salvar-rascunho" >Salvar rascunho</button>
+                  <button type="button" class="btn botao-submeter-analise" (click)="salvarIniciativa()">Submeter à análise</button>
+                </ng-container>
               </ng-container>
             </div>
           </div>

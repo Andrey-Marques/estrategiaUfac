@@ -2,7 +2,6 @@
 
 body {
   margin: 0;
-  width: 100vw;
   margin-top: 30px;
   display: flex;
   justify-content: center;
@@ -30,7 +29,7 @@ body {
   }
 }
 .container-conteudo {
-  
+  margin-bottom: 30px;
   border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
@@ -59,7 +58,7 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0;
+
 }
 
 .cabecalho-tabela {

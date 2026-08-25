@@ -14,7 +14,11 @@ export class IniciativaService{
     get(){
         return this.http.get<IniciativaEstrategica[]>(this.apiUrl);
     }
-    
+
+    getById(id: number): Observable<IniciativaEstrategica>{
+        return this.http.get<IniciativaEstrategica>(`${this.apiUrl}${id}/`);
+    }
+
     criarIniciativa(dados: any):Observable<any>{
         return this.http.post(this.apiUrl, dados);
     }
