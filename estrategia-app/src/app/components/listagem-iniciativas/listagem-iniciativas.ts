@@ -11,7 +11,6 @@ import { UsuarioService } from '../../service/usuario.service';
 import { Usuario } from '../../model/usuario';
 import { UnidadeService } from '../../service/unidade.service';
 import { Unidade } from '../../model/unidade';
-import { Toast } from 'bootstrap';
 
 export interface AcaoIniciativa {
   descricaoAcao: string;

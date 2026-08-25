@@ -1,10 +1,10 @@
-<app-header-principal></app-header-principal>
+<app-header-principal *ngIf="mostrarLayout"></app-header-principal>
 
-<app-info-bar></app-info-bar>
+<app-info-bar *ngIf="mostrarLayout"></app-info-bar>
 
 <main class="layout-principal">
 
-    <app-barra-lateral></app-barra-lateral>
+    <app-barra-lateral *ngIf="mostrarLayout"></app-barra-lateral>
 
     <section class="conteudo-principal">
         <router-outlet></router-outlet>
