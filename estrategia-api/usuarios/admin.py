@@ -1,11 +1,10 @@
+from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
 from .models import Usuario
-from django.contrib.auth.models import Group
 
-admin.site.unregister(Group)
 
 @admin.register(Usuario)
-class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'unidade')
-    search_fields = ('nome_completo',)
-    list_filter = ('unidade',)
+class UsuarioAdmin(UserAdmin):
+    list_display = ('id', 'username','nome_completo','papel', 'unidade','is_active',)
+    search_fields = ('username','nome_completo',)
+    list_filter = ('papel','unidade','is_active',)
