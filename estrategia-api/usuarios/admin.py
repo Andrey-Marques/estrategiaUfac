@@ -8,3 +8,22 @@ class UsuarioAdmin(UserAdmin):
     list_display = ('id', 'username','nome_completo','papel', 'unidade','is_active',)
     search_fields = ('username','nome_completo',)
     list_filter = ('papel','unidade','is_active',)
+    fieldsets = UserAdmin.fieldsets + (
+        ('Informações do sistema', {
+            'fields': (
+                'nome_completo',
+                'papel',
+                'unidade',
+            ),
+        }),
+    )
+
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Informações do sistema', {
+            'fields': (
+                'nome_completo',
+                'papel',
+                'unidade',
+            ),
+        }),
+    )
