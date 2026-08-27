@@ -6,29 +6,37 @@ import { TelaLogin } from './components/tela-login/tela-login';
 import { TelaCadastro } from './components/tela-cadastro/tela-cadastro';
 import { ListagemProjetos } from './components/listagem-projetos/listagem-projetos';
 import { ListagemIndicadores } from './components/listagem-indicadores/listagem-indicadores';
+import { authGuard } from './guards/auth.guard';
+
 export const routes: Routes = [
-  {
-    path: 'home',
-    component: Home
-  },
-  {
-    path: 'formulario-iniciativas',
-    component: FormularioIniciativas
-  },
-  {
-    path: 'listagem-iniciativas',
-    component: ListagemIniciativas
-  },
-  {path: "tela-cadastro", component: TelaCadastro
-
-  },
-  {path:"home-servidor", component: Home
-
-  },
-  {path:"listagem-projetos", component: ListagemProjetos},
-  {path:"listagem-indicadores", component:ListagemIndicadores},
   {
     path: 'login',
     component: TelaLogin
+  },
+  //paginas/urls/rotas que precisam de login para ser acessadas 
+  {
+    path: '',
+    canActivate: [authGuard],
+    children:[
+      {
+        path: 'home',
+        component: Home
+      },
+      {
+        path: 'listagem-iniciativas',
+        component: ListagemIniciativas
+      },
+      {
+        path: "tela-cadastro", 
+        component: TelaCadastro
+      },
+      {
+        path:"listagem-projetos", 
+        component: ListagemProjetos},
+      {
+        path:"listagem-indicadores", 
+        component:ListagemIndicadores
+      },
+    ]
   }
 ];
