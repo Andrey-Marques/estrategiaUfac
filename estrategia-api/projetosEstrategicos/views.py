@@ -9,7 +9,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
     def get_queryset(self):
         usuario = self.request.user
         
-        if usuario.pape == 'ADMIN':
+        if usuario.papel == 'ADMIN':
             return ProjetoEstrategico.objects.all()
         
         return ProjetoEstrategico.objects.filter(

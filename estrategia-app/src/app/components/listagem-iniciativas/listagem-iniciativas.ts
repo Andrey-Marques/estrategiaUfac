@@ -29,6 +29,7 @@ export interface AcaoIniciativa {
 })
 export class ListagemIniciativas {
   iniciativas = signal<IniciativaEstrategica[]>([])
+  isAdmin = signal(false);
   private datePipe = inject(DatePipe);
 
   // variaveis para modal de criar iniciativa
@@ -64,9 +65,17 @@ export class ListagemIniciativas {
 
   ngOnInit(): void {
     this.buscarIniciativa();
+    this.buscarUsuarioAtual();
     this.buscarUsuarios();
     this.buscarUnidade();
     this.buscarObjetivosEstrategicos();
+  }
+
+  buscarUsuarioAtual(): void {
+    this.usuarioService.getAtual().subscribe({
+      next: (usuario) => this.isAdmin.set(usuario.papel === 'ADMIN'),
+      error: (erro) => console.error('erro ao buscar usuario atual', erro)
+    });
   }
 
   buscarIniciativa(): void {
@@ -78,7 +87,7 @@ export class ListagemIniciativas {
     })
   }
 
-  abrirNovaIniciativa(): void {
+  CriarNovaIniciativa(): void {
     this.visualizando = false;
     this.formularioIniciativa.enable();
     this.formularioIniciativa.reset({

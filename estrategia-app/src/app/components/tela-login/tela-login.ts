@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../service/auth.service';
 import { FormsModule } from '@angular/forms';
+import { Router } from "@angular/router";
 @Component({
   selector: 'app-tela-login',
   imports: [FormsModule],
@@ -9,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true
 })
 export class TelaLogin {
-  constructor(private authService: AuthService){}
+  constructor(private authService: AuthService, private router: Router){}
 
   username = '';
   password = '';
@@ -20,12 +21,12 @@ export class TelaLogin {
       next: (res) => {
         localStorage.setItem('access', res.access);
         localStorage.setItem('refresh', res.refresh);
-        console.log('login realizado');
+
+        this.router.navigate(['/home'])
       },
 
       error: (erro) => {
-        console.log('usuario ou senha invalida')
-        console.error(erro)
+        alert('usuario ou senha invalida')
       }
     })
   }
