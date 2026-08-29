@@ -13,7 +13,7 @@ import { InfoBar } from './components/utils/info-bar/info-bar';
   styleUrl: './app.scss'
 })
 export class App {
-  mostrarLayout = true;
+  mostrarLayout = false;
   protected readonly title = signal('estrategia-app');
 
   constructor(private router: Router){

@@ -12,4 +12,8 @@ export class UsuarioService {
     get(){
         return this.http.get<Usuario[]>(this.apiUrl);
     }
+
+    getAtual(){
+        return this.http.get<Usuario>(`${this.apiUrl}me/`);
+    }
 }

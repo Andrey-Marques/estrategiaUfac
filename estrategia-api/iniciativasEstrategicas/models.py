@@ -2,8 +2,11 @@ from django.db import models
 from objetivosEstrategicos.models import ObjetivoEstrategico
 
 class IniciativaEstrategica(models.Model):
-   
-    
+    STATUS_CHOICES = [
+        ('APROVADO', 'Aprovado/Público'),
+        ('REJEITADO', 'Rejeitado'),
+        ('RASCUNHO', 'Rascunho'),
+    ]
     nome = models.CharField(max_length=255)
     data_preenchimento = models.DateTimeField(auto_now_add=True)
     observacao = models.TextField(blank=True, null=True)

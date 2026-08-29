@@ -3,6 +3,7 @@ export interface IndicadorEstrategico {
     nome: string;
     polaridade: string;
     finalidade: string;
+    status: string;
     metodo_Calculo: string;
     formula: string;
     unidade: number; 
