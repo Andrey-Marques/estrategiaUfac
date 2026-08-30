@@ -130,6 +130,21 @@ export class ListagemIniciativas {
     this.formularioIniciativa.enable();
   }
 
+  fecharModal(): void {
+    const modal = document.getElementById('exampleModalToggle');
+    if (!modal) return;
+
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.style.display = 'none';
+
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
+
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+  }
+
   //--------logica para o modal------------
 
   buscarUsuarios(): void{
@@ -174,7 +189,10 @@ export class ListagemIniciativas {
 
     this.iniciativaService.criarIniciativa(dados).subscribe({
       next: (resposta) => {
-        console.log('Iniciativa criada', resposta)
+        console.log('Iniciativa criada', resposta);
+        this.fecharFormulario();
+        this.fecharModal();
+        this.buscarIniciativa();
       },
       error: (erro) => {
         console.error('Erro ao criar iniciativa', erro);

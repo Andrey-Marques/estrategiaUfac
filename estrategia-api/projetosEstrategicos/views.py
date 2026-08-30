@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
-from .models import ProjetoEstrategico
-from .serializers import ProjetoEstrategicoSerializer
+from .models import ProjetoEstrategico, EvolucaoProjeto
+from .serializers import ProjetoEstrategicoSerializer, EvolucaoProjetoSerializer
 
 class ProjetoEstrategicoViewSet(ModelViewSet):
     queryset = ProjetoEstrategico.objects.all()
@@ -21,4 +21,9 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
         if usuario.papel == 'ADMIN':
             serializer.save()
         else:
-            serializer.save(unidade = usuario.unidade, responsavel = usuario)
+            serializer.save(unidade = usuario.unidade)
+
+
+class EvolucaoProjetoViewSet(ModelViewSet):
+    queryset = EvolucaoProjeto.objects.all()
+    serializer_class = EvolucaoProjetoSerializer
