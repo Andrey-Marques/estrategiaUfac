@@ -1,0 +1,164 @@
+<div class="main">
+
+  <div class="pagina-dados">
+
+    <!-- ==========================================
+         CABEÇALHO DA PÁGINA
+         ========================================== -->
+    <div class="cabecalho-pagina">
+      <div class="titulo-area">
+        <h1>Meus Dados</h1>
+        <p>Gerencie suas informações pessoais e de acesso.</p>
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         QUADRO 1 - DADOS PESSOAIS
+         ========================================== -->
+    <div class="quadro-dados">
+
+      <!-- Cabeçalho -->
+      <div class="cabecalho-dados">
+        <span class="icone-cadeado">♙</span>
+        <span class="titulo-tabela">DADOS PESSOAIS</span>
+      </div>
+
+      <!-- Campos -->
+      <div class="conteudo-dados">
+
+        <div class="grid-dados">
+
+          <!-- Nome -->
+          <div class="campo">
+            <label for="nome">NOME COMPLETO</label>
+            <input id="nome"
+                   type="text" 
+                   [value]="usuario.nome_completo" disabled>
+          </div>
+
+          <!-- E-mail -->
+          <div class="campo">
+            <label for="email">E-MAIL INSTITUCIONAL</label>
+            <input
+                id="email"
+                type="email"
+                [value]="usuario.email"
+                [readonly]="!modoEdicaoDados"
+                [class.campo-bloqueado]="!modoEdicaoDados">
+          </div>
+
+          <div class="campo">
+            <label for="vinculo">VÍNCULO</label>
+            <input id="vinculo" type="text" value="Servidor" disabled>
+          </div>
+
+          <!-- Lotação -->
+          <div class="campo campo-lotacao">
+            <label for="lotacao">LOTAÇÃO ATUAL</label>
+            <input id="lotacao" 
+                   type="text"
+                   value="Pró-Reitoria de Graduação (PROGRAD)"
+                   disabled>
+          </div>
+
+          <div class="campo">
+            <label for="nome-social">NOME SOCIAL</label>
+            <input
+                id="nome-social"
+                type="text"
+                value="Andreya Marques"
+                [readonly]="!modoEdicaoDados"
+                [class.campo-bloqueado]="!modoEdicaoDados">
+          </div>
+
+          <div class="campo">
+            <label for="cpf">CPF</label>
+            <input
+                id="cpf"
+                type="text"
+                value="012.212.912-69"
+                [readonly]="!modoEdicaoDados"
+                [class.campo-bloqueado]="!modoEdicaoDados">
+          </div>
+
+        </div>
+
+        <div class="espaco-botao">
+
+          <!-- BOTÃO EDITAR -->
+          <button class="btn botao-editar" type="button" *ngIf="!modoEdicaoDados" (click)="editarDados()">
+            Editar
+            <span class="icone-editar">↗</span>
+          </button>
+
+          <!-- BOTÃO CANCELAR -->
+          <button class="btn botao-cancelar" type="button" *ngIf="modoEdicaoDados" (click)="cancelarDados()">
+            Cancelar
+          </button>
+
+          <!-- BOTÃO SALVAR -->
+          <button class="btn botao-salvar" type="button" *ngIf="modoEdicaoDados" (click)="salvarDados()">
+            Salvar
+            <span class="icone-editar">↗</span>
+          </button>
+
+        </div>
+
+      </div><!-- fecha .conteudo-dados -->
+
+    </div><!-- fecha .quadro-dados -->
+
+
+    <!-- ==========================================
+         QUADRO 2 - CREDENCIAIS DE ACESSO
+         ========================================== -->
+    <div class="quadro-credenciais">
+
+      <!-- Cabeçalho -->
+      <div class="cabecalho-credenciais">
+        <div class="titulo-credenciais">
+          <span class="icone-cadeado">♙</span>
+          <span class="titulo-tabela">CREDENCIAIS DE ACESSO</span>
+        </div>
+      </div>
+
+      <!-- Conteúdo -->
+      <div class="conteudo-credenciais">
+
+        <div class="grid-credenciais">
+
+          <!-- Nome de usuário -->
+          <div class="campo">
+            <label for="usuario">NOME DE USUÁRIO</label>
+            <input id="usuario" type="text" value="andrey.marques">
+            <span class="descricao">Utilizado para acesso aos sistemas integrados e rede.</span>
+          </div>
+
+          <!-- Senha -->
+          <div class="campo">
+            <label for="senha">SENHA</label>
+            <input id="senha" type="password" value="12345678">
+            <span class="descricao senha-descricao">
+              <span class="ponto-verde"></span>
+              Última alteração há 45 dias.
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Botão -->
+        <div class="espaco-botao">
+          <button class="btn botao-editar" type="button">
+            <span class="icone-editar">↗</span>
+            Editar Acesso
+          </button>
+        </div>
+
+      </div><!-- fecha .conteudo-credenciais -->
+
+    </div><!-- fecha .quadro-credenciais -->
+
+  </div><!-- fecha .pagina-dados -->
+
+</div><!-- fecha .main -->

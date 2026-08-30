@@ -1,28 +1,15 @@
-// :host {
-//     display: block;
-//     position: sticky;
-//     top: 80px;
-//     left: 0;
-//     width: 62px;
-//     height: calc(100vh - 80px);
-//     z-index: 1000;
-//     transition: width 0.25s ease;
-// }
-// :host(.menu-expandido) {
-//     width: 350px;
-// }
 :host {
     display: block;
 
     position: sticky;
-    top: 80px;
+    top: var(--altura-header);
 
     width: 62px;
     height: calc(100vh - var(--altura-header));
 
     flex-shrink: 0;
 
-    z-index: 1000;
+    z-index: 200;
 
     transition: width 0.25s ease;
 }

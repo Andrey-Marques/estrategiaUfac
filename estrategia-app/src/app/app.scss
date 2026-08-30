@@ -5,6 +5,8 @@
     width: 100%;
     align-items: flex-start;
     min-height: calc(100vh - var(--altura-header) + var(--altura-info-bar));
+    position: relative;
+    isolation: isolate;
 }
 
 .conteudo-principal {
@@ -12,6 +14,8 @@
     min-width: 0;
     box-sizing: border-box;
     padding: 40px 60px;
+    z-index: 1;
+    position: relative;
 }
 
 body {
