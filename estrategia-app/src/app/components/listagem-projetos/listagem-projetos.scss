@@ -113,15 +113,6 @@ table {
     font-size: 11px;
   }
 
-  .status-aprovado {
-    background-color: rgba($cor-sucesso-submeter, 0.12);
-    color: $cor-sucesso-submeter;
-    border: 1px solid rgba($cor-sucesso-submeter, 0.3);
-    font-weight: 600;
-    font-size: 12px;
-    padding: 6px 14px;
-    border-radius: 6px;
-  }
 
   .botao-visualizar {
     display: inline-flex;
@@ -561,7 +552,7 @@ table {
 
       .cartao-realizacao {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
         padding: 14px 16px;
@@ -569,6 +560,8 @@ table {
         background: rgba(14, 88, 184, 0.04);
         border: 1px solid $cor-borda-principal;
         color: $cor-texto-titulo;
+        min-width: 0;
+        overflow-wrap: anywhere;
 
         &.cartao-proximo-passo {
           background: rgba(255, 255, 255, 0.9);
@@ -576,16 +569,21 @@ table {
         }
 
         .texto-cartao {
-          flex: 1;
+          flex: 1 1 auto;
+          min-width: 0;
           font-size: 15px;
           font-weight: 600;
           line-height: 1.5;
+          white-space: normal;
+          overflow-wrap: anywhere;
+          word-break: break-word;
         }
 
         .acoes-cartao {
           display: flex;
           align-items: center;
           gap: 10px;
+          flex-shrink: 0;
         }
         .btn-acao{
           border-radius: 10px;
@@ -733,5 +731,46 @@ textarea.objetivo-projeto{
     border-color: $cor-sucesso-submeter-hover;
     color: $cor-fundo-branco;
   }
+}
+.status-aprovado,
+.status-em-analise,
+.status-rascunho,
+.status-rejeitado {
+  font-weight: 600;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+
+// APROVADO / PÚBLICO
+.status-aprovado {
+  background-color: rgba(25, 135, 84, 0.12);
+  color: #198754;
+  border: 1px solid rgba(25, 135, 84, 0.3);
+}
+
+
+// EM ANÁLISE
+.status-em-analise {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #997404;
+  border: 1px solid rgba(255, 193, 7, 0.4);
+}
+
+
+// RASCUNHO
+.status-rascunho {
+  background-color: rgba(108, 117, 125, 0.12);
+  color: #6c757d;
+  border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+
+// REJEITADO
+.status-rejeitado {
+  background-color: rgba(220, 53, 69, 0.12);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.3);
 }
 

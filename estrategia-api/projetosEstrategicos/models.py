@@ -2,6 +2,12 @@ from django.db import models
 from objetivosEstrategicos.models import ObjetivoEstrategico
 
 class ProjetoEstrategico(models.Model):
+    STATUS_CHOICES = [
+        ('APROVADO', 'Aprovado/Público'),
+        ('REJEITADO', 'Rejeitado'),
+        ('RASCUNHO', 'Rascunho'),
+        ('EM_ANALISE', 'Em análise'),
+    ]
   
     nome = models.CharField(max_length=255)
     descricao = models.TextField()

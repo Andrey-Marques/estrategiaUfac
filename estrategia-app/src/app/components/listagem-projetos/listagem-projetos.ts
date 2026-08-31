@@ -22,6 +22,7 @@ export class ListagemProjetos {
   usuarios = signal<Usuario[]>([]);
   unidades = signal<Unidade[]>([]);
   objetivos = signal<ObjetivoEstrategico[]>([]);
+  isAdmin = signal(false);
   formularioProjeto: FormGroup;
   etapaAtual = 1;
   visualizando = false;
@@ -33,6 +34,7 @@ export class ListagemProjetos {
 
   realizacoesAntesDaEdicao: string[] = [];
   proximosPassosAntesDaEdicao: string[] = [];
+  dadosFormularioAntesDaEdicao: any = null;
 
   private datePipe = inject(DatePipe);
 
@@ -57,6 +59,7 @@ export class ListagemProjetos {
 
   ngOnInit(): void {
     this.buscarProjeto();
+    this.buscarUsuarioAtual()
     this.buscarUsuarios();
     this.buscarUnidades();
     this.buscarObjetivosEstrategicos();
@@ -66,6 +69,17 @@ export class ListagemProjetos {
     this.projetoService.get().subscribe({
       next: (projeto) => this.projetos.set(projeto),
       error: (erro) => console.error('erro ao buscar projetos', erro),
+    });
+  }
+
+  buscarUsuarioAtual(): void{
+    this.usuarioService.getAtual().subscribe({
+      next: (usuario) => {
+        this.isAdmin.set(usuario.papel === 'ADMIN');
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar usuário atual:', erro);
+      }
     });
   }
 
@@ -83,6 +97,8 @@ export class ListagemProjetos {
           liderProjeto: projetoDetalhado.responsavel,
           unidadeResponsavel: projetoDetalhado.unidade,
           descricao: projetoDetalhado.descricao,
+          tempoEstimado: projetoDetalhado.tempo_estimado,
+          custoEstimado: projetoDetalhado.custo_estimado,
           acoesPrevistas: projetoDetalhado.acoes_previstas,
           objetivos: this.normalizarIds(projetoDetalhado.objetivos ?? []),
           realizacoes: projetoDetalhado.evolucoes?.map((evolucao) => evolucao.realizacao).join('\n\n') || '',
@@ -98,6 +114,8 @@ export class ListagemProjetos {
           liderProjeto: projeto.responsavel,
           unidadeResponsavel: projeto.unidade,
           descricao: projeto.descricao,
+          tempoEstimado: projeto.tempo_estimado,
+          custoEstimado: projeto.custo_estimado,
           acoesPrevistas: projeto.acoes_previstas,
           objetivos: this.normalizarIds(projeto.objetivos ?? []),
           realizacoes: projeto.evolucoes?.map((evolucao) => evolucao.realizacao).join('\n\n') || '',
@@ -109,10 +127,21 @@ export class ListagemProjetos {
   }
 
   editarProjeto(): void {
+
+    // Guarda as realizações para poder cancelar depois
     this.realizacoesAntesDaEdicao = [...this.realizacoesConcluidas()];
-    this.proximosPassosAntesDaEdicao = [...this.proximosPassos()];
+
+    this.proximosPassosAntesDaEdicao = [ ...this.proximosPassos()];
+
+    // Guarda os dados das etapas 1 e 2
+    this.dadosFormularioAntesDaEdicao = this.formularioProjeto.getRawValue();
 
     this.modoEdicaoEtapa3 = true;
+
+    // Somente ADMIN pode editar etapas 1 e 2
+    if (this.isAdmin()) {
+      this.formularioProjeto.enable();
+    }
   }
 
   private normalizarIds(valores: Array<number | { id?: number; objetivo?: number; objetivo_id?: number } | null | undefined>): number[] {
@@ -182,13 +211,17 @@ export class ListagemProjetos {
     };
 
     this.projetoService.CriarProjeto(projeto).subscribe({
-      next: (projetoCriado)=>{
-        console.log('projeto criado', projetoCriado);
-        this.fecharFormulario();
+      next: (projetoCriado) => {
+        console.log('Projeto criado:', projetoCriado);
+
+        this.limparEvolucoesProjeto();
+
+        this.projetoSelecionadoId = null;
+        this.dadosFormularioAntesDaEdicao = null;
+        this.modoEdicaoEtapa3 = false;
+
         this.fecharModal();
         this.buscarProjeto();
-        this.formularioProjeto.reset();
-        this.etapaAtual = 1;
       },
       error: (erro)=>{
         console.error('erro ao criar projeto:', erro.error);
@@ -213,7 +246,19 @@ export class ListagemProjetos {
       acoesPrevistas: '',
       objetivos: [],
     });
+    this.limparEvolucoesProjeto();
+
+    this.dadosFormularioAntesDaEdicao = null;
+
     this.etapaAtual = 1;
+  }
+
+  private limparEvolucoesProjeto(): void {
+    this.realizacoesConcluidas.set([]);
+    this.proximosPassos.set([]);
+
+    this.realizacoesAntesDaEdicao = [];
+    this.proximosPassosAntesDaEdicao = [];
   }
 
 
@@ -297,16 +342,20 @@ export class ListagemProjetos {
     });
   }
 
-  selecionarObjetivo(objetivo: ObjetivoEstrategico, evento: Event): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+  selecionarObjetivo( objetivo: ObjetivoEstrategico, evento: Event): void {
+
+    if (this.visualizando && (!this.modoEdicaoEtapa3 || !this.isAdmin())) {
+      return;
+    }
 
     const checkbox = evento.target as HTMLInputElement;
-    const selecionados = this.normalizarIds(this.formularioProjeto.get('objetivos')?.value || []);
-    const novos = checkbox.checked
-      ? [...selecionados, objetivo.id]
-      : selecionados.filter((id: number) => id !== objetivo.id);
 
-    this.formularioProjeto.patchValue({ objetivos: novos });
+    const selecionados = this.normalizarIds( this.formularioProjeto.get('objetivos')?.value || []);
+
+    const novos = checkbox.checked ? [...selecionados, objetivo.id] : selecionados.filter((id: number) => id !== objetivo.id);
+
+    this.formularioProjeto.patchValue({objetivos: novos});
+
     this.formularioProjeto.get('objetivos')?.markAsTouched();
   }
 
@@ -386,14 +435,26 @@ export class ListagemProjetos {
 
     this.proximosPassos.update(lista => [...lista,realizacao]);
   }
+
   cancelarEdicaoEtapa3(): void {
 
-    this.realizacoesConcluidas.set([ ...this.realizacoesAntesDaEdicao]);
+    // Restaura etapa 3
+    this.realizacoesConcluidas.set([...this.realizacoesAntesDaEdicao]);
 
-    this.proximosPassos.set([ ...this.proximosPassosAntesDaEdicao]);
+    this.proximosPassos.set([...this.proximosPassosAntesDaEdicao]);
+
+    // Restaura etapas 1 e 2
+    if (this.dadosFormularioAntesDaEdicao) {
+      this.formularioProjeto.patchValue(this.dadosFormularioAntesDaEdicao);
+    }
+    // Volta para modo visualização
+    this.formularioProjeto.disable();
 
     this.modoEdicaoEtapa3 = false;
+
+    this.dadosFormularioAntesDaEdicao = null;
   }
+
   private montarEvolucoes(): Array<{realizacao: string; proximo_passo:string}> {
     const realizacoes = this.realizacoesConcluidas().filter(valor =>valor?.trim()).map(valor => ({realizacao: valor.trim(), proximo_passo: ''}));
 
@@ -402,37 +463,109 @@ export class ListagemProjetos {
     return [...realizacoes, ...proximos]
   }
 
-  confirmarEdicaoEtapa3(): void{
-    if(!this.projetoSelecionadoId){
+  confirmarEdicaoEtapa3(): void {
+
+    if (!this.projetoSelecionadoId) {
       return;
     }
-    const confirmou = window.confirm('Tem certeza que deseja salvar as alterações das realizações e proximos passo desse projeto?');
 
-    if(!confirmou){
-      return
+    const confirmou = window.confirm('Tem certeza que deseja salvar as alterações deste projeto?');
+
+    if (!confirmou) {
+      return;
     }
+
     const evolucoes = this.montarEvolucoes();
 
-    this.projetoService.atualizarProjeto(this.projetoSelecionadoId, {evolucoes: evolucoes}).subscribe({
-      next: (projetoAtualizado)=>{
-        this.carregarEvolucoesProjeto(projetoAtualizado);
+    let dadosAtualizacao: any;
 
-        this.modoEdicaoEtapa3 = false;
+    // ------------------ADMIN----------------------
+    if (this.isAdmin()) {
 
-        this.realizacoesAntesDaEdicao = [];
-        this.proximosPassosAntesDaEdicao = [];
+      if (this.formularioProjeto.invalid) {
+        this.formularioProjeto.markAllAsTouched();
 
-        this.buscarProjeto();
+        window.alert(
+          'Preencha corretamente os campos obrigatórios.'
+        );
 
-        console.log('Evoluções atualizadas com sucesso');
-      },
-
-      error: (erro) => {
-        console.error('Erro ao atualizar evoluções:', erro)
-        window.alert('nao foi possivel salvar alterações.')
+        return;
       }
-    })
+
+      const formulario = this.formularioProjeto.getRawValue();
+
+      dadosAtualizacao = {
+        nome: formulario.tituloProjeto,
+        descricao: formulario.descricao,
+        tempo_estimado: formulario.tempoEstimado,
+        custo_estimado: Number(
+          formulario.custoEstimado
+        ),
+        responsavel: formulario.liderProjeto,
+        unidade: formulario.unidadeResponsavel,
+        acoes_previstas: formulario.acoesPrevistas,
+        objetivos: formulario.objetivos ?? [],
+        evolucoes: evolucoes
+      };
+
+    }
+    // ---------------------SERVIDOR----------------------------
+    else {
+      dadosAtualizacao = {
+        evolucoes: evolucoes
+      };
+    }
+
+    this.projetoService.atualizarProjeto(this.projetoSelecionadoId,dadosAtualizacao).subscribe({
+
+        next: (projetoAtualizado) => {
+          this.carregarEvolucoesProjeto(projetoAtualizado);
+
+          this.modoEdicaoEtapa3 = false;
+
+          this.formularioProjeto.disable();
+
+          this.realizacoesAntesDaEdicao = [];
+          this.proximosPassosAntesDaEdicao = [];
+          this.dadosFormularioAntesDaEdicao = null;
+
+          this.buscarProjeto();
+
+          console.log('Projeto atualizado com sucesso');
+        },
+
+        error: (erro) => {
+
+          console.error('Erro ao atualizar projeto:',erro);
+
+          window.alert('Não foi possível salvar as alterações.');
+        }
+
+      });
   }
 
+  obterClasseStatus(status: string): string {
+
+    const classes: Record<string, string> = {
+      'APROVADO': 'status-aprovado',
+      'EM_ANALISE': 'status-em-analise',
+      'RASCUNHO': 'status-rascunho',
+      'REJEITADO': 'status-rejeitado'
+    };
+
+    return classes[status] ?? 'status-rascunho';
+  }
+
+  obterRotuloStatus(status: string): string {
+
+    const rotulos: Record<string, string> = {
+      'APROVADO': 'Aprovado/Público',
+      'EM_ANALISE': 'Em análise',
+      'RASCUNHO': 'Rascunho',
+      'REJEITADO': 'Rejeitado'
+    };
+
+    return rotulos[status] ?? status;
+  }
 }
 

@@ -2,7 +2,8 @@
   <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="titulo-pagina m-0">Projetos Estratégicos</h1>
-      <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal" (click)="criarNovoProjeto()">+Novo Projeto</button>
+      <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal" (click)="criarNovoProjeto()" *ngIf="isAdmin()">+Novo Projeto</button>
+      <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal" (click)="criarNovoProjeto()" *ngIf="!isAdmin()">Propor novo projeto</button>
     </div>
 
     <div class="card container-conteudo">
@@ -50,7 +51,9 @@
                 <small class="texto-subtitulo">Última atualização: {{projeto.ultima_atualizacao | date: 'dd/MM/yyyy'}}</small>
               </td>
               <td class="text-center">
-                <span class="badge status-aprovado">{{projeto.status}}</span>
+                <span class="badge" [ngClass]="obterClasseStatus(projeto.status)">
+                  {{ obterRotuloStatus(projeto.status) }}
+                </span>
               </td>
               <td class="text-center pe-4">
                 <button class="btn botao-visualizar" data-bs-target="#modalProjeto" data-bs-toggle="modal" (click)="visualizarProjeto(projeto)">
@@ -100,14 +103,19 @@
                   <label for="liderProjeto">LIDER DO PROJETO<span class="campo-obrigatorio">*</span></label>
                   <select id="liderProjeto" class="form-control" formControlName="liderProjeto">
                     <option value="">Selecione um usuário</option>
-                    <option [value]="usuario.id" *ngFor="let usuario of usuarios()">{{ usuario.nome_completo }}</option>
+                    <option [ngValue]="usuario.id" *ngFor="let usuario of usuarios()">
+                      {{ usuario.nome_completo }}
+                    </option>
                   </select>
                 </div>
                 <div class="campo-formulario campo-unidade">
                   <label for="unidadeResponsavel">UNIDADE RESPONSÁVEL</label>
                   <select id="unidadeResponsavel" class="form-control" formControlName="unidadeResponsavel">
                     <option value="">Selecione uma unidade</option>
-                    <option [value]="unidade.id" *ngFor="let unidade of unidades()">{{ unidade.nome }} ({{ unidade.sigla }})</option>
+                    <option [ngValue]="unidade.id" *ngFor="let unidade of unidades()">
+                      {{ unidade.nome }}
+                      ({{ unidade.sigla }})
+                    </option>
                   </select>
                 </div>
               </div>
@@ -140,7 +148,7 @@
                     <div class="cabecalho-card-objetivo">
                       <input class="form-check-input selecao-objetivo" type="checkbox"
                         [checked]="objetivoEstaSelecionado(objetivo)"
-                        [disabled]="visualizando && !modoEdicaoEtapa3"
+                        [disabled]="visualizando && (!modoEdicaoEtapa3 || !isAdmin())"
                         (change)="selecionarObjetivo(objetivo, $event)">
                       <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
                     </div>
@@ -248,27 +256,52 @@
             <div class="rodape-formulario">
               <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
               <div class="botoes-navegacao">
-                <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1"><i class="bi bi-chevron-left"></i> Anterior</button>
-                <button *ngIf="etapaAtual < 3" type="button" class="btn botao-proximo" (click)="avancar()">Próximo <i class="bi bi-chevron-compact-right"></i></button>
-                <ng-container *ngIf="etapaAtual === 3">
-            <!-- VISUALIZAÇÃO -->
-                  <button *ngIf="visualizando && !modoEdicaoEtapa3" type="button" class="btn btn-editar-projeto" (click)="editarProjeto()"><i class="bi bi-pen"></i> Editar </button>
-            <!-- EDIÇÃO -->
-                  <ng-container *ngIf="visualizando && modoEdicaoEtapa3">
-                    <button type="button" class="btn btn-secondary" (click)="cancelarEdicaoEtapa3()">
-                      Cancelar edição
-                    </button>
 
-                    <button type="button" class="btn btn-success" (click)="confirmarEdicaoEtapa3()">
-                      Confirmar alterações
-                    </button>
-                  </ng-container>
-            <!-- CRIAÇÃO -->
-                  <ng-container *ngIf="!visualizando">
-                    <button type="button" class="btn botao-salvar-rascunho" (click)="salvarProjeto('RASCUNHO')">Salvar rascunho</button>
-                    <button type="button" class="btn botao-submeter-analise" (click)="salvarProjeto('EM_ANALISE')">Submeter à
-                      análise</button>
-                  </ng-container>
+                <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1">
+                  <i class="bi bi-chevron-left"></i>Anterior
+                </button>
+                <button *ngIf="etapaAtual < 3" type="button" class="btn botao-proximo" (click)="avancar()">
+                  Próximo
+                  <i class="bi bi-chevron-compact-right"></i>
+                </button>
+
+                <!-- VISUALIZANDO -->
+                <button *ngIf="visualizando && !modoEdicaoEtapa3" type="button" class="btn btn-editar-projeto" (click)="editarProjeto()">
+                  <i class="bi bi-pen"></i>
+                  Editar
+                </button>
+
+                <!-- EDITANDO -->
+                <ng-container
+                  *ngIf="visualizando && modoEdicaoEtapa3">
+
+                  <button type="button" class="btn btn-secondary" (click)="cancelarEdicaoEtapa3()">
+                    Cancelar edição
+                  </button>
+
+                  <button type="button" class="btn btn-success" (click)="confirmarEdicaoEtapa3()">
+                    Confirmar alterações
+                  </button>
+                </ng-container>
+
+                <!-- CRIANDO -->
+                <ng-container
+                  *ngIf="!visualizando && etapaAtual === 3">
+
+                  <button type="button" class="btn botao-salvar-rascunho" (click)="salvarProjeto('RASCUNHO')">
+                    Salvar rascunho
+                  </button>
+
+                  <!-- ADMIN -->
+                  <button  *ngIf="isAdmin()"  type="button"  class="btn botao-submeter-analise"  (click)="salvarProjeto('APROVADO')">
+                    Publicar projeto
+                  </button>
+
+                  <!-- SERVIDOR -->
+                  <button  *ngIf="!isAdmin()"  type="button"  class="btn botao-submeter-analise"  (click)="salvarProjeto('EM_ANALISE')">
+                    Submeter à análise
+                  </button>
+
                 </ng-container>
               </div>
             </div>
