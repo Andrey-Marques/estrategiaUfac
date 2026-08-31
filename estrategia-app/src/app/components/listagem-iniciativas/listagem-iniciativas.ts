@@ -29,6 +29,7 @@ export interface AcaoIniciativa {
 })
 export class ListagemIniciativas {
   iniciativas = signal<IniciativaEstrategica[]>([])
+  isAdmin = signal(false);
   private datePipe = inject(DatePipe);
 
   // variaveis para modal de criar iniciativa
@@ -64,9 +65,17 @@ export class ListagemIniciativas {
 
   ngOnInit(): void {
     this.buscarIniciativa();
+    this.buscarUsuarioAtual();
     this.buscarUsuarios();
     this.buscarUnidade();
     this.buscarObjetivosEstrategicos();
+  }
+
+  buscarUsuarioAtual(): void {
+    this.usuarioService.getAtual().subscribe({
+      next: (usuario) => this.isAdmin.set(usuario.papel === 'ADMIN'),
+      error: (erro) => console.error('erro ao buscar usuario atual', erro)
+    });
   }
 
   buscarIniciativa(): void {
@@ -78,7 +87,7 @@ export class ListagemIniciativas {
     })
   }
 
-  abrirNovaIniciativa(): void {
+  CriarNovaIniciativa(): void {
     this.visualizando = false;
     this.formularioIniciativa.enable();
     this.formularioIniciativa.reset({
@@ -119,6 +128,21 @@ export class ListagemIniciativas {
   fecharFormulario(): void {
     this.visualizando = false;
     this.formularioIniciativa.enable();
+  }
+
+  fecharModal(): void {
+    const modal = document.getElementById('exampleModalToggle');
+    if (!modal) return;
+
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.style.display = 'none';
+
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
+
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
   }
 
   //--------logica para o modal------------
@@ -165,7 +189,10 @@ export class ListagemIniciativas {
 
     this.iniciativaService.criarIniciativa(dados).subscribe({
       next: (resposta) => {
-        console.log('Iniciativa criada', resposta)
+        console.log('Iniciativa criada', resposta);
+        this.fecharFormulario();
+        this.fecharModal();
+        this.buscarIniciativa();
       },
       error: (erro) => {
         console.error('Erro ao criar iniciativa', erro);

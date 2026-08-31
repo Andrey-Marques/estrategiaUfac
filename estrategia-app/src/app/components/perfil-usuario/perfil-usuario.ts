@@ -1,16 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { UsuarioService } from '../../service/usuario.service';
 import { Usuario } from '../../model/usuario';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-perfil-usuario',
-  imports: [],
+  imports: [CommonModule, FormsModule],
   templateUrl: './perfil-usuario.html',
   styleUrl: './perfil-usuario.scss',
 })
-export class PerfilUsuario {
+export class PerfilUsuario implements OnInit {
 
-  usuario!:Usuario;
+  usuario?:Usuario;
+  carregando = true;
   modoEdicaoDados = false;
   modoEdicaoAcesso = false;
 
@@ -21,10 +24,12 @@ export class PerfilUsuario {
         next: (dados) => {
             console.log('USUÁRIO RECEBIDO:', dados);
             this.usuario = dados;
+            this.carregando = false;
         },
 
         error: (erro) => {
             console.error('Erro ao buscar perfil:', erro);
+            this.carregando = false;
         }
 });
 

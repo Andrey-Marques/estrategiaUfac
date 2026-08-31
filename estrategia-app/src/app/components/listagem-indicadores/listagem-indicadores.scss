@@ -1,6 +1,11 @@
 @use '../../../styles.scss' as *;
 
-
+body {
+  margin: 0;
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
 .container-fluid {
     width: 95%;           
     height: auto;   
@@ -72,12 +77,12 @@ table {
   }
 }
 .linha-tabela {
-  border-left: 4px solid $cor-primaria;
+  border-left: 4px solid $cor-borda-indicador;
 
   td {
     background-color: $cor-fundo-branco;
   }
-  .titulo-iniciativa {
+  .titulo-indicador {
     color: $cor-primaria;
     font-weight: 700;
     font-size: 14px;

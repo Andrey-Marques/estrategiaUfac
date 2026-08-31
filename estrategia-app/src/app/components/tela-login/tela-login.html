@@ -1,25 +1,16 @@
-<form>
-
+<div class="login-container">
+  <form (ngSubmit)="login()">
     <h2>Login</h2>
-
-    <input
-        type="text"
-        name="username"
-        placeholder="usuario"
-        [(ngModel)]="username"
-    >
-
-    <input
-        type="password"
-        name="password"
-        placeholder="senha"
-        [(ngModel)]="password"
-    >
-
-    <button
-        type="button"
-        (click)="login()">
-        Entrar
+    <div class="campo">
+      <label for="username">Usuário</label>
+      <input type="text" id="username" name="username"  placeholder="Usuário"  [(ngModel)]="username">
+    </div>
+    <div class="campo">
+      <label for="password">Senha</label>
+      <input type="password" id="password" name="password" placeholder="Senha" [(ngModel)]="password">
+    </div>
+    <button type="submit">
+      Entrar
     </button>
-
-</form>
+  </form>
+</div>

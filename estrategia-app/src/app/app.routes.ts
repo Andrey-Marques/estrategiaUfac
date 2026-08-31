@@ -41,7 +41,6 @@ export const routes: Routes = [
       {
         path:"perfil-usuario", component: PerfilUsuario
       },
-      {path: "tela-login", component:TelaLogin}
     ]
   }
 ];

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Usuario } from '../model/usuario';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsuarioService {
   private apiUrl = 'http://localhost:8000/api/usuarios/';
@@ -20,5 +20,9 @@ export class UsuarioService {
 
   salvarMeuPerfil(dados: Partial<Usuario>) {
     return this.http.patch<Usuario>(`${this.apiUrl}me/`, dados);
+  }
+
+  getAtual() {
+    return this.http.get<Usuario>(`${this.apiUrl}me/`);
   }
 }
