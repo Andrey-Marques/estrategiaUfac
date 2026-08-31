@@ -39,7 +39,7 @@
             <tr class="linha-tabela" *ngFor="let projeto of projetos()">
               <td class="ps-4">
                 <div class="titulo-projeto">
-                  {{projeto.nome}}
+                  {{ projeto.nome }}
                 </div>
                 <div class="d-flex gap-1 mt-1">
                   <span class="etiqueta">OE2</span>
@@ -48,7 +48,7 @@
               </td>
               <td class="text-center">
                 <strong class="d-block texto-data">20/07/2026</strong>
-                <small class="texto-subtitulo">Última atualização: {{projeto.ultima_atualizacao | date: 'dd/MM/yyyy'}}</small>
+                <small class="texto-subtitulo">Última atualização: {{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy' }}</small>
               </td>
               <td class="text-center">
                 <span class="badge" [ngClass]="obterClasseStatus(projeto.status)">
@@ -66,7 +66,7 @@
       </div>
     </div>
   </div>
-<!-- modal criação de projeto -->
+
   <div class="modal fade" id="modalProjeto" aria-hidden="true" aria-labelledby="modalProjetoLabel" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
@@ -113,8 +113,7 @@
                   <select id="unidadeResponsavel" class="form-control" formControlName="unidadeResponsavel">
                     <option value="">Selecione uma unidade</option>
                     <option [ngValue]="unidade.id" *ngFor="let unidade of unidades()">
-                      {{ unidade.nome }}
-                      ({{ unidade.sigla }})
+                      {{ unidade.nome }} ({{ unidade.sigla }})
                     </option>
                   </select>
                 </div>
@@ -132,9 +131,9 @@
                 </div>
               </div>
 
-              <div class="campo-formulario " >
+              <div class="campo-formulario ">
                 <label for="descricao">OBJETIVO DO PROJETO</label>
-                <textarea id="descricao" class=" objetivo-projeto" placeholder="Insira o objetivo aqui" formControlName="descricao"></textarea>
+                <textarea id="descricao" class="objetivo-projeto" placeholder="Insira o objetivo aqui" formControlName="descricao"></textarea>
               </div>
 
               <section class="secao-objetivos">
@@ -158,7 +157,7 @@
               </section>
               <hr>
             </div>
-<!-- ---------------------etapa 2--------------------- -->
+
             <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 2">
               <div class="titulo-secao">
                 <h2>Passo 2: Ações Previstas do projeto</h2>
@@ -171,7 +170,7 @@
               <br>
               <hr>
             </div>
-<!-- ---------------------etapa 3------------------------------ -->
+
             <div class="conteudo-formulario realizacoes-container" [class.sumir]="etapaAtual !== 3">
               <div class="realizacoes-header">
                 <div class="titulo-realizacao">
@@ -229,7 +228,6 @@
                     <div class="cartao-realizacao cartao-proximo-passo" *ngFor="let passo of proximosPassos(); let indice = index">
                       <span class="texto-cartao">{{ passo }}</span>
                       <div class="acoes-cartao" *ngIf="!visualizando || modoEdicaoEtapa3">
-
                         <button type="button" class="btn-acao btn-concluir" title="Marcar como realização" aria-label="Marcar próximo passo como realização" (click)="concluirProximoPasso(indice)">
                           <i class="bi bi-check-lg"></i>
                         </button>
@@ -256,7 +254,6 @@
             <div class="rodape-formulario">
               <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
               <div class="botoes-navegacao">
-
                 <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1">
                   <i class="bi bi-chevron-left"></i>Anterior
                 </button>
@@ -265,16 +262,12 @@
                   <i class="bi bi-chevron-compact-right"></i>
                 </button>
 
-                <!-- VISUALIZANDO -->
                 <button *ngIf="visualizando && !modoEdicaoEtapa3" type="button" class="btn btn-editar-projeto" (click)="editarProjeto()">
                   <i class="bi bi-pen"></i>
                   Editar
                 </button>
 
-                <!-- EDITANDO -->
-                <ng-container
-                  *ngIf="visualizando && modoEdicaoEtapa3">
-
+                <ng-container *ngIf="visualizando && modoEdicaoEtapa3">
                   <button type="button" class="btn btn-secondary" (click)="cancelarEdicaoEtapa3()">
                     Cancelar edição
                   </button>
@@ -284,24 +277,18 @@
                   </button>
                 </ng-container>
 
-                <!-- CRIANDO -->
-                <ng-container
-                  *ngIf="!visualizando && etapaAtual === 3">
-
+                <ng-container *ngIf="!visualizando && etapaAtual === 3">
                   <button type="button" class="btn botao-salvar-rascunho" (click)="salvarProjeto('RASCUNHO')">
                     Salvar rascunho
                   </button>
 
-                  <!-- ADMIN -->
-                  <button  *ngIf="isAdmin()"  type="button"  class="btn botao-submeter-analise"  (click)="salvarProjeto('APROVADO')">
+                  <button *ngIf="isAdmin()" type="button" class="btn botao-submeter-analise" (click)="salvarProjeto('APROVADO')">
                     Publicar projeto
                   </button>
 
-                  <!-- SERVIDOR -->
-                  <button  *ngIf="!isAdmin()"  type="button"  class="btn botao-submeter-analise"  (click)="salvarProjeto('EM_ANALISE')">
+                  <button *ngIf="!isAdmin()" type="button" class="btn botao-submeter-analise" (click)="salvarProjeto('EM_ANALISE')">
                     Submeter à análise
                   </button>
-
                 </ng-container>
               </div>
             </div>

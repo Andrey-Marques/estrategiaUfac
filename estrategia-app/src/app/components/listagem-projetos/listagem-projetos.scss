@@ -585,7 +585,8 @@ table {
           gap: 10px;
           flex-shrink: 0;
         }
-        .btn-acao{
+
+        .btn-acao {
           border-radius: 10px;
           padding: 0 5px;
           border: 1px solid $cor-borda-principal;
@@ -742,32 +743,24 @@ textarea.objetivo-projeto{
   border-radius: 6px;
 }
 
-
-// APROVADO / PÚBLICO
 .status-aprovado {
   background-color: rgba(25, 135, 84, 0.12);
   color: #198754;
   border: 1px solid rgba(25, 135, 84, 0.3);
 }
 
-
-// EM ANÁLISE
 .status-em-analise {
   background-color: rgba(255, 193, 7, 0.15);
   color: #997404;
   border: 1px solid rgba(255, 193, 7, 0.4);
 }
 
-
-// RASCUNHO
 .status-rascunho {
   background-color: rgba(108, 117, 125, 0.12);
   color: #6c757d;
   border: 1px solid rgba(108, 117, 125, 0.3);
 }
 
-
-// REJEITADO
 .status-rejeitado {
   background-color: rgba(220, 53, 69, 0.12);
   color: #dc3545;

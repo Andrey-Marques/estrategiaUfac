@@ -1,14 +1,14 @@
-import { UsuarioService } from './../../service/usuario.service';
-import { Component, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ProjetoEstrategico } from '../../model/projetoEstrategico';
-import { ProjetoService } from '../../service/projeto.service';
-import { Usuario } from '../../model/usuario';
-import { Unidade } from '../../model/unidade';
 import { ObjetivoEstrategico } from '../../model/objetivoEstrategico';
-import { UnidadeService } from '../../service/unidade.service';
+import { ProjetoEstrategico } from '../../model/projetoEstrategico';
+import { Unidade } from '../../model/unidade';
+import { Usuario } from '../../model/usuario';
 import { ObjetivoService } from '../../service/objetivo.service';
+import { ProjetoService } from '../../service/projeto.service';
+import { UnidadeService } from '../../service/unidade.service';
+import { UsuarioService } from '../../service/usuario.service';
 
 @Component({
   selector: 'app-listagem-projetos',
@@ -59,7 +59,7 @@ export class ListagemProjetos {
 
   ngOnInit(): void {
     this.buscarProjeto();
-    this.buscarUsuarioAtual()
+    this.buscarUsuarioAtual();
     this.buscarUsuarios();
     this.buscarUnidades();
     this.buscarObjetivosEstrategicos();
@@ -72,14 +72,14 @@ export class ListagemProjetos {
     });
   }
 
-  buscarUsuarioAtual(): void{
+  buscarUsuarioAtual(): void {
     this.usuarioService.getAtual().subscribe({
       next: (usuario) => {
         this.isAdmin.set(usuario.papel === 'ADMIN');
       },
       error: (erro) => {
         console.error('Erro ao buscar usuário atual:', erro);
-      }
+      },
     });
   }
 
@@ -122,23 +122,16 @@ export class ListagemProjetos {
         });
         this.formularioProjeto.disable();
         this.etapaAtual = 1;
-      }
+      },
     });
   }
 
   editarProjeto(): void {
-
-    // Guarda as realizações para poder cancelar depois
     this.realizacoesAntesDaEdicao = [...this.realizacoesConcluidas()];
-
-    this.proximosPassosAntesDaEdicao = [ ...this.proximosPassos()];
-
-    // Guarda os dados das etapas 1 e 2
+    this.proximosPassosAntesDaEdicao = [...this.proximosPassos()];
     this.dadosFormularioAntesDaEdicao = this.formularioProjeto.getRawValue();
-
     this.modoEdicaoEtapa3 = true;
 
-    // Somente ADMIN pode editar etapas 1 e 2
     if (this.isAdmin()) {
       this.formularioProjeto.enable();
     }
@@ -188,8 +181,8 @@ export class ListagemProjetos {
     });
   }
 
-  salvarProjeto(status: string): void{
-    if(this.formularioProjeto.invalid){
+  salvarProjeto(status: string): void {
+    if (this.formularioProjeto.invalid) {
       this.formularioProjeto.markAllAsTouched();
       return;
     }
@@ -213,23 +206,20 @@ export class ListagemProjetos {
     this.projetoService.CriarProjeto(projeto).subscribe({
       next: (projetoCriado) => {
         console.log('Projeto criado:', projetoCriado);
-
         this.limparEvolucoesProjeto();
-
         this.projetoSelecionadoId = null;
         this.dadosFormularioAntesDaEdicao = null;
         this.modoEdicaoEtapa3 = false;
-
         this.fecharModal();
         this.buscarProjeto();
+        this.formularioProjeto.reset();
+        this.etapaAtual = 1;
       },
-      error: (erro)=>{
+      error: (erro) => {
         console.error('erro ao criar projeto:', erro.error);
-      }
+      },
     });
   }
-
-
 
   criarNovoProjeto(): void {
     this.visualizando = false;
@@ -247,20 +237,16 @@ export class ListagemProjetos {
       objetivos: [],
     });
     this.limparEvolucoesProjeto();
-
     this.dadosFormularioAntesDaEdicao = null;
-
     this.etapaAtual = 1;
   }
 
   private limparEvolucoesProjeto(): void {
     this.realizacoesConcluidas.set([]);
     this.proximosPassos.set([]);
-
     this.realizacoesAntesDaEdicao = [];
     this.proximosPassosAntesDaEdicao = [];
   }
-
 
   fecharFormulario(): void {
     this.visualizando = false;
@@ -321,41 +307,39 @@ export class ListagemProjetos {
     return !titulo?.invalid && !lider?.invalid && !unidade?.invalid;
   }
 
-  buscarUsuarios(): void{
+  buscarUsuarios(): void {
     this.usuarioService.get().subscribe({
       next: (dados) => this.usuarios.set(dados),
-      error: (erro) => console.error('erro ao buscar usuarios', erro)
+      error: (erro) => console.error('erro ao buscar usuarios', erro),
     });
   }
 
   buscarUnidades(): void {
     this.unidadeService.get().subscribe({
       next: (dados) => this.unidades.set(dados),
-      error: (erro) => console.error('erro ao buscar unidades', erro)
+      error: (erro) => console.error('erro ao buscar unidades', erro),
     });
   }
 
   buscarObjetivosEstrategicos(): void {
     this.objetivoService.get().subscribe({
       next: (dados) => this.objetivos.set(dados),
-      error: (erro) => console.error('Erro ao buscar objetivos estratégicos:', erro)
+      error: (erro) => console.error('Erro ao buscar objetivos estratégicos:', erro),
     });
   }
 
-  selecionarObjetivo( objetivo: ObjetivoEstrategico, evento: Event): void {
-
+  selecionarObjetivo(objetivo: ObjetivoEstrategico, evento: Event): void {
     if (this.visualizando && (!this.modoEdicaoEtapa3 || !this.isAdmin())) {
       return;
     }
 
     const checkbox = evento.target as HTMLInputElement;
+    const selecionados = this.normalizarIds(this.formularioProjeto.get('objetivos')?.value || []);
+    const novos = checkbox.checked
+      ? [...selecionados, objetivo.id]
+      : selecionados.filter((id: number) => id !== objetivo.id);
 
-    const selecionados = this.normalizarIds( this.formularioProjeto.get('objetivos')?.value || []);
-
-    const novos = checkbox.checked ? [...selecionados, objetivo.id] : selecionados.filter((id: number) => id !== objetivo.id);
-
-    this.formularioProjeto.patchValue({objetivos: novos});
-
+    this.formularioProjeto.patchValue({ objetivos: novos });
     this.formularioProjeto.get('objetivos')?.markAsTouched();
   }
 
@@ -364,50 +348,47 @@ export class ListagemProjetos {
   }
 
   adicionarRealizacaoDireta(): void {
-    if(this.visualizando && !this.modoEdicaoEtapa3){
+    if (this.visualizando && !this.modoEdicaoEtapa3) {
       return;
     }
     const texto = window.prompt('Digite a realização concluída:');
-    if(!texto || !texto.trim()){
+    if (!texto || !texto.trim()) {
       return;
     }
 
-    this.realizacoesConcluidas.update(lista => [...lista, texto.trim()]);
+    this.realizacoesConcluidas.update((lista) => [...lista, texto.trim()]);
   }
 
   adicionarProximoPasso(): void {
-    if(this.visualizando && !this.modoEdicaoEtapa3){
+    if (this.visualizando && !this.modoEdicaoEtapa3) {
       return;
     }
     const texto = window.prompt('Digite um proximo passo:');
 
-    if(!texto || !texto.trim()){
+    if (!texto || !texto.trim()) {
       return;
     }
-    this.proximosPassos.update(lista => [...lista, texto.trim()])
+    this.proximosPassos.update((lista) => [...lista, texto.trim()]);
   }
 
   concluirProximoPasso(indice: number): void {
-    if(!this.modoEdicaoEtapa3){
+    if (!this.modoEdicaoEtapa3) {
       return;
     }
     const passo = this.proximosPassos()[indice];
-    if(!passo){
+    if (!passo) {
       return;
     }
 
-    this.proximosPassos.update(lista =>
-      lista.filter((_,i) => i !== indice)
-    );
-
-    this.realizacoesConcluidas.update(lista => [...lista, passo]);
+    this.proximosPassos.update((lista) => lista.filter((_, i) => i !== indice));
+    this.realizacoesConcluidas.update((lista) => [...lista, passo]);
   }
 
   removerRealizacao(indice: number): void {
-    if(this.visualizando && !this.modoEdicaoEtapa3){
+    if (this.visualizando && !this.modoEdicaoEtapa3) {
       return;
     }
-    this.realizacoesConcluidas.update(lista => lista.filter((_, i) => i !== indice));
+    this.realizacoesConcluidas.update((lista) => lista.filter((_, i) => i !== indice));
   }
 
   removerProximoPasso(indice: number): void {
@@ -415,13 +396,10 @@ export class ListagemProjetos {
       return;
     }
 
-    this.proximosPassos.update(lista =>
-      lista.filter((_, i) => i !== indice)
-    );
+    this.proximosPassos.update((lista) => lista.filter((_, i) => i !== indice));
   }
 
   voltarRealizacaoParaProximoPasso(indice: number): void {
-
     if (!this.modoEdicaoEtapa3) {
       return;
     }
@@ -431,40 +409,36 @@ export class ListagemProjetos {
       return;
     }
 
-    this.realizacoesConcluidas.update(lista => lista.filter((_, i) => i !== indice));
-
-    this.proximosPassos.update(lista => [...lista,realizacao]);
+    this.realizacoesConcluidas.update((lista) => lista.filter((_, i) => i !== indice));
+    this.proximosPassos.update((lista) => [...lista, realizacao]);
   }
 
   cancelarEdicaoEtapa3(): void {
-
-    // Restaura etapa 3
     this.realizacoesConcluidas.set([...this.realizacoesAntesDaEdicao]);
-
     this.proximosPassos.set([...this.proximosPassosAntesDaEdicao]);
 
-    // Restaura etapas 1 e 2
     if (this.dadosFormularioAntesDaEdicao) {
       this.formularioProjeto.patchValue(this.dadosFormularioAntesDaEdicao);
     }
-    // Volta para modo visualização
+
     this.formularioProjeto.disable();
-
     this.modoEdicaoEtapa3 = false;
-
     this.dadosFormularioAntesDaEdicao = null;
   }
 
-  private montarEvolucoes(): Array<{realizacao: string; proximo_passo:string}> {
-    const realizacoes = this.realizacoesConcluidas().filter(valor =>valor?.trim()).map(valor => ({realizacao: valor.trim(), proximo_passo: ''}));
+  private montarEvolucoes(): Array<{ realizacao: string; proximo_passo: string }> {
+    const realizacoes = this.realizacoesConcluidas()
+      .filter((valor) => valor?.trim())
+      .map((valor) => ({ realizacao: valor.trim(), proximo_passo: '' }));
 
-    const proximos = this.proximosPassos().filter(valor => valor?.trim()).map(valor => ({realizacao: '', proximo_passo: valor.trim()}));
+    const proximos = this.proximosPassos()
+      .filter((valor) => valor?.trim())
+      .map((valor) => ({ realizacao: '', proximo_passo: valor.trim() }));
 
-    return [...realizacoes, ...proximos]
+    return [...realizacoes, ...proximos];
   }
 
   confirmarEdicaoEtapa3(): void {
-
     if (!this.projetoSelecionadoId) {
       return;
     }
@@ -476,19 +450,12 @@ export class ListagemProjetos {
     }
 
     const evolucoes = this.montarEvolucoes();
-
     let dadosAtualizacao: any;
 
-    // ------------------ADMIN----------------------
     if (this.isAdmin()) {
-
       if (this.formularioProjeto.invalid) {
         this.formularioProjeto.markAllAsTouched();
-
-        window.alert(
-          'Preencha corretamente os campos obrigatórios.'
-        );
-
+        window.alert('Preencha corretamente os campos obrigatórios.');
         return;
       }
 
@@ -498,71 +465,54 @@ export class ListagemProjetos {
         nome: formulario.tituloProjeto,
         descricao: formulario.descricao,
         tempo_estimado: formulario.tempoEstimado,
-        custo_estimado: Number(
-          formulario.custoEstimado
-        ),
+        custo_estimado: Number(formulario.custoEstimado),
         responsavel: formulario.liderProjeto,
         unidade: formulario.unidadeResponsavel,
         acoes_previstas: formulario.acoesPrevistas,
         objetivos: formulario.objetivos ?? [],
-        evolucoes: evolucoes
+        evolucoes: evolucoes,
       };
-
-    }
-    // ---------------------SERVIDOR----------------------------
-    else {
+    } else {
       dadosAtualizacao = {
-        evolucoes: evolucoes
+        evolucoes: evolucoes,
       };
     }
 
-    this.projetoService.atualizarProjeto(this.projetoSelecionadoId,dadosAtualizacao).subscribe({
-
-        next: (projetoAtualizado) => {
-          this.carregarEvolucoesProjeto(projetoAtualizado);
-
-          this.modoEdicaoEtapa3 = false;
-
-          this.formularioProjeto.disable();
-
-          this.realizacoesAntesDaEdicao = [];
-          this.proximosPassosAntesDaEdicao = [];
-          this.dadosFormularioAntesDaEdicao = null;
-
-          this.buscarProjeto();
-
-          console.log('Projeto atualizado com sucesso');
-        },
-
-        error: (erro) => {
-
-          console.error('Erro ao atualizar projeto:',erro);
-
-          window.alert('Não foi possível salvar as alterações.');
-        }
-
-      });
+    this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao).subscribe({
+      next: (projetoAtualizado) => {
+        this.carregarEvolucoesProjeto(projetoAtualizado);
+        this.modoEdicaoEtapa3 = false;
+        this.formularioProjeto.disable();
+        this.realizacoesAntesDaEdicao = [];
+        this.proximosPassosAntesDaEdicao = [];
+        this.dadosFormularioAntesDaEdicao = null;
+        this.buscarProjeto();
+        console.log('Projeto atualizado com sucesso');
+      },
+      error: (erro) => {
+        console.error('Erro ao atualizar projeto:', erro);
+        window.alert('Não foi possível salvar as alterações.');
+      },
+    });
   }
 
   obterClasseStatus(status: string): string {
-
     const classes: Record<string, string> = {
-      'APROVADO': 'status-aprovado',
-      'EM_ANALISE': 'status-em-analise',
-      'RASCUNHO': 'status-rascunho',
-      'REJEITADO': 'status-rejeitado'
+      APROVADO: 'status-aprovado',
+      EM_ANALISE: 'status-em-analise',
+      RASCUNHO: 'status-rascunho',
+      REJEITADO: 'status-rejeitado',
     };
 
     return classes[status] ?? 'status-rascunho';
   }
 
   obterRotuloStatus(status: string): string {
-
     const rotulos: Record<string, string> = {
-      'APROVADO': 'Aprovado/Público',
-      'EM_ANALISE': 'Em análise',
-      'RASCUNHO': 'Rascunho',
-      'REJEITADO': 'Rejeitado'
+      APROVADO: 'Aprovado/Público',
+      EM_ANALISE: 'Em análise',
+      RASCUNHO: 'Rascunho',
+      REJEITADO: 'Rejeitado',
     };
 
     return rotulos[status] ?? status;

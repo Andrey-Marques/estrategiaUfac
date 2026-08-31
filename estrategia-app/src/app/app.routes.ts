@@ -7,6 +7,7 @@ import { TelaCadastro } from './components/tela-cadastro/tela-cadastro';
 import { ListagemProjetos } from './components/listagem-projetos/listagem-projetos';
 import { ListagemIndicadores } from './components/listagem-indicadores/listagem-indicadores';
 import { authGuard } from './guards/auth.guard';
+import { PerfilUsuario } from './components/perfil-usuario/perfil-usuario';
 
 export const routes: Routes = [
   {
@@ -36,6 +37,9 @@ export const routes: Routes = [
       {
         path:"listagem-indicadores", 
         component:ListagemIndicadores
+      },
+      {
+        path:"perfil-usuario", component: PerfilUsuario
       },
     ]
   }

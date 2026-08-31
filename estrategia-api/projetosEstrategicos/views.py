@@ -12,6 +12,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
         usuario = self.request.user
         
         if usuario.papel == 'ADMIN':
+        if usuario.papel == 'ADMIN':
             return ProjetoEstrategico.objects.all()
         
         return ProjetoEstrategico.objects.filter(
