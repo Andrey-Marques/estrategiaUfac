@@ -6,6 +6,7 @@ class IniciativaEstrategica(models.Model):
         ('APROVADO', 'Aprovado/Público'),
         ('REJEITADO', 'Rejeitado'),
         ('RASCUNHO', 'Rascunho'),
+        ('EM_ANALISE', 'Em análise'),
     ]
     nome = models.CharField(max_length=255)
     data_preenchimento = models.DateTimeField(auto_now_add=True)
