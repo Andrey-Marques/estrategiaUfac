@@ -1,0 +1,661 @@
+// ============================================================
+// VARIÁVEIS
+// ============================================================
+
+$azul-principal: #08088b;
+
+$branco: #ffffff;
+$cinza-breadcrumb: #8b8b8b;
+$azul-escuro: #071f48;
+$azul-card: #1762bd;
+$amarelo-card: #dfb700;
+
+
+$cinza-texto: #687386;
+
+// ============================================================
+// HOST
+// ============================================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+
+// ============================================================
+// RESET
+// ============================================================
+
+* {
+  box-sizing: border-box;
+}
+
+.pagina {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  background-color: $branco;
+
+  font-family: "Inter", "Open Sans", Arial, sans-serif;
+}
+
+
+// ============================================================
+// HEADER
+// ============================================================
+
+.cabecalho {
+  width: 100%;
+  height: 72px;
+
+  padding: 0 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background-color: $branco;
+
+  border-top: 4px solid #f2aaaa;
+  border-bottom: 1px solid #dddddd;
+}
+
+// ======================================================
+// LOGO
+// ======================================================
+
+.logo-area {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 52px;
+  height: auto;
+
+  object-fit: contain;
+}
+
+
+// ======================================================
+// LINKS DO HEADER
+// ======================================================
+
+.links-topo {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  a {
+    color: #536174;
+
+    text-decoration: none;
+
+    font-size: 0.75rem;
+
+    white-space: nowrap;
+
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $azul-card;
+    }
+  }
+
+  span {
+    color: #b0b5bc;
+  }
+
+  button {
+    border: none;
+    background: transparent;
+
+    padding: 2px;
+
+    cursor: pointer;
+
+    font-size: 0.9rem;
+  }
+}
+
+// ============================================================
+// BOTÃO MENU
+// ============================================================
+
+.botao-menu {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  background: transparent;
+
+  color: #444;
+
+  cursor: pointer;
+
+  font-size: 1.45rem;
+
+  &:hover {
+    color: $azul-principal;
+  }
+}
+
+
+// ============================================================
+// CONTEÚDO PRINCIPAL
+// ============================================================
+
+.conteudo-principal {
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 20px 55px 80px;
+
+  flex: 1;
+}
+
+
+// ============================================================
+// BREADCRUMB
+// ============================================================
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 32px;
+
+  font-size: 0.65rem;
+
+  color: $cinza-breadcrumb;
+
+  a {
+    color: $azul-principal;
+
+    text-decoration: none;
+
+    font-size: 0.7rem;
+  }
+
+  span {
+    &:first-of-type {
+      color: #b2b2b2;
+    }
+  }
+}
+
+
+// ============================================================
+// INTRODUÇÃO
+// ============================================================
+
+.introducao {
+  margin-left: 45px;
+
+  margin-bottom: 34px;
+
+  h1 {
+    margin: 0 0 4px;
+
+    color: $azul-principal;
+
+    font-size: 2rem;
+
+    line-height: 1.15;
+
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+
+    color: $cinza-texto;
+
+    font-size: 0.9rem;
+
+    line-height: 1.35;
+  }
+}
+
+
+// ============================================================
+// GRID DAS UNIDADES
+// ============================================================
+
+.unidades {
+  width: 100%;
+
+  padding: 0 38px;
+
+  display: grid;
+
+  grid-template-columns: repeat(5, 1fr);
+
+  gap: 15px 22px;
+}
+
+
+// ============================================================
+// CARD / BOTÃO DA UNIDADE
+// ============================================================
+
+.unidade {
+  width: 100%;
+
+  min-height: 92px;
+
+  padding: 13px 8px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background-color: $azul-principal;
+
+  color: $branco;
+
+  cursor: pointer;
+
+  text-align: center;
+
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.25);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+
+
+  // --------------------------------------------
+  // SIGLA
+  // --------------------------------------------
+
+  strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 0.95rem;
+
+    line-height: 1;
+
+    font-weight: 700;
+
+    letter-spacing: 0.02em;
+  }
+
+
+  // --------------------------------------------
+  // DESCRIÇÃO
+  // --------------------------------------------
+
+  span {
+    display: block;
+
+    font-size: 0.62rem;
+
+    line-height: 1.2;
+
+    font-weight: 400;
+  }
+
+
+  // --------------------------------------------
+  // HOVER
+  // --------------------------------------------
+
+  &:hover {
+    transform: translateY(-3px);
+
+    background-color: #06067a;
+
+    box-shadow:
+      0 5px 10px rgba(0, 0, 0, 0.22);
+  }
+
+
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+
+// ============================================================
+// FOOTER
+// ============================================================
+
+.rodape {
+  width: 100%;
+
+  background-color: $azul-escuro;
+
+  color: $branco;
+
+  flex-shrink: 0;
+}
+
+
+// ============================================================
+// CONTEÚDO DO FOOTER
+// ============================================================
+
+.rodape-conteudo {
+  width: 100%;
+  max-width: 1400px;
+
+  margin: 0 auto;
+
+  padding: 38px 45px 30px;
+
+  display: grid;
+
+  grid-template-columns:
+    1.1fr
+    1fr
+    1.5fr
+    1.5fr
+    1fr;
+
+  gap: 40px;
+}
+
+
+// ============================================================
+// LOGO DO FOOTER
+// ============================================================
+
+.rodape-logo {
+
+  img {
+    width: 125px;
+    height: auto;
+
+    display: block;
+
+    margin-bottom: 40px;
+  }
+}
+
+
+// ============================================================
+// REDES SOCIAIS
+// ============================================================
+
+.redes-sociais {
+
+  h3 {
+    margin: 0 0 10px;
+
+    font-size: 0.62rem;
+
+    font-weight: 600;
+  }
+}
+
+
+.icones {
+  display: flex;
+
+  gap: 14px;
+
+  a {
+    color: $branco;
+
+    text-decoration: none;
+
+    font-size: 1rem;
+
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+}
+
+
+// ============================================================
+// COLUNAS DO FOOTER
+// ============================================================
+
+.rodape-coluna {
+
+  h3 {
+    margin: 0 0 15px;
+
+    color: $branco;
+
+    font-size: 0.65rem;
+
+    font-weight: 600;
+
+    letter-spacing: 0.02em;
+  }
+
+  a {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: rgba(255, 255, 255, 0.72);
+
+    text-decoration: none;
+
+    font-size: 0.6rem;
+
+    line-height: 1.35;
+
+    &:hover {
+      color: $branco;
+    }
+  }
+}
+
+
+// ============================================================
+// RODAPÉ INFERIOR
+// ============================================================
+
+.rodape-bottom {
+  position: relative;
+
+  min-height: 38px;
+
+  padding: 8px 45px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+
+  span {
+    color: rgba(255, 255, 255, 0.65);
+
+    font-size: 0.58rem;
+  }
+}
+
+
+// ============================================================
+// UFAC
+// ============================================================
+
+.ufac {
+  position: absolute;
+
+  right: 45px;
+
+  color: #1465bb;
+
+  font-size: 1.4rem;
+
+  font-weight: 700;
+
+  span {
+    color: #1465bb;
+
+    font-size: 1.4rem;
+  }
+}
+
+
+// ============================================================
+// RESPONSIVIDADE
+// ============================================================
+
+
+// ------------------------------------------------------------
+// TELAS MÉDIAS
+// ------------------------------------------------------------
+
+@media (max-width: 1000px) {
+
+  .conteudo-principal {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+
+  .introducao {
+    margin-left: 20px;
+  }
+
+  .unidades {
+    padding: 0 20px;
+
+    gap: 14px;
+  }
+
+  .unidade {
+    min-height: 90px;
+  }
+
+  .rodape-conteudo {
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 30px;
+  }
+}
+
+
+// ------------------------------------------------------------
+// TABLET
+// ------------------------------------------------------------
+
+@media (max-width: 750px) {
+
+  .header {
+    padding: 0 25px;
+  }
+
+  .conteudo-principal {
+    padding: 20px 25px 60px;
+  }
+
+  .introducao {
+    margin-left: 0;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+  }
+
+  .unidades {
+    padding: 0;
+
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .rodape-conteudo {
+    grid-template-columns: repeat(2, 1fr);
+
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+
+
+// ------------------------------------------------------------
+// CELULAR
+// ------------------------------------------------------------
+
+@media (max-width: 500px) {
+
+  .header {
+    height: 68px;
+
+    padding: 0 20px;
+  }
+
+  .header-logo img {
+    width: 55px;
+  }
+
+  .conteudo-principal {
+    padding: 18px 20px 50px;
+  }
+
+  .breadcrumb {
+    margin-bottom: 25px;
+  }
+
+  .introducao {
+
+    h1 {
+      font-size: 1.6rem;
+    }
+
+    p {
+      font-size: 0.8rem;
+    }
+  }
+
+  .unidades {
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 12px;
+  }
+
+  .unidade {
+    min-height: 95px;
+
+    strong {
+      font-size: 0.85rem;
+    }
+
+    span {
+      font-size: 0.58rem;
+    }
+  }
+
+  .rodape-conteudo {
+    grid-template-columns: 1fr;
+
+    padding: 30px 25px;
+  }
+
+  .ufac {
+    display: none;
+  }
+}
