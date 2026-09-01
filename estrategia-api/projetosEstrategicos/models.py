@@ -45,6 +45,7 @@ class EvolucaoProjeto(models.Model):
 
 class EvolucaoOrcamentaria(models.Model):
     valor = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    descricao = models.TextField(blank=True,default='')
     data_registro = models.DateTimeField(auto_now_add=True)
     fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'evolucoesOrcamentarias')
     

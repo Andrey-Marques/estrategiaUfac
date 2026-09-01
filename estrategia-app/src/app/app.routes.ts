@@ -14,7 +14,7 @@ export const routes: Routes = [
     path: 'login',
     component: TelaLogin
   },
-  //paginas/urls/rotas que precisam de login para ser acessadas 
+  //paginas/urls/rotas que precisam de login para ser acessadas
   {
     path: '',
     canActivate: [authGuard],
@@ -28,14 +28,14 @@ export const routes: Routes = [
         component: ListagemIniciativas
       },
       {
-        path: "tela-cadastro", 
+        path: "tela-cadastro",
         component: TelaCadastro
       },
       {
-        path:"listagem-projetos", 
+        path:"listagem-projetos",
         component: ListagemProjetos},
       {
-        path:"listagem-indicadores", 
+        path:"listagem-indicadores",
         component:ListagemIndicadores
       },
       {

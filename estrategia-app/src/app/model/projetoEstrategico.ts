@@ -5,11 +5,12 @@ export interface EvolucaoProjeto{
     fk_projeto: number
 }
 
-export interface EvolucaoOrcamentaria{
-    id: number;
-    valor: number;
-    data_registro: string;
-    fk_projeto: number;
+export interface EvolucaoOrcamentaria {
+  id: number;
+  valor: number;
+  descricao: string;
+  data_registro: string;
+  fk_projeto: number;
 }
 
 export interface EvolucaoPayload {

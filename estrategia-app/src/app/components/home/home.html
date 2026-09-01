@@ -1,19 +1,19 @@
-<body>
+<div>
     <div class="div-home">
         <span class="usuario-tipo">PERFIL: SERVIDOR</span>
         <h3>Área de Acompanhamento de Metas Institucionais</h3>
         <p>Bem vindo(a) de volta, Andrey. Aqui você pode monitorar o andamento das suas metas institucionais e submeter
             propostas da sua unidade para avaliação por um administrador da PROPLAN.</p>
     </div>
-    
-    
+
+
     <div class="tabela-espera">
         <!-- Cabeçalho -->
         <div class="tabela-header">
             <h4>Submissões Em Espera</h4>
             <p>Registros recentes pendentes de avaliação e aprovação</p>
         </div>
-    
+
         <!-- Abas de Navegação -->
         <div class="tabela-tabs">
             <button class="tab-item" [class.ativo]="abaAtiva === 1" (click)="mudarAba(1)">
@@ -26,13 +26,13 @@
                 Indicadores Estratégicos
             </button>
         </div>
-    
+
         <!-- Área de Conteúdo -->
         <div class="tabela-conteudo">
-    
+
             <!-- ABA 1: PROJETOS ESTRATÉGICOS -->
             <div *ngIf="abaAtiva === 1" class="conteudo-animado">
-    
+
                 <!-- Mostra a pastinha SE a lista estiver vazia -->
                 <div class="estado-vazio" *ngIf="listaProjetos.length === 0">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="#CBD5E1" xmlns="http://www.w3.org/2000/svg">
@@ -41,7 +41,7 @@
                     </svg>
                     <p>Nenhum formulário de projeto em espera encontrado no momento.</p>
                 </div>
-    
+
                 <!-- Mostra a lista SE houver itens (usando *ngFor) -->
                 <div class="lista-registros" *ngIf="listaProjetos.length > 0">
                     <div class="registro-item" *ngFor="let projeto of listaProjetos">
@@ -49,9 +49,9 @@
                         <button class="registro-acao">Avaliar</button>
                     </div>
                 </div>
-    
+
             </div>
-    
+
             <!-- ABA 2: INICIATIVAS ESTRATÉGICAS -->
             <div *ngIf="abaAtiva === 2" class="conteudo-animado">
                 <div class="estado-vazio" *ngIf="listaIniciativas.length === 0">
@@ -61,9 +61,9 @@
                     </svg>
                     <p>Nenhum formulário de inciativas em espera encontrado no momento.</p>
                 </div>
-    
+
             </div>
-    
+
             <!-- ABA 3: INDICADORES ESTRATÉGICOS -->
             <div *ngIf="abaAtiva === 3" class="conteudo-animado">
                 <div class="estado-vazio" *ngIf="listaIndicadores.length === 0">
@@ -73,10 +73,10 @@
                     </svg>
                     <p>Nenhum formulário de indicadores em espera encontrado no momento.</p>
                 </div>
-    
+
             </div>
-    
+
         </div>
     </div>
-    
-</body>
+
+</div>

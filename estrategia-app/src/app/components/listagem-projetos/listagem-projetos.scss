@@ -766,4 +766,247 @@ textarea.objetivo-projeto{
   color: #dc3545;
   border: 1px solid rgba(220, 53, 69, 0.3);
 }
+.vinculo-servidor-unidade {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 12px;
+  padding: 12px 14px;
+
+  border: 1px solid #b7e4c7;
+  background: #f0fff4;
+  border-radius: 8px;
+
+  color: #24613b;
+
+  i {
+    font-size: 20px;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  strong {
+    font-size: 13px;
+  }
+
+  span {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+}
+
+.ajuda-unidade {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: $cor-texto-auxiliar;
+}
+.unidade-projeto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+
+  strong {
+    color: $cor-primaria;
+    font-size: 13px;
+  }
+
+  small {
+    max-width: 160px;
+    color: $cor-texto-auxiliar;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+}
+.progresso-projeto {
+  width: 140px;
+  margin: 0 auto;
+
+  .progresso-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 5px;
+
+    span {
+      color: $cor-texto-auxiliar;
+      font-size: 10px;
+    }
+
+    strong {
+      color: $cor-primaria;
+      font-size: 11px;
+    }
+  }
+}
+
+.barra-progresso {
+  width: 100%;
+  height: 7px;
+
+  background-color: #e8edf5;
+
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.barra-progresso-preenchimento {
+  height: 100%;
+  min-width: 0;
+
+  background-color: $cor-primaria-texto-destaque;
+
+  border-radius: 20px;
+
+  transition: width 0.3s ease;
+}
+.secao-evolucao-orcamento {
+  margin: 28px 12px;
+  padding: 16px;
+
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+}
+
+.titulo-evolucao-orcamento {
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+
+  font-size: 18px;
+  font-weight: 600;
+
+  border-bottom: 1px solid #dddddd;
+}
+
+.cards-evolucao-orcamento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.card-monitoramento {
+  padding: 18px;
+
+  background: #eeeeee;
+  border-radius: 14px;
+}
+
+.card-monitoramento-texto {
+  margin-bottom: 1px;
+
+  h3 {
+    margin: 0 0 5px;
+
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  p {
+    margin-bottom: 0;
+
+    font-size: 11px;
+    line-height: 1.4;
+    color: #777;
+  }
+}
+.registrar{
+  margin-bottom: 0
+}
+
+.widget-progresso-projeto {
+  padding: 16px;
+
+  background: #ffffff;
+  border-radius: 9px;
+
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.widget-progresso-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 12px;
+
+  font-size: 12px;
+}
+
+.campo-porcentagem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  input {
+    width: 55px;
+
+    padding: 3px 5px;
+
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+
+    text-align: center;
+  }
+}
+
+.trilho-progresso {
+  width: 100%;
+  height: 8px;
+
+  background: #d6d6d6;
+
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.preenchimento-progresso {
+  height: 100%;
+
+  background: #0d6efd;
+
+  border-radius: 20px;
+
+  transition: width 0.25s ease;
+}
+
+.campo-orcamento {
+  margin-top: 12px;
+
+  label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    color: #666;
+  }
+
+  input,
+  textarea {
+    font-size: 11px;
+    background: #fff;
+  }
+
+  textarea {
+    resize: none;
+  }
+}
+.sem-registros{
+  font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  .cards-evolucao-orcamento {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
 

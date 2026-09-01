@@ -9,6 +9,7 @@ import { ObjetivoService } from '../../service/objetivo.service';
 import { ProjetoService } from '../../service/projeto.service';
 import { UnidadeService } from '../../service/unidade.service';
 import { UsuarioService } from '../../service/usuario.service';
+import {EvolucaoOrcamentaria } from '../../model/projetoEstrategico';
 
 @Component({
   selector: 'app-listagem-projetos',
@@ -18,6 +19,7 @@ import { UsuarioService } from '../../service/usuario.service';
   providers: [DatePipe],
 })
 export class ListagemProjetos {
+  evolucoesOrcamentarias = signal<EvolucaoOrcamentaria[]>([]);
   projetos = signal<ProjetoEstrategico[]>([]);
   usuarios = signal<Usuario[]>([]);
   unidades = signal<Unidade[]>([]);
@@ -52,6 +54,10 @@ export class ListagemProjetos {
       descricao: [''],
       tempoEstimado: ['', Validators.required],
       custoEstimado: [0, Validators.required],
+
+      percentualProgresso: [0,[ Validators.required, Validators.min(0), Validators.max(100)]],
+      valorInvestido: [null],
+      descricaoOrcamentaria: [''],
       acoesPrevistas: [''],
       objetivos: [[], Validators.required],
     });
@@ -91,7 +97,13 @@ export class ListagemProjetos {
 
     this.projetoService.getById(projeto.id).subscribe({
       next: (projetoDetalhado) => {
-        this.carregarEvolucoesProjeto(projetoDetalhado);
+        this.carregarEvolucoesProjeto(
+          projetoDetalhado
+        );
+
+        this.evolucoesOrcamentarias.set(
+          projetoDetalhado.evolucoesOrcamentarias ?? []
+        );
         this.formularioProjeto.patchValue({
           tituloProjeto: projetoDetalhado.nome,
           liderProjeto: projetoDetalhado.responsavel,
@@ -99,9 +111,19 @@ export class ListagemProjetos {
           descricao: projetoDetalhado.descricao,
           tempoEstimado: projetoDetalhado.tempo_estimado,
           custoEstimado: projetoDetalhado.custo_estimado,
-          acoesPrevistas: projetoDetalhado.acoes_previstas,
-          objetivos: this.normalizarIds(projetoDetalhado.objetivos ?? []),
-          realizacoes: projetoDetalhado.evolucoes?.map((evolucao) => evolucao.realizacao).join('\n\n') || '',
+
+          percentualProgresso:
+            projetoDetalhado.percentual_progresso,
+
+          valorInvestido: null,
+          descricaoOrcamentaria: '',
+
+          acoesPrevistas:
+            projetoDetalhado.acoes_previstas,
+
+          objetivos: this.normalizarIds(
+            projetoDetalhado.objetivos ?? []
+          )
         });
         this.formularioProjeto.disable();
         this.etapaAtual = 1;
@@ -115,6 +137,7 @@ export class ListagemProjetos {
           unidadeResponsavel: projeto.unidade,
           descricao: projeto.descricao,
           tempoEstimado: projeto.tempo_estimado,
+          percentualProgresso: projeto.percentual_progresso,
           custoEstimado: projeto.custo_estimado,
           acoesPrevistas: projeto.acoes_previstas,
           objetivos: this.normalizarIds(projeto.objetivos ?? []),
@@ -127,13 +150,33 @@ export class ListagemProjetos {
   }
 
   editarProjeto(): void {
-    this.realizacoesAntesDaEdicao = [...this.realizacoesConcluidas()];
-    this.proximosPassosAntesDaEdicao = [...this.proximosPassos()];
-    this.dadosFormularioAntesDaEdicao = this.formularioProjeto.getRawValue();
+    this.realizacoesAntesDaEdicao = [
+      ...this.realizacoesConcluidas()
+    ];
+
+    this.proximosPassosAntesDaEdicao = [
+      ...this.proximosPassos()
+    ];
+
+    this.dadosFormularioAntesDaEdicao =
+      this.formularioProjeto.getRawValue();
+
     this.modoEdicaoEtapa3 = true;
 
     if (this.isAdmin()) {
       this.formularioProjeto.enable();
+    } else {
+      this.formularioProjeto
+        .get('percentualProgresso')
+        ?.enable();
+
+      this.formularioProjeto
+        .get('valorInvestido')
+        ?.enable();
+
+      this.formularioProjeto
+        .get('descricaoOrcamentaria')
+        ?.enable();
     }
   }
 
@@ -189,12 +232,55 @@ export class ListagemProjetos {
 
     const formulario = this.formularioProjeto.getRawValue();
 
+    const evolucoesOrcamentarias = [];
+
+    const valorInvestido = Number(
+      formulario.valorInvestido
+    );
+
+    const descricaoOrcamentaria = (
+      formulario.descricaoOrcamentaria ?? ''
+    ).trim();
+
+    if (valorInvestido > 0 || descricaoOrcamentaria) {
+      evolucoesOrcamentarias.push({
+        valor: valorInvestido || 0,
+        descricao: descricaoOrcamentaria
+      });
+    }
+
+    const responsavel = this.usuarios().find(
+      usuario => usuario.id === Number(formulario.liderProjeto)
+    );
+
+    if (!responsavel?.unidade) {
+      window.alert(
+        'O servidor responsável não possui uma unidade vinculada.'
+      );
+      return;
+    }
+
+    const unidadeIdResponsavel =
+  this.obterIdUnidadeUsuario(responsavel);
+
+  if (
+    unidadeIdResponsavel !==
+    Number(formulario.unidadeResponsavel)
+  ) {
+    window.alert(
+      'O servidor responsável não pertence à unidade selecionada.'
+    );
+
+    return;
+  }
+
     const projeto = {
       nome: formulario.tituloProjeto,
       descricao: formulario.descricao,
       tempo_estimado: formulario.tempoEstimado,
       custo_estimado: Number(formulario.custoEstimado),
-      percentual_progresso: 0,
+      percentual_progresso: Number(formulario.percentualProgresso ?? 0),
+      evolucoesOrcamentarias: evolucoesOrcamentarias,
       status: status,
       responsavel: formulario.liderProjeto,
       unidade: formulario.unidadeResponsavel,
@@ -460,34 +546,79 @@ export class ListagemProjetos {
       }
 
       const formulario = this.formularioProjeto.getRawValue();
+      const novasEvolucoesOrcamentarias = [];
+
+      const valorInvestido =
+        Number(formulario.valorInvestido);
+
+      const descricaoOrcamentaria =
+        (
+          formulario.descricaoOrcamentaria ?? ''
+        ).trim();
+
+      if (
+        valorInvestido > 0 ||
+        descricaoOrcamentaria
+      ) {
+        novasEvolucoesOrcamentarias.push({
+          valor: valorInvestido || 0,
+          descricao: descricaoOrcamentaria
+        });
+      }
 
       dadosAtualizacao = {
         nome: formulario.tituloProjeto,
         descricao: formulario.descricao,
         tempo_estimado: formulario.tempoEstimado,
-        custo_estimado: Number(formulario.custoEstimado),
+        custo_estimado:Number(formulario.custoEstimado),
+        percentual_progresso:Number(  formulario.percentualProgresso ?? 0),
         responsavel: formulario.liderProjeto,
         unidade: formulario.unidadeResponsavel,
         acoes_previstas: formulario.acoesPrevistas,
-        objetivos: formulario.objetivos ?? [],
+        objetivos:formulario.objetivos ?? [],
         evolucoes: evolucoes,
+        evolucoesOrcamentarias:novasEvolucoesOrcamentarias
       };
     } else {
-      dadosAtualizacao = {
-        evolucoes: evolucoes,
-      };
-    }
+        const formulario = this.formularioProjeto.getRawValue();
+
+        const novasEvolucoesOrcamentarias = [];
+
+        const valorInvestido = Number(formulario.valorInvestido);
+        const descricaoOrcamentaria =
+          (formulario.descricaoOrcamentaria ?? '').trim();
+
+        if (valorInvestido > 0 || descricaoOrcamentaria) {
+          novasEvolucoesOrcamentarias.push({
+            valor: valorInvestido || 0,
+            descricao: descricaoOrcamentaria
+          });
+        }
+
+        dadosAtualizacao = { percentual_progresso: Number( formulario.percentualProgresso ?? 0), evolucoes: evolucoes, evolucoesOrcamentarias: novasEvolucoesOrcamentarias};
+      }
 
     this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao).subscribe({
       next: (projetoAtualizado) => {
-        this.carregarEvolucoesProjeto(projetoAtualizado);
+
+        this.carregarEvolucoesProjeto(
+          projetoAtualizado
+        );
+
+        this.evolucoesOrcamentarias.set(
+          projetoAtualizado.evolucoesOrcamentarias
+            ?? []
+        );
+
+        this.formularioProjeto.patchValue({
+          valorInvestido: null,
+          descricaoOrcamentaria: ''
+        });
+
         this.modoEdicaoEtapa3 = false;
         this.formularioProjeto.disable();
-        this.realizacoesAntesDaEdicao = [];
-        this.proximosPassosAntesDaEdicao = [];
-        this.dadosFormularioAntesDaEdicao = null;
+
         this.buscarProjeto();
-        console.log('Projeto atualizado com sucesso');
       },
       error: (erro) => {
         console.error('Erro ao atualizar projeto:', erro);
@@ -517,5 +648,157 @@ export class ListagemProjetos {
 
     return rotulos[status] ?? status;
   }
+
+
+
+
+  obterUnidadeProjeto(projeto: ProjetoEstrategico): Unidade | undefined {
+    return this.unidades().find(
+      unidade => unidade.id === projeto.unidade
+    );
+  }
+
+  servidoresComUnidade(): Usuario[] {
+    return this.usuarios().filter(
+      usuario =>
+        usuario.papel === 'SERVIDOR' &&
+        usuario.unidade != null
+    );
+  }
+
+  private obterIdUnidadeUsuario(usuario: Usuario): number | null {
+    if (!usuario.unidade) {
+      return null;
+    }
+
+    // Caso a API retorne somente o ID
+    if (typeof usuario.unidade === 'number') {
+      return usuario.unidade;
+    }
+
+    // Caso futuramente a API retorne o objeto completo
+    return usuario.unidade.id;
+  }
+
+  obterUnidadeUsuario(usuario: Usuario): Unidade | undefined {
+    const unidadeId = this.obterIdUnidadeUsuario(usuario);
+
+    if (unidadeId === null) {
+      return undefined;
+    }
+
+    return this.unidades().find(
+      unidade => unidade.id === unidadeId
+    );
+  }
+
+  aoSelecionarResponsavel(): void {
+    const responsavelId = Number(
+      this.formularioProjeto.get('liderProjeto')?.value
+    );
+
+    const responsavel = this.usuarios().find(
+      usuario => usuario.id === responsavelId
+    );
+
+    if (!responsavel) {
+      this.formularioProjeto.patchValue({
+        unidadeResponsavel: ''
+      });
+
+      return;
+    }
+
+    const unidadeId = this.obterIdUnidadeUsuario(responsavel);
+
+    if (unidadeId === null) {
+      this.formularioProjeto.patchValue({
+        unidadeResponsavel: ''
+      });
+
+      return;
+    }
+
+    this.formularioProjeto.patchValue({
+      unidadeResponsavel: unidadeId
+    });
+  }
+
+  unidadesDoResponsavel(): Unidade[] {
+    const responsavelId = Number(
+      this.formularioProjeto.get('liderProjeto')?.value
+    );
+
+    const responsavel = this.usuarios().find(
+      usuario => usuario.id === responsavelId
+    );
+
+    if (!responsavel) {
+      return [];
+    }
+
+    const unidade = this.obterUnidadeUsuario(responsavel);
+
+    return unidade ? [unidade] : [];
+  }
+
+  obterResponsavelSelecionado(): Usuario | null {
+    const id = Number(
+      this.formularioProjeto.get('liderProjeto')?.value
+    );
+
+    return this.usuarios().find(
+      usuario => usuario.id === id
+    ) ?? null;
+  }
+
+
+  obterPercentual(projeto: ProjetoEstrategico): number {
+    const percentual = Number(projeto.percentual_progresso) || 0;
+
+    return Math.min(
+      Math.max(percentual, 0),
+      100
+    );
+  }
+
+  obterObjetivosProjeto(projeto: ProjetoEstrategico): ObjetivoEstrategico[] {
+    const idsObjetivos = this.normalizarIds(projeto.objetivos ?? []);
+
+    return idsObjetivos
+      .map((idObjetivo) => this.objetivos().find((objetivo) => objetivo.id === idObjetivo))
+      .filter((objetivo): objetivo is ObjetivoEstrategico => !!objetivo)
+      .slice(0, 2);
+  }
+
+  obterSiglaUnidadeUsuario(usuario: Usuario): string {
+    return this.obterUnidadeUsuario(usuario)?.sigla ?? '';
+  }
+
+  obterSiglaUnidade(responsavel: any): string {
+    if (!responsavel?.unidade) return '';
+    if (typeof responsavel.unidade === 'number') return '';
+    return responsavel.unidade.sigla ?? '';
+  }
+
+  validarPercentualProgresso(evento: Event): void {
+    const input = evento.target as HTMLInputElement;
+
+    let valor = Number(input.value);
+
+    if (Number.isNaN(valor)) {
+      valor = 0;
+    }
+
+    valor = Math.max(0, Math.min(100, valor));
+
+    this.formularioProjeto.patchValue({
+      percentualProgresso: valor
+    });
+
+    input.value = String(valor);
+  }
+
 }
+
 

@@ -1,4 +1,4 @@
-<body>
+<div>
   <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="titulo-pagina m-0">Projetos Estratégicos</h1>
@@ -29,8 +29,11 @@
         <table class="table align-middle mb-0">
           <thead class="cabecalho-tabela">
             <tr class="linha-cabecalho-tabela">
+
               <th scope="col" class="ps-4">PROJETO</th>
-              <th scope="col" class="text-center">DATA DE ENVIO</th>
+              <th scope="col" class="text-center">UNIDADE</th>
+              <th scope="col" class="text-center">PROGRESSO</th>
+              <th scope="col" class="text-center">ÚLTIMA ATUALIZAÇÃO</th>
               <th scope="col" class="text-center">STATUS</th>
               <th scope="col" class="text-center pe-4">AÇÕES</th>
             </tr>
@@ -41,11 +44,42 @@
                 <div class="titulo-projeto">
                   {{ projeto.nome }}
                 </div>
-                <div class="d-flex gap-1 mt-1">
-                  <span class="etiqueta">OE2</span>
-                  <span class="etiqueta">OE1</span>
+                <div class="d-flex gap-1 mt-1" *ngIf="obterObjetivosProjeto(projeto)?.length; else semObjetivos">
+                  <span class="etiqueta" *ngFor="let objetivo of obterObjetivosProjeto(projeto)">
+                    {{ objetivo.codigo }}
+                  </span>
+                </div>
+                <ng-template #semObjetivos>
+                  <div class="d-flex gap-1 mt-1">
+                    <span class="etiqueta">-</span>
+                  </div>
+                </ng-template>
+              </td>
+
+              <td class="text-center">
+                <ng-container *ngIf="obterUnidadeProjeto(projeto) as unidade">
+
+                  <div class="unidade-projeto">
+                    <strong>{{ unidade.sigla }}</strong>
+                    <small>{{ unidade.nome }}</small>
+                  </div>
+                </ng-container>
+              </td>
+
+              <td class="text-center">
+                <div class="progresso-projeto">
+                  <div class="progresso-info">
+                    <span>Progresso</span>
+                    <strong>{{ obterPercentual(projeto) }}%</strong>
+                  </div>
+
+                  <div class="barra-progresso">
+
+                    <div class="barra-progresso-preenchimento" [style.width.%]="obterPercentual(projeto)"></div>
+                  </div>
                 </div>
               </td>
+
               <td class="text-center">
                 <strong class="d-block texto-data">20/07/2026</strong>
                 <small class="texto-subtitulo">Última atualização: {{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy' }}</small>
@@ -100,25 +134,56 @@
 
               <div class="linha-informacoes">
                 <div class="campo-formulario campo-responsavel">
-                  <label for="liderProjeto">LIDER DO PROJETO<span class="campo-obrigatorio">*</span></label>
-                  <select id="liderProjeto" class="form-control" formControlName="liderProjeto">
-                    <option value="">Selecione um usuário</option>
-                    <option [ngValue]="usuario.id" *ngFor="let usuario of usuarios()">
-                      {{ usuario.nome_completo }}
+                  <label for="liderProjeto">
+                    LÍDER DO PROJETO
+                    <span class="campo-obrigatorio">*</span>
+                  </label>
+
+                  <select id="liderProjeto" class="form-control" formControlName="liderProjeto" (change)="aoSelecionarResponsavel()">
+                    <option value="">
+                      Selecione um servidor
+                    </option>
+                    <option *ngFor="let usuario of servidoresComUnidade()" [ngValue]="usuario.id">
+                      {{ usuario.nome_completo }} —
+                      {{ obterSiglaUnidade(usuario) }}
                     </option>
                   </select>
                 </div>
+
                 <div class="campo-formulario campo-unidade">
-                  <label for="unidadeResponsavel">UNIDADE RESPONSÁVEL</label>
+                  <label for="unidadeResponsavel">
+                    UNIDADE RESPONSÁVEL <span class="campo-obrigatorio">*</span>
+                  </label>
+
                   <select id="unidadeResponsavel" class="form-control" formControlName="unidadeResponsavel">
-                    <option value="">Selecione uma unidade</option>
-                    <option [ngValue]="unidade.id" *ngFor="let unidade of unidades()">
+                    <option value="">  Selecione primeiro o responsável</option>
+
+                    <option [ngValue]="unidade.id" *ngFor="let unidade of unidadesDoResponsavel()">
                       {{ unidade.nome }} ({{ unidade.sigla }})
                     </option>
                   </select>
+
+                  <small class="ajuda-unidade">
+                    A unidade é definida de acordo com o servidor responsável.
+                  </small>
+                </div>
+                <div
+                  class="vinculo-servidor-unidade"
+                  *ngIf="obterResponsavelSelecionado() as responsavel">
+
+                  <i class="bi bi-check-circle-fill"></i>
+
+                  <div>
+                    <strong>Vínculo verificado</strong>
+
+                    <span>
+                      {{ responsavel.nome_completo }} pertence à
+                      {{ responsavel.unidade && typeof responsavel.unidade !== 'number' ? responsavel.unidade.sigla : responsavel.unidade }}
+                    </span>
+                  </div>
+
                 </div>
               </div>
-
               <div class="linha-informacoes ">
                 <div class="campo-formulario campo-tempo">
                   <label for="tempoEstimado">TEMPO ESTIMADO</label>
@@ -250,6 +315,146 @@
               <br>
               <hr>
             </div>
+            <hr>
+            <section class="secao-evolucao-orcamento" [class.sumir]="etapaAtual !== 3">
+              <h2 class="titulo-evolucao-orcamento">
+                Evolução & Orçamento
+              </h2>
+              <div class="cards-evolucao-orcamento">
+                <!-- EVOLUÇÃO DO PROJETO -->
+                <div class="card-monitoramento">
+                  <div class="card-monitoramento-texto">
+                    <h3>Evolução do projeto</h3>
+                    <p>Insira manualmente o percentual de evolução exatocorrespondente a este monitoramento oficial.</p>
+                  </div>
+
+                  <div class="widget-progresso-projeto">
+
+                    <div class="widget-progresso-cabecalho">
+
+                      <strong>Evolução do projeto</strong>
+
+                      <div class="campo-porcentagem">
+                        <input  type="number"  min="0"  max="100"  formControlName="percentualProgresso" (input)="validarPercentualProgresso($event)">
+                        <span>%</span>
+                      </div>
+
+                    </div>
+
+                    <div class="trilho-progresso">
+
+                      <div class="preenchimento-progresso" [style.width.%]="   formularioProjeto.get('percentualProgresso')?.value || 0 ">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- EVOLUÇÃO ORÇAMENTÁRIA -->
+
+                <div class="card-monitoramento">
+
+                  <div class="card-monitoramento-texto">
+                    <h3>Evolução orçamentária</h3>
+
+                    <p>
+                      Consulte os registros anteriores e,
+                      quando necessário, adicione uma nova
+                      evolução orçamentária.
+                    </p>
+                  </div>
+
+
+                  <!-- HISTÓRICO -->
+
+                  <div class="historico-orcamentario">
+
+                    <div
+                      class="registro-orcamentario"
+                      *ngFor="
+                        let evolucao of evolucoesOrcamentarias()
+                      "
+                    >
+
+                      <div class="linha-registro">
+
+                        <span class="registro-data">
+                          {{
+                            evolucao.data_registro
+                              | date:'dd/MM/yyyy'
+                          }}
+                        </span>
+
+                        <strong class="registro-valor">
+                          {{
+                            evolucao.valor
+                              | currency:'BRL'
+                          }}
+                        </strong>
+
+                      </div>
+
+                      <p class="registro-descricao">
+                        {{ evolucao.descricao }}
+                      </p>
+
+                    </div>
+
+
+                    <div class="sem-registros" *ngIf="   evolucoesOrcamentarias().length === 0 ">
+                      Nenhuma evolução orçamentária registrada.
+                    </div>
+
+                  </div>
+
+
+                  <!-- NOVO LANÇAMENTO -->
+
+                  <div class="novo-lancamento" *ngIf="!visualizando || modoEdicaoEtapa3">
+
+                    <p class="registrar"><b>Registrar nova evolução</b></p>
+
+                    <div class="campo-orcamento">
+
+                      <label>
+                        VALOR INVESTIDO (R$)
+                      </label>
+
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="form-control"
+                        formControlName="valorInvestido"
+                        placeholder="Ex.: 12345,67"
+                      >
+
+                    </div>
+
+
+                    <div class="campo-orcamento">
+
+                      <label>
+                        DESCRIÇÃO
+                      </label>
+
+                      <textarea
+                        class="form-control"
+                        rows="2"
+                        formControlName="descricaoOrcamentaria"
+                        placeholder="Ex.: Aquisição de equipamentos">
+                      </textarea>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <hr>
+            </section>
+
 
             <div class="rodape-formulario">
               <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
@@ -297,4 +502,4 @@
       </div>
     </div>
   </div>
-</body>
+</div>

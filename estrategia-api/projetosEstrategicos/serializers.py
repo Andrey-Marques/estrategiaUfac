@@ -16,6 +16,7 @@ class EvolucaoOrcamentariaSerializer(serializers.ModelSerializer):
     class Meta:
         model = EvolucaoOrcamentaria
         fields = '__all__'
+        read_only_fields = ['fk_projeto', 'data_registro']
 
 class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
     objetivos = serializers.PrimaryKeyRelatedField(
@@ -40,35 +41,67 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
             realizacao = (evolucao.get('realizacao') or '').strip()
             proximo_passo = (evolucao.get('proximo_passo') or '').strip()
 
-            if not realizacao and not proximo_passo:
-                continue
+            if realizacao or proximo_passo:
+                EvolucaoProjeto.objects.create(
+                    fk_projeto=projeto,
+                    realizacao=realizacao,
+                    proximo_passo=proximo_passo
+                )
 
-            EvolucaoProjeto.objects.create(
-                fk_projeto=projeto,
-                realizacao=realizacao,
-                proximo_passo=proximo_passo,
-            )
+    def _salvar_evolucoes_orcamentarias(self, projeto, evolucoes):
+        if not evolucoes:
+            return
+
+        for evolucao in evolucoes:
+            valor = evolucao.get('valor', 0)
+            descricao = (evolucao.get('descricao') or '').strip()
+
+            if valor or descricao:
+                EvolucaoOrcamentaria.objects.create(
+                    fk_projeto=projeto,
+                    valor=valor,
+                    descricao=descricao
+                )
 
     def create(self, validated_data):
         objetivos = validated_data.pop('objetivos', [])
         evolucoes = validated_data.pop('evolucoes', [])
+        orcamentarias = validated_data.pop('evolucoesOrcamentarias', [])
+
         projeto = ProjetoEstrategico.objects.create(**validated_data)
         projeto.objetivos.set(objetivos)
+
         self._salvar_evolucoes(projeto, evolucoes)
+        self._salvar_evolucoes_orcamentarias(projeto, orcamentarias)
+
         return projeto
 
     def update(self, instance, validated_data):
         objetivos = validated_data.pop('objetivos', None)
         evolucoes = validated_data.pop('evolucoes', None)
+        orcamentarias = validated_data.pop(
+            'evolucoesOrcamentarias',
+            None
+        )
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        for campo, valor in validated_data.items():
+            setattr(instance, campo, valor)
+
         instance.save()
 
         if objetivos is not None:
             instance.objetivos.set(objetivos)
 
         if evolucoes is not None:
-            self._salvar_evolucoes(instance, evolucoes)
+            self._salvar_evolucoes(
+                instance,
+                evolucoes
+            )
+
+        if orcamentarias is not None:
+            self._salvar_evolucoes_orcamentarias(
+                instance,
+                orcamentarias
+            )
 
         return instance
