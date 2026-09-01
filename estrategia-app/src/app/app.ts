@@ -20,7 +20,7 @@ export class App {
     this.router.events.subscribe(event => {
       if(event instanceof NavigationEnd){
         const rota = event.urlAfterRedirects;
-        const rotasSemLayout = ['/login',]
+        const rotasSemLayout = ['/login', '/pagina-inicial', '/painel-unidades', '/pagina-pdi', '/pagina-pe',]
 
         this.mostrarLayout = !rotasSemLayout.some(r => rota.startsWith(r))
       }

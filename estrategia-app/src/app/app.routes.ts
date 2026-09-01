@@ -8,6 +8,10 @@ import { ListagemProjetos } from './components/listagem-projetos/listagem-projet
 import { ListagemIndicadores } from './components/listagem-indicadores/listagem-indicadores';
 import { authGuard } from './guards/auth.guard';
 import { PerfilUsuario } from './components/perfil-usuario/perfil-usuario';
+import { PaginaInicial } from './components/pagina-inicial/pagina-inicial';
+import { PainelUnidades } from './components/painel-unidades/painel-unidades';
+import { PaginaPdi } from './components/pagina-pdi/pagina-pdi';
+import { PaginaPe } from './components/pagina-pe/pagina-pe';
 
 export const routes: Routes = [
   {
@@ -41,6 +45,10 @@ export const routes: Routes = [
       {
         path:"perfil-usuario", component: PerfilUsuario
       },
+      {path: "pagina-inicial", component: PaginaInicial},
+      {path: "painel-unidades", component: PainelUnidades},
+      {path: "pagina-pdi", component: PaginaPdi},
+      {path: "pagina-pe", component: PaginaPe},
     ]
   }
 ];

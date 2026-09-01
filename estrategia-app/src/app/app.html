@@ -1,13 +1,24 @@
-<app-header-principal *ngIf="mostrarLayout"></app-header-principal>
+<ng-container *ngIf="mostrarLayout; else semLayout">
 
-<app-info-bar *ngIf="mostrarLayout"></app-info-bar>
+    <app-header-principal></app-header-principal>
 
-<main class="layout-principal">
+    <app-info-bar></app-info-bar>
 
-    <app-barra-lateral *ngIf="mostrarLayout"></app-barra-lateral>
+    <main class="layout-principal">
 
-    <section class="conteudo-principal">
-        <router-outlet></router-outlet>
-    </section>
+        <app-barra-lateral></app-barra-lateral>
 
-</main>
+        <section class="conteudo-principal">
+            <router-outlet></router-outlet>
+        </section>
+
+    </main>
+
+</ng-container>
+
+
+<ng-template #semLayout>
+
+    <router-outlet></router-outlet>
+
+</ng-template>
