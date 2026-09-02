@@ -33,6 +33,11 @@ export interface ProjetoEstrategico{
     objetivos: number[];
     evolucoes: EvolucaoProjeto[];
     evolucoesOrcamentarias: EvolucaoOrcamentaria[];
+    observacao_analise?: string;
+    data_analise?: string | null;
+    analisado_por?: number | null;
+    responsavel_nome?: string;
+    unidade_sigla?: string;
 }
 
 export interface CriarProjeto{

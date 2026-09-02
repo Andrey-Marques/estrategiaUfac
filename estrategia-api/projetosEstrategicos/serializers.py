@@ -19,11 +19,21 @@ class EvolucaoOrcamentariaSerializer(serializers.ModelSerializer):
         read_only_fields = ['fk_projeto', 'data_registro']
 
 class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
+    responsavel_nome = serializers.CharField(
+        source='responsavel.nome_completo',
+        read_only=True
+    )
+
+    unidade_sigla = serializers.CharField(
+        source='unidade.sigla',
+        read_only=True
+    )
     objetivos = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=ObjetivoEstrategico.objects.all(),
         required=False
     )
+    
     evolucoes = EvolucaoProjetoSerializer(many=True, required=False)
     evolucoesOrcamentarias = EvolucaoOrcamentariaSerializer(many=True, required=False)
 

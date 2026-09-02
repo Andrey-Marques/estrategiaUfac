@@ -1,0 +1,247 @@
+<div class="modal-backdrop-avaliacao">
+
+  <div class="modal-avaliacao">
+
+    <!-- CABEÇALHO -->
+    <header class="modal-header">
+      <div class="titulo-header">
+        <div class="icone-header">
+          <i class="bi bi-file-earmark-text"></i>
+        </div>
+
+        <div>
+          <h2>Análise de Projeto</h2>
+          <p>Revise as informações do projeto e tome uma decisão.</p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-fechar"
+        (click)="fechar()"
+        aria-label="Fechar"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+
+    <!-- CONTEÚDO -->
+    <div class="modal-conteudo">
+
+      <!-- TÍTULO DO PROJETO -->
+      <section class="cabecalho-projeto">
+
+        <div>
+          <h3>{{ projeto.nome }}</h3>
+
+          <div class="status-linha">
+            <span class="badge-analise">
+              <i class="bi bi-clock"></i>
+              EM ANÁLISE
+            </span>
+
+            <span class="data-proposta">
+              Proposto em
+              {{ projeto.ultima_atualizacao | date:'dd/MM/yyyy' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="id-projeto">
+          <span>ID do projeto</span>
+          <strong>#{{ projeto.id }}</strong>
+        </div>
+
+      </section>
+
+
+      <!-- PROPONENTE / UNIDADE -->
+      <section class="dados-resumo">
+
+        <div class="resumo-item">
+          <div class="icone-resumo">
+            <i class="bi bi-person"></i>
+          </div>
+
+          <div>
+            <span>Proposto por</span>
+            <strong>
+              {{ projeto.responsavel_nome || 'Não informado' }}
+            </strong>
+          </div>
+        </div>
+
+
+        <div class="resumo-item">
+          <div class="icone-resumo">
+            <i class="bi bi-building"></i>
+          </div>
+
+          <div>
+            <span>Unidade</span>
+            <strong>
+              {{ projeto.unidade_sigla || 'Não informada' }}
+            </strong>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- DESCRIÇÃO -->
+      <section class="bloco">
+        <div class="titulo-bloco">
+          <i class="bi bi-file-text"></i>
+          <h4>Descrição do projeto</h4>
+        </div>
+
+        <p class="descricao">
+          {{ projeto.descricao || 'Nenhuma descrição informada.' }}
+        </p>
+      </section>
+
+
+      <!-- TEMPO / CUSTO -->
+      <div class="grid-informacoes">
+
+        <section class="info-card">
+          <div class="icone-info">
+            <i class="bi bi-clock"></i>
+          </div>
+
+          <div>
+            <span>Tempo estimado</span>
+            <strong>
+              {{ projeto.tempo_estimado || 'Não informado' }}
+            </strong>
+          </div>
+        </section>
+
+
+        <section class="info-card">
+          <div class="icone-info">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+
+          <div>
+            <span>Custo estimado</span>
+            <strong>
+              {{ projeto.custo_estimado | currency:'BRL' }}
+            </strong>
+          </div>
+        </section>
+
+      </div>
+
+
+      <!-- OBJETIVOS / AÇÕES -->
+      <div class="grid-detalhes">
+
+        <section class="bloco detalhe-card">
+
+          <div class="titulo-bloco">
+            <i class="bi bi-bullseye"></i>
+            <h4>Objetivos estratégicos vinculados</h4>
+          </div>
+
+          <ul *ngIf="projeto.objetivos?.length; else semObjetivos">
+            <li *ngFor="let objetivo of projeto.objetivos">
+              {{ objetivo }}
+            </li>
+          </ul>
+
+          <ng-template #semObjetivos>
+            <p class="texto-vazio">
+              Nenhum objetivo estratégico vinculado.
+            </p>
+          </ng-template>
+
+        </section>
+
+
+        <section class="bloco detalhe-card">
+
+          <div class="titulo-bloco">
+            <i class="bi bi-list-check"></i>
+            <h4>Ações previstas</h4>
+          </div>
+
+          <p
+            class="acoes-previstas"
+            *ngIf="projeto.acoes_previstas; else semAcoes"
+          >
+            {{ projeto.acoes_previstas }}
+          </p>
+
+          <ng-template #semAcoes>
+            <p class="texto-vazio">
+              Nenhuma ação prevista informada.
+            </p>
+          </ng-template>
+
+        </section>
+
+      </div>
+
+
+      <!-- OBSERVAÇÃO -->
+      <section class="bloco-observacao">
+
+        <div class="titulo-observacao">
+          <i class="bi bi-chat"></i>
+
+          <div>
+            <h4>Observação da análise</h4>
+            <p>
+              Registre uma observação ou justificativa para a
+              aprovação ou rejeição do projeto.
+            </p>
+          </div>
+        </div>
+
+        <textarea
+          [(ngModel)]="observacao"
+          rows="4"
+          placeholder="Digite uma observação ou justificativa..."
+        ></textarea>
+
+      </section>
+
+    </div>
+
+
+    <!-- RODAPÉ -->
+    <footer class="modal-footer">
+
+      <button
+        type="button"
+        class="btn btn-cancelar"
+        (click)="fechar()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-rejeitar"
+        (click)="rejeitar()"
+      >
+        <i class="bi bi-x-lg"></i>
+        Rejeitar projeto
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-aprovar"
+        (click)="aprovar()"
+      >
+        <i class="bi bi-check-lg"></i>
+        Aprovar projeto
+      </button>
+
+    </footer>
+
+  </div>
+
+</div>

@@ -3,6 +3,8 @@ from .models import ProjetoEstrategico, EvolucaoProjeto
 from .serializers import ProjetoEstrategicoSerializer, EvolucaoProjetoSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from django.utils import timezone
+from rest_framework.decorators import action
 
 class ProjetoEstrategicoViewSet(ModelViewSet):
     queryset = ProjetoEstrategico.objects.all()
@@ -34,7 +36,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
         status_projeto = (
             'RASCUNHO'
             if status_solicitado == 'RASCUNHO'
-            else 'EM_ANALISE'
+            else 'EM_ESPERA'
         )
 
         serializer.save(
@@ -101,6 +103,114 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
             request,
             *args,
             **kwargs
+        )
+    
+    @action(detail=True, methods=['post'])
+    def aprovar(self, request, pk=None):
+        usuario = request.user
+
+        if usuario.papel != 'ADMIN':
+            return Response(
+                {
+                    'detail':
+                    'Apenas administradores podem aprovar projetos.'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        projeto = self.get_object()
+
+        if projeto.status != 'EM_ESPERA':
+            return Response(
+                {
+                    'detail':
+                    'Este projeto não está aguardando análise.'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        observacao = (
+            request.data.get('observacao') or ''
+        ).strip()
+
+        projeto.status = 'APROVADO'
+        projeto.observacao_analise = observacao
+        projeto.data_analise = timezone.now()
+        projeto.analisado_por = usuario
+
+        projeto.save(
+            update_fields=[
+                'status',
+                'observacao_analise',
+                'data_analise',
+                'analisado_por',
+                'ultima_atualizacao'
+            ]
+        )
+
+        serializer = self.get_serializer(projeto)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+    @action(detail=True, methods=['post'])
+    def rejeitar(self, request, pk=None):
+        usuario = request.user
+
+        if usuario.papel != 'ADMIN':
+            return Response(
+                {
+                    'detail':
+                    'Apenas administradores podem rejeitar projetos.'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        projeto = self.get_object()
+
+        if projeto.status != 'EM_ESPERA':
+            return Response(
+                {
+                    'detail':
+                    'Este projeto não está aguardando análise.'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        observacao = (
+            request.data.get('observacao') or ''
+        ).strip()
+
+        if not observacao:
+            return Response(
+                {
+                    'observacao':
+                    'Informe o motivo da rejeição.'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        projeto.status = 'REJEITADO'
+        projeto.observacao_analise = observacao
+        projeto.data_analise = timezone.now()
+        projeto.analisado_por = usuario
+
+        projeto.save(
+            update_fields=[
+                'status',
+                'observacao_analise',
+                'data_analise',
+                'analisado_por',
+                'ultima_atualizacao'
+            ]
+        )
+
+        serializer = self.get_serializer(projeto)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
         )
 
 

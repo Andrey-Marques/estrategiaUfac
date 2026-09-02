@@ -178,7 +178,7 @@
 
                     <span>
                       {{ responsavel.nome_completo }} pertence à
-                      {{ responsavel.unidade && typeof responsavel.unidade !== 'number' ? responsavel.unidade.sigla : responsavel.unidade }}
+                      {{ obterSiglaUnidadeUsuario(responsavel) }}
                     </span>
                   </div>
 

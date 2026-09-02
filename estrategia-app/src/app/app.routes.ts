@@ -1,3 +1,4 @@
+import { AvaliacaoProjeto } from './components/avaliacao-projeto/avaliacao-projeto';
 import { Routes } from '@angular/router';
 import { FormularioIniciativas } from './components/formularios/formulario-iniciativas/formulario-iniciativas';
 import { ListagemIniciativas } from './components/listagem-iniciativas/listagem-iniciativas';
@@ -15,9 +16,18 @@ import { PaginaPe } from './components/pagina-pe/pagina-pe';
 
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'pagina-inicial',
+    pathMatch: 'full'
+  },
+  {
     path: 'login',
     component: TelaLogin
   },
+  {path: "pagina-inicial", component: PaginaInicial, },
+  {path: "painel-unidades", component: PainelUnidades},
+  {path: "pagina-pdi", component: PaginaPdi},
+  {path: "pagina-pe", component: PaginaPe},
   //paginas/urls/rotas que precisam de login para ser acessadas
   {
     path: '',
@@ -26,6 +36,10 @@ export const routes: Routes = [
       {
         path: 'home',
         component: Home
+      },
+      {
+        path: 'avaliacao-projeto',
+        component: AvaliacaoProjeto
       },
       {
         path: 'listagem-iniciativas',
@@ -45,10 +59,6 @@ export const routes: Routes = [
       {
         path:"perfil-usuario", component: PerfilUsuario
       },
-      {path: "pagina-inicial", component: PaginaInicial},
-      {path: "painel-unidades", component: PainelUnidades},
-      {path: "pagina-pdi", component: PaginaPdi},
-      {path: "pagina-pe", component: PaginaPe},
     ]
   }
 ];

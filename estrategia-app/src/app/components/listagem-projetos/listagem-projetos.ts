@@ -630,7 +630,7 @@ export class ListagemProjetos {
   obterClasseStatus(status: string): string {
     const classes: Record<string, string> = {
       APROVADO: 'status-aprovado',
-      EM_ANALISE: 'status-em-analise',
+      EM_ESPERA: 'status-em-espera',
       RASCUNHO: 'status-rascunho',
       REJEITADO: 'status-rejeitado',
     };
@@ -641,7 +641,7 @@ export class ListagemProjetos {
   obterRotuloStatus(status: string): string {
     const rotulos: Record<string, string> = {
       APROVADO: 'Aprovado/Público',
-      EM_ANALISE: 'Em análise',
+      EM_ESPERA: 'Em Espera',
       RASCUNHO: 'Rascunho',
       REJEITADO: 'Rejeitado',
     };
@@ -661,7 +661,7 @@ export class ListagemProjetos {
   servidoresComUnidade(): Usuario[] {
     return this.usuarios().filter(
       usuario =>
-        usuario.papel === 'SERVIDOR' &&
+        (usuario.papel === 'SERVIDOR' || usuario.papel === 'ADMIN') &&
         usuario.unidade != null
     );
   }

@@ -1,12 +1,13 @@
 from django.db import models
 from objetivosEstrategicos.models import ObjetivoEstrategico
+from django.conf import settings
 
 class ProjetoEstrategico(models.Model):
     STATUS_CHOICES = [
         ('APROVADO', 'Aprovado/Público'),
         ('REJEITADO', 'Rejeitado'),
         ('RASCUNHO', 'Rascunho'),
-        ('EM_ANALISE', 'Em análise'),
+        ('EM_ESPERA', 'Em Espera'),
     ]
   
     nome = models.CharField(max_length=255)
@@ -20,6 +21,9 @@ class ProjetoEstrategico(models.Model):
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='projetos_estrategicos')
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos')
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoProjeto',related_name='projetos')
+    observacao_analise = models.TextField( blank=True, default='')
+    data_analise = models.DateTimeField(null=True,blank=True)
+    analisado_por = models.ForeignKey( settings.AUTH_USER_MODEL,on_delete=models.SET_NULL,null=True,blank=True,related_name='projetos_analisados')
 
 
     class Meta: 

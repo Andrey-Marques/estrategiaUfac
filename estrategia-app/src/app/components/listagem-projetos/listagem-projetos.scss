@@ -734,7 +734,7 @@ textarea.objetivo-projeto{
   }
 }
 .status-aprovado,
-.status-em-analise,
+.status-em-espera,
 .status-rascunho,
 .status-rejeitado {
   font-weight: 600;
@@ -749,7 +749,7 @@ textarea.objetivo-projeto{
   border: 1px solid rgba(25, 135, 84, 0.3);
 }
 
-.status-em-analise {
+.status-em-espera {
   background-color: rgba(255, 193, 7, 0.15);
   color: #997404;
   border: 1px solid rgba(255, 193, 7, 0.4);
