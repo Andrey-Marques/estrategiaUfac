@@ -5,7 +5,7 @@ import { HeaderPrincipal } from '../utils/header-principal/header-principal';
 import { InfoBar } from '../utils/info-bar/info-bar';
 import { ProjetoEstrategico } from '../../model/projetoEstrategico';
 import { ProjetoService } from '../../service/projeto.service';
-
+import { UsuarioService } from '../../service/usuario.service';
 import {AvaliacaoProjeto,DecisaoProjeto} from '../avaliacao-projeto/avaliacao-projeto';
 
 
@@ -18,7 +18,7 @@ import {AvaliacaoProjeto,DecisaoProjeto} from '../avaliacao-projeto/avaliacao-pr
 })
 export class Home {
   listaProjetos = signal<ProjetoEstrategico[]>([]);
-
+  isAdmin = signal(false);
   projetoEmAnalise:
     (ProjetoEstrategico & {
       responsavel_nome?: string;
@@ -28,23 +28,23 @@ export class Home {
 
   abaAtiva: number = 1;
 
-
-
   listaIniciativas: any[] = [];
   listaIndicadores: any[] = [];
 
 
-  constructor(private projetoService: ProjetoService) {}
+  constructor(private projetoService: ProjetoService, private usuarioService: UsuarioService) {}
 
 
   ngOnInit(): void {
     this.buscarProjetosEmEspera();
+    this.buscarUsuarioAtual();
   }
 
   // Função disparada ao clicar no botão da aba
   mudarAba(numeroDaAba: number): void {
     this.abaAtiva = numeroDaAba;
   }
+  
   buscarProjetosEmEspera(): void {
 
     this.projetoService.get().subscribe({
@@ -155,5 +155,16 @@ export class Home {
         }
 
       });
+  }
+
+  buscarUsuarioAtual(): void{
+    this.usuarioService.getAtual().subscribe({
+      next: (usuario) => {
+        this.isAdmin.set(usuario.papel === 'ADMIN');
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar usuário atual:' ,erro)
+      }
+    })
   }
 }

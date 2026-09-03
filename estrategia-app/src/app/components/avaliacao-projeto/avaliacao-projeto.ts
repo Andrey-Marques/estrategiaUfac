@@ -25,6 +25,8 @@ export class AvaliacaoProjeto {
   @Input({ required: true })
   projeto!: ProjetoAvaliacao;
 
+  @Input() isAdmin = false;
+
   @Output()
   fechado = new EventEmitter<void>();
 

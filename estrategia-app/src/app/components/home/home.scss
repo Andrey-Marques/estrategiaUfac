@@ -180,9 +180,9 @@ body{
     }
 
     .registro-titulo {
-        font-size: 15px;
-        font-weight: 500;
         color: #374151;
+        font-size: 18px;
+        font-weight: 600;
     }
 
     .registro-acao {
@@ -201,4 +201,17 @@ body{
             background: #E5E7EB;
         }
     }
+}
+
+.lista-registros {
+  background-color: #e7ebff;
+  padding: 0 10px;
+  border-radius: 10px;
+}
+
+
+.registro-informacoes {
+    width: 70%;
+    display: flex;
+    justify-content: space-between;
 }

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 
 class ProjetoEstrategicoViewSet(ModelViewSet):
     queryset = ProjetoEstrategico.objects.all()
@@ -29,6 +30,22 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
             )
             return
 
+        responsavel_selecionado = serializer.validated_data.get(
+            'responsavel'
+        )
+
+        if responsavel_selecionado is None:
+            raise ValidationError({
+                'responsavel':
+                'Selecione um líder para o projeto.'
+            })
+
+        if responsavel_selecionado.unidade_id != usuario.unidade_id:
+            raise ValidationError({
+                'responsavel':
+                'O líder do projeto deve pertencer à sua unidade.'
+            })
+
         status_solicitado = self.request.data.get(
             'status'
         )
@@ -41,7 +58,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
 
         serializer.save(
             unidade=usuario.unidade,
-            responsavel=usuario,
+            responsavel=responsavel_selecionado,
             status=status_projeto
         )
             

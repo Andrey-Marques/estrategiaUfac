@@ -145,7 +145,7 @@
                     </option>
                     <option *ngFor="let usuario of servidoresComUnidade()" [ngValue]="usuario.id">
                       {{ usuario.nome_completo }} —
-                      {{ obterSiglaUnidade(usuario) }}
+                      {{ obterSiglaUnidadeUsuario(usuario) }}
                     </option>
                   </select>
                 </div>

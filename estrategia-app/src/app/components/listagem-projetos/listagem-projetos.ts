@@ -25,6 +25,7 @@ export class ListagemProjetos {
   unidades = signal<Unidade[]>([]);
   objetivos = signal<ObjetivoEstrategico[]>([]);
   isAdmin = signal(false);
+  usuarioAtual = signal<Usuario | null>(null);
   formularioProjeto: FormGroup;
   etapaAtual = 1;
   visualizando = false;
@@ -81,10 +82,15 @@ export class ListagemProjetos {
   buscarUsuarioAtual(): void {
     this.usuarioService.getAtual().subscribe({
       next: (usuario) => {
+        this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
       },
+
       error: (erro) => {
-        console.error('Erro ao buscar usuário atual:', erro);
+        console.error(
+          'Erro ao buscar usuário atual:',
+          erro
+        );
       },
     });
   }
@@ -659,11 +665,42 @@ export class ListagemProjetos {
   }
 
   servidoresComUnidade(): Usuario[] {
-    return this.usuarios().filter(
-      usuario =>
-        (usuario.papel === 'SERVIDOR' || usuario.papel === 'ADMIN') &&
-        usuario.unidade != null
-    );
+    const usuarioLogado = this.usuarioAtual();
+
+    if (!usuarioLogado) {
+      return [];
+    }
+
+    // ADMIN pode visualizar servidores de todas as unidades
+    if (usuarioLogado.papel === 'ADMIN') {
+      return this.usuarios().filter(
+        usuario =>
+          (usuario.papel === 'SERVIDOR' ||
+            usuario.papel === 'ADMIN') &&
+          usuario.unidade != null
+      );
+    }
+
+    // Obtém a unidade do servidor logado
+    const unidadeUsuarioLogado =
+      this.obterIdUnidadeUsuario(usuarioLogado);
+
+    if (unidadeUsuarioLogado === null) {
+      return [];
+    }
+
+    // SERVIDOR vê somente pessoas da própria unidade
+    return this.usuarios().filter(usuario => {
+
+      const unidadeUsuario =
+        this.obterIdUnidadeUsuario(usuario);
+
+      return (
+        (usuario.papel === 'SERVIDOR' ||
+          usuario.papel === 'ADMIN') &&
+        unidadeUsuario === unidadeUsuarioLogado
+      );
+    });
   }
 
   private obterIdUnidadeUsuario(usuario: Usuario): number | null {

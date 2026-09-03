@@ -15,12 +15,7 @@
         </div>
       </div>
 
-      <button
-        type="button"
-        class="btn-fechar"
-        (click)="fechar()"
-        aria-label="Fechar"
-      >
+      <button type="button" class="btn-fechar" (click)="fechar()" aria-label="Fechar">
         <i class="bi bi-x-lg"></i>
       </button>
     </header>
@@ -167,10 +162,7 @@
             <h4>Ações previstas</h4>
           </div>
 
-          <p
-            class="acoes-previstas"
-            *ngIf="projeto.acoes_previstas; else semAcoes"
-          >
+          <p class="acoes-previstas" *ngIf="projeto.acoes_previstas; else semAcoes">
             {{ projeto.acoes_previstas }}
           </p>
 
@@ -200,11 +192,7 @@
           </div>
         </div>
 
-        <textarea
-          [(ngModel)]="observacao"
-          rows="4"
-          placeholder="Digite uma observação ou justificativa..."
-        ></textarea>
+        <textarea [(ngModel)]="observacao" rows="4" placeholder="Digite uma observação ou justificativa..."></textarea>
 
       </section>
 
@@ -214,28 +202,16 @@
     <!-- RODAPÉ -->
     <footer class="modal-footer">
 
-      <button
-        type="button"
-        class="btn btn-cancelar"
-        (click)="fechar()"
-      >
+      <button type="button" class="btn btn-cancelar" (click)="fechar()">
         Cancelar
       </button>
 
-      <button
-        type="button"
-        class="btn btn-rejeitar"
-        (click)="rejeitar()"
-      >
+      <button type="button" class="btn btn-rejeitar" (click)="rejeitar()" *ngIf="isAdmin">
         <i class="bi bi-x-lg"></i>
         Rejeitar projeto
       </button>
 
-      <button
-        type="button"
-        class="btn btn-aprovar"
-        (click)="aprovar()"
-      >
+      <button type="button" class="btn btn-aprovar" (click)="aprovar()" *ngIf="isAdmin">
         <i class="bi bi-check-lg"></i>
         Aprovar projeto
       </button>
