@@ -55,6 +55,256 @@ body {
   }
 }
 
+.area-filtros {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 16px 24px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* ===============================
+   PESQUISA
+================================ */
+
+.campo-pesquisa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex: 1;
+  max-width: 420px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+
+  padding: 8px 12px;
+
+  background: #ffffff;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  i {
+    color: #6b7280;
+    font-size: 15px;
+  }
+
+  input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    font-size: 14px;
+    color: #374151;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  &:focus-within {
+    border-color: $cor-primaria-texto-destaque;
+
+    box-shadow: 0 0 0 2px
+      rgba(
+        $cor-primaria-texto-destaque,
+        0.08
+      );
+  }
+}
+
+
+/* ===============================
+   FILTRO DE UNIDADES
+================================ */
+
+.filtro-unidades {
+  position: relative;
+}
+
+
+.botao-filtro-unidade {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 40px;
+
+  padding: 8px 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  color: #374151;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+}
+
+
+.quantidade-unidades {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 20px;
+  height: 20px;
+
+  padding: 0 6px;
+
+  border-radius: 10px;
+
+  background:
+    $cor-primaria-texto-destaque;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* ===============================
+   MENU DROPDOWN
+================================ */
+
+.menu-filtro-unidades {
+  position: absolute;
+
+  top: calc(100% + 8px);
+  right: 0;
+
+  z-index: 50;
+
+  width: 300px;
+  max-height: 350px;
+
+  overflow-y: auto;
+
+  padding: 12px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+.cabecalho-filtro-unidades {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 4px 4px 10px;
+
+  border-bottom: 1px solid #eeeeee;
+
+  margin-bottom: 6px;
+
+  strong {
+    font-size: 13px;
+    color: #374151;
+  }
+}
+
+
+.botao-limpar {
+  border: none;
+
+  background: transparent;
+
+  color: $cor-primaria-texto-destaque;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+/* ===============================
+   CHECKBOX
+================================ */
+
+.opcao-unidade {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+
+  padding: 9px 6px;
+
+  border-radius: 5px;
+
+  cursor: pointer;
+
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: #f8f9fa;
+  }
+
+  input {
+    width: 16px;
+    height: 16px;
+
+    cursor: pointer;
+
+    accent-color:
+      $cor-primaria-texto-destaque;
+  }
+}
+
+
+.dados-unidade {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+
+  strong {
+    font-size: 13px;
+    color: #374151;
+  }
+
+  small {
+    color: #6b7280;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .table,
 table {
   width: 100%;
@@ -137,6 +387,15 @@ table {
       color: $cor-fundo-branco;
     }
   }
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+}
+.linha-tabela:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    border-left-color: #a1adff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
 }
 
 .sumir {

@@ -43,11 +43,6 @@
           </div>
         </div>
 
-        <div class="id-projeto">
-          <span>ID do projeto</span>
-          <strong>#{{ projeto.id }}</strong>
-        </div>
-
       </section>
 
 
@@ -140,9 +135,13 @@
             <h4>Objetivos estratégicos vinculados</h4>
           </div>
 
-          <ul *ngIf="projeto.objetivos?.length; else semObjetivos">
-            <li *ngFor="let objetivo of projeto.objetivos">
-              {{ objetivo }}
+          <ul *ngIf=" projeto.objetivos_detalhes?.length; else semObjetivos">
+
+            <li *ngFor=" let objetivo of projeto.objetivos_detalhes ">
+              <strong>
+                {{ objetivo.codigo }}
+              </strong>
+              - {{ objetivo.descricao }}
             </li>
           </ul>
 

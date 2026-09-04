@@ -34,12 +34,24 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
         required=False
     )
     
+    objetivos_detalhes = serializers.SerializerMethodField()
+    
     evolucoes = EvolucaoProjetoSerializer(many=True, required=False)
     evolucoesOrcamentarias = EvolucaoOrcamentariaSerializer(many=True, required=False)
 
     class Meta:
         model = ProjetoEstrategico
         fields = '__all__'
+        
+    def get_objetivos_detalhes(self, obj):
+        return [
+            {
+                'id': objetivo.id,
+                'codigo': objetivo.codigo,
+                'descricao': objetivo.descricao
+            }
+            for objetivo in obj.objetivos.all()
+        ]
 
     def _salvar_evolucoes(self, projeto, evolucoes):
         if evolucoes is None:

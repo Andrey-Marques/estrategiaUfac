@@ -32,6 +32,11 @@ export class ListagemProjetos {
   modoEdicaoEtapa3 = false;
   projetoSelecionadoId: number | null = null;
 
+  filtroStatus = signal<string>('TODOS');
+  termoPesquisa = signal<string>('');
+  unidadeSelecionadas =signal<number[]>([]);
+  menuUnidadesAberto = signal(false);
+
   realizacoesConcluidas = signal<string[]>([]);
   proximosPassos = signal<string[]>([]);
 
@@ -93,6 +98,114 @@ export class ListagemProjetos {
         );
       },
     });
+  }
+
+  alterarFiltroStatus(status: string): void {
+    this.filtroStatus.set(status);
+  }
+
+  pesquisarProjeto(evento: Event): void{
+    const input = evento.target as HTMLInputElement;
+
+    this.termoPesquisa.set(
+      input.value.trim().toLowerCase()
+    );
+  }
+
+  alternarUnidade(unidadeId: number): void {
+
+    const selecionadas = this.unidadeSelecionadas();
+
+    if (selecionadas.includes(unidadeId)) {
+
+      this.unidadeSelecionadas.set(
+        selecionadas.filter(
+          id => id !== unidadeId
+        )
+      );
+
+    } else {
+
+      this.unidadeSelecionadas.set([
+        ...selecionadas,
+        unidadeId
+      ]);
+
+    }
+  }
+  unidadeEstaSelecionada(
+    unidadeId: number
+  ): boolean {
+
+    return this.unidadeSelecionadas()
+      .includes(unidadeId);
+  }
+
+  alternarMenuUnidades(): void {
+    this.menuUnidadesAberto.update(
+      aberto => !aberto
+    );
+  }
+
+  limparFiltroUnidades(): void {
+    this.unidadeSelecionadas.set([]);
+  }
+
+  projetosFiltrados(): ProjetoEstrategico[] {
+
+    const status =
+      this.filtroStatus();
+
+    const pesquisa =
+      this.termoPesquisa();
+
+    const unidadeSelecionadas =
+      this.unidadeSelecionadas();
+
+
+    return this.projetos().filter(
+      projeto => {
+
+        // ========================
+        // FILTRO DE STATUS
+        // ========================
+
+        const atendeStatus =
+          status === 'TODOS' ||
+          projeto.status === status;
+
+
+        // ========================
+        // PESQUISA PELO NOME
+        // ========================
+
+        const nomeProjeto =
+          projeto.nome
+            ?.toLowerCase() ?? '';
+
+        const atendePesquisa =
+          !pesquisa ||
+          nomeProjeto.includes(pesquisa);
+
+
+        // ========================
+        // FILTRO DE UNIDADE
+        // ========================
+
+        const atendeUnidade =
+          unidadeSelecionadas.length === 0 ||
+          unidadeSelecionadas.includes(
+            Number(projeto.unidade)
+          );
+
+
+        return (
+          atendeStatus &&
+          atendePesquisa &&
+          atendeUnidade
+        );
+      }
+    );
   }
 
   visualizarProjeto(projeto: ProjetoEstrategico): void {

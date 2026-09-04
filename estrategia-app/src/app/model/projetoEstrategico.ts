@@ -17,6 +17,11 @@ export interface EvolucaoPayload {
   realizacao?: string;
   proximo_passo?: string;
 }
+export interface ObjetivoProjetoDetalhe {
+  id: number;
+  codigo: string;
+  descricao: string;
+}
 
 export interface ProjetoEstrategico{
     id: number;
@@ -31,6 +36,7 @@ export interface ProjetoEstrategico{
     unidade: number;
     responsavel: number;
     objetivos: number[];
+    objetivos_detalhes?: ObjetivoProjetoDetalhe[];
     evolucoes: EvolucaoProjeto[];
     evolucoesOrcamentarias: EvolucaoOrcamentaria[];
     observacao_analise?: string;
