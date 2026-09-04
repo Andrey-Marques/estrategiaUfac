@@ -6,6 +6,10 @@ interface LoginResponse{
     access: string;
     refresh: string;
 }
+interface RefreshResponse{
+    access: string;
+    refresh: string;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -22,4 +26,22 @@ export class AuthService{
                 password}
         );
     }
+
+     refreshToken(): Observable<RefreshResponse> {
+
+    const refresh = localStorage.getItem('refresh');
+
+    return this.http.post<RefreshResponse>(
+      `${this.url}/token/refresh/`,
+      {
+        refresh: refresh,
+      }
+    );
+  }
+
+  logout(): void {
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+  }
+
 }
