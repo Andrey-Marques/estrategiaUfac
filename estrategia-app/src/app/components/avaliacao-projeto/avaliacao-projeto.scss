@@ -475,7 +475,319 @@
     filter: brightness(.92);
   }
 }
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 
+  padding: 6px 10px;
+
+  border-radius: 7px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-aprovado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-rejeitado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-em-espera {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-rascunho {
+  background: #f1f5f9;
+  color: #475569;
+}
+.resultado-avaliacao {
+  display: flex;
+  gap: 14px;
+
+  margin-top: 14px;
+  padding: 18px;
+
+  border-radius: 8px;
+
+  .resultado-icone {
+    flex: 0 0 auto;
+
+    font-size: 25px;
+  }
+}
+
+.resultado-avaliacao.aprovado {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+
+  .resultado-icone,
+  h4 {
+    color: #166534;
+  }
+}
+
+.resultado-avaliacao.rejeitado {
+  background: #fff7f7;
+  border: 1px solid #fecaca;
+
+  .resultado-icone,
+  h4 {
+    color: #991b1b;
+  }
+}
+
+.resultado-conteudo {
+  flex: 1;
+
+  h4 {
+    margin: 0 0 5px;
+
+    font-size: 15px;
+    font-weight: 700;
+  }
+}
+
+.resultado-descricao {
+  margin: 0;
+
+  color: var(--texto-secundario);
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mensagem-administracao {
+  margin-top: 13px;
+  padding: 12px 14px;
+
+  background: rgba(255, 255, 255, .7);
+  border-radius: 6px;
+
+  span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--texto-secundario);
+
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0;
+
+    color: var(--texto);
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    white-space: pre-line;
+  }
+}
+.btn-editar-rejeitado {
+  border: 1px solid #b45309;
+
+  background: #b45309;
+  color: #fff;
+
+  &:hover {
+    background: #92400e;
+  }
+}
+
+.mensagem-erro {
+  margin: 8px 0 0;
+
+  color: var(--vermelho);
+
+  font-size: 12px;
+}
+
+.bloco-acompanhamento {
+  margin-top: 18px;
+}
+
+.titulo-secao {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-bottom: 12px;
+
+  > i {
+    margin-top: 2px;
+
+    font-size: 18px;
+    color: #334155;
+  }
+
+  h4 {
+    margin: 0;
+
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+  }
+
+  p {
+    margin: 3px 0 0;
+
+    font-size: 12px;
+    color: #64748b;
+  }
+}
+
+.acompanhamento-card {
+  margin-bottom: 12px;
+
+  padding: 15px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.acompanhamento-card-titulo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-bottom: 10px;
+
+  color: #1f2937;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  i {
+    font-size: 15px;
+  }
+}
+
+.registro-acompanhamento {
+  padding: 9px 11px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+
+  & + & {
+    margin-top: 7px;
+  }
+}
+
+.texto-registro {
+  margin: 0;
+
+  color: #475569;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  white-space: pre-line;
+}
+
+.sem-registros {
+  margin: 0;
+
+  color: #94a3b8;
+
+  font-size: 12px;
+  font-style: italic;
+}
+
+.registro-orcamentario {
+  padding: 12px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+
+  & + & {
+    margin-top: 9px;
+  }
+}
+
+.valor-orcamentario {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  span {
+    color: #64748b;
+    font-size: 12px;
+  }
+
+  strong {
+    color: #1f2937;
+    font-size: 14px;
+  }
+}
+
+.descricao-orcamentaria {
+  margin-top: 9px;
+
+  span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #64748b;
+
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0;
+
+    color: #475569;
+
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+.data-orcamentaria {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  margin-top: 9px;
+
+  color: #64748b;
+
+  font-size: 11px;
+}
+.grid-acompanhamento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  .acompanhamento-card {
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 700px) {
+  .grid-acompanhamento {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* RESPONSIVO */
 

@@ -1,7 +1,5 @@
 <div class="modal-backdrop-avaliacao">
-
   <div class="modal-avaliacao">
-
     <!-- CABEÇALHO -->
     <header class="modal-header">
       <div class="titulo-header">
@@ -10,8 +8,17 @@
         </div>
 
         <div>
-          <h2>Análise de Projeto</h2>
-          <p>Revise as informações do projeto e tome uma decisão.</p>
+          <h2>
+            {{ modoAvaliacao ? 'Análise de Projeto' : 'Detalhes do Projeto' }}
+          </h2>
+
+          <p>
+            {{
+              modoAvaliacao
+                ? 'Revise as informações do projeto e tome uma decisão.'
+                : 'Visualize as informações e o resultado da análise do projeto.'
+            }}
+          </p>
         </div>
       </div>
 
@@ -20,35 +27,38 @@
       </button>
     </header>
 
-
     <!-- CONTEÚDO -->
     <div class="modal-conteudo">
-
       <!-- TÍTULO DO PROJETO -->
       <section class="cabecalho-projeto">
-
         <div>
           <h3>{{ projeto.nome }}</h3>
 
           <div class="status-linha">
-            <span class="badge-analise">
-              <i class="bi bi-clock"></i>
-              EM ANÁLISE
+            <span class="badge-status" [ngClass]="obterClasseStatus()">
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-check-circle': projeto.status === 'APROVADO',
+                  'bi-x-circle': projeto.status === 'REJEITADO',
+                  'bi-clock': projeto.status === 'EM_ESPERA',
+                  'bi-file-earmark': projeto.status === 'RASCUNHO',
+                }"
+              ></i>
+
+              {{ obterRotuloStatus() }}
             </span>
 
             <span class="data-proposta">
               Proposto em
-              {{ projeto.ultima_atualizacao | date:'dd/MM/yyyy' }}
+              {{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy' }}
             </span>
           </div>
         </div>
-
       </section>
-
 
       <!-- PROPONENTE / UNIDADE -->
       <section class="dados-resumo">
-
         <div class="resumo-item">
           <div class="icone-resumo">
             <i class="bi bi-person"></i>
@@ -62,7 +72,6 @@
           </div>
         </div>
 
-
         <div class="resumo-item">
           <div class="icone-resumo">
             <i class="bi bi-building"></i>
@@ -75,9 +84,7 @@
             </strong>
           </div>
         </div>
-
       </section>
-
 
       <!-- DESCRIÇÃO -->
       <section class="bloco">
@@ -91,10 +98,8 @@
         </p>
       </section>
 
-
       <!-- TEMPO / CUSTO -->
       <div class="grid-informacoes">
-
         <section class="info-card">
           <div class="icone-info">
             <i class="bi bi-clock"></i>
@@ -108,7 +113,6 @@
           </div>
         </section>
 
-
         <section class="info-card">
           <div class="icone-info">
             <i class="bi bi-cash-coin"></i>
@@ -117,27 +121,22 @@
           <div>
             <span>Custo estimado</span>
             <strong>
-              {{ projeto.custo_estimado | currency:'BRL' }}
+              {{ projeto.custo_estimado | currency: 'BRL' }}
             </strong>
           </div>
         </section>
-
       </div>
-
 
       <!-- OBJETIVOS / AÇÕES -->
       <div class="grid-detalhes">
-
         <section class="bloco detalhe-card">
-
           <div class="titulo-bloco">
             <i class="bi bi-bullseye"></i>
             <h4>Objetivos estratégicos vinculados</h4>
           </div>
 
-          <ul *ngIf=" projeto.objetivos_detalhes?.length; else semObjetivos">
-
-            <li *ngFor=" let objetivo of projeto.objetivos_detalhes ">
+          <ul *ngIf="projeto.objetivos_detalhes?.length; else semObjetivos">
+            <li *ngFor="let objetivo of projeto.objetivos_detalhes">
               <strong>
                 {{ objetivo.codigo }}
               </strong>
@@ -146,16 +145,11 @@
           </ul>
 
           <ng-template #semObjetivos>
-            <p class="texto-vazio">
-              Nenhum objetivo estratégico vinculado.
-            </p>
+            <p class="texto-vazio">Nenhum objetivo estratégico vinculado.</p>
           </ng-template>
-
         </section>
 
-
         <section class="bloco detalhe-card">
-
           <div class="titulo-bloco">
             <i class="bi bi-list-check"></i>
             <h4>Ações previstas</h4>
@@ -166,57 +160,230 @@
           </p>
 
           <ng-template #semAcoes>
-            <p class="texto-vazio">
-              Nenhuma ação prevista informada.
-            </p>
+            <p class="texto-vazio">Nenhuma ação prevista informada.</p>
           </ng-template>
-
         </section>
-
       </div>
 
+      <section class="bloco-acompanhamento">
+        <div class="titulo-secao">
+          <i class="bi bi-activity"></i>
+
+          <div>
+            <h4>Acompanhamento do projeto</h4>
+            <p>Consulte as realizações, próximos passos e a evolução orçamentária registrada.</p>
+          </div>
+        </div>
+        <div class="grid-acompanhamento">
+          <div class="acompanhamento-card">
+            <div class="acompanhamento-card-titulo">
+              <i class="bi bi-check-circle"></i>
+              <span>Realizações</span>
+            </div>
+
+            <ng-container *ngIf="realizacoesValidas.length > 0; else semRealizacoes">
+              <div class="registro-acompanhamento" *ngFor="let evolucao of realizacoesValidas">
+                <p class="texto-registro">
+                  {{ evolucao.realizacao }}
+                </p>
+              </div>
+            </ng-container>
+
+            <ng-template #semRealizacoes>
+              <p class="sem-registros">Nenhuma realização registrada.</p>
+            </ng-template>
+          </div>
+
+          <div class="acompanhamento-card">
+            <div class="acompanhamento-card-titulo">
+              <i class="bi bi-arrow-right-circle"></i>
+              <span>Próximos passos</span>
+            </div>
+
+            <ng-container *ngIf="proximosPassosValidos.length > 0; else semProximosPassos">
+              <div class="registro-acompanhamento" *ngFor="let evolucao of proximosPassosValidos">
+                <p class="texto-registro">
+                  {{ evolucao.proximo_passo }}
+                </p>
+              </div>
+            </ng-container>
+
+            <ng-template #semProximosPassos>
+              <p class="sem-registros">Nenhum próximo passo registrado.</p>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="acompanhamento-card acompanhamento-orcamento">
+
+            <div class="acompanhamento-card-titulo">
+              <i class="bi bi-cash-stack"></i>
+              <span>Evolução orçamentária</span>
+            </div>
+
+            <ng-container
+              *ngIf="
+                projeto.evolucoesOrcamentarias && projeto.evolucoesOrcamentarias.length > 0;
+                else semOrcamento
+              "
+            >
+              <div
+                class="registro-orcamentario"
+                *ngFor="let evolucaoOrcamentaria of projeto.evolucoesOrcamentarias"
+              >
+                <div class="valor-orcamentario">
+                  <span>Valor investido</span>
+
+                  <strong>
+                    {{
+                      evolucaoOrcamentaria.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+                    }}
+                  </strong>
+                </div>
+
+                <div class="descricao-orcamentaria" *ngIf="evolucaoOrcamentaria.descricao">
+                  <span>Descrição</span>
+
+                  <p>
+                    {{ evolucaoOrcamentaria.descricao }}
+                  </p>
+                </div>
+
+                <div class="data-orcamentaria" *ngIf="evolucaoOrcamentaria.data_registro">
+                  <i class="bi bi-calendar3"></i>
+
+                  {{ evolucaoOrcamentaria.data_registro | date: 'dd/MM/yyyy' }}
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #semOrcamento>
+              <p class="sem-registros">Nenhuma evolução orçamentária registrada.</p>
+            </ng-template>
+        </div>
+      </section>
 
       <!-- OBSERVAÇÃO -->
-      <section class="bloco-observacao">
-
+      <section class="bloco-observacao" *ngIf="modoAvaliacao">
         <div class="titulo-observacao">
           <i class="bi bi-chat"></i>
 
           <div>
             <h4>Observação da análise</h4>
-            <p>
-              Registre uma observação ou justificativa para a
-              aprovação ou rejeição do projeto.
-            </p>
+            <p>Registre uma observação ou justificativa para a aprovação ou rejeição do projeto.</p>
           </div>
         </div>
 
-        <textarea [(ngModel)]="observacao" rows="4" placeholder="Digite uma observação ou justificativa..."></textarea>
+        <textarea
+          [(ngModel)]="observacao"
+          rows="4"
+          placeholder="Digite uma observação ou justificativa..."
+        ></textarea>
 
+        <p class="mensagem-erro" *ngIf="mensagemErro">
+          {{ mensagemErro }}
+        </p>
       </section>
+      <section
+        class="resultado-avaliacao aprovado"
+        *ngIf="modoVisualizacao && projeto.status === 'APROVADO'"
+      >
+        <div class="resultado-icone">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
 
+        <div class="resultado-conteudo">
+          <h4>Projeto aprovado</h4>
+
+          <p class="resultado-descricao">Este projeto foi aprovado pela administração.</p>
+
+          <div class="mensagem-administracao" *ngIf="projeto.observacao_analise">
+            <span>Mensagem da avaliação</span>
+
+            <p>
+              {{ projeto.observacao_analise }}
+            </p>
+          </div>
+        </div>
+      </section>
+      <section
+        class="resultado-avaliacao rejeitado"
+        *ngIf="modoVisualizacao && projeto.status === 'REJEITADO'"
+      >
+        <div class="resultado-icone">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+
+        <div class="resultado-conteudo">
+          <h4>Projeto necessita de ajustes</h4>
+
+          <p class="resultado-descricao">
+            O projeto não foi aprovado. Revise as informações indicadas abaixo antes de reenviá-lo.
+          </p>
+
+          <div class="mensagem-administracao">
+            <span>Motivo da rejeição</span>
+
+            <p>
+              {{ projeto.observacao_analise || 'Nenhuma justificativa foi informada.' }}
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
-
 
     <!-- RODAPÉ -->
     <footer class="modal-footer">
-
       <button type="button" class="btn btn-cancelar" (click)="fechar()">
-        Cancelar
+        {{ modoAvaliacao ? 'Cancelar' : 'Fechar' }}
       </button>
 
-      <button type="button" class="btn btn-rejeitar" (click)="rejeitar()" *ngIf="isAdmin">
+      <button
+        *ngIf="!isAdmin && projeto.status === 'APROVADO'"
+        type="button"
+        class="btn btn-atualizar-realizacoes"
+        data-bs-toggle="modal"
+        data-bs-target="#modalProjeto"
+        (click)="editarProjeto()"
+      >
+        <i class="bi bi-arrow-repeat"></i>
+        Atualizar realizações
+      </button>
+
+      <!-- SERVIDOR: PROJETO REJEITADO -->
+      <button
+        *ngIf="!isAdmin && projeto.status === 'REJEITADO'"
+        type="button"
+        class="btn btn-editar-rejeitado"
+        data-bs-toggle="modal"
+        data-bs-target="#modalProjeto"
+        (click)="editarProjeto()"
+      >
+        <i class="bi bi-pencil-square"></i>
+        Editar projeto
+      </button>
+      <button
+        *ngIf="isAdmin"
+        type="button"
+        class="btn btn-editar-rejeitado"
+        data-bs-toggle="modal"
+        data-bs-target="#modalProjeto"
+        (click)="editarProjeto()"
+      >
+        <i class="bi bi-pencil-square"></i>
+        Editar projeto
+      </button>
+
+      <!-- ADMIN: PROJETO AGUARDANDO ANÁLISE -->
+      <button *ngIf="modoAvaliacao" type="button" class="btn btn-rejeitar" (click)="rejeitar()">
         <i class="bi bi-x-lg"></i>
         Rejeitar projeto
       </button>
 
-      <button type="button" class="btn btn-aprovar" (click)="aprovar()" *ngIf="isAdmin">
+      <button *ngIf="modoAvaliacao" type="button" class="btn btn-aprovar" (click)="aprovar()">
         <i class="bi bi-check-lg"></i>
         Aprovar projeto
       </button>
-
     </footer>
-
   </div>
-
 </div>
