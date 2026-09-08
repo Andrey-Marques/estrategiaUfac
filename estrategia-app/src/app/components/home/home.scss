@@ -137,7 +137,7 @@ body{
 
 
 .tabela-conteudo {
-    padding: 40px 24px;
+    padding: 10px 24px;
     min-height: 250px; 
     display: flex;
     flex-direction: column;
@@ -155,7 +155,6 @@ body{
     p {
         margin: 0;
         font-size: 15px;
-        color: #6B7280;
         font-weight: 500;
     }
 }
@@ -163,55 +162,134 @@ body{
 
 .lista-registros {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
+    padding: 1.25rem;
     width: 100%;
-
-    .registro-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        
-        padding: 16px 0;
-        border-bottom: 1px solid #E5E7EB; 
-
-        &:last-child {
-            border-bottom: none;
-        }
-    }
-
-    .registro-titulo {
-        color: #374151;
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .registro-acao {
-        font-size: 13px;
-        color: #152778;
-        font-weight: 600;
-        cursor: pointer;
-        
-        background: #F3F4F6;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 4px;
-        transition: background 0.2s ease;
-        
-        &:hover {
-            background: #E5E7EB;
-        }
-    }
 }
 
-.lista-registros {
-  background-color: #e7ebff;
-  padding: 0 10px;
-  border-radius: 10px;
-}
-
-
-.registro-informacoes {
-    width: 70%;
+/* Card de Cada Registro (Item da Lista) */
+.registro-item {
     display: flex;
+    align-items: center;
     justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #3b82f6; /* Destaque lateral moderno */
+    border-radius: 2px;
+    padding: 10px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+    gap: 1.5rem;
+}
+
+.registro-item:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    border-left-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+/* Suporte ao Modo Escuro (Dark Mode) */
+.dark .registro-item {
+    background-color: #1e293b;
+    border-color: #334155;
+    border-left-color: #3b82f6;
+}
+
+.dark .registro-item:hover {
+    background-color: #1e293b;
+    border-color: #475569;
+    border-left-color: #60a5fa;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Bloco Grid das Informações Intermediárias */
+.registro-informacoes {
+    display: grid;
+    grid-template-columns: minmax(260px, 2.5fr) minmax(140px, 1.2fr) minmax(120px, 1fr) minmax(120px, 1fr);
+    align-items: center;
+    gap: 1.5rem;
+    flex-grow: 1;
+}
+
+/* Título do Registro */
+.registro-titulo {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.4;
+    word-break: break-word;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dark .registro-titulo {
+    color: #f8fafc;
+}
+
+/* Rótulos Secundários (<small>) */
+.registro-informacoes small {
+    font-size: 0.8125rem;
+    color: #64748b;
+    line-height: 1.4;
+    display: block;
+    font-weight: 500;
+}
+
+.dark .registro-informacoes small {
+    color: #94a3b8;
+}
+
+/* Destaques em negrito/cor dentro do <small> */
+.registro-informacoes small strong {
+    color: #334155;
+    font-weight: 600;
+}
+.dark .registro-informacoes small strong {
+    color: #cbd5e1;
+}
+
+/* Botão de Ação Primária */
+.registro-acao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1.35rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #2563eb;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px 0 rgba(37, 99, 235, 0.05);
+}
+
+.registro-acao:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 6px 16px -2px rgba(37, 99, 235, 0.3);
+    transform: scale(1.03);
+}
+
+.registro-acao:active {
+    transform: scale(0.97);
+}
+
+.dark .registro-acao {
+    background-color: rgba(30, 58, 138, 0.4);
+    color: #93c5fd;
+    border-color: #1e3a8a;
+}
+
+.dark .registro-acao:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
 }

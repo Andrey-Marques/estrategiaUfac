@@ -63,16 +63,45 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
         )
             
     def _validar_campos_edicao(self, request):
-
         usuario = request.user
+
         # ADMIN pode alterar qualquer campo
         if usuario.papel == 'ADMIN':
             return None
 
-        # Demais usuários só podem alterar evoluções
-        campos_permitidos = {
-            'evolucoes'
-        }
+        projeto = self.get_object()
+
+        # --------------------------------------------------
+        # PROJETO REJEITADO
+        # O servidor pode corrigir o formulário completo
+        # --------------------------------------------------
+        if projeto.status == 'REJEITADO':
+
+            campos_permitidos = {
+                'nome',
+                'descricao',
+                'tempo_estimado',
+                'custo_estimado',
+                'percentual_progresso',
+                'acoes_previstas',
+                'responsavel',
+                'unidade',
+                'objetivos',
+                'evolucoes',
+                'evolucoesOrcamentarias',
+            }
+
+        # --------------------------------------------------
+        # PROJETO APROVADO
+        # Servidor só atualiza acompanhamento
+        # --------------------------------------------------
+        else:
+
+            campos_permitidos = {
+                'evolucoes',
+                'percentual_progresso',
+                'evolucoesOrcamentarias',
+            }
 
         campos_enviados = set(
             request.data.keys()
@@ -87,11 +116,13 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
             return Response(
                 {
                     'detail':
-                    'Você só pode alterar realizações e próximos passos do projeto.',
+                        'Você não possui permissão para alterar '
+                        'um ou mais campos enviados.',
 
                     'campos_proibidos':
-                    list(campos_proibidos)
+                        list(campos_proibidos)
                 },
+
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -120,6 +151,20 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
             request,
             *args,
             **kwargs
+        )
+        
+    def perform_update(self, serializer):
+        usuario = self.request.user
+
+        if usuario.papel == 'ADMIN':
+            serializer.save()
+            return
+
+        serializer.save(
+            status='EM_ESPERA',
+            observacao_analise='',
+            data_analise=None,
+            analisado_por=None
         )
     
     @action(detail=True, methods=['post'])

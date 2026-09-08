@@ -1,33 +1,70 @@
-    <header class="header_principal">
-       <div class="header_infos">
-            <a href="" class="header__logo">
-                <img src="pe_logo_1.png" alt="Logo Portal PE">
-            </a>
-            <span class="header_tag">ÁREA RESTRITA</span>
-        </div>
- 
-        <div class="header_usuario">       
-            <button type="button" class="perfil_usuario">
-                <img src="user.png" alt="" class="perfil_usuario_avatar">
-                <div class="perfil_usuario_infos">
-                    <span class="nome_usuario">Andrey da Cunha Marques</span>
-                    <span class="unidade_usuario">Servidor / PROGRAD</span>
-                </div>
-                <svg
-                    class="perfil_usuario_seta"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
+<header class="header_principal">
+    <div class="header_infos">
+        <a href="" class="header__logo">
+            <img src="pe_logo_1.png" alt="Logo Portal PE">
+        </a>
+        <span class="header_tag">ÁREA RESTRITA</span>
+    </div>
 
-                    <path
-                        d="M6 9L12 15L18 9"
-                        stroke="#9A9A9A"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"/>
-                </svg>
+    <div class="header_usuario" *ngIf="usuarioAtual() as usuario">
+
+        <button type="button" class="perfil_usuario" [class.perfil_usuario_ativo]="menuUsuarioAberto()"
+            (click)="alternarMenuUsuario()">
+
+            <img src="user.png" alt="Usuário" class="perfil_usuario_avatar">
+
+
+            <div class="perfil_usuario_infos">
+
+                <span class="nome_usuario">
+                    {{ obterNomeUsuario() }}
+                </span>
+
+                <span class="unidade_usuario"> {{ obterPapelUsuario() }} / {{ obterUnidadeUsuario() }}</span>
+
+            </div>
+
+            <svg class="perfil_usuario_seta" [class.seta-aberta]="menuUsuarioAberto()" width="20" height="20"
+                viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 9L12 15L18 9" stroke="#9A9A9A" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </button>
+
+        <!-- DROPDOWN -->
+        <div class="menu_usuario_dropdown" *ngIf="menuUsuarioAberto()">
+            <div class="dropdown_usuario_info">
+
+                <strong>
+                    {{ obterNomeUsuario() }}
+                </strong>
+                <span>{{ usuario.email }}</span>
+            </div>
+
+            <div class="dropdown_divisor"></div>
+
+            <div class="dropdown_detalhe">
+                <div>
+                    <span>Papel</span>
+
+                    <strong>
+                        {{ obterPapelUsuario() }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Unidade</span>
+
+                    <strong>
+                        {{ obterUnidadeUsuario() }}
+                    </strong>
+                </div>
+            </div>
+            <div class="dropdown_divisor"></div>
+            <button type="button" class="botao_logout" (click)="logout()">
+                <i class="bi bi-box-arrow-right"></i>
+                Sair
             </button>
         </div>
-    </header>
+    </div>
+</header>

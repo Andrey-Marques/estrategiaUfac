@@ -53,11 +53,11 @@
               </span>
 
               <small>
-                Líder: {{ projeto.responsavel_nome || '-' }}
+                Líder: <br>{{ projeto.responsavel_nome || '-' }}
               </small>
 
               <small>
-                Unidade: {{ projeto.unidade_sigla || '-' }}
+                Unidade: <br>{{ projeto.unidade_sigla || '-' }}
               </small>
 
             </div>
@@ -94,6 +94,5 @@
     </div>
   </div>
 </div>
-<app-avaliacao-projeto *ngIf="projetoEmAnalise" [projeto]="projetoEmAnalise" [isAdmin]="isAdmin()"
-  (fechado)="fecharAvaliacao()" (aprovado)="aprovarProjeto($event)" (rejeitado)="rejeitarProjeto($event)">
+<app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado" [isAdmin]="isAdmin()" (fechado)="fecharAvaliacao()" (aprovado)="aprovarProjeto($event)" (rejeitado)="rejeitarProjeto($event)">
 </app-avaliacao-projeto>

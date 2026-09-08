@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BarraLateral } from '../utils/barra-lateral/barra-lateral';
 import { HeaderPrincipal } from '../utils/header-principal/header-principal';
@@ -19,11 +19,8 @@ import {AvaliacaoProjeto,DecisaoProjeto} from '../avaliacao-projeto/avaliacao-pr
 export class Home {
   listaProjetos = signal<ProjetoEstrategico[]>([]);
   isAdmin = signal(false);
-  projetoEmAnalise:
-    (ProjetoEstrategico & {
-      responsavel_nome?: string;
-      unidade_sigla?: string;
-    }) | null = null;
+  projetoEmAnalise = signal<
+  (ProjetoEstrategico & {responsavel_nome?: string;unidade_sigla?: string;}) | null>(null);
 
 
   abaAtiva: number = 1;
@@ -69,10 +66,12 @@ export class Home {
     this.projetoService
       .getById(projeto.id)
       .subscribe({
-
         next: projetoDetalhado => {
-          this.projetoEmAnalise =
-            projetoDetalhado;
+
+          this.projetoEmAnalise.set(
+            projetoDetalhado
+          );
+
         },
 
         error: erro => {
@@ -81,12 +80,11 @@ export class Home {
             erro
           );
         }
-
       });
   }
 
   fecharAvaliacao(): void {
-    this.projetoEmAnalise = null;
+    this.projetoEmAnalise.set(null);
   }
   aprovarProjeto(
     decisao: DecisaoProjeto
@@ -101,7 +99,7 @@ export class Home {
 
         next: () => {
 
-          this.projetoEmAnalise = null;
+          this.projetoEmAnalise.set(null);
 
           this.buscarProjetosEmEspera();
         },
@@ -135,7 +133,7 @@ export class Home {
 
         next: () => {
 
-          this.projetoEmAnalise = null;
+          this.projetoEmAnalise.set(null);
 
           this.buscarProjetosEmEspera();
         },
