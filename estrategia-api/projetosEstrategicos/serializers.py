@@ -77,20 +77,6 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
                     descricao=descricao
                 )
 
-    def _salvar_evolucoes_orcamentarias(self, projeto, evolucoes):
-        if not evolucoes:
-            return
-
-        for evolucao in evolucoes:
-            valor = evolucao.get('valor', 0)
-            descricao = (evolucao.get('descricao') or '').strip()
-
-            if valor or descricao:
-                EvolucaoOrcamentaria.objects.create(
-                    fk_projeto=projeto,
-                    valor=valor,
-                    descricao=descricao
-                )
 
     def create(self, validated_data):
         objetivos = validated_data.pop('objetivos', [])
@@ -139,7 +125,7 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
 
 
         if evolucoes is not None:
-
+            instance.evolucoes.all().delete()
             for evolucao in evolucoes:
 
                 realizacao = (

@@ -24,6 +24,10 @@ class MeuPerfilSerializer(serializers.ModelSerializer):
         source='unidade.nome',
         read_only=True
     )
+    unidade_sigla = serializers.CharField(
+        source='unidade.sigla',
+        read_only=True
+    )
 
     class Meta:
         model = Usuario
@@ -36,6 +40,7 @@ class MeuPerfilSerializer(serializers.ModelSerializer):
             'papel',
             'unidade',
             'unidade_nome',
+            'unidade_sigla',
             'email'
         ]
         read_only_fields = [
@@ -44,5 +49,6 @@ class MeuPerfilSerializer(serializers.ModelSerializer):
             'nome_completo',
             'papel',
             'unidade',
+            'unidade_sigla',
             'unidade_nome'
         ]

@@ -937,19 +937,40 @@ export class ListagemProjetos {
       return;
     }
 
-    const dados = {
-      percentual_progresso:
-        this.formularioProjeto
-          .get('percentualProgresso')
-          ?.value,
+    const valorInvestido = Number(
+      this.formularioProjeto
+        .get('valorInvestido')
+        ?.value ?? 0
+    );
 
-      evolucoes:
-        this.montarEvolucoes(),
+    const descricaoOrcamentaria = (
+      this.formularioProjeto
+        .get('descricaoOrcamentaria')
+        ?.value ?? ''
+    ).trim();
 
-      // outros campos de acompanhamento que você já envia
-    };
+
+    const novasEvolucoesOrcamentarias: Array<{
+      valor: number;
+      descricao: string;
+    }> = [];
+
+
+    if (
+      valorInvestido > 0 ||
+      descricaoOrcamentaria
+    ) {
+
+      novasEvolucoesOrcamentarias.push({
+        valor: valorInvestido,
+        descricao: descricaoOrcamentaria
+      });
+
+    }
+
 
     const dadosAtualizacao = {
+
       percentual_progresso:
         Number(
           this.formularioProjeto
@@ -961,8 +982,9 @@ export class ListagemProjetos {
         this.montarEvolucoes(),
 
       evolucoesOrcamentarias:
-        this.evolucoesOrcamentarias()
+        novasEvolucoesOrcamentarias
     };
+
 
     this.projetoService
       .atualizarProjeto(
