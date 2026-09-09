@@ -30,7 +30,7 @@ class RelatedByIdOrNameField(serializers.PrimaryKeyRelatedField):
 
         return super().to_internal_value(data)
 
-class IniciativaEstrategicaSerializer(serializersModelSerializer):
+class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
 
     responsavel_nome = serializers.CharField(source='responsavel.nome_completo', read_only=True)
 
