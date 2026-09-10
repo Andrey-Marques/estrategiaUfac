@@ -20,6 +20,7 @@ class IniciativaEstrategica(models.Model):
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoIniciativa',related_name='iniciativas')
     observacao_analise = models.TextField(blank=True)
     analisado_por = models.ForeignKey('usuarios.Usuario', on_delete= models.SET_NULL, null=True, blank=True, related_name='iniciativas_analisadas')
+    data_analise = models.DateTimeField(null=True,blank=True)
 
     class Meta: 
         verbose_name = 'Iniciativa Estratégica'

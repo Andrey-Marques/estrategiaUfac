@@ -1,0 +1,410 @@
+<div class="modal-backdrop-avaliacao">
+  <div class="modal-avaliacao">
+    <!-- CABEÇALHO -->
+    <header class="modal-header">
+      <div class="titulo-header">
+        <div class="icone-header">
+          <i class="bi bi-lightbulb"></i>
+        </div>
+
+        <div>
+          <h2>
+            {{ modoAvaliacao ? 'Análise de Iniciativa' : 'Detalhes da Iniciativa' }}
+          </h2>
+
+          <p>
+            {{
+              modoAvaliacao
+                ? 'Revise as informações da iniciativa e tome uma decisão.'
+                : 'Visualize as informações e o resultado da análise da iniciativa.'
+            }}
+          </p>
+        </div>
+      </div>
+
+      <button type="button" class="btn-fechar" (click)="fechar()" aria-label="Fechar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <div class="modal-conteudo">
+      <!-- TÍTULO / STATUS -->
+      <section class="cabecalho-iniciativa">
+        <div>
+          <h3>
+            {{ iniciativa.nome }}
+          </h3>
+
+          <div class="status-linha">
+            <span
+              class="badge-status"
+              [ngClass]="{
+                'status-aprovado': iniciativa.status === 'APROVADO',
+
+                'status-rejeitado': iniciativa.status === 'REJEITADO',
+
+                'status-em-espera': iniciativa.status === 'EM_ESPERA',
+
+                'status-rascunho': iniciativa.status === 'RASCUNHO',
+              }"
+            >
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-check-circle': iniciativa.status === 'APROVADO',
+
+                  'bi-x-circle': iniciativa.status === 'REJEITADO',
+
+                  'bi-clock': iniciativa.status === 'EM_ESPERA',
+
+                  'bi-file-earmark': iniciativa.status === 'RASCUNHO',
+                }"
+              ></i>
+
+              <ng-container [ngSwitch]="iniciativa.status">
+                <span *ngSwitchCase="'APROVADO'"> Aprovado/Público </span>
+
+                <span *ngSwitchCase="'REJEITADO'"> Rejeitado </span>
+
+                <span *ngSwitchCase="'EM_ESPERA'"> Em espera </span>
+
+                <span *ngSwitchCase="'RASCUNHO'"> Rascunho </span>
+
+                <span *ngSwitchDefault>
+                  {{ iniciativa.status }}
+                </span>
+              </ng-container>
+            </span>
+
+            <span class="data-proposta">
+              Preenchida em
+
+              {{ iniciativa.data_preenchimento | date: 'dd/MM/yyyy' }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESPONSÁVEL / UNIDADE -->
+      <section class="dados-resumo">
+        <div class="resumo-item">
+          <div class="icone-resumo">
+            <i class="bi bi-person"></i>
+          </div>
+
+          <div>
+            <span>Responsável</span>
+
+            <strong>
+              {{ iniciativa.responsavel_nome || 'Não informado' }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="resumo-item">
+          <div class="icone-resumo">
+            <i class="bi bi-building"></i>
+          </div>
+
+          <div>
+            <span>Unidade</span>
+
+            <strong>
+              {{ iniciativa.unidade_sigla || 'Não informada' }}
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- OBJETIVOS -->
+      <section class="bloco">
+        <div class="titulo-bloco">
+          <i class="bi bi-bullseye"></i>
+
+          <h4>Objetivos estratégicos vinculados</h4>
+        </div>
+
+        <ul
+          class="lista-objetivos"
+          *ngIf="iniciativa.objetivo_detalhe?.length; else semObjetivos"
+        >
+          <li *ngFor="let objetivo of iniciativa.objetivo_detalhe">
+            <strong>
+              {{ objetivo.codigo }}
+            </strong>
+
+            -
+
+            {{ objetivo.descricao }}
+          </li>
+        </ul>
+
+        <ng-template #semObjetivos>
+          <p class="texto-vazio">Nenhum objetivo estratégico vinculado.</p>
+        </ng-template>
+      </section>
+
+      <!-- PROGRESSO -->
+      <section class="progresso-iniciativa">
+        <div class="progresso-cabecalho">
+          <div class="progresso-titulo">
+            <i class="bi bi-bar-chart-line"></i>
+
+            <div>
+              <strong> Evolução da iniciativa </strong>
+
+              <span> Percentual de evolução registrado </span>
+            </div>
+          </div>
+
+          <strong class="progresso-percentual"> {{ iniciativa.percentual_evolucao || 0 }}% </strong>
+        </div>
+
+        <div class="barra-progresso">
+          <div
+            class="barra-progresso-preenchimento"
+            [style.width.%]="iniciativa.percentual_evolucao || 0"
+          ></div>
+        </div>
+      </section>
+
+      <!-- AÇÕES -->
+      <section class="bloco-acoes">
+        <div class="titulo-secao">
+          <i class="bi bi-list-check"></i>
+
+          <div>
+            <h4>Ações da iniciativa</h4>
+
+            <p>Consulte as ações realizadas ou previstas para esta iniciativa.</p>
+          </div>
+        </div>
+
+        <ng-container
+          *ngIf="
+            iniciativa.acoes_realizadas && iniciativa.acoes_realizadas.length > 0;
+            else semAcoes
+          "
+        >
+          <div class="acao-card" *ngFor="let acao of iniciativa.acoes_realizadas">
+            <div class="acao-topo">
+              <div>
+                <span class="acao-label"> Ação </span>
+
+                <strong class="acao-nome">
+                  {{ acao.nome }}
+                </strong>
+              </div>
+
+              <span
+                class="badge-acao"
+                [ngClass]="{
+                  'acao-concluida': acao.status === 'CONCLUIDA',
+
+                  'acao-andamento': acao.status === 'EM_ANDAMENTO',
+
+                  'acao-pendente': acao.status === 'PENDENTE',
+                }"
+              >
+                {{ acao.status }}
+              </span>
+            </div>
+
+            <div class="acao-grid">
+              <div class="acao-info">
+                <span> Início </span>
+
+                <strong>
+                  {{ acao.prazo_inicio | date: 'dd/MM/yyyy' }}
+                </strong>
+              </div>
+
+              <div class="acao-info">
+                <span> Fim </span>
+
+                <strong>
+                  {{ acao.prazo_fim | date: 'dd/MM/yyyy' }}
+                </strong>
+              </div>
+
+              <div class="acao-info">
+                <span> Custo </span>
+
+                <strong>
+                  R$
+                  {{ acao.custo | number: '1.2-2' }}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #semAcoes>
+          <div class="estado-vazio">
+            <i class="bi bi-inbox"></i>
+
+            <p>Nenhuma ação registrada.</p>
+          </div>
+        </ng-template>
+      </section>
+
+      <!-- OBSERVAÇÕES DA INICIATIVA -->
+      <section class="bloco">
+        <div class="titulo-bloco">
+          <i class="bi bi-chat-left-text"></i>
+
+          <h4>Observações da iniciativa</h4>
+        </div>
+
+        <p
+          class="observacao-iniciativa"
+          *ngIf="iniciativa.observacao; else semObservacaoIniciativa"
+        >
+          {{ iniciativa.observacao }}
+        </p>
+
+        <ng-template #semObservacaoIniciativa>
+          <p class="texto-vazio">Nenhuma observação registrada.</p>
+        </ng-template>
+      </section>
+
+      <!-- CAMPO DA AVALIAÇÃO -->
+      <section class="bloco-observacao" *ngIf="modoAvaliacao">
+        <div class="titulo-observacao">
+          <i class="bi bi-chat"></i>
+
+          <div>
+            <h4>Observação da análise</h4>
+
+            <p>
+              Registre uma observação ou justificativa para a aprovação ou rejeição da iniciativa.
+            </p>
+          </div>
+        </div>
+
+        <textarea
+          [(ngModel)]="observacao"
+          rows="4"
+          placeholder="Digite uma observação ou justificativa..."
+        ></textarea>
+
+        <p class="mensagem-erro" *ngIf="mensagemErro">
+          {{ mensagemErro }}
+        </p>
+      </section>
+
+      <!-- APROVADA -->
+      <section
+        class="resultado-avaliacao aprovado"
+        *ngIf="modoVisualizacao && iniciativa.status === 'APROVADO'"
+      >
+        <div class="resultado-icone">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+
+        <div class="resultado-conteudo">
+          <h4>Iniciativa aprovada</h4>
+
+          <p class="resultado-descricao">Esta iniciativa foi aprovada pela administração.</p>
+
+          <div class="mensagem-administracao" *ngIf="iniciativa.observacao_analise">
+            <span> Mensagem da avaliação </span>
+
+            <p>
+              {{ iniciativa.observacao_analise }}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- REJEITADA -->
+      <section
+        class="resultado-avaliacao rejeitado"
+        *ngIf="modoVisualizacao && iniciativa.status === 'REJEITADO'"
+      >
+        <div class="resultado-icone">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+
+        <div class="resultado-conteudo">
+          <h4>Iniciativa necessita de ajustes</h4>
+
+          <p class="resultado-descricao">
+            A iniciativa não foi aprovada. Revise as informações indicadas antes de reenviá-la.
+          </p>
+
+          <div class="mensagem-administracao">
+            <span> Motivo da rejeição </span>
+
+            <p>
+              {{ iniciativa.observacao_analise || 'Nenhuma justificativa foi informada.' }}
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- RODAPÉ -->
+    <footer class="modal-footer">
+      <button type="button" class="btn btn-cancelar" (click)="fechar()">
+        {{ modoAvaliacao ? 'Cancelar' : 'Fechar' }}
+      </button>
+
+      <!-- SERVIDOR + APROVADA -->
+      <button
+        *ngIf="!isAdmin && iniciativa.status === 'APROVADO'"
+        type="button"
+        class="btn btn-atualizar"
+        data-bs-toggle="modal"
+        data-bs-target="#exampleModalToggle"
+        (click)="editarIniciativa()"
+      >
+        <i class="bi bi-arrow-repeat"></i>
+
+        Atualizar iniciativa
+      </button>
+
+      <!-- REJEITADA -->
+      <button
+        *ngIf="iniciativa.status === 'REJEITADO'"
+        type="button"
+        class="btn btn-editar"
+        data-bs-toggle="modal"
+        data-bs-target="#exampleModalToggle"
+        (click)="editarIniciativa()"
+      >
+        <i class="bi bi-pencil-square"></i>
+
+        Editar iniciativa
+      </button>
+
+      <!-- ADMIN, FORA DA AVALIAÇÃO -->
+      <button
+        *ngIf="isAdmin && !modoAvaliacao && iniciativa.status !== 'REJEITADO'"
+        type="button"
+        class="btn btn-editar"
+        data-bs-toggle="modal"
+        data-bs-target="#exampleModalToggle"
+        (click)="editarIniciativa()"
+      >
+        <i class="bi bi-pencil-square"></i>
+
+        Editar iniciativa
+      </button>
+
+      <!-- ADMIN AVALIANDO -->
+      <button *ngIf="modoAvaliacao" type="button" class="btn btn-rejeitar" (click)="rejeitar()">
+        <i class="bi bi-x-lg"></i>
+
+        Rejeitar iniciativa
+      </button>
+
+      <button *ngIf="modoAvaliacao" type="button" class="btn btn-aprovar" (click)="aprovar()">
+        <i class="bi bi-check-lg"></i>
+
+        Aprovar iniciativa
+      </button>
+    </footer>
+  </div>
+</div>

@@ -11,6 +11,7 @@ import { UsuarioService } from '../../service/usuario.service';
 import { Usuario } from '../../model/usuario';
 import { UnidadeService } from '../../service/unidade.service';
 import { Unidade } from '../../model/unidade';
+import {AvaliacaoIniciativa, DecisaoIniciativa} from '../avaliacao-iniciativa/avaliacao-iniciativa';
 
 export interface AcaoIniciativa {
   descricaoAcao: string;
@@ -22,7 +23,7 @@ export interface AcaoIniciativa {
 
 @Component({
   selector: 'app-listagem-iniciativas',
-  imports: [InfoBar, NgForOf, DatePipe, CommonModule, ReactiveFormsModule],
+  imports: [InfoBar, NgForOf, DatePipe, CommonModule, ReactiveFormsModule, AvaliacaoIniciativa],
   templateUrl: './listagem-iniciativas.html',
   styleUrl: './listagem-iniciativas.scss',
   providers: [DatePipe],
@@ -45,6 +46,11 @@ export class ListagemIniciativas {
   visualizando = false;
   objetivosSelecionados : number[] = [];
   //----------------------------
+  iniciativaEmAnalise = signal<IniciativaEstrategica | null>(null);
+  modoEdicao = false;
+  editandoIniciativaRejeitada = false;
+  iniciativaSelecionadaId: number | null = null;
+
   constructor(private iniciativaService: IniciativaService,private usuarioService: UsuarioService, private unidadeService: UnidadeService, private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder){
     this.formularioIniciativa = this.construtorFormulario.group({
       tituloIniciativa: ['', Validators.required],
@@ -73,12 +79,10 @@ export class ListagemIniciativas {
   }
 
   buscarUsuarioAtual(): void {
-
     this.usuarioService.getAtual().subscribe({
       next: usuario => {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
-
       },
       error: erro =>
         console.error('Erro ao buscar usuário atual:',erro)
@@ -195,7 +199,7 @@ export class ListagemIniciativas {
     });
   }
 
-  salvarIniciativa():void{
+  salvarIniciativa( statusSolicitado:'RASCUNHO'| 'EM_ESPERA'| 'APROVADO'):void{
     const observacoes = this.formularioIniciativa.value.observacoes || '';
     const dados = {
       nome : this.formularioIniciativa.value.tituloIniciativa,
@@ -204,7 +208,7 @@ export class ListagemIniciativas {
       objetivos : this.formularioIniciativa.value.objetivosEstrategicos,
       percentual_evolucao : this.formularioIniciativa.value.evolucaoPercentual,
       observacao: observacoes,
-      status: 'PLANEJAMENTO',
+      status: statusSolicitado,
 
       acoes: this.acoesIniciativa().map(acao => ({
         nome: acao.descricaoAcao,
@@ -314,6 +318,174 @@ export class ListagemIniciativas {
     if (this.etapaAtual < 3) this.etapaAtual++;
   }
 
-  voltar(): void { if (this.etapaAtual > 1) this.etapaAtual--; }
+  voltar(): void {
+    if (this.etapaAtual > 1) this.etapaAtual--;
+  }
 
+  abrirAvaliacao(iniciativa: IniciativaEstrategica): void {
+    this.iniciativaService.getById(iniciativa.id).subscribe({
+        next: dados => {
+          this.iniciativaEmAnalise.set(dados);
+        },
+        error: erro =>
+          console.error('Erro ao carregar iniciativa:', erro)
+      });
+  }
+
+  fecharAvaliacao(): void {
+    this.iniciativaEmAnalise.set(null);
+  }
+
+  aprovarIniciativa(decisao: DecisaoIniciativa): void {
+    this.iniciativaService
+      .aprovar(
+        decisao.iniciativa.id,
+        decisao.observacao
+      )
+      .subscribe({
+        next: () => {
+          this.fecharAvaliacao();
+          this.buscarIniciativa();
+        },
+        error: erro =>
+          console.error('Erro ao aprovar iniciativa:', erro)
+      });
+  }
+  rejeitarIniciativa(decisao: DecisaoIniciativa): void {
+    this.iniciativaService
+      .rejeitar( decisao.iniciativa.id, decisao.observacao)
+      .subscribe({
+        next: () => {
+          this.fecharAvaliacao();
+          this.buscarIniciativa();
+        },
+        error: erro =>
+          console.error( 'Erro ao rejeitar iniciativa:', erro)
+      });
+  }
+
+  carregarIniciativaFormulario(dados: IniciativaEstrategica): void {
+    this.formularioIniciativa.enable();
+
+    this.formularioIniciativa.patchValue({
+      tituloIniciativa: dados.nome,
+      responsavelPreenchimento: dados.responsavel,
+      unidadeResponsavel: dados.unidade,
+      objetivosEstrategicos: dados.objetivos || [],
+      evolucaoPercentual:
+        Number(dados.percentual_evolucao),
+      observacoes: dados.observacao || ''
+    });
+
+
+    this.acoesIniciativa.set(
+      (dados.acoes_realizadas || [])
+        .map(acao => ({
+          descricaoAcao: acao.nome,
+          prazoInicio: acao.prazo_inicio,
+          prazoFim: acao.prazo_fim,
+          custoEstimado: String(acao.custo),
+          statusAtual: this.converterStatusParaFormulario(acao.status)
+        }))
+    );
+  }
+
+  abrirEdicaoPeloModal(iniciativa: IniciativaEstrategica): void {
+    this.fecharAvaliacao();
+
+    this.iniciativaSelecionadaId =
+      iniciativa.id;
+
+    this.iniciativaService
+      .getById(iniciativa.id)
+      .subscribe({
+        next: dados => {
+
+          this.carregarIniciativaFormulario(dados);
+
+          if (this.isAdmin()) {
+            this.modoEdicao = true;
+            this.visualizando = false;
+            this.formularioIniciativa.enable();
+            return;
+          }
+
+          if (
+            dados.status === 'REJEITADO'
+          ) {
+            this.editandoIniciativaRejeitada = true;
+            this.modoEdicao = true;
+            this.visualizando = false;
+            this.formularioIniciativa.enable();
+            return;
+          }
+          this.modoEdicao = true;
+          this.visualizando = false;
+          this.formularioIniciativa.disable();
+
+          this.formularioIniciativa.get('evolucaoPercentual')?.enable();
+
+          this.formularioIniciativa
+            .get('observacoes')
+            ?.enable();
+
+          this.etapaAtual = 2;
+
+        }
+
+      });
+  }
+
+  montarAcoesApi() {
+    return this.acoesIniciativa().map(
+      acao => ({
+        nome: acao.descricaoAcao,
+        prazo_inicio: this.converterDataParaApi(acao.prazoInicio),
+        prazo_fim:this.converterDataParaApi(acao.prazoFim),
+        custo: acao.custoEstimado,
+        status: this.converterStatusParaApi(acao.statusAtual)
+      })
+    );
+  }
+
+  salvarEdicaoIniciativa(): void {
+    if (!this.iniciativaSelecionadaId) {
+      return;
+    }
+    const formulario =this.formularioIniciativa.getRawValue();
+
+    let dados: any;
+
+    if (this.isAdmin() || this.editandoIniciativaRejeitada
+    ) {
+      dados = {
+        nome: formulario.tituloIniciativa,
+        responsavel: formulario.responsavelPreenchimento,
+        unidade: formulario.unidadeResponsavel,
+        objetivos: formulario.objetivosEstrategicos,
+        percentual_evolucao: Number(formulario.evolucaoPercentual),
+        observacao: formulario.observacoes,
+        acoes: this.montarAcoesApi()
+      };
+    } else {
+
+      dados = {
+        percentual_evolucao: Number(formulario.evolucaoPercentual),
+        observacao: formulario.observacoes,
+        acoes: this.montarAcoesApi()
+      };
+    }
+
+    this.iniciativaService .atualizarIniciativa(this.iniciativaSelecionadaId, dados).subscribe({
+        next: () => {
+          this.fecharModal();
+          this.buscarIniciativa();
+          this.modoEdicao = false;
+          this.editandoIniciativaRejeitada = false;
+          this.iniciativaSelecionadaId = null;
+        },
+        error: erro =>
+          console.error('Erro ao atualizar iniciativa:', erro)
+      });
+  }
 }

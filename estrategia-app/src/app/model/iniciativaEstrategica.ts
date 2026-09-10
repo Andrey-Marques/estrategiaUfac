@@ -1,5 +1,5 @@
 export interface AcaoReslizada{
-    id: number;
+    id?: number;
     nome: string;
     prazo_inicio: string;
     prazo_fim: string;
@@ -11,7 +11,7 @@ export interface AcaoReslizada{
 export interface ObjetivoIniciativaDetalhe{
   id: number;
   codigo: string;
-  descrição: string;
+  descricao: string;
 }
 
 export interface IniciativaEstrategica{
@@ -19,8 +19,8 @@ export interface IniciativaEstrategica{
     nome: string;
     data_preenchimento: string;
     ultima_atualização: string;
-    observacao: string;
-    percentual_evolucao: string;
+    observacao: string | null;
+    percentual_evolucao: number | string;
     status: |'APROVADO'|'REJEITADO'|'RASCUNHO'|'EM_ESPERA';
     unidade: number;
     unidade_sigla?: string;
@@ -28,8 +28,8 @@ export interface IniciativaEstrategica{
     responsavel_nome?: string;
     projeto?: number | null;
     objetivos?: number[];
-    objetivo_detalhe?: string;
+    objetivo_detalhe?: ObjetivoIniciativaDetalhe[];
     acoes_realizadas: AcaoReslizada[];
-    obeservacao_analise?: string | null;
+    observacao_analise?: string | null;
     analisado_por?: number | null;
 }
