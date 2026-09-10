@@ -30,6 +30,7 @@ export interface AcaoIniciativa {
 export class ListagemIniciativas {
   iniciativas = signal<IniciativaEstrategica[]>([])
   isAdmin = signal(false);
+  usuarioAtual = signal<Usuario | null>(null);
   private datePipe = inject(DatePipe);
 
   // variaveis para modal de criar iniciativa
@@ -72,20 +73,47 @@ export class ListagemIniciativas {
   }
 
   buscarUsuarioAtual(): void {
+
     this.usuarioService.getAtual().subscribe({
-      next: (usuario) => this.isAdmin.set(usuario.papel === 'ADMIN'),
-      error: (erro) => console.error('erro ao buscar usuario atual', erro)
+      next: usuario => {
+        this.usuarioAtual.set(usuario);
+        this.isAdmin.set(usuario.papel === 'ADMIN');
+
+      },
+      error: erro =>
+        console.error('Erro ao buscar usuário atual:',erro)
     });
   }
 
-  buscarIniciativa(): void {
-    this.iniciativaService.get().subscribe({
-      next: (iniciativa) => {this.iniciativas.set(iniciativa)
-        console.log(iniciativa)
-      },
-      error: (erro) => {console.error('erro ao buscar iniciativas:', erro)}
-    })
+  responsaveisDisponiveis(): Usuario[] {
+
+    const atual = this.usuarioAtual();
+    if (!atual) {return [];}
+
+    if (this.isAdmin()) {return this.usuarios();}
+
+    const unidadeAtual =typeof atual.unidade === 'number'? atual.unidade: atual.unidade?.id;
+
+
+    return this.usuarios().filter(
+      usuario => {
+        const unidadeUsuario = typeof usuario.unidade === 'number' ? usuario.unidade : usuario.unidade?.id;
+
+        return (
+          unidadeUsuario === unidadeAtual
+        );
+      }
+    );
   }
+
+    buscarIniciativa(): void {
+      this.iniciativaService.get().subscribe({
+        next: (iniciativa) => {this.iniciativas.set(iniciativa)
+          console.log(iniciativa)
+        },
+        error: (erro) => {console.error('erro ao buscar iniciativas:', erro)}
+      })
+    }
 
   CriarNovaIniciativa(): void {
     this.visualizando = false;
@@ -177,6 +205,7 @@ export class ListagemIniciativas {
       percentual_evolucao : this.formularioIniciativa.value.evolucaoPercentual,
       observacao: observacoes,
       status: 'PLANEJAMENTO',
+
       acoes: this.acoesIniciativa().map(acao => ({
         nome: acao.descricaoAcao,
         prazo_inicio: this.converterDataParaApi(acao.prazoInicio),

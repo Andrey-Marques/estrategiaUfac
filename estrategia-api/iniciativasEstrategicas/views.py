@@ -122,3 +122,50 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
         serializer = self.get_serializer(iniciativa)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action( detail=True, methods=['post'])
+    def rejeitar( self, request, pk=None):
+        usuario = request.user
+
+        if usuario.papel != 'ADMIN':
+            return Response(
+                { 'detail': 'Apenas administradores ''podem rejeitar iniciativas.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        iniciativa = self.get_object()
+
+        if iniciativa.status != 'EM_ESPERA':
+
+            return Response(
+                {'detail':'Esta iniciativa não está ''aguardando análise.'},
+
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        observacao = (request.data.get('observacao')or '').strip()
+
+        if not observacao:
+            return Response(
+                {'observacao': 'Informe o motivo da rejeição.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        iniciativa.status = 'REJEITADO'
+
+        iniciativa.observacao_analise = (observacao)
+
+        iniciativa.data_analise = timezone.now()
+
+        iniciativa.analisado_por = usuario
+        iniciativa.save(
+            update_fields=[
+                'status',
+                'observacao_analise',
+                'data_analise',
+                'analisado_por',
+                'ultima_atualizacao'
+            ]
+        )
+
+        serializer = self.get_serializer(iniciativa)
+
+        return Response(serializer.data,status=status.HTTP_200_OK)
