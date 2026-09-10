@@ -54,8 +54,8 @@ export class ListagemIniciativas {
   constructor(private iniciativaService: IniciativaService,private usuarioService: UsuarioService, private unidadeService: UnidadeService, private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder){
     this.formularioIniciativa = this.construtorFormulario.group({
       tituloIniciativa: ['', Validators.required],
-      responsavelPreenchimento: [[]],
-      unidadeResponsavel: [[]],
+      responsavelPreenchimento: [null, Validators.required],
+      unidadeResponsavel: [null, Validators.required],
       objetivosEstrategicos: [[], Validators.required],
       evolucaoPercentual: [50, [Validators.required, Validators.min(0), Validators.max(100)]],
       observacoes: ['']
@@ -76,6 +76,7 @@ export class ListagemIniciativas {
     this.buscarUsuarios();
     this.buscarUnidade();
     this.buscarObjetivosEstrategicos();
+    this.observarResponsavelSelecionado();
   }
 
   buscarUsuarioAtual(): void {
@@ -110,56 +111,52 @@ export class ListagemIniciativas {
     );
   }
 
-    buscarIniciativa(): void {
-      this.iniciativaService.get().subscribe({
-        next: (iniciativa) => {this.iniciativas.set(iniciativa)
-          console.log(iniciativa)
-        },
-        error: (erro) => {console.error('erro ao buscar iniciativas:', erro)}
-      })
-    }
+  buscarIniciativa(): void {
+    this.iniciativaService.get().subscribe({
+      next: (iniciativa) => {this.iniciativas.set(iniciativa)
+        console.log(iniciativa)
+      },
+      error: (erro) => {console.error('erro ao buscar iniciativas:', erro)}
+    })
+  }
 
-  CriarNovaIniciativa(): void {
+ CriarNovaIniciativa(): void {
     this.visualizando = false;
+    this.modoEdicao = false;
+    this.editandoIniciativaRejeitada = false;
+    this.iniciativaSelecionadaId = null;
     this.formularioIniciativa.enable();
+
+    const usuario = this.usuarioAtual();
+    const unidadeUsuario =
+      typeof usuario?.unidade === 'number'
+        ? usuario.unidade
+        : usuario?.unidade?.id;
+
     this.formularioIniciativa.reset({
-      tituloIniciativa: '', responsavelPreenchimento: [], unidadeResponsavel: [],
-      objetivosEstrategicos: [], evolucaoPercentual: 50, observacoes: ''
+      tituloIniciativa: '',
+      responsavelPreenchimento: null,
+      unidadeResponsavel: this.isAdmin()? null : unidadeUsuario,
+      objetivosEstrategicos: [],
+      evolucaoPercentual: 0,
+      observacoes: ''
     });
+
+    if (!this.isAdmin()) {
+      this.formularioIniciativa.get('unidadeResponsavel')?.disable();
+    }
     this.acoesIniciativa.set([]);
     this.etapaAtual = 1;
   }
 
-  visualizarIniciativa(iniciativa: IniciativaEstrategica): void {
-    this.visualizando = true;
-    this.iniciativaService.getById(iniciativa.id).subscribe({
-      next: (dados) => {
-        this.formularioIniciativa.enable();
-        this.formularioIniciativa.patchValue({
-          tituloIniciativa: dados.nome,
-          responsavelPreenchimento: dados.responsavel,
-          unidadeResponsavel: dados.unidade,
-          objetivosEstrategicos: dados.objetivos || [],
-          evolucaoPercentual: Number(dados.percentual_evolucao),
-          observacoes: dados.observacao || ''
-        });
-        this.formularioIniciativa.disable();
-        this.acoesIniciativa.set((dados.acoes_realizadas || []).map(acao => ({
-          descricaoAcao: acao.nome,
-          prazoInicio: acao.prazo_inicio,
-          prazoFim: acao.prazo_fim,
-          custoEstimado: acao.custo,
-          statusAtual: this.converterStatusParaFormulario(acao.status)
-        })));
-        this.etapaAtual = 1;
-      },
-      error: (erro) => console.error('Erro ao buscar iniciativa:', erro)
-    });
-  }
-
-  fecharFormulario(): void {
+ fecharFormulario(): void {
     this.visualizando = false;
+    this.modoEdicao = false;
+    this.editandoIniciativaRejeitada = false;
+    this.iniciativaSelecionadaId = null;
     this.formularioIniciativa.enable();
+    this.acoesIniciativa.set([]);
+    this.etapaAtual = 1;
   }
 
   fecharModal(): void {
@@ -199,38 +196,41 @@ export class ListagemIniciativas {
     });
   }
 
-  salvarIniciativa( statusSolicitado:'RASCUNHO'| 'EM_ESPERA'| 'APROVADO'):void{
-    const observacoes = this.formularioIniciativa.value.observacoes || '';
+  salvarIniciativa(statusSolicitado: 'RASCUNHO' | 'EM_ESPERA' | 'APROVADO'): void {
+    if (statusSolicitado !== 'RASCUNHO' && !this.validarDadosObrigatorios()) {
+      return;
+    }
+    const formulario = this.formularioIniciativa.getRawValue();
     const dados = {
-      nome : this.formularioIniciativa.value.tituloIniciativa,
-      responsavel : this.formularioIniciativa.value.responsavelPreenchimento,
-      unidade : this.formularioIniciativa.value.unidadeResponsavel,
-      objetivos : this.formularioIniciativa.value.objetivosEstrategicos,
-      percentual_evolucao : this.formularioIniciativa.value.evolucaoPercentual,
-      observacao: observacoes,
+      nome: formulario.tituloIniciativa,
+      responsavel: formulario.responsavelPreenchimento,
+      unidade: formulario.unidadeResponsavel,
+      objetivos: formulario.objetivosEstrategicos,
+      percentual_evolucao:  formulario.evolucaoPercentual,
+      observacao: formulario.observacoes || '',
       status: statusSolicitado,
-
-      acoes: this.acoesIniciativa().map(acao => ({
+      acoes: this.acoesIniciativa().map(
+      acao => ({
         nome: acao.descricaoAcao,
-        prazo_inicio: this.converterDataParaApi(acao.prazoInicio),
-        prazo_fim: this.converterDataParaApi(acao.prazoFim),
+        prazo_inicio: this.converterDataParaApi( acao.prazoInicio),
+        prazo_fim:this.converterDataParaApi(acao.prazoFim),
         custo: acao.custoEstimado,
         status: this.converterStatusParaApi(acao.statusAtual)
-      }))
-    }
-    console.log('enviado', dados);
+      })
+    )
+    };
 
     this.iniciativaService.criarIniciativa(dados).subscribe({
-      next: (resposta) => {
-        console.log('Iniciativa criada', resposta);
-        this.fecharFormulario();
-        this.fecharModal();
-        this.buscarIniciativa();
-      },
-      error: (erro) => {
-        console.error('Erro ao criar iniciativa', erro);
-      }
-    })
+        next: resposta => {
+          console.log('Iniciativa criada',  resposta);
+          this.fecharFormulario();
+          this.fecharModal();
+          this.buscarIniciativa();
+        },
+        error: erro => {
+          console.error('Erro ao criar iniciativa', erro);
+        }
+      });
   }
 
   selecionarObjetivo(objetivo: ObjetivoEstrategico, evento: Event): void {
@@ -291,6 +291,39 @@ export class ListagemIniciativas {
     };
     return mapa[status] || status;
   }
+  private observarResponsavelSelecionado(): void {
+    this.formularioIniciativa.get('responsavelPreenchimento')?.valueChanges.subscribe(responsavelId => {
+        if (!responsavelId) {
+          this.formularioIniciativa.patchValue(
+            {unidadeResponsavel: null},
+            {emitEvent: false}
+          );
+          return;
+        }
+
+        const responsavel = this.usuarios().find(usuario =>
+              Number(usuario.id) ===
+              Number(responsavelId)
+          );
+
+        if (!responsavel) {
+          return;
+        }
+
+        const unidadeId =
+          typeof responsavel.unidade === 'number'
+            ? responsavel.unidade
+            : responsavel.unidade?.id;
+
+        this.formularioIniciativa.patchValue(
+          { unidadeResponsavel: unidadeId ?? null
+          },
+          {
+            emitEvent: false
+          }
+        );
+      });
+  }
 
   obterRotuloStatus(status: string): string {
     const mapa: Record<string, string> = { 'nao-iniciada': 'Não iniciada', 'em-execucao': 'Em execução', 'concluida': 'Concluída' };
@@ -298,24 +331,45 @@ export class ListagemIniciativas {
   }
 
   irParaEtapa(numeroEtapa: number): void {
-    if (numeroEtapa === this.etapaAtual) return;
-    if (!this.visualizando && this.etapaAtual === 1 && numeroEtapa > 1 && !this.validarEtapaUm()) return;
+    if (numeroEtapa < 1 || numeroEtapa > 3) {
+      return;
+    }
     this.etapaAtual = numeroEtapa;
   }
 
-  private validarEtapaUm(): boolean {
-    const campoTitulo = this.formularioIniciativa.get('tituloIniciativa');
-    const campoResp = this.formularioIniciativa.get('responsavelPreenchimento');
-    if (campoTitulo?.invalid) campoTitulo.markAsTouched();
-    if (campoResp?.invalid) campoResp.markAsTouched();
-    const selecionados = this.formularioIniciativa.get('objetivosEstrategicos')?.value || [];
-    if (selecionados.length === 0) alert('Selecione pelo menos um Objetivo Estratégico.');
-    return !campoTitulo?.invalid && !campoResp?.invalid && selecionados.length > 0;
+ private validarDadosObrigatorios(): boolean {
+
+    const formulario = this.formularioIniciativa.getRawValue();
+    if (!formulario.tituloIniciativa?.trim()) {
+      window.alert('Informe o título da iniciativa.');
+      this.etapaAtual = 1;
+      return false;
+    }
+
+    if (!formulario.responsavelPreenchimento) {
+      window.alert('Selecione o responsável pela iniciativa.');
+      this.etapaAtual = 1;
+      return false;
+    }
+
+    if (!formulario.unidadeResponsavel) {
+      window.alert('Não foi possível identificar a unidade do responsável.');
+      this.etapaAtual = 1;
+      return false;
+    }
+
+    if (!formulario.objetivosEstrategicos || formulario.objetivosEstrategicos.length === 0) {
+      window.alert('Selecione pelo menos um objetivo estratégico.');
+      this.etapaAtual = 1;
+      return false;
+    }
+    return true;
   }
 
   avancar(): void {
-    if (!this.visualizando && this.etapaAtual === 1) { if (this.validarEtapaUm()) this.etapaAtual = 2; return; }
-    if (this.etapaAtual < 3) this.etapaAtual++;
+    if (this.etapaAtual < 3) {
+      this.etapaAtual++;
+    }
   }
 
   voltar(): void {
@@ -392,47 +446,40 @@ export class ListagemIniciativas {
 
   abrirEdicaoPeloModal(iniciativa: IniciativaEstrategica): void {
     this.fecharAvaliacao();
+    this.editandoIniciativaRejeitada = false;
+    this.iniciativaSelecionadaId = iniciativa.id;
 
-    this.iniciativaSelecionadaId =
-      iniciativa.id;
-
-    this.iniciativaService
-      .getById(iniciativa.id)
-      .subscribe({
+    this.iniciativaService.getById(iniciativa.id).subscribe({
         next: dados => {
-
           this.carregarIniciativaFormulario(dados);
 
           if (this.isAdmin()) {
             this.modoEdicao = true;
             this.visualizando = false;
             this.formularioIniciativa.enable();
+            this.etapaAtual = 1;
             return;
           }
 
-          if (
-            dados.status === 'REJEITADO'
-          ) {
+          if (dados.status === 'REJEITADO') {
             this.editandoIniciativaRejeitada = true;
             this.modoEdicao = true;
             this.visualizando = false;
             this.formularioIniciativa.enable();
+            this.etapaAtual = 1;
             return;
           }
+
           this.modoEdicao = true;
           this.visualizando = false;
           this.formularioIniciativa.disable();
-
           this.formularioIniciativa.get('evolucaoPercentual')?.enable();
-
-          this.formularioIniciativa
-            .get('observacoes')
-            ?.enable();
-
+          this.formularioIniciativa.get('observacoes')?.enable();
           this.etapaAtual = 2;
-
+        },
+        error: erro => {
+          console.error('Erro ao carregar iniciativa para edição:', erro);
         }
-
       });
   }
 
@@ -446,6 +493,25 @@ export class ListagemIniciativas {
         status: this.converterStatusParaApi(acao.statusAtual)
       })
     );
+  }
+
+  obterRotuloStatusIniciativa(status: string): string {
+    const mapa: Record<string, string> = {
+      APROVADO: 'Aprovado/Público',
+      REJEITADO: 'Rejeitado',
+      RASCUNHO: 'Rascunho',
+      EM_ESPERA: 'Em Espera'
+    };
+    return mapa[status] ?? status;
+  }
+  obterClasseStatusIniciativa(status: string): string {
+    const mapa: Record<string, string> = {
+      APROVADO: 'status-aprovado',
+      REJEITADO: 'status-rejeitado',
+      RASCUNHO: 'status-rascunho',
+      EM_ESPERA: 'status-espera'
+    };
+    return mapa[status]?? 'status-rascunho';
   }
 
   salvarEdicaoIniciativa(): void {
@@ -487,5 +553,47 @@ export class ListagemIniciativas {
         error: erro =>
           console.error('Erro ao atualizar iniciativa:', erro)
       });
+  }
+  responsavelSelecionado(): Usuario | null {
+
+    const responsavelId =
+      this.formularioIniciativa
+        .get('responsavelPreenchimento')
+        ?.value;
+
+    if (!responsavelId) {
+      return null;
+    }
+
+    return (
+      this.usuarios().find(
+        usuario =>
+          Number(usuario.id) ===
+          Number(responsavelId)
+      ) ?? null
+    );
+  }
+  obterSiglaUnidadeUsuario(
+    usuario: Usuario
+  ): string {
+
+    if (
+      usuario.unidade &&
+      typeof usuario.unidade === 'object'
+    ) {
+      return usuario.unidade.sigla;
+    }
+
+    const unidadeId = Number(
+      usuario.unidade
+    );
+
+    const unidade =
+      this.unidades().find(
+        item =>
+          Number(item.id) === unidadeId
+      );
+
+    return unidade?.sigla ?? '';
   }
 }

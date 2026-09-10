@@ -18,7 +18,7 @@ export interface IniciativaEstrategica{
     id: number;
     nome: string;
     data_preenchimento: string;
-    ultima_atualização: string;
+    ultima_atualizacao: string;
     observacao: string | null;
     percentual_evolucao: number | string;
     status: |'APROVADO'|'REJEITADO'|'RASCUNHO'|'EM_ESPERA';
@@ -28,7 +28,7 @@ export interface IniciativaEstrategica{
     responsavel_nome?: string;
     projeto?: number | null;
     objetivos?: number[];
-    objetivo_detalhe?: ObjetivoIniciativaDetalhe[];
+    objetivos_detalhes?: ObjetivoIniciativaDetalhe[];
     acoes_realizadas: AcaoReslizada[];
     observacao_analise?: string | null;
     analisado_por?: number | null;

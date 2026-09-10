@@ -127,9 +127,9 @@
 
         <ul
           class="lista-objetivos"
-          *ngIf="iniciativa.objetivo_detalhe?.length; else semObjetivos"
+          *ngIf="iniciativa.objetivos_detalhes?.length; else semObjetivos"
         >
-          <li *ngFor="let objetivo of iniciativa.objetivo_detalhe">
+          <li *ngFor="let objetivo of iniciativa.objetivos_detalhes">
             <strong>
               {{ objetivo.codigo }}
             </strong>

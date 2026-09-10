@@ -79,6 +79,20 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
             )
         return None
     
+    def update(self, request, *args, **kwargs):
+        erro = self._validar_campos_edicao(request)
+
+        if erro is not None:
+            return erro
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        erro = self._validar_campos_edicao(request)
+
+        if erro is not None:
+            return erro
+        return super().partial_update(request, *args, **kwargs)
+    
     def perform_update(self, serializer):
         usuario = self.request.user
 
