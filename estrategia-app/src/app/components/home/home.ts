@@ -1,50 +1,52 @@
-import { Component, signal } from '@angular/core';
+import { Component, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BarraLateral } from '../utils/barra-lateral/barra-lateral';
 import { HeaderPrincipal } from '../utils/header-principal/header-principal';
 import { InfoBar } from '../utils/info-bar/info-bar';
 import { ProjetoEstrategico } from '../../model/projetoEstrategico';
 import { ProjetoService } from '../../service/projeto.service';
-
+import { UsuarioService } from '../../service/usuario.service';
 import {AvaliacaoProjeto,DecisaoProjeto} from '../avaliacao-projeto/avaliacao-projeto';
+import { IniciativaEstrategica } from '../../model/iniciativaEstrategica';
+import { IniciativaService } from '../../service/iniciativa.service';
+import {AvaliacaoIniciativa, DecisaoIniciativa} from '../avaliacao-iniciativa/avaliacao-iniciativa';
 
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, BarraLateral, HeaderPrincipal, InfoBar, AvaliacaoProjeto],
+  imports: [CommonModule, BarraLateral, HeaderPrincipal, InfoBar, AvaliacaoProjeto,AvaliacaoIniciativa],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home {
   listaProjetos = signal<ProjetoEstrategico[]>([]);
-
-  projetoEmAnalise:
-    (ProjetoEstrategico & {
-      responsavel_nome?: string;
-      unidade_sigla?: string;
-    }) | null = null;
+  isAdmin = signal(false);
+  projetoEmAnalise = signal<
+  (ProjetoEstrategico & {responsavel_nome?: string;unidade_sigla?: string;}) | null>(null);
 
 
   abaAtiva: number = 1;
 
-
-
-  listaIniciativas: any[] = [];
+  listaIniciativas = signal<IniciativaEstrategica[]>([]);
+  iniciativaEmAnalise = signal<IniciativaEstrategica | null>(null);
   listaIndicadores: any[] = [];
 
 
-  constructor(private projetoService: ProjetoService) {}
+  constructor(private projetoService: ProjetoService,  private iniciativaService: IniciativaService,private usuarioService: UsuarioService) {}
 
 
   ngOnInit(): void {
     this.buscarProjetosEmEspera();
+    this.buscarIniciativasEmEspera();
+    this.buscarUsuarioAtual();
   }
 
   // Função disparada ao clicar no botão da aba
   mudarAba(numeroDaAba: number): void {
     this.abaAtiva = numeroDaAba;
   }
+  
   buscarProjetosEmEspera(): void {
 
     this.projetoService.get().subscribe({
@@ -69,10 +71,12 @@ export class Home {
     this.projetoService
       .getById(projeto.id)
       .subscribe({
-
         next: projetoDetalhado => {
-          this.projetoEmAnalise =
-            projetoDetalhado;
+
+          this.projetoEmAnalise.set(
+            projetoDetalhado
+          );
+
         },
 
         error: erro => {
@@ -81,12 +85,11 @@ export class Home {
             erro
           );
         }
-
       });
   }
 
   fecharAvaliacao(): void {
-    this.projetoEmAnalise = null;
+    this.projetoEmAnalise.set(null);
   }
   aprovarProjeto(
     decisao: DecisaoProjeto
@@ -101,7 +104,7 @@ export class Home {
 
         next: () => {
 
-          this.projetoEmAnalise = null;
+          this.projetoEmAnalise.set(null);
 
           this.buscarProjetosEmEspera();
         },
@@ -135,7 +138,7 @@ export class Home {
 
         next: () => {
 
-          this.projetoEmAnalise = null;
+          this.projetoEmAnalise.set(null);
 
           this.buscarProjetosEmEspera();
         },
@@ -154,6 +157,76 @@ export class Home {
           );
         }
 
+      });
+  }
+
+  buscarIniciativasEmEspera(): void {
+
+    this.iniciativaService.get().subscribe({
+      next: iniciativas => {
+        const pendentes = iniciativas.filter(iniciativa => iniciativa.status === 'EM_ESPERA');
+        this.listaIniciativas.set(pendentes);
+      },
+      error: erro => {
+        console.error('Erro ao buscar iniciativas em espera:',erro);
+      }
+
+    });
+  }
+
+  buscarUsuarioAtual(): void{
+    this.usuarioService.getAtual().subscribe({
+      next: (usuario) => {
+        this.isAdmin.set(usuario.papel === 'ADMIN');
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar usuário atual:' ,erro)
+      }
+    })
+  }
+
+  abrirAvaliacaoIniciativa(iniciativa: IniciativaEstrategica): void {
+    this.iniciativaService.getById(iniciativa.id).subscribe({
+        next: iniciativaDetalhada => {
+          this.iniciativaEmAnalise.set(iniciativaDetalhada);
+        },
+        error: erro => {
+          console.error('Erro ao carregar iniciativa:', erro);
+        }
+      });
+  }
+  fecharAvaliacaoIniciativa(): void {
+    this.iniciativaEmAnalise.set(
+      null
+    );
+  }
+
+  aprovarIniciativa(decisao: DecisaoIniciativa): void {
+    this.iniciativaService
+      .aprovar(decisao.iniciativa.id,decisao.observacao)
+      .subscribe({
+        next: () => {
+          this.iniciativaEmAnalise.set(null);
+          this.buscarIniciativasEmEspera();
+        },
+        error: erro => {
+          console.error('Erro ao aprovar iniciativa:', erro);
+          window.alert(erro.error?.detail ?? 'Não foi possível aprovar a iniciativa.');
+        }
+      });
+  }
+
+  rejeitarIniciativa(decisao: DecisaoIniciativa): void {
+    this.iniciativaService.rejeitar(decisao.iniciativa.id, decisao.observacao)
+      .subscribe({
+        next: () => {
+          this.iniciativaEmAnalise.set(null);
+          this.buscarIniciativasEmEspera();
+        },
+        error: erro => {
+          console.error('Erro ao rejeitar iniciativa:', erro);
+          window.alert(erro.error?.detail ?? erro.error?.observacao ?? 'Não foi possível rejeitar a iniciativa.');
+        }
       });
   }
 }

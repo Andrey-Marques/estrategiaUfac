@@ -15,7 +15,123 @@
     /* Opcional: Adicionar sombra para destacar ao rolar */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
+.header_usuario {
+    position: relative;
+}
 
+.menu_usuario_dropdown {
+    position: absolute;
+
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 260px;
+
+    padding: 10px;
+
+    background: #ffffff;
+
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+
+    box-shadow:
+        0 8px 24px
+        rgba(0, 0, 0, 0.12);
+
+    z-index: 1000;
+}
+.dropdown_usuario_info {
+    display: flex;
+    flex-direction: column;
+
+    padding: 8px 10px;
+
+    strong {
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+
+        color: #1f1f1f;
+    }
+
+    span {
+        margin-top: 3px;
+
+        font-family: "Inter", sans-serif;
+        font-size: 11px;
+
+        color: #777;
+    }
+}
+.dropdown_detalhe {
+    padding: 5px 10px;
+
+    > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        padding: 6px 0;
+
+        span {
+            font-family: "Inter", sans-serif;
+            font-size: 11px;
+
+            color: #8a8a8a;
+        }
+
+        strong {
+            max-width: 150px;
+
+            text-align: right;
+
+            font-family: "Inter", sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+
+            color: #333;
+        }
+    }
+}
+.dropdown_divisor {
+    height: 1px;
+
+    margin: 6px 0;
+
+    background: #eeeeee;
+}
+.botao_logout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    width: 100%;
+
+    padding: 9px 10px;
+
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+
+    font-family: "Inter", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+
+    color: #b42318;
+
+    cursor: pointer;
+
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: #fff1f0;
+    }
+
+    i {
+        font-size: 15px;
+    }
+}
 
 .perfil_usuario{
     appearance: none;
@@ -32,7 +148,21 @@
     border-radius: 8px;
 
     background-color: #f4f4f4;
+    cursor: pointer;
 
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+
+    &:hover {
+        background-color: #eeeeee;
+    }
+
+}
+.perfil_usuario.perfil_usuario_ativo {
+    background-color: #ececec;
+
+    border-color: #c8c8c8;
 }
 
 .perfil_usuario_infos{
@@ -64,6 +194,12 @@
 
 .perfil_usuario_seta {
     flex-shrink: 0;
+
+    transition: transform 0.2s ease;
+}
+
+.perfil_usuario_seta.seta-aberta {
+    transform: rotate(180deg);
 }
 .header_infos{
     display: flex;

@@ -10,10 +10,11 @@ import { ProjetoService } from '../../service/projeto.service';
 import { UnidadeService } from '../../service/unidade.service';
 import { UsuarioService } from '../../service/usuario.service';
 import {EvolucaoOrcamentaria } from '../../model/projetoEstrategico';
+import { AvaliacaoProjeto } from '../avaliacao-projeto/avaliacao-projeto';
 
 @Component({
   selector: 'app-listagem-projetos',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, AvaliacaoProjeto],
   templateUrl: './listagem-projetos.html',
   styleUrl: './listagem-projetos.scss',
   providers: [DatePipe],
@@ -25,11 +26,18 @@ export class ListagemProjetos {
   unidades = signal<Unidade[]>([]);
   objetivos = signal<ObjetivoEstrategico[]>([]);
   isAdmin = signal(false);
+  usuarioAtual = signal<Usuario | null>(null);
   formularioProjeto: FormGroup;
   etapaAtual = 1;
   visualizando = false;
   modoEdicaoEtapa3 = false;
+  editandoProjetoRejeitado = false;
   projetoSelecionadoId: number | null = null;
+
+  filtroStatus = signal<string>('TODOS');
+  termoPesquisa = signal<string>('');
+  unidadeSelecionadas =signal<number[]>([]);
+  menuUnidadesAberto = signal(false);
 
   realizacoesConcluidas = signal<string[]>([]);
   proximosPassos = signal<string[]>([]);
@@ -37,6 +45,8 @@ export class ListagemProjetos {
   realizacoesAntesDaEdicao: string[] = [];
   proximosPassosAntesDaEdicao: string[] = [];
   dadosFormularioAntesDaEdicao: any = null;
+
+  projetoEmAnalise = signal<ProjetoEstrategico | null>(null);
 
   private datePipe = inject(DatePipe);
 
@@ -81,12 +91,125 @@ export class ListagemProjetos {
   buscarUsuarioAtual(): void {
     this.usuarioService.getAtual().subscribe({
       next: (usuario) => {
+        this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
       },
+
       error: (erro) => {
-        console.error('Erro ao buscar usuário atual:', erro);
+        console.error(
+          'Erro ao buscar usuário atual:',
+          erro
+        );
       },
     });
+  }
+
+  alterarFiltroStatus(status: string): void {
+    this.filtroStatus.set(status);
+  }
+
+  pesquisarProjeto(evento: Event): void{
+    const input = evento.target as HTMLInputElement;
+
+    this.termoPesquisa.set(
+      input.value.trim().toLowerCase()
+    );
+  }
+
+  alternarUnidade(unidadeId: number): void {
+
+    const selecionadas = this.unidadeSelecionadas();
+
+    if (selecionadas.includes(unidadeId)) {
+
+      this.unidadeSelecionadas.set(
+        selecionadas.filter(
+          id => id !== unidadeId
+        )
+      );
+
+    } else {
+
+      this.unidadeSelecionadas.set([
+        ...selecionadas,
+        unidadeId
+      ]);
+
+    }
+  }
+  unidadeEstaSelecionada(
+    unidadeId: number
+  ): boolean {
+
+    return this.unidadeSelecionadas()
+      .includes(unidadeId);
+  }
+
+  alternarMenuUnidades(): void {
+    this.menuUnidadesAberto.update(
+      aberto => !aberto
+    );
+  }
+
+  limparFiltroUnidades(): void {
+    this.unidadeSelecionadas.set([]);
+  }
+
+  projetosFiltrados(): ProjetoEstrategico[] {
+
+    const status =
+      this.filtroStatus();
+
+    const pesquisa =
+      this.termoPesquisa();
+
+    const unidadeSelecionadas =
+      this.unidadeSelecionadas();
+
+
+    return this.projetos().filter(
+      projeto => {
+
+        // ========================
+        // FILTRO DE STATUS
+        // ========================
+
+        const atendeStatus =
+          status === 'TODOS' ||
+          projeto.status === status;
+
+
+        // ========================
+        // PESQUISA PELO NOME
+        // ========================
+
+        const nomeProjeto =
+          projeto.nome
+            ?.toLowerCase() ?? '';
+
+        const atendePesquisa =
+          !pesquisa ||
+          nomeProjeto.includes(pesquisa);
+
+
+        // ========================
+        // FILTRO DE UNIDADE
+        // ========================
+
+        const atendeUnidade =
+          unidadeSelecionadas.length === 0 ||
+          unidadeSelecionadas.includes(
+            Number(projeto.unidade)
+          );
+
+
+        return (
+          atendeStatus &&
+          atendePesquisa &&
+          atendeUnidade
+        );
+      }
+    );
   }
 
   visualizarProjeto(projeto: ProjetoEstrategico): void {
@@ -149,6 +272,279 @@ export class ListagemProjetos {
     });
   }
 
+  abrirAvaliacao(projeto: ProjetoEstrategico): void {
+    this.projetoService.getById(projeto.id).subscribe({
+      next: projetoDetalhado => {
+        this.projetoEmAnalise.set(projetoDetalhado);
+      },
+
+      error: erro => {
+        console.error(
+          'Erro ao carregar projeto:',
+          erro
+        );
+      }
+    });
+  }
+
+  fecharAvaliacao(): void {
+    this.projetoEmAnalise.set(null);
+  }
+
+  editarProjetoRejeitado( projeto: ProjetoEstrategico): void {
+
+    this.fecharAvaliacao();
+
+    this.projetoSelecionadoId = projeto.id;
+
+    this.visualizando = false;
+
+    this.editandoProjetoRejeitado = true;
+
+    this.modoEdicaoEtapa3 = false;
+
+    this.projetoService.getById(projeto.id).subscribe({
+      next: projetoDetalhado => {
+
+        this.carregarEvolucoesProjeto(
+          projetoDetalhado
+        );
+        this.evolucoesOrcamentarias.set(
+          projetoDetalhado.evolucoesOrcamentarias ?? []
+        );
+        this.formularioProjeto.enable();
+
+        this.formularioProjeto.patchValue({
+
+          tituloProjeto:
+            projetoDetalhado.nome,
+
+          liderProjeto:
+            projetoDetalhado.responsavel,
+
+          unidadeResponsavel:
+            projetoDetalhado.unidade,
+
+          descricao:
+            projetoDetalhado.descricao,
+
+          tempoEstimado:
+            projetoDetalhado.tempo_estimado,
+
+          custoEstimado:
+            projetoDetalhado.custo_estimado,
+
+          percentualProgresso:
+            projetoDetalhado.percentual_progresso,
+
+          valorInvestido: null,
+
+          descricaoOrcamentaria: '',
+
+          acoesPrevistas:
+            projetoDetalhado.acoes_previstas,
+
+          objetivos: this.normalizarIds(
+            projetoDetalhado.objetivos ?? []
+          )
+        });
+
+        this.etapaAtual = 1;
+      },
+      error: erro => {
+        console.error(
+          'Erro ao carregar projeto rejeitado:',
+          erro
+        );
+
+        window.alert(
+          'Não foi possível carregar o projeto para edição.'
+        );
+      }
+
+    });
+  }
+
+  reenviarProjetoRejeitado(): void {
+
+    if (!this.projetoSelecionadoId) {
+      return;
+    }
+
+    if (this.formularioProjeto.invalid) {
+      this.formularioProjeto.markAllAsTouched();
+
+      window.alert(
+        'Preencha corretamente os campos obrigatórios.'
+      );
+
+      return;
+    }
+
+    const formulario =
+      this.formularioProjeto.getRawValue();
+
+    const dadosAtualizacao = {
+
+      nome:
+        formulario.tituloProjeto,
+
+      descricao:
+        formulario.descricao,
+
+      tempo_estimado:
+        formulario.tempoEstimado,
+
+      custo_estimado:
+        Number(formulario.custoEstimado),
+
+      percentual_progresso:
+        Number(formulario.percentualProgresso ?? 0),
+
+      responsavel:
+        formulario.liderProjeto,
+
+      unidade:
+        formulario.unidadeResponsavel,
+
+      acoes_previstas:
+        formulario.acoesPrevistas,
+
+      objetivos:
+        formulario.objetivos ?? [],
+
+      evolucoes:
+        this.montarEvolucoes(),
+
+      status: 'EM_ESPERA'
+    };
+
+
+    this.projetoService
+      .atualizarProjeto(
+        this.projetoSelecionadoId,
+        dadosAtualizacao
+      )
+      .subscribe({
+
+        next: () => {
+
+          window.alert(
+            'Projeto reenviado para análise com sucesso.'
+          );
+
+          this.editandoProjetoRejeitado = false;
+          this.projetoSelecionadoId = null;
+
+          this.fecharModal();
+          this.buscarProjeto();
+
+          this.formularioProjeto.reset();
+          this.limparEvolucoesProjeto();
+
+          this.etapaAtual = 1;
+        },
+
+        error: erro => {
+
+          console.error(
+            'Erro ao reenviar projeto:',
+            erro
+          );
+
+          window.alert(
+            'Não foi possível reenviar o projeto.'
+          );
+        }
+
+      });
+  }
+
+  cancelarEdicaoProjetoRejeitado(): void {
+    this.editandoProjetoRejeitado = false;
+    this.editandoProjetoRejeitado = false;
+    this.projetoSelecionadoId = null;
+    this.formularioProjeto.reset();
+    this.formularioProjeto.enable();
+    this.limparEvolucoesProjeto();
+    this.etapaAtual = 1;
+    this.fecharModal();
+  }
+  abrirEdicaoPeloModal( projeto: ProjetoEstrategico): void {
+
+    this.fecharAvaliacao();
+
+    this.editandoProjetoRejeitado = false;
+
+    if (
+      projeto.status === 'REJEITADO' &&
+      !this.isAdmin()
+    ) {
+      this.editarProjetoRejeitado(projeto);
+      return;
+    }
+
+    this.visualizando = true;
+
+    this.projetoService.getById(projeto.id).subscribe({
+      next: projetoDetalhado => {
+
+        this.projetoSelecionadoId =
+          projetoDetalhado.id;
+
+        this.formularioProjeto.patchValue({
+          tituloProjeto:
+            projetoDetalhado.nome,
+
+          liderProjeto:
+            projetoDetalhado.responsavel,
+
+          unidadeResponsavel:
+            projetoDetalhado.unidade,
+
+          descricao:
+            projetoDetalhado.descricao,
+
+          tempoEstimado:
+            projetoDetalhado.tempo_estimado,
+
+          custoEstimado:
+            projetoDetalhado.custo_estimado,
+
+          percentualProgresso:
+            projetoDetalhado.percentual_progresso,
+
+          acoesPrevistas:
+            projetoDetalhado.acoes_previstas,
+
+          objetivos:
+            this.normalizarIds(
+              projetoDetalhado.objetivos ?? []
+            )
+        });
+
+        this.carregarEvolucoesProjeto(
+          projetoDetalhado
+        );
+
+        this.evolucoesOrcamentarias.set(
+          projetoDetalhado.evolucoesOrcamentarias ?? []
+        );
+
+        this.etapaAtual = 3;
+
+        this.editarProjeto();
+      },
+
+      error: erro => {
+        console.error(
+          'Erro ao carregar projeto para edição:',
+          erro
+        );
+      }
+    });
+  }
+
   editarProjeto(): void {
     this.realizacoesAntesDaEdicao = [
       ...this.realizacoesConcluidas()
@@ -164,8 +560,17 @@ export class ListagemProjetos {
     this.modoEdicaoEtapa3 = true;
 
     if (this.isAdmin()) {
+
+      // ADMIN pode editar tudo
       this.formularioProjeto.enable();
+
     } else {
+
+      // SERVIDOR: primeiro bloqueia tudo
+      this.formularioProjeto.disable();
+
+      // Depois libera somente os campos
+      // relacionados à atualização do projeto
       this.formularioProjeto
         .get('percentualProgresso')
         ?.enable();
@@ -308,6 +713,8 @@ export class ListagemProjetos {
   }
 
   criarNovoProjeto(): void {
+    this.editandoProjetoRejeitado = false;
+
     this.visualizando = false;
     this.modoEdicaoEtapa3 = false;
     this.projetoSelecionadoId = null;
@@ -525,106 +932,96 @@ export class ListagemProjetos {
   }
 
   confirmarEdicaoEtapa3(): void {
+
     if (!this.projetoSelecionadoId) {
       return;
     }
 
-    const confirmou = window.confirm('Tem certeza que deseja salvar as alterações deste projeto?');
+    const valorInvestido = Number(
+      this.formularioProjeto
+        .get('valorInvestido')
+        ?.value ?? 0
+    );
 
-    if (!confirmou) {
-      return;
+    const descricaoOrcamentaria = (
+      this.formularioProjeto
+        .get('descricaoOrcamentaria')
+        ?.value ?? ''
+    ).trim();
+
+
+    const novasEvolucoesOrcamentarias: Array<{
+      valor: number;
+      descricao: string;
+    }> = [];
+
+
+    if (
+      valorInvestido > 0 ||
+      descricaoOrcamentaria
+    ) {
+
+      novasEvolucoesOrcamentarias.push({
+        valor: valorInvestido,
+        descricao: descricaoOrcamentaria
+      });
+
     }
 
-    const evolucoes = this.montarEvolucoes();
-    let dadosAtualizacao: any;
 
-    if (this.isAdmin()) {
-      if (this.formularioProjeto.invalid) {
-        this.formularioProjeto.markAllAsTouched();
-        window.alert('Preencha corretamente os campos obrigatórios.');
-        return;
-      }
+    const dadosAtualizacao = {
 
-      const formulario = this.formularioProjeto.getRawValue();
-      const novasEvolucoesOrcamentarias = [];
+      percentual_progresso:
+        Number(
+          this.formularioProjeto
+            .get('percentualProgresso')
+            ?.value ?? 0
+        ),
 
-      const valorInvestido =
-        Number(formulario.valorInvestido);
+      evolucoes:
+        this.montarEvolucoes(),
 
-      const descricaoOrcamentaria =
-        (
-          formulario.descricaoOrcamentaria ?? ''
-        ).trim();
+      evolucoesOrcamentarias:
+        novasEvolucoesOrcamentarias
+    };
 
-      if (
-        valorInvestido > 0 ||
-        descricaoOrcamentaria
-      ) {
-        novasEvolucoesOrcamentarias.push({
-          valor: valorInvestido || 0,
-          descricao: descricaoOrcamentaria
-        });
-      }
 
-      dadosAtualizacao = {
-        nome: formulario.tituloProjeto,
-        descricao: formulario.descricao,
-        tempo_estimado: formulario.tempoEstimado,
-        custo_estimado:Number(formulario.custoEstimado),
-        percentual_progresso:Number(  formulario.percentualProgresso ?? 0),
-        responsavel: formulario.liderProjeto,
-        unidade: formulario.unidadeResponsavel,
-        acoes_previstas: formulario.acoesPrevistas,
-        objetivos:formulario.objetivos ?? [],
-        evolucoes: evolucoes,
-        evolucoesOrcamentarias:novasEvolucoesOrcamentarias
-      };
-    } else {
-        const formulario = this.formularioProjeto.getRawValue();
+    this.projetoService
+      .atualizarProjeto(
+        this.projetoSelecionadoId,
+        dadosAtualizacao
+      )
+      .subscribe({
+        next: () => {
 
-        const novasEvolucoesOrcamentarias = [];
+          if (this.isAdmin()) {
+            window.alert(
+              'Projeto atualizado com sucesso.'
+            );
+          } else {
+            window.alert(
+              'Atualizações enviadas para análise com sucesso.'
+            );
+          }
 
-        const valorInvestido = Number(formulario.valorInvestido);
-        const descricaoOrcamentaria =
-          (formulario.descricaoOrcamentaria ?? '').trim();
+          this.modoEdicaoEtapa3 = false;
 
-        if (valorInvestido > 0 || descricaoOrcamentaria) {
-          novasEvolucoesOrcamentarias.push({
-            valor: valorInvestido || 0,
-            descricao: descricaoOrcamentaria
-          });
+          this.fecharModal();
+
+          this.buscarProjeto();
+        },
+
+        error: erro => {
+          console.error(
+            'Erro ao atualizar projeto:',
+            erro
+          );
+
+          window.alert(
+            'Não foi possível salvar a atualização.'
+          );
         }
-
-        dadosAtualizacao = { percentual_progresso: Number( formulario.percentualProgresso ?? 0), evolucoes: evolucoes, evolucoesOrcamentarias: novasEvolucoesOrcamentarias};
-      }
-
-    this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao).subscribe({
-      next: (projetoAtualizado) => {
-
-        this.carregarEvolucoesProjeto(
-          projetoAtualizado
-        );
-
-        this.evolucoesOrcamentarias.set(
-          projetoAtualizado.evolucoesOrcamentarias
-            ?? []
-        );
-
-        this.formularioProjeto.patchValue({
-          valorInvestido: null,
-          descricaoOrcamentaria: ''
-        });
-
-        this.modoEdicaoEtapa3 = false;
-        this.formularioProjeto.disable();
-
-        this.buscarProjeto();
-      },
-      error: (erro) => {
-        console.error('Erro ao atualizar projeto:', erro);
-        window.alert('Não foi possível salvar as alterações.');
-      },
-    });
+      });
   }
 
   obterClasseStatus(status: string): string {
@@ -659,11 +1056,42 @@ export class ListagemProjetos {
   }
 
   servidoresComUnidade(): Usuario[] {
-    return this.usuarios().filter(
-      usuario =>
-        (usuario.papel === 'SERVIDOR' || usuario.papel === 'ADMIN') &&
-        usuario.unidade != null
-    );
+    const usuarioLogado = this.usuarioAtual();
+
+    if (!usuarioLogado) {
+      return [];
+    }
+
+    // ADMIN pode visualizar servidores de todas as unidades
+    if (usuarioLogado.papel === 'ADMIN') {
+      return this.usuarios().filter(
+        usuario =>
+          (usuario.papel === 'SERVIDOR' ||
+            usuario.papel === 'ADMIN') &&
+          usuario.unidade != null
+      );
+    }
+
+    // Obtém a unidade do servidor logado
+    const unidadeUsuarioLogado =
+      this.obterIdUnidadeUsuario(usuarioLogado);
+
+    if (unidadeUsuarioLogado === null) {
+      return [];
+    }
+
+    // SERVIDOR vê somente pessoas da própria unidade
+    return this.usuarios().filter(usuario => {
+
+      const unidadeUsuario =
+        this.obterIdUnidadeUsuario(usuario);
+
+      return (
+        (usuario.papel === 'SERVIDOR' ||
+          usuario.papel === 'ADMIN') &&
+        unidadeUsuario === unidadeUsuarioLogado
+      );
+    });
   }
 
   private obterIdUnidadeUsuario(usuario: Usuario): number | null {

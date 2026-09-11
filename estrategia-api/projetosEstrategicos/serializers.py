@@ -34,44 +34,73 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
         required=False
     )
     
+    objetivos_detalhes = serializers.SerializerMethodField()
+    
     evolucoes = EvolucaoProjetoSerializer(many=True, required=False)
     evolucoesOrcamentarias = EvolucaoOrcamentariaSerializer(many=True, required=False)
 
     class Meta:
         model = ProjetoEstrategico
         fields = '__all__'
+        
+    def get_objetivos_detalhes(self, obj):
+        return [
+            {
+                'id': objetivo.id,
+                'codigo': objetivo.codigo,
+                'descricao': objetivo.descricao
+            }
+            for objetivo in obj.objetivos.all()
+        ]
 
-    def _salvar_evolucoes(self, projeto, evolucoes):
-        if evolucoes is None:
+    def _salvar_evolucoes_orcamentarias( self,  projeto,  evolucoes_orcamentarias):
+        if not evolucoes_orcamentarias:
             return
 
-        projeto.evolucoes.all().delete()
+        for evolucao in evolucoes_orcamentarias:
+
+            valor = evolucao.get(
+                'valor',
+                0
+            )
+
+            descricao = (
+                evolucao.get('descricao')
+                or ''
+            ).strip()
+
+            if valor or descricao:
+
+                EvolucaoOrcamentaria.objects.create(
+                    fk_projeto=projeto,
+                    valor=valor,
+                    descricao=descricao
+                )
+                
+    def _salvar_evolucoes(self, projeto, evolucoes):
+        if not evolucoes:
+            return
 
         for evolucao in evolucoes:
-            realizacao = (evolucao.get('realizacao') or '').strip()
-            proximo_passo = (evolucao.get('proximo_passo') or '').strip()
+
+            realizacao = (
+                evolucao.get('realizacao')
+                or ''
+            ).strip()
+
+            proximo_passo = (
+                evolucao.get('proximo_passo')
+                or ''
+            ).strip()
 
             if realizacao or proximo_passo:
+
                 EvolucaoProjeto.objects.create(
                     fk_projeto=projeto,
                     realizacao=realizacao,
                     proximo_passo=proximo_passo
                 )
 
-    def _salvar_evolucoes_orcamentarias(self, projeto, evolucoes):
-        if not evolucoes:
-            return
-
-        for evolucao in evolucoes:
-            valor = evolucao.get('valor', 0)
-            descricao = (evolucao.get('descricao') or '').strip()
-
-            if valor or descricao:
-                EvolucaoOrcamentaria.objects.create(
-                    fk_projeto=projeto,
-                    valor=valor,
-                    descricao=descricao
-                )
 
     def create(self, validated_data):
         objetivos = validated_data.pop('objetivos', [])
@@ -87,31 +116,67 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
         return projeto
 
     def update(self, instance, validated_data):
-        objetivos = validated_data.pop('objetivos', None)
-        evolucoes = validated_data.pop('evolucoes', None)
-        orcamentarias = validated_data.pop(
+
+        evolucoes = validated_data.pop(
+            'evolucoes',
+            None
+        )
+
+        evolucoes_orcamentarias = validated_data.pop(
             'evolucoesOrcamentarias',
             None
         )
 
-        for campo, valor in validated_data.items():
-            setattr(instance, campo, valor)
+        objetivos = validated_data.pop(
+            'objetivos',
+            None
+        )
+
+        for atributo, valor in validated_data.items():
+            setattr(
+                instance,
+                atributo,
+                valor
+            )
 
         instance.save()
 
+
         if objetivos is not None:
-            instance.objetivos.set(objetivos)
+            instance.objetivos.set(
+                objetivos
+            )
+
 
         if evolucoes is not None:
-            self._salvar_evolucoes(
-                instance,
-                evolucoes
-            )
+            instance.evolucoes.all().delete()
+            for evolucao in evolucoes:
 
-        if orcamentarias is not None:
+                realizacao = (
+                    evolucao.get('realizacao')
+                    or ''
+                ).strip()
+
+                proximo_passo = (
+                    evolucao.get('proximo_passo')
+                    or ''
+                ).strip()
+
+                if realizacao or proximo_passo:
+
+                    EvolucaoProjeto.objects.create(
+                        fk_projeto=instance,
+                        realizacao=realizacao,
+                        proximo_passo=proximo_passo
+                    )
+
+
+        if evolucoes_orcamentarias is not None:
+
             self._salvar_evolucoes_orcamentarias(
                 instance,
-                orcamentarias
+                evolucoes_orcamentarias
             )
+
 
         return instance

@@ -113,14 +113,6 @@
         </button>
 
 
-        <button
-          class="menu-item"
-          [class.ativo]="opcaoSelecionada === 'projetos'"
-          (click)="selecionarOpcao('projetos')"
-        >
-          Projetos Estratégicos
-        </button>
-
 
         <button
           class="menu-item"
@@ -150,13 +142,6 @@
         </button>
 
 
-        <button
-          class="menu-item"
-          [class.ativo]="opcaoSelecionada === 'indicadores'"
-          (click)="selecionarOpcao('indicadores')"
-        >
-          Indicadores Estratégicos
-        </button>
 
       </aside>
 
@@ -479,25 +464,6 @@
 
 
 
-          <!-- =========================================
-               PROJETOS
-               ========================================= -->
-
-          <section
-            *ngSwitchCase="'projetos'"
-            class="secao-texto"
-          >
-
-            <h2>
-              Etapa 2 – Entrevistas com lideranças
-            </h2>
-
-            <p>
-              Aqui ficará o conteúdo referente aos projetos estratégicos.
-            </p>
-
-          </section>
-
 
           <!-- =========================================
                PLANEJAMENTO 2024-2033
@@ -565,24 +531,6 @@
           </section>
 
 
-          <!-- =========================================
-               INDICADORES
-               ========================================= -->
-
-          <section
-            *ngSwitchCase="'indicadores'"
-            class="secao-texto"
-          >
-
-            <h2>
-              Indicadores Estratégicos
-            </h2>
-
-            <p>
-              Aqui ficará o conteúdo referente aos indicadores estratégicos.
-            </p>
-
-          </section>
 
 
         </ng-container>

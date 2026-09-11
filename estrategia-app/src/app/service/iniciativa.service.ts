@@ -22,4 +22,20 @@ export class IniciativaService{
     criarIniciativa(dados: any):Observable<any>{
         return this.http.post(this.apiUrl, dados);
     }
+
+    atualizarIniciativa(id: number, dados: any): Observable<IniciativaEstrategica>{
+      return this.http.patch<IniciativaEstrategica>(`${this.apiUrl}${id}/`, dados);
+    }
+
+    aprovar(id: number, observacao: string): Observable<IniciativaEstrategica>{
+      return this.http.post<IniciativaEstrategica>(
+        `${this.apiUrl}${id}/aprovar/`, {observacao}
+      );
+    }
+
+    rejeitar(id: number, observacao: string): Observable<IniciativaEstrategica>{
+      return this.http.post<IniciativaEstrategica>(
+        `${this.apiUrl}${id}/rejeitar/`, {observacao}
+      )
+    }
 }
