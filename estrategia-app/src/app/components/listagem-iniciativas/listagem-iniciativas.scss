@@ -955,6 +955,48 @@ table {
     line-height: 1.4;
   }
 }
+.col-acoes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.btn-editar-acao,
+.btn-excluir-acao {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+
+.btn-editar-acao {
+  background: #e8f1ff;
+  color: #1d4ed8;
+
+  &:hover {
+    background: #dbeafe;
+  }
+}
+
+
+.btn-excluir-acao {
+  background: #fff1f1;
+  color: #dc2626;
+
+  &:hover {
+    background: #fee2e2;
+  }
+}
 
 
 @media (max-width: 1000px) {

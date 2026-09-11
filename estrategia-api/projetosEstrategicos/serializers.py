@@ -76,6 +76,30 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
                     valor=valor,
                     descricao=descricao
                 )
+                
+    def _salvar_evolucoes(self, projeto, evolucoes):
+        if not evolucoes:
+            return
+
+        for evolucao in evolucoes:
+
+            realizacao = (
+                evolucao.get('realizacao')
+                or ''
+            ).strip()
+
+            proximo_passo = (
+                evolucao.get('proximo_passo')
+                or ''
+            ).strip()
+
+            if realizacao or proximo_passo:
+
+                EvolucaoProjeto.objects.create(
+                    fk_projeto=projeto,
+                    realizacao=realizacao,
+                    proximo_passo=proximo_passo
+                )
 
 
     def create(self, validated_data):

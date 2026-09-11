@@ -50,6 +50,7 @@ export class ListagemIniciativas {
   modoEdicao = false;
   editandoIniciativaRejeitada = false;
   iniciativaSelecionadaId: number | null = null;
+  acaoEmEdicaoIndice: number | null = null;
 
   constructor(private iniciativaService: IniciativaService,private usuarioService: UsuarioService, private unidadeService: UnidadeService, private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder){
     this.formularioIniciativa = this.construtorFormulario.group({
@@ -246,19 +247,60 @@ export class ListagemIniciativas {
   }
 
   abrirSubmodalAcao(): void {
-    this.formularioAcaoInterno.reset({ descricaoAcao: '', prazoInicio: '', prazoFim: '', custoEstimado: '', statusAtual: 'nao-iniciada' });
+    this.acaoEmEdicaoIndice = null;
+    this.formularioAcaoInterno.reset({
+      descricaoAcao: '',
+      prazoInicio: '',
+      prazoFim: '',
+      custoEstimado: '',
+      statusAtual: 'nao-iniciada'
+    });
     this.submodalAcaoAberto = true;
   }
-
-  fecharSubmodalAcao(): void { this.submodalAcaoAberto = false; }
+  fecharSubmodalAcao(): void {
+    this.submodalAcaoAberto = false;
+    this.acaoEmEdicaoIndice = null;
+    this.formularioAcaoInterno.reset({
+      descricaoAcao: '',
+      prazoInicio: '',
+      prazoFim: '',
+      custoEstimado: '',
+      statusAtual: 'nao-iniciada'
+    });
+  }
 
   adicionarAcaoIniciativa(): void {
+
     if (this.formularioAcaoInterno.invalid) {
       this.formularioAcaoInterno.markAllAsTouched();
-      alert('Preencha todos os campos da ação.');
+      alert(
+        'Preencha todos os campos da ação.'
+      );
       return;
     }
-    this.acoesIniciativa.update(lista => [...lista, this.formularioAcaoInterno.value]);
+
+    const dadosAcao =
+      this.formularioAcaoInterno.getRawValue();
+
+    if (
+      this.acaoEmEdicaoIndice !== null
+    ) {
+      this.acoesIniciativa.update(lista => {
+          const novaLista = [...lista];
+          novaLista[this.acaoEmEdicaoIndice!] = dadosAcao;
+          return novaLista;
+        }
+      );
+    }
+
+    else {
+      this.acoesIniciativa.update(lista => [
+          ...lista,
+          dadosAcao
+        ]
+      );
+    }
+    this.acaoEmEdicaoIndice = null;
     this.fecharSubmodalAcao();
   }
 
@@ -595,5 +637,17 @@ export class ListagemIniciativas {
       );
 
     return unidade?.sigla ?? '';
+  }
+
+  editarAcaoIniciativa(acao: AcaoIniciativa, indice: number): void {
+    this.acaoEmEdicaoIndice = indice;
+    this.formularioAcaoInterno.patchValue({
+      descricaoAcao: acao.descricaoAcao,
+      prazoInicio: acao.prazoInicio,
+      prazoFim: acao.prazoFim,
+      custoEstimado: acao.custoEstimado,
+      statusAtual: acao.statusAtual
+    });
+    this.submodalAcaoAberto = true;
   }
 }
