@@ -2,22 +2,12 @@
   <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="titulo-pagina m-0">Projetos Estratégicos</h1>
-      <button
-        class="btn botao-principal"
-        data-bs-target="#modalProjeto"
-        data-bs-toggle="modal"
-        (click)="criarNovoProjeto()"
-        *ngIf="isAdmin()"
-      >
+      <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal"
+        (click)="criarNovoProjeto()" *ngIf="isAdmin()">
         +Novo Projeto
       </button>
-      <button
-        class="btn botao-principal"
-        data-bs-target="#modalProjeto"
-        data-bs-toggle="modal"
-        (click)="criarNovoProjeto()"
-        *ngIf="!isAdmin()"
-      >
+      <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal"
+        (click)="criarNovoProjeto()" *ngIf="!isAdmin()">
         Propor novo projeto
       </button>
     </div>
@@ -25,56 +15,36 @@
     <div class="card container-conteudo">
       <ul class="nav filtro px-4 pt-3 border-bottom">
         <li class="nav-item">
-          <button
-            type="button"
-            class="nav-link filtro-item"
-            [class.ativa]="filtroStatus() === 'TODOS'"
-            (click)="alterarFiltroStatus('TODOS')"
-          >
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'TODOS'"
+            (click)="alterarFiltroStatus('TODOS')">
             Todos
           </button>
         </li>
 
         <li class="nav-item">
-          <button
-            type="button"
-            class="nav-link filtro-item"
-            [class.ativa]="filtroStatus() === 'APROVADO'"
-            (click)="alterarFiltroStatus('APROVADO')"
-          >
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'APROVADO'"
+            (click)="alterarFiltroStatus('APROVADO')">
             Aprovados
           </button>
         </li>
 
         <li class="nav-item">
-          <button
-            type="button"
-            class="nav-link filtro-item"
-            [class.ativa]="filtroStatus() === 'REJEITADO'"
-            (click)="alterarFiltroStatus('REJEITADO')"
-          >
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'REJEITADO'"
+            (click)="alterarFiltroStatus('REJEITADO')">
             Rejeitados
           </button>
         </li>
 
         <li class="nav-item">
-          <button
-            type="button"
-            class="nav-link filtro-item"
-            [class.ativa]="filtroStatus() === 'RASCUNHO'"
-            (click)="alterarFiltroStatus('RASCUNHO')"
-          >
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'RASCUNHO'"
+            (click)="alterarFiltroStatus('RASCUNHO')">
             Rascunhos
           </button>
         </li>
 
         <li class="nav-item">
-          <button
-            type="button"
-            class="nav-link filtro-item"
-            [class.ativa]="filtroStatus() === 'EM_ESPERA'"
-            (click)="alterarFiltroStatus('EM_ESPERA')"
-          >
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'EM_ESPERA'"
+            (click)="alterarFiltroStatus('EM_ESPERA')">
             Em Espera
           </button>
         </li>
@@ -82,11 +52,7 @@
       <div class="area-filtros">
         <div class="campo-pesquisa">
           <i class="bi bi-search"></i>
-          <input
-            type="text"
-            placeholder="Pesquisar pelo nome do projeto..."
-            (input)="pesquisarProjeto($event)"
-          />
+          <input type="text" placeholder="Pesquisar pelo nome do projeto..." (input)="pesquisarProjeto($event)" />
         </div>
         <div class="filtro-unidades" *ngIf="isAdmin()">
           <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
@@ -95,31 +61,21 @@
             <span class="quantidade-unidades" *ngIf="unidadeSelecionadas().length > 0">
               {{ unidadeSelecionadas().length }}
             </span>
-            <i
-              class="bi"
-              [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"
-            ></i>
+            <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
           </button>
 
           <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
             <div class="cabecalho-filtro-unidades">
               <strong> Filtrar por unidade </strong>
-              <button
-                type="button"
-                class="botao-limpar"
-                *ngIf="unidadeSelecionadas().length > 0"
-                (click)="limparFiltroUnidades()"
-              >
+              <button type="button" class="botao-limpar" *ngIf="unidadeSelecionadas().length > 0"
+                (click)="limparFiltroUnidades()">
                 Limpar
               </button>
             </div>
 
             <label class="opcao-unidade" *ngFor="let unidade of unidades()">
-              <input
-                type="checkbox"
-                [checked]="unidadeEstaSelecionada(unidade.id)"
-                (change)="alternarUnidade(unidade.id)"
-              />
+              <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
+                (change)="alternarUnidade(unidade.id)" />
 
               <span class="checkbox-personalizado"></span>
               <div class="dados-unidade">
@@ -153,10 +109,7 @@
                 <div class="titulo-projeto">
                   {{ projeto.nome }}
                 </div>
-                <div
-                  class="d-flex gap-1 mt-1"
-                  *ngIf="obterObjetivosProjeto(projeto)?.length; else semObjetivos"
-                >
+                <div class="d-flex gap-1 mt-1" *ngIf="obterObjetivosProjeto(projeto)?.length; else semObjetivos">
                   <span class="etiqueta" *ngFor="let objetivo of obterObjetivosProjeto(projeto)">
                     {{ objetivo.codigo }}
                   </span>
@@ -185,19 +138,15 @@
                   </div>
 
                   <div class="barra-progresso">
-                    <div
-                      class="barra-progresso-preenchimento"
-                      [style.width.%]="obterPercentual(projeto)"
-                    ></div>
+                    <div class="barra-progresso-preenchimento" [style.width.%]="obterPercentual(projeto)"></div>
                   </div>
                 </div>
               </td>
 
               <td class="text-center">
                 <strong class="d-block texto-data">{{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy' }}</strong>
-                <small class="texto-subtitulo"
-                  >Última atualização: {{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy' }}</small
-                >
+                <small class="texto-subtitulo">Última atualização: {{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy'
+                  }}</small>
               </td>
               <td class="text-center">
                 <span class="badge" [ngClass]="obterClasseStatus(projeto.status)">
@@ -205,11 +154,7 @@
                 </span>
               </td>
               <td class="text-center pe-4">
-                <button
-                  type="button"
-                  class="btn botao-visualizar"
-                  (click)="abrirAvaliacao(projeto)"
-                >
+                <button type="button" class="btn botao-visualizar" (click)="abrirAvaliacao(projeto)">
                   <i class="bi bi-eye"></i>Visualizar
                 </button>
               </td>
@@ -227,13 +172,7 @@
     </div>
   </div>
 
-  <div
-    class="modal fade"
-    id="modalProjeto"
-    aria-hidden="true"
-    aria-labelledby="modalProjetoLabel"
-    tabindex="-1"
-  >
+  <div class="modal fade" id="modalProjeto" aria-hidden="true" aria-labelledby="modalProjetoLabel" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="formulario-iniciativas posicao-relativa">
@@ -241,49 +180,32 @@
             <div>
               <h1>
                 {{
-                  editandoProjetoRejeitado
-                    ? 'EDIÇÃO DE PROJETO ESTRATÉGICO'
-                    : 'CRIAÇÃO DE PROJETO ESTRATÉGICO'
+                editandoProjetoRejeitado
+                ? 'EDIÇÃO DE PROJETO ESTRATÉGICO'
+                : 'CRIAÇÃO DE PROJETO ESTRATÉGICO'
                 }}
               </h1>
 
               <p>
                 {{
-                  editandoProjetoRejeitado
-                    ? 'Corrija as informações apontadas na avaliação e reenvie o projeto.'
-                    : 'Insira as informações técnicas para o preenchimento oficial do PDI'
+                editandoProjetoRejeitado
+                ? 'Corrija as informações apontadas na avaliação e reenvie o projeto.'
+                : 'Insira as informações técnicas para o preenchimento oficial do PDI'
                 }}
               </p>
             </div>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-              (click)="fecharFormulario(); fecharModal()"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+              (click)="fecharFormulario(); fecharModal()"></button>
           </div>
 
           <div class="etapas-formulario">
-            <div
-              class="etapa-formulario"
-              [class.etapa-atual]="etapaAtual === 1"
-              (click)="irParaEtapa(1)"
-            >
+            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 1" (click)="irParaEtapa(1)">
               <span>1. Apresentação</span>
             </div>
-            <div
-              class="etapa-formulario"
-              [class.etapa-atual]="etapaAtual === 2"
-              (click)="irParaEtapa(2)"
-            >
+            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 2" (click)="irParaEtapa(2)">
               <span>2. Ações previstas</span>
             </div>
-            <div
-              class="etapa-formulario"
-              [class.etapa-atual]="etapaAtual === 3"
-              (click)="irParaEtapa(3)"
-            >
+            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 3" (click)="irParaEtapa(3)">
               <span>3. Realizações</span>
             </div>
           </div>
@@ -297,16 +219,9 @@
               </div>
 
               <div class="campo-formulario campo-titulo-iniciativa">
-                <label for="tituloProjeto"
-                  >NOME DO PROJETO<span class="campo-obrigatorio">*</span></label
-                >
-                <input
-                  id="tituloProjeto"
-                  type="text"
-                  class="form-control"
-                  placeholder="Insira o título aqui"
-                  formControlName="tituloProjeto"
-                />
+                <label for="tituloProjeto">NOME DO PROJETO<span class="campo-obrigatorio">*</span></label>
+                <input id="tituloProjeto" type="text" class="form-control" placeholder="Insira o título aqui"
+                  formControlName="tituloProjeto" />
               </div>
 
               <div class="linha-informacoes">
@@ -316,12 +231,8 @@
                     <span class="campo-obrigatorio">*</span>
                   </label>
 
-                  <select
-                    id="liderProjeto"
-                    class="form-control"
-                    formControlName="liderProjeto"
-                    (change)="aoSelecionarResponsavel()"
-                  >
+                  <select id="liderProjeto" class="form-control" formControlName="liderProjeto"
+                    (change)="aoSelecionarResponsavel()">
                     <option value="">Selecione um servidor</option>
                     <option *ngFor="let usuario of servidoresComUnidade()" [ngValue]="usuario.id">
                       {{ usuario.nome_completo }} —
@@ -335,11 +246,7 @@
                     UNIDADE RESPONSÁVEL <span class="campo-obrigatorio">*</span>
                   </label>
 
-                  <select
-                    id="unidadeResponsavel"
-                    class="form-control"
-                    formControlName="unidadeResponsavel"
-                  >
+                  <select id="unidadeResponsavel" class="form-control" formControlName="unidadeResponsavel">
                     <option value="">Selecione primeiro o responsável</option>
 
                     <option [ngValue]="unidade.id" *ngFor="let unidade of unidadesDoResponsavel()">
@@ -351,10 +258,7 @@
                     A unidade é definida de acordo com o servidor responsável.
                   </small>
                 </div>
-                <div
-                  class="vinculo-servidor-unidade"
-                  *ngIf="obterResponsavelSelecionado() as responsavel"
-                >
+                <div class="vinculo-servidor-unidade" *ngIf="obterResponsavelSelecionado() as responsavel">
                   <i class="bi bi-check-circle-fill"></i>
 
                   <div>
@@ -370,34 +274,20 @@
               <div class="linha-informacoes">
                 <div class="campo-formulario campo-tempo">
                   <label for="tempoEstimado">TEMPO ESTIMADO</label>
-                  <input
-                    id="tempoEstimado"
-                    type="text"
-                    class="form-control"
-                    placeholder="Ex.: 12 meses"
-                    formControlName="tempoEstimado"
-                  />
+                  <input id="tempoEstimado" type="text" class="form-control" placeholder="Ex.: 12 meses"
+                    formControlName="tempoEstimado" />
                 </div>
 
                 <div class="campo-formulario campo-custo">
                   <label for="custoEstimado">CUSTO ESTIMADO</label>
-                  <input
-                    id="custoEstimado"
-                    type="number"
-                    class="form-control"
-                    formControlName="custoEstimado"
-                  />
+                  <input id="custoEstimado" type="number" class="form-control" formControlName="custoEstimado" />
                 </div>
               </div>
 
               <div class="campo-formulario">
                 <label for="descricao">OBJETIVO DO PROJETO</label>
-                <textarea
-                  id="descricao"
-                  class="objetivo-projeto"
-                  placeholder="Insira o objetivo aqui"
-                  formControlName="descricao"
-                ></textarea>
+                <textarea id="descricao" class="objetivo-projeto" placeholder="Insira o objetivo aqui"
+                  formControlName="descricao"></textarea>
               </div>
 
               <section class="secao-objetivos">
@@ -409,13 +299,10 @@
                 <div class="container-objetivos">
                   <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivos()">
                     <div class="cabecalho-card-objetivo">
-                      <input
-                        class="form-check-input selecao-objetivo"
-                        type="checkbox"
+                      <input class="form-check-input selecao-objetivo" type="checkbox"
                         [checked]="objetivoEstaSelecionado(objetivo)"
                         [disabled]="visualizando && (!modoEdicaoEtapa3 || !isAdmin())"
-                        (change)="selecionarObjetivo(objetivo, $event)"
-                      />
+                        (change)="selecionarObjetivo(objetivo, $event)" />
                       <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
                     </div>
                     <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
@@ -432,12 +319,8 @@
                 <hr />
               </div>
               <div class="campo-formulario campo-observacao">
-                <textarea
-                  class="form-control caixa-texto-observacao"
-                  rows="12"
-                  placeholder="Insira as ações previstas aqui"
-                  formControlName="acoesPrevistas"
-                ></textarea>
+                <textarea class="form-control caixa-texto-observacao" rows="12"
+                  placeholder="Insira as ações previstas aqui" formControlName="acoesPrevistas"></textarea>
               </div>
               <br />
               <hr />
@@ -453,19 +336,11 @@
                 </div>
 
                 <div class="botoes-realizacao" *ngIf="!visualizando || modoEdicaoEtapa3">
-                  <button
-                    type="button"
-                    class="btn botao-realizacao"
-                    (click)="adicionarRealizacaoDireta()"
-                  >
+                  <button type="button" class="btn botao-realizacao" (click)="adicionarRealizacaoDireta()">
                     + Realização Direta
                   </button>
 
-                  <button
-                    type="button"
-                    class="btn botao-proximo-passo"
-                    (click)="adicionarProximoPasso()"
-                  >
+                  <button type="button" class="btn botao-proximo-passo" (click)="adicionarProximoPasso()">
                     + Próximo Passo
                   </button>
                 </div>
@@ -480,32 +355,18 @@
                     <span class="badge-contador">{{ realizacoesConcluidas().length }}</span>
                   </div>
 
-                  <div
-                    class="lista-cartoes"
-                    *ngIf="realizacoesConcluidas().length; else semRealizacoes"
-                  >
-                    <div
-                      class="cartao-realizacao"
-                      *ngFor="let realizacao of realizacoesConcluidas(); let indice = index"
-                    >
+                  <div class="lista-cartoes" *ngIf="realizacoesConcluidas().length; else semRealizacoes">
+                    <div class="cartao-realizacao"
+                      *ngFor="let realizacao of realizacoesConcluidas(); let indice = index">
                       <span class="texto-cartao">{{ realizacao }}</span>
                       <div class="acoes-cartao" *ngIf="!visualizando || modoEdicaoEtapa3">
-                        <button
-                          type="button"
-                          class="btn-acao"
-                          title="Voltar para próximo passo"
+                        <button type="button" class="btn-acao" title="Voltar para próximo passo"
                           aria-label="Voltar realização para próximo passo"
-                          (click)="voltarRealizacaoParaProximoPasso(indice)"
-                        >
+                          (click)="voltarRealizacaoParaProximoPasso(indice)">
                           <i class="bi bi-arrow-counterclockwise"></i>
                         </button>
-                        <button
-                          type="button"
-                          class="btn-acao btn-remover"
-                          title="Remover"
-                          aria-label="Remover realização"
-                          (click)="removerRealizacao(indice)"
-                        >
+                        <button type="button" class="btn-acao btn-remover" title="Remover"
+                          aria-label="Remover realização" (click)="removerRealizacao(indice)">
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -525,28 +386,16 @@
                   </div>
 
                   <div class="lista-cartoes" *ngIf="proximosPassos().length; else semPassos">
-                    <div
-                      class="cartao-realizacao cartao-proximo-passo"
-                      *ngFor="let passo of proximosPassos(); let indice = index"
-                    >
+                    <div class="cartao-realizacao cartao-proximo-passo"
+                      *ngFor="let passo of proximosPassos(); let indice = index">
                       <span class="texto-cartao">{{ passo }}</span>
                       <div class="acoes-cartao" *ngIf="!visualizando || modoEdicaoEtapa3">
-                        <button
-                          type="button"
-                          class="btn-acao btn-concluir"
-                          title="Marcar como realização"
-                          aria-label="Marcar próximo passo como realização"
-                          (click)="concluirProximoPasso(indice)"
-                        >
+                        <button type="button" class="btn-acao btn-concluir" title="Marcar como realização"
+                          aria-label="Marcar próximo passo como realização" (click)="concluirProximoPasso(indice)">
                           <i class="bi bi-check-lg"></i>
                         </button>
-                        <button
-                          type="button"
-                          class="btn-acao btn-remover"
-                          title="Remover"
-                          aria-label="Remover próximo passo"
-                          (click)="removerProximoPasso(indice)"
-                        >
+                        <button type="button" class="btn-acao btn-remover" title="Remover"
+                          aria-label="Remover próximo passo" (click)="removerProximoPasso(indice)">
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -587,22 +436,15 @@
                       <strong>Evolução do projeto</strong>
 
                       <div class="campo-porcentagem">
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          formControlName="percentualProgresso"
-                          (input)="validarPercentualProgresso($event)"
-                        />
+                        <input type="number" min="0" max="100" formControlName="percentualProgresso"
+                          (input)="validarPercentualProgresso($event)" />
                         <span>%</span>
                       </div>
                     </div>
 
                     <div class="trilho-progresso">
-                      <div
-                        class="preenchimento-progresso"
-                        [style.width.%]="formularioProjeto.get('percentualProgresso')?.value || 0"
-                      ></div>
+                      <div class="preenchimento-progresso"
+                        [style.width.%]="formularioProjeto.get('percentualProgresso')?.value || 0"></div>
                     </div>
                   </div>
                 </div>
@@ -622,23 +464,36 @@
                   <!-- HISTÓRICO -->
 
                   <div class="historico-orcamentario">
-                    <div
-                      class="registro-orcamentario"
-                      *ngFor="let evolucao of evolucoesOrcamentarias()"
-                    >
-                      <div class="linha-registro">
+                    <div class="registro-orcamentario" *ngFor="
+    let evolucao of evolucoesOrcamentarias();
+    let indice = index
+  ">
+                      <div class="dados-registro">
                         <span class="registro-data">
+                          <i class="bi bi-calendar3"></i>
                           {{ evolucao.data_registro | date: 'dd/MM/yyyy' }}
                         </span>
 
                         <strong class="registro-valor">
                           {{ evolucao.valor | currency: 'BRL' }}
                         </strong>
+
+                        <span class="registro-descricao">
+                          {{ evolucao.descricao || 'Sem descrição' }}
+                        </span>
                       </div>
 
-                      <p class="registro-descricao">
-                        {{ evolucao.descricao }}
-                      </p>
+                      <div class="acoes-registro-orcamentario" *ngIf="modoEdicaoEtapa3">
+                        <button type="button" class="botao-registro botao-editar-registro" title="Editar"
+                          (click)="editarEvolucaoOrcamentaria(indice)">
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <button type="button" class="botao-registro botao-excluir-registro" title="Excluir"
+                          (click)="excluirEvolucaoOrcamentaria(indice)">
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </div>
                     </div>
 
                     <div class="sem-registros" *ngIf="evolucoesOrcamentarias().length === 0">
@@ -654,26 +509,22 @@
                     <div class="campo-orcamento">
                       <label> VALOR INVESTIDO (R$) </label>
 
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        class="form-control"
-                        formControlName="valorInvestido"
-                        placeholder="Ex.: 12345,67"
-                      />
+                      <input type="number" min="0" step="0.01" class="form-control" formControlName="valorInvestido"
+                        placeholder="Ex.: 12345,67" />
                     </div>
 
                     <div class="campo-orcamento">
                       <label> DESCRIÇÃO </label>
 
-                      <textarea
-                        class="form-control"
-                        rows="2"
-                        formControlName="descricaoOrcamentaria"
-                        placeholder="Ex.: Aquisição de equipamentos"
-                      >
+                      <textarea class="form-control" rows="2" formControlName="descricaoOrcamentaria"
+                        placeholder="Ex.: Aquisição de equipamentos">
                       </textarea>
+                    </div>
+                    <div class="acoes-novo-lancamento">
+                      <button type="button" class="botao-adicionar-orcamento" (click)="adicionarEvolucaoOrcamentaria()">
+                        <i class="bi bi-plus-lg"></i>
+                        Adicionar
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -685,30 +536,16 @@
             <div class="rodape-formulario">
               <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
               <div class="botoes-navegacao">
-                <button
-                  type="button"
-                  class="btn botao-anterior"
-                  (click)="voltar()"
-                  [disabled]="etapaAtual === 1"
-                >
+                <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1">
                   <i class="bi bi-chevron-left"></i>Anterior
                 </button>
-                <button
-                  *ngIf="etapaAtual < 3"
-                  type="button"
-                  class="btn botao-proximo"
-                  (click)="avancar()"
-                >
+                <button *ngIf="etapaAtual < 3" type="button" class="btn botao-proximo" (click)="avancar()">
                   Próximo
                   <i class="bi bi-chevron-compact-right"></i>
                 </button>
 
-                <button
-                  *ngIf="visualizando && !modoEdicaoEtapa3"
-                  type="button"
-                  class="btn btn-editar-projeto"
-                  (click)="editarProjeto()"
-                >
+                <button *ngIf="visualizando && !modoEdicaoEtapa3" type="button" class="btn btn-editar-projeto"
+                  (click)="editarProjeto()">
                   <i class="bi bi-pen"></i>
                   Editar
                 </button>
@@ -718,62 +555,36 @@
                     Cancelar edição
                   </button>
 
-                  <button
-                    type="button"
-                    class="btn botao-submeter-analise"
-                    (click)="confirmarEdicaoEtapa3()"
-                  >
+                  <button type="button" class="btn botao-submeter-analise" (click)="confirmarEdicaoEtapa3()">
                     <i class="bi bi-send"></i>
                     {{ isAdmin() ? 'Salvar atualização' : 'Enviar atualização para análise' }}
                   </button>
                 </ng-container>
 
                 <!-- CRIAÇÃO DE NOVO PROJETO -->
-                <ng-container
-                  *ngIf="!visualizando && !editandoProjetoRejeitado && etapaAtual === 3"
-                >
-                  <button
-                    type="button"
-                    class="btn botao-salvar-rascunho"
-                    (click)="salvarProjeto('RASCUNHO')"
-                  >
+                <ng-container *ngIf="!visualizando && !editandoProjetoRejeitado && etapaAtual === 3">
+                  <button type="button" class="btn botao-salvar-rascunho" (click)="salvarProjeto('RASCUNHO')">
                     Salvar rascunho
                   </button>
 
-                  <button
-                    *ngIf="isAdmin()"
-                    type="button"
-                    class="btn botao-submeter-analise"
-                    (click)="salvarProjeto('APROVADO')"
-                  >
+                  <button *ngIf="isAdmin()" type="button" class="btn botao-submeter-analise"
+                    (click)="salvarProjeto('APROVADO')">
                     Publicar projeto
                   </button>
 
-                  <button
-                    *ngIf="!isAdmin()"
-                    type="button"
-                    class="btn botao-submeter-analise"
-                    (click)="salvarProjeto('EM_ESPERA')"
-                  >
+                  <button *ngIf="!isAdmin()" type="button" class="btn botao-submeter-analise"
+                    (click)="salvarProjeto('EM_ESPERA')">
                     Submeter à análise
                   </button>
                 </ng-container>
 
                 <!-- REENVIO DE PROJETO REJEITADO -->
                 <ng-container *ngIf="editandoProjetoRejeitado && etapaAtual === 3">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    (click)="cancelarEdicaoProjetoRejeitado()"
-                  >
+                  <button type="button" class="btn btn-secondary" (click)="cancelarEdicaoProjetoRejeitado()">
                     Cancelar edição
                   </button>
 
-                  <button
-                    type="button"
-                    class="btn botao-submeter-analise"
-                    (click)="reenviarProjetoRejeitado()"
-                  >
+                  <button type="button" class="btn botao-submeter-analise" (click)="reenviarProjetoRejeitado()">
                     <i class="bi bi-send"></i>
                     Reenviar para análise
                   </button>
@@ -785,12 +596,7 @@
       </div>
     </div>
   </div>
-  <app-avaliacao-projeto
-    *ngIf="projetoEmAnalise() as projetoSelecionado"
-    [projeto]="projetoSelecionado"
-    [isAdmin]="isAdmin()"
-    (fechado)="fecharAvaliacao()"
-    (editar)="abrirEdicaoPeloModal($event)"
-  >
+  <app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado"
+    [isAdmin]="isAdmin()" (fechado)="fecharAvaliacao()" (editar)="abrirEdicaoPeloModal($event)">
   </app-avaliacao-projeto>
 </div>

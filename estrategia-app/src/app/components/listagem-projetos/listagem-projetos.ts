@@ -932,59 +932,34 @@ export class ListagemProjetos {
   }
 
   confirmarEdicaoEtapa3(): void {
-
     if (!this.projetoSelecionadoId) {
       return;
     }
 
-    const valorInvestido = Number(
-      this.formularioProjeto
-        .get('valorInvestido')
-        ?.value ?? 0
-    );
-
-    const descricaoOrcamentaria = (
-      this.formularioProjeto
-        .get('descricaoOrcamentaria')
-        ?.value ?? ''
-    ).trim();
-
-
-    const novasEvolucoesOrcamentarias: Array<{
+    const evolucoesOrcamentarias: Array<{
+      id?: number;
       valor: number;
       descricao: string;
-    }> = [];
-
-
-    if (
-      valorInvestido > 0 ||
-      descricaoOrcamentaria
-    ) {
-
-      novasEvolucoesOrcamentarias.push({
-        valor: valorInvestido,
-        descricao: descricaoOrcamentaria
-      });
-
-    }
-
+    }> = this.evolucoesOrcamentarias().map(
+      evolucao => ({
+        id: evolucao.id || undefined,
+        valor: Number(evolucao.valor),
+        descricao: evolucao.descricao
+      })
+    );
 
     const dadosAtualizacao = {
+      percentual_progresso: Number(
+        this.formularioProjeto
+          .get('percentualProgresso')
+          ?.value ?? 0
+      ),
 
-      percentual_progresso:
-        Number(
-          this.formularioProjeto
-            .get('percentualProgresso')
-            ?.value ?? 0
-        ),
-
-      evolucoes:
-        this.montarEvolucoes(),
+      evolucoes: this.montarEvolucoes(),
 
       evolucoesOrcamentarias:
-        novasEvolucoesOrcamentarias
+        evolucoesOrcamentarias
     };
-
 
     this.projetoService
       .atualizarProjeto(
@@ -993,7 +968,6 @@ export class ListagemProjetos {
       )
       .subscribe({
         next: () => {
-
           if (this.isAdmin()) {
             window.alert(
               'Projeto atualizado com sucesso.'
@@ -1005,9 +979,7 @@ export class ListagemProjetos {
           }
 
           this.modoEdicaoEtapa3 = false;
-
           this.fecharModal();
-
           this.buscarProjeto();
         },
 
@@ -1046,7 +1018,48 @@ export class ListagemProjetos {
     return rotulos[status] ?? status;
   }
 
+  adicionarEvolucaoOrcamentaria(): void {
+    const campoValor = this.formularioProjeto.get('valorInvestido');
 
+    const campoDescricao = this.formularioProjeto.get('descricaoOrcamentaria');
+
+    const valor = Number(campoValor?.value ?? 0);
+
+    const descricao = (campoDescricao?.value ?? '').trim();
+
+    if (valor <= 0) {window.alert('Informe um valor investido maior que zero.');
+      campoValor?.markAsTouched();
+      return;
+    }
+
+    if (!descricao) {window.alert(
+      'Informe uma descrição para a evolução orçamentária.');
+
+      campoDescricao?.markAsTouched();
+      return;
+    }
+
+    const novaEvolucao: EvolucaoOrcamentaria = {
+      id: 0,
+      valor: valor,
+      descricao: descricao,
+      data_registro: new Date().toISOString(),
+      fk_projeto: this.projetoSelecionadoId ?? 0
+    };
+
+    this.evolucoesOrcamentarias.update(
+      lista => [
+        ...lista,
+        novaEvolucao
+      ]
+    );
+
+    campoValor?.reset(null);
+    campoDescricao?.reset('');
+
+    campoValor?.markAsUntouched();
+    campoDescricao?.markAsUntouched();
+  }
 
 
   obterUnidadeProjeto(projeto: ProjetoEstrategico): Unidade | undefined {
@@ -1225,6 +1238,59 @@ export class ListagemProjetos {
     });
 
     input.value = String(valor);
+  }
+
+  editarEvolucaoOrcamentaria(indice: number): void {
+    if (!this.modoEdicaoEtapa3) {return;}
+
+    const evolucao = this.evolucoesOrcamentarias()[indice];
+
+    if (!evolucao) {
+      return;
+    }
+    const valorInformado = window.prompt('Informe o novo valor investido:', String(evolucao.valor));
+
+    if (valorInformado === null) {
+      return;
+    }
+
+    const valor = Number(valorInformado.replace(',', '.'));
+
+    if (Number.isNaN(valor) || valor < 0) {
+      window.alert(
+        'Informe um valor válido, maior ou igual a zero.'
+      );
+      return;
+    }
+
+    const descricao = window.prompt('Informe a descrição:', evolucao.descricao ?? '');
+
+    if (descricao === null) {
+      return;
+    }
+
+    this.evolucoesOrcamentarias.update(lista =>
+      lista.map((item, i) =>
+        i === indice? {...item,  valor: valor, descricao: descricao.trim()}: item
+      )
+    );
+  }
+  excluirEvolucaoOrcamentaria(indice: number): void {
+    if (!this.modoEdicaoEtapa3) {
+      return;
+    }
+
+    const confirmou = window.confirm(
+      'Tem certeza que deseja excluir esta evolução orçamentária?'
+    );
+
+    if (!confirmou) {
+      return;
+    }
+
+    this.evolucoesOrcamentarias.update(lista =>
+      lista.filter((_, i) => i !== indice)
+    );
   }
 
 }

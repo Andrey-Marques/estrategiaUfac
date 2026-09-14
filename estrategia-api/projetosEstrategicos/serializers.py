@@ -13,6 +13,7 @@ class EvolucaoProjetoSerializer(serializers.ModelSerializer):
         }
     
 class EvolucaoOrcamentariaSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     class Meta:
         model = EvolucaoOrcamentaria
         fields = '__all__'
@@ -172,11 +173,43 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
 
 
         if evolucoes_orcamentarias is not None:
-
-            self._salvar_evolucoes_orcamentarias(
+            self._sincronizar_evolucoes_orcamentarias(
                 instance,
                 evolucoes_orcamentarias
             )
 
 
         return instance
+    
+    def _sincronizar_evolucoes_orcamentarias( self, projeto, evolucoes_orcamentarias):
+        ids_mantidos = []
+        
+        for evolucao in evolucoes_orcamentarias:
+            evolucao_id = evolucao.get('id')
+            valor = evolucao.get('valor', 0)
+            descricao = (evolucao.get('descricao') or '').strip()
+            
+            if evolucao_id:
+                try:
+                    registro = projeto.evolucoesOrcamentarias.get(id=evolucao_id)
+                except EvolucaoOrcamentaria.DoesNotExist:
+                    raise serializers.ValidationError({'evolucoesOrcamentarias': 'Evolução orçamentária inválida.'})
+
+                registro.valor = valor
+                registro.descricao = descricao
+
+                registro.save(
+                    update_fields=['valor', 'descricao']
+                )
+
+                ids_mantidos.append(registro.id)
+
+            elif valor or descricao:
+                registro = EvolucaoOrcamentaria.objects.create(fk_projeto=projeto, valor=valor, descricao=descricao)
+
+                ids_mantidos.append(registro.id)
+
+        # Exclui as evoluções removidas no frontend
+        projeto.evolucoesOrcamentarias.exclude(
+            id__in=ids_mantidos
+        ).delete()
