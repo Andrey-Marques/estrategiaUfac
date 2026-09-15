@@ -23,9 +23,9 @@ class ProjetoEstrategicoAdmin(admin.ModelAdmin):
     
 @admin.register(EvolucaoProjeto)
 class EvolucaoProjetoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'realizacao', 'proximo_passo')
-    search_fields = ('realizacao', 'proximo_passo')
-    list_filter = ('fk_projeto',)
+    list_display = ('id', 'descricao', 'tipo', 'fk_projeto')
+    search_fields = ('descricao',)
+    list_filter = ('tipo', 'fk_projeto')
     
 @admin.register(EvolucaoOrcamentaria)
 class EvolucaoOrcamentariaAdmin(admin.ModelAdmin):

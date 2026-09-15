@@ -483,7 +483,7 @@
                         </span>
                       </div>
 
-                      <div class="acoes-registro-orcamentario" *ngIf="modoEdicaoEtapa3">
+                      <div class="acoes-registro-orcamentario" *ngIf="!visualizando || modoEdicaoEtapa3">
                         <button type="button" class="botao-registro botao-editar-registro" title="Editar"
                           (click)="editarEvolucaoOrcamentaria(indice)">
                           <i class="bi bi-pencil-square"></i>
@@ -504,7 +504,16 @@
                   <!-- NOVO LANÇAMENTO -->
 
                   <div class="novo-lancamento" *ngIf="!visualizando || modoEdicaoEtapa3">
-                    <p class="registrar"><b>Registrar nova evolução</b></p>
+
+                    <p class="registrar">
+                      <b>Registrar nova evolução</b>
+                    </p>
+
+                    <div class="campo-orcamento">
+                      <label> DATA </label>
+
+                      <input type="date" class="form-control" formControlName="dataOrcamentaria" />
+                    </div>
 
                     <div class="campo-orcamento">
                       <label> VALOR INVESTIDO (R$) </label>
@@ -517,9 +526,9 @@
                       <label> DESCRIÇÃO </label>
 
                       <textarea class="form-control" rows="2" formControlName="descricaoOrcamentaria"
-                        placeholder="Ex.: Aquisição de equipamentos">
-                      </textarea>
+                        placeholder="Ex.: Aquisição de equipamentos"></textarea>
                     </div>
+
                     <div class="acoes-novo-lancamento">
                       <button type="button" class="botao-adicionar-orcamento" (click)="adicionarEvolucaoOrcamentaria()">
                         <i class="bi bi-plus-lg"></i>

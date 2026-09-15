@@ -6,18 +6,21 @@ class EvolucaoProjetoSerializer(serializers.ModelSerializer):
     class Meta:
         model = EvolucaoProjeto
         fields = '__all__'
-        extra_kwargs = {
-            'realizacao': {'allow_blank': True, 'required': False},
-            'proximo_passo': {'allow_blank': True, 'required': False},
-            'fk_projeto': {'required': False, 'read_only': True},
+
+        read_only_fields = ['fk_projeto']
+
+        extra_kwargs = {'descricao': {'allow_blank': False, 'required': True},
+            'tipo': {'required': True},
         }
     
 class EvolucaoOrcamentariaSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+
+    data_registro = serializers.DateField(required=True, input_formats=['%Y-%m-%d'])
     class Meta:
         model = EvolucaoOrcamentaria
         fields = '__all__'
-        read_only_fields = ['fk_projeto', 'data_registro']
+        read_only_fields = ['fk_projeto']
 
 class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
     responsavel_nome = serializers.CharField(
@@ -54,53 +57,35 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
             for objetivo in obj.objetivos.all()
         ]
 
-    def _salvar_evolucoes_orcamentarias( self,  projeto,  evolucoes_orcamentarias):
+    def _salvar_evolucoes_orcamentarias(self, projeto, evolucoes_orcamentarias):
         if not evolucoes_orcamentarias:
             return
-
         for evolucao in evolucoes_orcamentarias:
-
-            valor = evolucao.get(
-                'valor',
-                0
-            )
-
-            descricao = (
-                evolucao.get('descricao')
-                or ''
-            ).strip()
-
+            valor = evolucao.get('valor', 0)
+            descricao = (evolucao.get('descricao') or '').strip()
+            data_registro = evolucao.get('data_registro')
             if valor or descricao:
-
                 EvolucaoOrcamentaria.objects.create(
                     fk_projeto=projeto,
                     valor=valor,
-                    descricao=descricao
+                    descricao=descricao,
+                    data_registro=data_registro
                 )
                 
     def _salvar_evolucoes(self, projeto, evolucoes):
+
         if not evolucoes:
             return
 
         for evolucao in evolucoes:
 
-            realizacao = (
-                evolucao.get('realizacao')
-                or ''
-            ).strip()
+            descricao = (evolucao.get('descricao') or '').strip()
+            tipo = evolucao.get('tipo')
 
-            proximo_passo = (
-                evolucao.get('proximo_passo')
-                or ''
-            ).strip()
+            if not descricao:
+                continue
 
-            if realizacao or proximo_passo:
-
-                EvolucaoProjeto.objects.create(
-                    fk_projeto=projeto,
-                    realizacao=realizacao,
-                    proximo_passo=proximo_passo
-                )
+            EvolucaoProjeto.objects.create(fk_projeto=projeto,  descricao=descricao,  tipo=tipo)
 
 
     def create(self, validated_data):
@@ -113,6 +98,8 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
 
         self._salvar_evolucoes(projeto, evolucoes)
         self._salvar_evolucoes_orcamentarias(projeto, orcamentarias)
+
+        projeto.refresh_from_db()
 
         return projeto
 
@@ -151,25 +138,7 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
 
         if evolucoes is not None:
             instance.evolucoes.all().delete()
-            for evolucao in evolucoes:
-
-                realizacao = (
-                    evolucao.get('realizacao')
-                    or ''
-                ).strip()
-
-                proximo_passo = (
-                    evolucao.get('proximo_passo')
-                    or ''
-                ).strip()
-
-                if realizacao or proximo_passo:
-
-                    EvolucaoProjeto.objects.create(
-                        fk_projeto=instance,
-                        realizacao=realizacao,
-                        proximo_passo=proximo_passo
-                    )
+            self._salvar_evolucoes(instance, evolucoes)
 
 
         if evolucoes_orcamentarias is not None:
@@ -188,6 +157,7 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
             evolucao_id = evolucao.get('id')
             valor = evolucao.get('valor', 0)
             descricao = (evolucao.get('descricao') or '').strip()
+            data_registro = evolucao.get('data_registro')
             
             if evolucao_id:
                 try:
@@ -197,15 +167,14 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
 
                 registro.valor = valor
                 registro.descricao = descricao
+                registro.data_registro = data_registro
 
-                registro.save(
-                    update_fields=['valor', 'descricao']
-                )
+                registro.save(update_fields=['valor', 'descricao', 'data_registro'])
 
                 ids_mantidos.append(registro.id)
 
             elif valor or descricao:
-                registro = EvolucaoOrcamentaria.objects.create(fk_projeto=projeto, valor=valor, descricao=descricao)
+                registro = EvolucaoOrcamentaria.objects.create(fk_projeto=projeto,  valor=valor,  descricao=descricao,  data_registro=data_registro)
 
                 ids_mantidos.append(registro.id)
 
