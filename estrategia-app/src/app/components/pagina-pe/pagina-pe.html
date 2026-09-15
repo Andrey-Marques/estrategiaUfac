@@ -1,7 +1,9 @@
 <div class="pagina">
+
   <!-- =====================================================
        HEADER
        ===================================================== -->
+
   <header class="cabecalho">
 
     <div class="logo-area">
@@ -26,11 +28,17 @@
       <a href="#">Fala.BR</a>
       <span>|</span>
 
-      <button type="button" aria-label="Acessibilidade">
+      <button
+        type="button"
+        aria-label="Acessibilidade"
+      >
         ◐
       </button>
 
-      <button type="button" aria-label="Contraste">
+      <button
+        type="button"
+        aria-label="Contraste"
+      >
         ◐
       </button>
 
@@ -38,196 +46,513 @@
 
   </header>
 
+
   <main class="conteudo-principal">
 
-  <!-- =====================================================
-       BREADCRUMB
-       ===================================================== -->
+    <!-- =====================================================
+         BREADCRUMB
+         ===================================================== -->
 
-  <nav class="breadcrumb" aria-label="Navegação">
+    <nav
+      class="breadcrumb"
+      aria-label="Navegação"
+    >
 
-    <a routerLink="/pagina-inicial">
-      <i class="bi bi-house-door-fill"></i>
-    </a>
+      <a routerLink="/pagina-inicial">
+        <i class="bi bi-house-door-fill"></i>
+      </a>
 
-    <span>›</span>
+      <span>›</span>
 
-    <span>Planejamento Estratégico</span>
+      <span>Planejamento Estratégico</span>
 
-  </nav>
-
-
-  <!-- =====================================================
-       TÍTULO DA PÁGINA
-       ===================================================== -->
-
-  <section class="titulo-pagina">
-
-    <h1>
-      O Planejamento Estratégico da<br />
-      Ufac
-    </h1>
-
-  </section>
+    </nav>
 
 
-  <!-- =====================================================
-       ÁREA PRINCIPAL
-       ===================================================== -->
+    <!-- =====================================================
+         TÍTULO DA PÁGINA
+         ===================================================== -->
 
-  <section class="area-planejamento">
+    <section class="titulo-pagina">
 
+      <h1>
+        {{ titulos[opcaoSelecionada] }}
+      </h1>
 
-    <!-- =================================================
-         MENU LATERAL
-         ================================================= -->
-
-    <aside class="menu-planejamento">
-
-      <button class="menu-item ativo">
-        Apresentação
-      </button>
-
-      <button class="menu-item">
-        Etapas de Elaboração
-      </button>
+    </section>
 
 
-      <button class="menu-item">
-        Planejamento e Gestão Estratégica<br />
-        2024-2033
-      </button>
+    <!-- =====================================================
+         ÁREA PRINCIPAL
+         ===================================================== -->
 
-      <button class="menu-item">
-        Planos Anteriores
-      </button>
-
-      <button class="menu-item">
-        Documentos
-      </button>
-
-      <button class="menu-item">
-        Indicadores Estratégicos
-      </button>
-
-    </aside>
-
-
-    <!-- =================================================
-         CONTEÚDO
-         ================================================= -->
-
-    <section class="planejamento-conteudo">
+    <section class="area-planejamento">
 
 
       <!-- =================================================
-           O QUE É
+           MENU LATERAL
            ================================================= -->
 
-      <section class="secao-texto">
+      <aside class="menu-planejamento">
 
-        <h2>
-          O que é o Planejamento Estratégico?
-        </h2>
-
-
-        <p>
-          O Planejamento Estratégico é um processo dinâmico e participativo,
-          por meio do qual são definidos os caminhos que a instituição deverá
-          trilhar a partir de um importante pró-ativo, levando em consideração
-          a análise de seu ambiente em consonância com sua razão de existir,
-          a fim de construir o futuro desejado.
-        </p>
+        <button
+          class="menu-item"
+          [class.ativo]="opcaoSelecionada === 'apresentacao'"
+          (click)="selecionarOpcao('apresentacao')"
+        >
+          Apresentação
+        </button>
 
 
-        <p>
-          A cada decênio inicia-se um novo ciclo de planejamento estratégico
-          na Ufac, momento em que se faz uma reflexão e análise de todos os
-          avanços e conquistas realizadas, bem como dos desafios para continuar
-          promovendo excelência e benefício da sociedade.
-        </p>
+        <button
+          class="menu-item"
+          [class.ativo]="opcaoSelecionada === 'etapas'"
+          (click)="selecionarOpcao('etapas')"
+        >
+          Etapas de Elaboração
+        </button>
 
-      </section>
+
+
+        <button
+          class="menu-item"
+          [class.ativo]="opcaoSelecionada === 'planejamento'"
+          (click)="selecionarOpcao('planejamento')"
+        >
+          Planejamento e Gestão Estratégica<br />
+          2024-2033
+        </button>
+
+
+        <button
+          class="menu-item"
+          [class.ativo]="opcaoSelecionada === 'planos'"
+          (click)="selecionarOpcao('planos')"
+        >
+          Planos Anteriores
+        </button>
+
+
+        <button
+          class="menu-item"
+          [class.ativo]="opcaoSelecionada === 'documentos'"
+          (click)="selecionarOpcao('documentos')"
+        >
+          Documentos
+        </button>
+
+
+
+      </aside>
 
 
       <!-- =================================================
-           PE DA UFAC
+           CONTEÚDO
            ================================================= -->
 
-      <section class="secao-texto secao-pe">
+      <section class="planejamento-conteudo">
 
-        <h2>
-          O PE da Ufac
-        </h2>
+        <ng-container [ngSwitch]="opcaoSelecionada">
 
 
-        <p>
-          O Planejamento e Gestão Estratégica Ufac 2024-2033 é o instrumento
-          que organiza os objetivos da universidade para o longo prazo,
-          visando a melhoria da qualidade, a eficiência e a efetividade dos
-          serviços prestados à sociedade.
-        </p>
+          <!-- =========================================
+               APRESENTAÇÃO
+               ========================================= -->
+
+          <section
+            *ngSwitchCase="'apresentacao'"
+            class="secao-texto"
+          >
+
+            <h2>
+              O que é o Planejamento Estratégico?
+            </h2>
+
+            <p>
+              O <strong>Planejamento Estratégico</strong> é um processo dinâmico e participativo,
+              por meio do qual são definidos os caminhos que a instituição deverá
+              trilhar a partir de um importante pró-ativo, levando em consideração
+              a análise de seu ambiente em consonância com sua razão de existir,
+              a fim de construir o futuro desejado.
+            </p>
+
+            <p>
+              A cada decênio inicia-se um novo ciclo de planejamento estratégico
+              na Ufac, momento em que se faz uma reflexão e análise de todos os
+              avanços e conquistas realizadas, bem como dos desafios para continuar
+              promovendo excelência e benefício da sociedade.
+            </p>
 
 
-        <p>
-          O PGE apresenta a missão, visão, valores, objetivos e seus
-          indicadores, os projetos estratégicos e o modelo de gestão
-          escolhidos pela Ufac para os próximos 10 anos, fornecendo a direção
-          estratégica a ser seguida por seus gestores e colaboradores e, ao
-          mesmo tempo, informando a sociedade sobre a atuação institucional.
-        </p>
+            <h2>
+              O PE da Ufac
+            </h2>
+
+            <p>
+              O <strong>Planejamento e Gestão Estratégica Ufac 2024-2033</strong> é o instrumento
+              que organiza os objetivos da universidade para o longo prazo,
+              visando a melhoria da <strong>qualidade, a eficiência e a efetividade</strong> dos
+              serviços prestados à sociedade.
+            </p>
+
+            <p>
+              O PGE apresenta a missão, visão, valores, objetivos e seus
+              indicadores, os projetos estratégicos e o modelo de gestão
+              escolhidos pela Ufac para os próximos 10 anos, fornecendo a direção
+              estratégica a ser seguida por seus gestores e colaboradores e, ao
+              mesmo tempo, informando a sociedade sobre a atuação institucional.
+            </p>
+
+            <p>
+              O processo de elaboração do Planejamento e Gestão Estratégica
+              Ufac 2024-2033 foi dinâmico e participativo, com início em abril
+              de 2023 e término em março de 2024.
+            </p>
+
+            <p>
+              A construção do plano contou com o apoio da empresa de consultoria
+              Steinbeis Sibe do Brasil, além disso, foram instituídas duas equipes
+              responsáveis pela condução dos trabalhos: equipe de desenvolvimento
+              e equipe de validação.
+            </p>
+
+            <p>
+              A equipe de desenvolvimento, instituída pela Portaria nº 2.884/2023,
+              foi responsável pela construção do documento, participando de
+              treinamentos e reuniões. A equipe de validação realizou a análise
+              das etapas desenvolvidas e acompanhou o processo de elaboração.
+            </p>
+
+            <p>
+              O Planejamento e Gestão Estratégica Ufac 2024-2033 inicia o segundo
+              ciclo de planejamento estratégico na instituição, estabelecendo
+              diretrizes e indicadores para os próximos anos.
+            </p>
+
+            <p>
+              O Mapa Estratégico validado apresenta a missão, a visão, os valores
+              e os 18 objetivos estratégicos definidos para os próximos dez anos.
+            </p>
+
+            <img
+              src="/mapaES.png"
+              class="imagens"
+            />
+
+            <p>
+              Esse novo ciclo de planejamento é pautado por temas de atuação
+              considerados prioritários, visto as demandas atuais e as perspectivas
+              futuras estabelecidas pela ONU, representando o compromisso social
+              presente na atuação da universidade. Os temas são:
+            </p>
+
+            <img
+              src="/cadernoplan.png"
+              class="imagens"
+            />
+
+            <p>
+              Na definição das prioridades, foi considerada a Agenda 2030 da ONU,
+              a qual prevê 17 Objetivos do Desenvolvimento Sustentável (ODS) e
+              169 metas a serem alcançadas pelos países aderentes.
+            </p>
+
+            <img
+              src="/agendaONU.png"
+              class="imagens"
+            />
+
+          </section>
 
 
-        <p>
-          O processo de elaboração do Planejamento e Gestão Estratégica
-          Ufac 2024-2033 foi dinâmico e participativo, com início em abril
-          de 2023 e término em março de 2024.
-        </p>
+          <!-- =========================================
+               ETAPAS
+               ========================================= -->
+
+          <section
+            *ngSwitchCase="'etapas'"
+            class="secao-texto"
+          >
+
+            <h2>
+              Etapas de Elaboração
+            </h2>
+
+            <p>
+              O processo de construção contou com as seguintes etapas:
+            </p>
+
+            <ol>
+              <li>
+               Diagnóstico organizacional
+              </li>
+              <li>
+               Entrevistas com lideranças (comunidade interna e comunidade externa)
+              </li>
+              <li>
+               Consulta pública
+              </li>
+              <li>
+               Mesas temáticas
+              </li>
+              <li>
+               Matriz SWOT
+              </li>
+              <li>
+               Cadeia de Valor 
+              <li>
+               Referenciais e Mapa Estratégico
+              </li>
+              <li>
+               Painel de Indicadores e Metas Estratégicas
+              </li>
+              <li>
+               Portfólio de Projetos Estratégicos
+              </li>
+              <li>
+               Desdobramento da Estratégia
+              </li>
+              <li>
+               Modelo de Gestão da Estratégia
+              </li>
+            </ol>
+
+            <h2>
+              Etapa 1 – Diagnóstico Organizacional
+            </h2>
+            <p>
+              Nessa etapa foi realizada uma análise documental acerca dos principais documentos institucionais da Ufac, tais como: Estatuto da Ufac, Regimento Interno, os documentos associados ao Planejamento e Gestão Estratégica 2014-2023 (incluindo o Mapa Estratégico, Indicadores e Metas, Portfólio de Projetos e as reuniões realizadas acerca dos projetos estratégicos atuais), o Plano de Desenvolvimento Institucional 2020-2024, os diversos Relatórios de Gestão e os documentos “Ufac em Números”.
+              Com base nesses documentos, foram avaliados os resultados obtidos no ciclo 2014-2023 e, a partir disso, foram definidas as premissas que nortearam a elaboração do novo ciclo do <span>Planejamento e Gestão Estratégica 2024-2033.</span>
+            </p>
+
+            <h2>
+              Etapa 2 – Entrevistas com lideranças
+            </h2>
+            <p>A etapa de entrevistas teve como finalidade captar a visão das lideranças sobre a situação da instituição, com vistas a formar, por meio de percepções individuais, um consolidado sobre a proposta de futuro para a Ufac. Para isso, foram realizadas entrevistas semiestruturadas com lideranças indicadas pela equipe de planejamento e conduzidas pela consultoria. Foram realizadas ao todo 61 (sessenta e uma) entrevistas, sendo 50 (cinquenta) entrevistas com lideranças internas a Ufac e 11 (onze) entrevistas com lideranças externas que representaram diferentes setores da sociedade. A lista dos entrevistados por ser conferida aqui.
+            </p>
+
+            <h2>
+            Etapa 3 – Consulta pública
+            </h2>
+            <p>A etapa de consulta pública consistiu na disponibilização de um questionário via formulário eletrônico (Google Forms) para todos os integrantes da comunidade universitária e da comunidade externa. Os participantes puderam expressar sua opinião sobre diversos temas definidos pela Universidade para o Planejamento e Gestão Estratégica 2024-2033. Foram recebidas 154 (cento e cinquenta e quatro) respostas no formulário, com participação de todos os segmentos da comunidade interna (discente, docentes e técnicos-administrativos) e participação da comunidade externa.
+            </p>
+
+            <h2>
+            Etapa 4 – Mesas temáticas
+            </h2>
+            <p>As Mesas Temáticas foram eventos realizados com objetivo de engajar a comunidade acadêmica no processo de elaboração do planejamento estratégico da Ufac, além captar informações relevantes para o desenvolvimento do trabalho. Os eventos foram divididos em alguns temas principais e contou com a participação de palestrantes externos a Ufac e também membros da comunidade interna.
+               Foram realizadas 7 (sete) mesas temáticas. Os temas abordados pelas mesas, bem como os participantes estão listados abaixo:
+            </p>
 
 
-        <p>
-          A construção do plano contou com o apoio da empresa de consultoria
-          Steinbeis Sibe do Brasil, além disso, foram instituídas duas equipes
-          responsáveis pela condução dos trabalhos: equipe de desenvolvimento
-          e equipe de validação.
-        </p>
+            <div class="mesas-tematicas">
+                <h2>
+                Mesa temática 1 – Universidades Federais na Amazônia: Cenários, Desafios e Perspectivas
+                </h2>
+                <p><strong>Tema:</strong> Universidades Públicas na Amazônia: Desafios e Experiências Exitosas.
+                  <strong><br>Participantes:</strong> Prof. Dr. Emannuel Tourinho – Reitor da UFPA (Participação Virtual) e Profª. Drª. Aldenize Ruela Xavier – Reitora da UFOPA.
+                </p>
+
+                <h2>
+                Mesa temática 2 – Educação Superior do Futuro  
+                </h2>
+                <p>
+                  <strong>Tema:</strong> Expansão e Qualidade do Ensino Superior: Desafios para a indissociabilidade entre Ensino, Pesquisa e Extensão.
+                  <strong><br>Participantes:</strong> Prof. Dr. Luiz Roberto Liza Curi – Presidente do Conselho Nacional de Educação e Prof. Dr. Jerônimo Siqueira Tybusch – Pró-Reitor de Graduação da UFSM (Participação Virtual).
+                </p>
+
+                <h2>
+                Mesa temática 3 – Políticas de Inclusão e Permanência no Ensino Superior
+                </h2>
+                <p>
+                  <strong>Tema 1:</strong> A Política de Assistência Estudantil: a inclusão dos estudantes no Ensino Superior.
+                  <strong><br>Tema 2:</strong> Acesso, Permanência e Êxito dos Estudantes no Ensino Superior: Cenários e Estratégias Institucionais.
+                  <br><strong>Participantes:</strong> Profª. Drª. Maísa Miralva da Silva – Pró-Reitora de Assuntos Estudantis da UFG; Profª. Drª. Maria do Socorro de Lima Oliveira – Pró-Reitora de Ensino de Graduação da UFRPE; e Prof .Me. Adão Rogério Xavier Silva – Professor do Parfor na UFAC.
+                </p>
+
+                <h2>
+                Mesa temática 4 – O Desafio da Inovação nas Universidades Públicas
+                </h2>
+                <p>
+                  <strong>Tema:</strong> Ambientes promotores de inovação em Ifes: Desafios e Tendências.
+                  <br><strong>Participantes:</strong> Prof. Dr. José Roberto Ferreira Guerra – Diretor de Inovação e Empreendedorismo na UFPE e Profª. Drª. Carla Regina Pasa Gómez – Professora Titular da UFPE.
+                </p>
+
+                <h2>
+                Mesa temática 5 – A Curricularização da Extensão e seu Financiamento Sustentável
+                </h2>
+                <p><strong>Tema 1:</strong> Curricularização da Extensão: formação crítica dos estudantes.
+                  <br><strong>Tema 2:</strong> Financiamento sustentável da extensão universitária.
+                  <br><strong>Participantes:</strong> Prof. Dr. Flaví Ferreira Lisbôa Filho – Pró-Reitor de Extensão da UFSM e Prof. Dr. Helder Eterno da Silveira – Pró-Reitor de Extensão e Cultura da UFU.
+                </p>
 
 
-        <p>
-          A equipe de desenvolvimento, instituída pela Portaria nº 2.884/2023,
-          foi responsável pela construção do documento, participando de
-          treinamentos e reuniões. A equipe de validação realizou a análise
-          das etapas desenvolvidas e acompanhou o processo de elaboração.
-        </p>
+                <h2>
+                Mesa temática 6 – Políticas de Ações Afirmativas na Educação Superior
+                </h2>
+                <p><strong>Tema 1:</strong> Políticas de Ações Afirmativas na Educação Superior: pessoas negras na universidade após 10 anos da Lei de Cotas.
+                  <br><strong>Tema 2:</strong> A Lei de Cotas para os estudantes de etnia Indígena.
+                  <br><strong>Tema 3:</strong> Cotas para as pessoas com deficiência.
+                  <br><strong>Participantes:</strong> Prof. Dr. Adilson Pereira dos Santos – Pró-Reitor Adjunto de Graduação da UFOP e Dasu Inu Bake Huni Kuin – Doutorando no programa de Pós-Graduação em Linguagem e Identidade da UFAC
+                </p>
+              </div>
+
+            <h2>
+                Etapa 5 – Matriz SWOT
+            </h2>
+            <p>A etapa 5 consistiu na elaboração da <strong>matriz SWOT (Strengths, Weaknesses, Opportunities and Threats, em português – Forças, Fraquezas, Oportunidades e Ameaças)</strong> com a finalidade de identificar os pontos fortes e fracos da instituição, bem como examinar as oportunidades e as ameaças que poderão ser enfrentadas no seu ambiente de atuação. A construção da matriz foi feita com base na análise e cruzamento das informações levantadas nas etapas de Consulta Pública, Entrevistas com Lideranças e Mesas Temáticas. A partir disso, a proposta foi captar os principais problemas e desafios enfrentados pelas unidades da instituição e, assim, elencar as prioridades a serem adotadas no momento de definição da estratégia.
+                 <br><br>A matriz SWOT validada pode ser acessada <a href="#">clicando aqui.</a>
+            </p>
+
+            <h2>
+                Etapa 6 – Cadeia de Valor
+            </h2>
+            <p>Na etapa 6 foi elaborada a <strong>Cadeia de Valor da Ufac</strong>, identificando os processos que contribuem para produzir valor para os beneficiários. Foi desenvolvido o <strong> Mapa do Contexto da Ufac</strong>, definindo os macroprocessos institucionais, os processos de 2º nível (desdobramento dos macroprocessos), os principais atores intervenientes, bem como as normas e leis relacionadas.
+            </p>
+
+            <img 
+            src="/Caderno-PGE.png"
+            class="imagens"
+            >
+
+            <h2>
+            Etapa 7 – Referenciais e Mapa Estratégico
+            </h2>
+            <p>Nessa etapa foram elaboradas a<strong> Visão de Futuro, Missão e Valores</strong> (referenciais estratégicos), bem como o <strong>Mapa Estratégico</strong>, composto por 18 (dezoito) objetivos estratégicos. Os objetivos estratégicos representam os propósitos maiores da instituição e indicam as conquistas que devem ser perseguidas para o alcance da visão de futuro e o cumprimento da missão. Assim, o mapa estratégico é uma ferramenta de comunicação que permite relacionar e integrar objetivos e referenciais estratégicos de forma a traduzir claramente a estratégia da instituição. Para a construção e validação do mapa estratégico foi realizado um seminário com a participação de toda a comunidade acadêmica, onde todos puderam contribuir para a definição da estratégia.
+            </p>
+                
+            <h2>
+                Etapa 8 – Painel de Indicadores e Metas Estratégicas
+            </h2>
+            <p>Na etapa 8 foi definido o painel de indicadores do Planejamento e Gestão Estratégica 2024-2033 que traduz de forma numérica os objetivos estratégicos escolhidos. Enquanto os indicadores medem o alcance dos objetivos estratégicos, as metas estabelecem o nível desejado para cada indicador, representando o alcance do resultado desejado. Para cada indicador foi estipulado uma meta anual, considerando os 10 (dez) anos de planejamento. Foram estabelecidos 30 (trinta) indicadores, com pelo menos 1 (um) indicador para cada objetivo estratégico.
+            </p>
+
+            <h2>
+                Etapa 9 – Portfólio de Projetos Estratégicos
+            </h2>
+            <p>Nessa etapa foi construído o Portfólio de Projetos Estratégicos que representam as ações a serem desenvolvidas para impulsionar o alcance dos objetivos estratégicos, contribuindo para a consecução dos resultados desejados. Foram validados 1 (um) programa e 21 (vinte e um) projetos estratégicos, sob a responsabilidade de diferentes unidades. A lista completa dos projetos pode ser acessada aqui.
+            </p>
+
+            <h2>
+                Etapa 10 – Desdobramento da Estratégia
+            </h2>
+            <p>A etapa de desdobramento da estratégia tem o objetivo de alinhar a organização, ou seja, corresponde a integração da estratégia da organização com a estratégia das unidades finalísticas e unidades meio. O alinhamento é feito por meio da definição de objetivos setoriais que contribuem para o alcance dos objetivos estratégicos. Para isso, foram elaborados os painéis de contribuição de 10 (dez) unidades, são elas:
+            </p>
+
+            <ul>
+                  <li>Pró-reitoria de Graduação</li>
+                  <li>Pró-reitoria de Pós-Graduação;</li>
+                  <li>Pró-reitoria de Extensão;</li>
+                  <li>Pró-reitoria de Assuntos Estudantis;</li>
+                  <li>Pró-reitoria de Administração;</li>
+                  <li>Pró-reitoria de Planejamento;</li>
+                  <li>Pró-reitoria de Desenvolvimento e Gestão de Pessoas;</li>
+                  <li>Núcleo de Tecnologia da Infomação;</li>
+                  <li>Prefeitura do Campus; e</li>
+                  <li>Parque Zoobotânico.</li>
+            </ul>
+
+            <h2>
+                Etapa 11 – Modelo de Gestão da Estratégia
+            </h2>
+            <p>
+                  A etapa de definição do modelo de gestão da estratégia estabelece como a instituição se organiza para garantir que a estratégia seja executada e gerenciada, ou seja, representa a determinação do modelo de monitoramento e avaliação dos resultados planejados. A estruturação do modelo de gestão é dada pela matriz de governança da estratégia, que define as instâncias envolvidas, suas atribuições e responsabilidades. Quanto ao gerenciamento, tem-se os ciclos de gestão que correspondem ao período no qual são realizados o monitoramento, a análise e a revisão dos instrumentos da estratégia institucional para avaliação dos resultados e identificação dos pontos de correção. A partir disso, foram definidos 3 (três) ciclos de gestão: gestão do portfólio de projetos (periodicidade bimestral); avaliação dos indicadores e painéis de contribuição (periodicidade trimestral); e avaliação da estratégia (periodicidade semestral).
+            </p>
 
 
-        <p>
-          O Planejamento e Gestão Estratégica Ufac 2024-2033 inicia o segundo
-          ciclo de planejamento estratégico na instituição, estabelecendo
-          diretrizes e indicadores para os próximos anos.
-        </p>
+          </section>
 
 
-        <p>
-          O Mapa Estratégico validado apresenta a missão, a visão, os valores
-          e os 18 objetivos estratégicos definidos para os próximos dez anos.
-        </p>
+
+
+          <!-- =========================================
+               PLANEJAMENTO 2024-2033
+               ========================================= -->
+
+          <section
+            *ngSwitchCase="'planejamento'"
+            class="secao-texto"
+          >
+
+            <h2>
+              Planejamento e Gestão Estratégica 2024-2033
+            </h2>
+
+            <p>
+              Aqui ficará o conteúdo referente ao Planejamento e Gestão
+              Estratégica Ufac 2024-2033.
+            </p>
+
+          </section>
+
+
+          <!-- =========================================
+               PLANOS ANTERIORES
+               ========================================= -->
+
+          <section
+            *ngSwitchCase="'planos'"
+            class="secao-texto"
+          >
+
+            <h2>
+              Planos Anteriores
+            </h2>
+
+            <p>
+              Aqui ficará o conteúdo dos planos estratégicos anteriores.
+            </p>
+
+          </section>
+
+
+          <!-- =========================================
+               DOCUMENTOS
+               ========================================= -->
+
+          <section
+            *ngSwitchCase="'documentos'"
+            class="secao-texto"
+          >
+
+            <h2>
+              Matriz SWOT/PESTAL
+            </h2>
+
+            <p>
+              A análise SWOT objetiva a análise dos fatores internos e externos que geram influência sobre a organização. É uma ferramenta utilizada para análises de cenários organizacionais, evidenciando as força e fraquezas do ambiente da organização, as oportunidades que a organização poderá aproveitar e as principais ameaças que podem prejudicar a sua atuação.
+
+              <br><br>A análise PESTAL também é uma ferramenta essencial para a análise da entrada de qualquer instituição no mercado ou na reanálise do seu posicionamento em relação às instituições já existentes. Ela se baseia na análise dos fatores externos à instituição que podem influenciá-la direta ou indiretamente, permitindo o aprofundamento da visão das seguintes dimensões: política, econômica, social, tecnológica, ambiental e legal.
+
+              <br><br>O trabalho cruzou as duas ferramentas, aplicando a PESTAL para análise do ambiente externo da Ufac (ameaças e oportunidades).Aqui ficarão os documentos relacionados ao planejamento estratégico.
+            </p>
+            <button>MATRIZ SWOT/PESTAL</button>
+
+          </section>
+
+
+
+
+        </ng-container>
 
       </section>
 
     </section>
 
-  </section>
+  </main>
 
-</main>
+
   <!-- =====================================================
        RODAPÉ
        ===================================================== -->
+
   <footer class="rodape">
 
     <div class="rodape-conteudo">
 
+
       <!-- Logo -->
+
       <div class="rodape-logo">
 
         <img
@@ -241,11 +566,17 @@
 
           <div class="icones">
 
-            <a href="#" aria-label="Instagram">
+            <a
+              href="#"
+              aria-label="Instagram"
+            >
               <i class="bi bi-instagram"></i>
             </a>
 
-            <a href="#" aria-label="YouTube">
+            <a
+              href="#"
+              aria-label="YouTube"
+            >
               <i class="bi bi-youtube"></i>
             </a>
 
@@ -257,6 +588,7 @@
 
 
       <!-- Planejamento -->
+
       <div class="rodape-coluna">
 
         <h3>PLANEJAMENTO</h3>
@@ -271,34 +603,62 @@
 
 
       <!-- Sites governamentais -->
+
       <div class="rodape-coluna">
 
         <h3>SITES GOVERNAMENTAIS</h3>
 
         <a href="#">Governo</a>
-        <a href="#">Ministério da Educação</a>
+
+        <a href="#">
+          Ministério da Educação
+        </a>
+
         <a href="#">
           Ministério da Ciência, Tecnologia e Inovação
         </a>
-        <a href="#">Ministério do Planejamento</a>
-        <a href="#">Ministério do Desenvolvimento</a>
-        <a href="#">Órgãos do Governo</a>
+
+        <a href="#">
+          Ministério do Planejamento
+        </a>
+
+        <a href="#">
+          Ministério do Desenvolvimento
+        </a>
+
+        <a href="#">
+          Órgãos do Governo
+        </a>
 
       </div>
 
 
       <!-- Links úteis -->
+
       <div class="rodape-coluna">
 
         <h3>LINKS ÚTEIS</h3>
 
-        <a href="#">Acesso à Informação</a>
-        <a href="#">Painel Estratégico</a>
-        <a href="#">Documentos Institucionais</a>
-        <a href="#">Contato</a>
+        <a href="#">
+          Acesso à Informação
+        </a>
+
+        <a href="#">
+          Painel Estratégico
+        </a>
+
+        <a href="#">
+          Documentos Institucionais
+        </a>
+
+        <a href="#">
+          Contato
+        </a>
+
         <a href="#">
           Estratégia Federal de Desenvolvimento
         </a>
+
         <a href="#">
           Objetivos de Desenvolvimento Sustentável
         </a>
@@ -307,15 +667,22 @@
 
 
       <!-- Contatos -->
+
       <div class="rodape-coluna">
 
         <h3>CONTATOS</h3>
 
-        <a href="#">Lista de Telefones</a>
+        <a href="#">
+          Lista de Telefones
+        </a>
+
         <a href="#">
           Serviço de Informação ao Cidadão
         </a>
-        <a href="#">Ouvidoria</a>
+
+        <a href="#">
+          Ouvidoria
+        </a>
 
       </div>
 
@@ -323,6 +690,7 @@
 
 
     <!-- Parte inferior -->
+
     <div class="rodape-bottom">
 
       <span>
@@ -330,10 +698,11 @@
       </span>
 
       <div class="ufac">
-        U<span>fac</span>
+        <span>Ufac</span>
       </div>
 
     </div>
 
   </footer>
+
 </div>
