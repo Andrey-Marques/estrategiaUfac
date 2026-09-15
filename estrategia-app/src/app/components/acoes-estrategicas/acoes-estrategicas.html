@@ -1,0 +1,293 @@
+<app-header-publico></app-header-publico>
+
+<div class="pagina">
+
+  <main class="conteudo-principal">
+
+    <nav class="breadcrumb" aria-label="Navegação">
+
+      <a routerLink="/pagina-inicial">
+        <i class="bi bi-house-door-fill"></i>
+      </a>
+
+      <span>›</span>
+
+      <span>Painel de Unidades</span>
+
+      <span class="separador">›</span>
+
+      <span class="atual">Ações Estratégicas</span>
+
+    </nav>
+
+
+    <h1>Ações Estratégicas</h1>
+
+
+    <!-- =====================================================
+         ABAS
+         ===================================================== -->
+
+    <nav class="abas">
+
+      <button class="aba">
+        Projetos Estratégicos
+      </button>
+
+      <button class="aba ativa">
+        Indicadores Estratégicos
+      </button>
+
+      <button class="aba">
+        Iniciativas Estratégicas
+      </button>
+
+    </nav>
+
+
+    <!-- =====================================================
+         FILTROS
+         ===================================================== -->
+
+    <section class="filtros">
+
+      <div class="cabecalho-filtros">
+
+        <div class="titulo-filtros-pesquisa">
+
+          <i class="bi bi-funnel-fill"></i>
+
+          <span>
+            Filtros de Pesquisa e Seleção
+          </span>
+
+        </div>
+
+        <button class="limpar-filtros">
+
+          <i class="bi bi-arrow-counterclockwise"></i>
+
+          <span>
+            Limpar filtros
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <div class="divisor-filtros"></div>
+
+
+      <div class="linha-filtros">
+
+        <!-- Pesquisa -->
+        <div class="campo-filtro campo-pesquisa">
+
+          <label>
+            Pesquisar por Título ou Código
+          </label>
+
+          <div class="input-pesquisa">
+
+            <i class="bi bi-search"></i>
+
+            <input
+              type="text"
+              placeholder="Ex: Graduação, TDG, OE1..."
+            />
+
+          </div>
+
+        </div>
+
+
+        <!-- Unidade -->
+        <div class="campo-filtro">
+
+          <label>
+            Unidade Responsável
+          </label>
+
+          <button class="select-filtro">
+
+            <span>
+              Todas as unidades (2 selecionadas)
+            </span>
+
+            <i class="bi bi-chevron-down"></i>
+
+          </button>
+
+        </div>
+
+
+        <!-- Objetivos -->
+        <div class="campo-filtro">
+
+          <label>
+            Objetivos Estratégicos
+          </label>
+
+          <button class="select-filtro">
+
+            <span>
+              Todos os objetivos (OE1, OE3...)
+            </span>
+
+            <i class="bi bi-chevron-down"></i>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- Filtros ativos -->
+      <div class="filtros-ativos">
+
+        <span class="titulo-filtros">
+          Filtros Ativos:
+        </span>
+
+        <span class="tag-filtro">
+
+          Unidade: PROEX
+
+          <button>
+            ×
+          </button>
+
+        </span>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CONTAINER DAS LISTAGENS
+         ===================================================== -->
+
+    <section class="container-listagem">
+
+
+      <!-- ===================================================
+           BARRA DE INFORMAÇÕES / ORDENAÇÃO
+           =================================================== -->
+
+      <div class="barra-informacoes">
+
+        <span>
+          Exibindo 5 registros
+        </span>
+
+        <div class="ordenacao">
+
+          <span>
+            Ordenar Por:
+          </span>
+
+          <button class="select-ordenacao">
+
+            Título (A..Z)
+
+            <span>⌄</span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ===================================================
+           LISTA DE INDICADORES
+           =================================================== -->
+
+      <section class="lista-indicadores">
+
+
+        <!-- INDICADOR 1 -->
+
+        <article class="indicador">
+
+          <div class="codigo">
+            OE1
+          </div>
+
+          <div class="titulo-indicador">
+            Taxa de Diplomação da Graduação – TDG
+          </div>
+
+          <div class="responsavel">
+
+            <strong>
+              PROGRAD
+            </strong>
+
+            <span>
+              MARIA BEATRIZ FULANA
+            </span>
+
+          </div>
+
+          <div class="data">
+
+            <strong>
+              20/07/2026
+            </strong>
+
+            <span>
+              Última atualização: 2026-07-09
+            </span>
+
+          </div>
+
+          <div class="acao">
+            <span>›</span>
+          </div>
+
+        </article>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           RODAPÉ / PAGINAÇÃO
+           =================================================== -->
+
+      <div class="rodape-listagem">
+
+        <span class="informacao-paginacao">
+          Página 1 de 1 (Total de 5 itens)
+        </span>
+
+
+        <div class="paginacao">
+
+          <button class="botao-paginacao anterior" disabled>
+            Anterior
+          </button>
+
+          <button class="botao-paginacao pagina-atual">
+            1
+          </button>
+
+          <button class="botao-paginacao">
+            Próxima
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

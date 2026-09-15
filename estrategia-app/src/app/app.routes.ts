@@ -13,6 +13,7 @@ import { PaginaInicial } from './components/pagina-inicial/pagina-inicial';
 import { PainelUnidades } from './components/painel-unidades/painel-unidades';
 import { PaginaPdi } from './components/pagina-pdi/pagina-pdi';
 import { PaginaPe } from './components/pagina-pe/pagina-pe';
+import { AcoesEstrategicas } from './components/acoes-estrategicas/acoes-estrategicas';
 
 export const routes: Routes = [
   {
@@ -58,6 +59,9 @@ export const routes: Routes = [
       },
       {
         path:"perfil-usuario", component: PerfilUsuario
+      },
+      {
+        path:"acoes-estrategicas", component: AcoesEstrategicas
       },
     ]
   }
