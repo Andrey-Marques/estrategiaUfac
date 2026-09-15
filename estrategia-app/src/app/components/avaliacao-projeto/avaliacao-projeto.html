@@ -181,7 +181,7 @@
             <ng-container *ngIf="realizacoesValidas.length > 0; else semRealizacoes">
               <div class="registro-acompanhamento" *ngFor="let evolucao of realizacoesValidas">
                 <p class="texto-registro">
-                  {{ evolucao.realizacao }}
+                  {{ evolucao.descricao }}
                 </p>
               </div>
             </ng-container>
@@ -200,7 +200,7 @@
             <ng-container *ngIf="proximosPassosValidos.length > 0; else semProximosPassos">
               <div class="registro-acompanhamento" *ngFor="let evolucao of proximosPassosValidos">
                 <p class="texto-registro">
-                  {{ evolucao.proximo_passo }}
+                  {{ evolucao.descricao }}
                 </p>
               </div>
             </ng-container>

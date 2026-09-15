@@ -10,6 +10,10 @@
       >
         +Nova Iniciativa
       </button>
+      <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal"
+        (click)="CriarNovaIniciativa()" *ngIf="!isAdmin()">
+        Propor novo projeto
+      </button>
     </div>
     <div class="card container-conteudo">
       <!-- Filtro -->

@@ -68,6 +68,7 @@ export class ListagemProjetos {
       percentualProgresso: [0,[ Validators.required, Validators.min(0), Validators.max(100)]],
       valorInvestido: [null],
       descricaoOrcamentaria: [''],
+      dataOrcamentaria: [''],
       acoesPrevistas: [''],
       objetivos: [[], Validators.required],
     });
@@ -264,7 +265,6 @@ export class ListagemProjetos {
           custoEstimado: projeto.custo_estimado,
           acoesPrevistas: projeto.acoes_previstas,
           objetivos: this.normalizarIds(projeto.objetivos ?? []),
-          realizacoes: projeto.evolucoes?.map((evolucao) => evolucao.realizacao).join('\n\n') || '',
         });
         this.formularioProjeto.disable();
         this.etapaAtual = 1;
@@ -582,6 +582,10 @@ export class ListagemProjetos {
       this.formularioProjeto
         .get('descricaoOrcamentaria')
         ?.enable();
+
+      this.formularioProjeto
+      .get('dataOrcamentaria')
+      ?.enable();
     }
   }
 
@@ -595,27 +599,11 @@ export class ListagemProjetos {
   }
 
   private carregarEvolucoesProjeto(projeto: ProjetoEstrategico): void {
-    const realizacoes = (projeto.evolucoes ?? [])
-      .filter((evolucao) => !!evolucao.realizacao?.trim())
-      .map((evolucao) => evolucao.realizacao.trim());
-
-    const passos = (projeto.evolucoes ?? [])
-      .filter((evolucao) => !!evolucao.proximo_passo?.trim())
-      .map((evolucao) => evolucao.proximo_passo.trim());
+    const realizacoes = (projeto.evolucoes ?? []).filter(evolucao => evolucao.tipo === 'REALIZACAO').map(evolucao =>  evolucao.descricao.trim());
+    const passos = (projeto.evolucoes ?? []).filter(evolucao =>  evolucao.tipo === 'PROXIMO_PASSO').map(evolucao =>  evolucao.descricao.trim());
 
     this.realizacoesConcluidas.set(realizacoes);
     this.proximosPassos.set(passos);
-  }
-
-  private obterEvolucoesAtuais(): Array<{ realizacao: string; proximo_passo: string }> {
-    const evolucoesAtuais = this.projetos().find((projeto) => projeto.id === this.projetoSelecionadoId)?.evolucoes ?? [];
-
-    return evolucoesAtuais
-      .filter((evolucao) => !!evolucao.realizacao?.trim() || !!evolucao.proximo_passo?.trim())
-      .map((evolucao) => ({
-        realizacao: evolucao.realizacao?.trim() ?? '',
-        proximo_passo: evolucao.proximo_passo?.trim() ?? '',
-      }));
   }
 
   private recarregarDetalhesProjeto(): void {
@@ -637,22 +625,14 @@ export class ListagemProjetos {
 
     const formulario = this.formularioProjeto.getRawValue();
 
-    const evolucoesOrcamentarias = [];
-
-    const valorInvestido = Number(
-      formulario.valorInvestido
-    );
-
-    const descricaoOrcamentaria = (
-      formulario.descricaoOrcamentaria ?? ''
-    ).trim();
-
-    if (valorInvestido > 0 || descricaoOrcamentaria) {
-      evolucoesOrcamentarias.push({
-        valor: valorInvestido || 0,
-        descricao: descricaoOrcamentaria
-      });
-    }
+    const evolucoesOrcamentarias =
+      this.evolucoesOrcamentarias().map(
+        evolucao => ({
+          valor: Number(evolucao.valor),
+          descricao: evolucao.descricao,
+          data_registro: evolucao.data_registro
+        })
+      );
 
     const responsavel = this.usuarios().find(
       usuario => usuario.id === Number(formulario.liderProjeto)
@@ -726,6 +706,9 @@ export class ListagemProjetos {
       descricao: '',
       tempoEstimado: '',
       custoEstimado: 0,
+      valorInvestido: null,
+      descricaoOrcamentaria: '',
+      dataOrcamentaria: '',
       acoesPrevistas: '',
       objetivos: [],
     });
@@ -739,6 +722,7 @@ export class ListagemProjetos {
     this.proximosPassos.set([]);
     this.realizacoesAntesDaEdicao = [];
     this.proximosPassosAntesDaEdicao = [];
+    this.evolucoesOrcamentarias.set([]);
   }
 
   fecharFormulario(): void {
@@ -919,72 +903,46 @@ export class ListagemProjetos {
     this.dadosFormularioAntesDaEdicao = null;
   }
 
-  private montarEvolucoes(): Array<{ realizacao: string; proximo_passo: string }> {
-    const realizacoes = this.realizacoesConcluidas()
-      .filter((valor) => valor?.trim())
-      .map((valor) => ({ realizacao: valor.trim(), proximo_passo: '' }));
+  private montarEvolucoes(): Array<{descricao: string; tipo: 'REALIZACAO' | 'PROXIMO_PASSO';}> {
 
-    const proximos = this.proximosPassos()
-      .filter((valor) => valor?.trim())
-      .map((valor) => ({ realizacao: '', proximo_passo: valor.trim() }));
+    const realizacoes = this.realizacoesConcluidas().filter(valor => !!valor?.trim()).map(valor => ({ descricao: valor.trim(), tipo: 'REALIZACAO' as const}));
+
+    const proximos = this.proximosPassos().filter(valor => !!valor?.trim()).map(valor => ({descricao: valor.trim(),tipo: 'PROXIMO_PASSO' as const}));
 
     return [...realizacoes, ...proximos];
   }
 
   confirmarEdicaoEtapa3(): void {
-
     if (!this.projetoSelecionadoId) {
       return;
     }
 
-    const valorInvestido = Number(
-      this.formularioProjeto
-        .get('valorInvestido')
-        ?.value ?? 0
-    );
-
-    const descricaoOrcamentaria = (
-      this.formularioProjeto
-        .get('descricaoOrcamentaria')
-        ?.value ?? ''
-    ).trim();
-
-
-    const novasEvolucoesOrcamentarias: Array<{
+    const evolucoesOrcamentarias: Array<{
+      id?: number;
       valor: number;
       descricao: string;
-    }> = [];
-
-
-    if (
-      valorInvestido > 0 ||
-      descricaoOrcamentaria
-    ) {
-
-      novasEvolucoesOrcamentarias.push({
-        valor: valorInvestido,
-        descricao: descricaoOrcamentaria
-      });
-
-    }
-
+      data_registro: string;
+    }> = this.evolucoesOrcamentarias().map(
+      evolucao => ({
+        id: evolucao.id || undefined,
+        valor: Number(evolucao.valor),
+        descricao: evolucao.descricao,
+        data_registro: evolucao.data_registro
+      })
+    );;
 
     const dadosAtualizacao = {
+      percentual_progresso: Number(
+        this.formularioProjeto
+          .get('percentualProgresso')
+          ?.value ?? 0
+      ),
 
-      percentual_progresso:
-        Number(
-          this.formularioProjeto
-            .get('percentualProgresso')
-            ?.value ?? 0
-        ),
-
-      evolucoes:
-        this.montarEvolucoes(),
+      evolucoes: this.montarEvolucoes(),
 
       evolucoesOrcamentarias:
-        novasEvolucoesOrcamentarias
+        evolucoesOrcamentarias
     };
-
 
     this.projetoService
       .atualizarProjeto(
@@ -993,7 +951,6 @@ export class ListagemProjetos {
       )
       .subscribe({
         next: () => {
-
           if (this.isAdmin()) {
             window.alert(
               'Projeto atualizado com sucesso.'
@@ -1005,9 +962,7 @@ export class ListagemProjetos {
           }
 
           this.modoEdicaoEtapa3 = false;
-
           this.fecharModal();
-
           this.buscarProjeto();
         },
 
@@ -1046,7 +1001,58 @@ export class ListagemProjetos {
     return rotulos[status] ?? status;
   }
 
+  adicionarEvolucaoOrcamentaria(): void {
 
+    const campoData = this.formularioProjeto.get('dataOrcamentaria');
+    const campoValor = this.formularioProjeto.get('valorInvestido');
+    const campoDescricao = this.formularioProjeto.get('descricaoOrcamentaria');
+
+    const data = campoData?.value;
+
+    const valor = Number(campoValor?.value ?? 0);
+
+    const descricao = (campoDescricao?.value ?? '').trim();
+
+
+    if (!data) {
+      window.alert( 'Informe a data da evolução orçamentária.');
+      campoData?.markAsTouched();
+      return;
+    }
+
+
+    if (valor <= 0) {
+      window.alert('Informe um valor investido maior que zero.');
+      campoValor?.markAsTouched();
+      return;
+    }
+
+
+    if (!descricao) {
+      window.alert('Informe uma descrição para a evolução orçamentária.');
+      campoDescricao?.markAsTouched();
+      return;
+    }
+
+    const novaEvolucao: EvolucaoOrcamentaria = {
+      id: 0,
+      valor: valor,
+      descricao: descricao,
+      data_registro: data,
+      fk_projeto: this.projetoSelecionadoId ?? 0
+    };
+
+    this.evolucoesOrcamentarias.update(lista => [...lista, novaEvolucao]);
+
+
+    campoData?.reset('');
+    campoValor?.reset(null);
+    campoDescricao?.reset('');
+
+    campoData?.markAsUntouched();
+    campoValor?.markAsUntouched();
+    campoDescricao?.markAsUntouched();
+  }
 
 
   obterUnidadeProjeto(projeto: ProjetoEstrategico): Unidade | undefined {
@@ -1225,6 +1231,59 @@ export class ListagemProjetos {
     });
 
     input.value = String(valor);
+  }
+
+  editarEvolucaoOrcamentaria(indice: number): void {
+    if (this.visualizando && !this.modoEdicaoEtapa3) {return;}
+
+    const evolucao = this.evolucoesOrcamentarias()[indice];
+
+    if (!evolucao) {
+      return;
+    }
+    const valorInformado = window.prompt('Informe o novo valor investido:', String(evolucao.valor));
+
+    if (valorInformado === null) {
+      return;
+    }
+
+    const valor = Number(valorInformado.replace(',', '.'));
+
+    if (Number.isNaN(valor) || valor < 0) {
+      window.alert(
+        'Informe um valor válido, maior ou igual a zero.'
+      );
+      return;
+    }
+
+    const descricao = window.prompt('Informe a descrição:', evolucao.descricao ?? '');
+
+    if (descricao === null) {
+      return;
+    }
+
+    this.evolucoesOrcamentarias.update(lista =>
+      lista.map((item, i) =>
+        i === indice? {...item,  valor: valor, descricao: descricao.trim()}: item
+      )
+    );
+  }
+  excluirEvolucaoOrcamentaria(indice: number): void {
+    if (this.visualizando && !this.modoEdicaoEtapa3) {
+      return;
+    }
+
+    const confirmou = window.confirm(
+      'Tem certeza que deseja excluir esta evolução orçamentária?'
+    );
+
+    if (!confirmou) {
+      return;
+    }
+
+    this.evolucoesOrcamentarias.update(lista =>
+      lista.filter((_, i) => i !== indice)
+    );
   }
 
 }

@@ -35,22 +35,29 @@ class ProjetoEstrategico(models.Model):
     
     
 class EvolucaoProjeto(models.Model):
-    realizacao = models.TextField()
-    proximo_passo = models.TextField()
-    fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'evolucoes')
-    
+
+    TIPO_CHOICES = [
+        ('REALIZACAO', 'Realização'),
+        ('PROXIMO_PASSO', 'Próximo passo'),
+    ]
+    descricao = models.TextField()
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name='evolucoes')
     class Meta:
         verbose_name = 'Evolução do Projeto'
         verbose_name_plural = 'Evoluções do Projeto'
-        
+
     def __str__(self):
-        return f'Evolução do Projeto: {self.fk_projeto.nome}'
+        return (
+            f'{self.get_tipo_display()}: '
+            f'{self.descricao}'
+        )
 
 
 class EvolucaoOrcamentaria(models.Model):
     valor = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
     descricao = models.TextField(blank=True,default='')
-    data_registro = models.DateTimeField(auto_now_add=True)
+    data_registro = models.DateField()
     fk_projeto = models.ForeignKey(ProjetoEstrategico, on_delete=models.CASCADE, related_name= 'evolucoesOrcamentarias')
     
     class Meta:

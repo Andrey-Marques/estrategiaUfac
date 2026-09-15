@@ -1,8 +1,13 @@
-export interface EvolucaoProjeto{
-    id: number;
-    realizacao: string;
-    proximo_passo: string;
-    fk_projeto: number
+export type TipoEvolucao =
+  'REALIZACAO' |
+  'PROXIMO_PASSO';
+
+
+export interface EvolucaoProjeto {
+  id: number;
+  descricao: string;
+  tipo: TipoEvolucao;
+  fk_projeto: number;
 }
 
 export interface EvolucaoOrcamentaria {
@@ -14,8 +19,8 @@ export interface EvolucaoOrcamentaria {
 }
 
 export interface EvolucaoPayload {
-  realizacao?: string;
-  proximo_passo?: string;
+  descricao: string;
+  tipo: TipoEvolucao;
 }
 export interface ObjetivoProjetoDetalhe {
   id: number;
@@ -46,7 +51,7 @@ export interface ProjetoEstrategico{
     unidade_sigla?: string;
 }
 
-export interface CriarProjeto{
+export interface CriarProjeto {
   nome: string;
   descricao: string;
   tempo_estimado: string;
@@ -56,4 +61,5 @@ export interface CriarProjeto{
   acoes_previstas: string;
   objetivos: number[];
   evolucoes?: EvolucaoPayload[];
+  evolucoesOrcamentarias?: {valor: number; descricao: string;}[];
 }

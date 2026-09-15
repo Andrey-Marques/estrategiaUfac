@@ -51,15 +51,19 @@ export class AvaliacaoProjeto {
   }
   get realizacoesValidas() {
     return (this.projeto.evolucoes ?? [])
-      .filter(evolucao =>
-        evolucao.realizacao?.trim()
+      .filter(
+        evolucao =>
+          evolucao.tipo === 'REALIZACAO' &&
+          !!evolucao.descricao?.trim()
       );
   }
 
   get proximosPassosValidos() {
     return (this.projeto.evolucoes ?? [])
-      .filter(evolucao =>
-        evolucao.proximo_passo?.trim()
+      .filter(
+        evolucao =>
+          evolucao.tipo === 'PROXIMO_PASSO' &&
+          !!evolucao.descricao?.trim()
       );
   }
 
