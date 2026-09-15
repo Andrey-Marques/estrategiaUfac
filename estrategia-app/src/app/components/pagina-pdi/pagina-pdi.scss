@@ -13,7 +13,7 @@ $branco: #ffffff;
 
 $cinza-breadcrumb: #8b8b8b;
 
-$cinza-texto: #4f4f4f;
+$cinza-texto: #333333;
 
 $cinza-claro: #e6e6e6;
 
@@ -42,9 +42,14 @@ $cinza-claro: #e6e6e6;
 
   margin: 0 auto;
 
-  padding: 18px 35px 80px;
+  padding: 18px 55px 80px;
 
   font-family: "Inter", "Open Sans", Arial, sans-serif;
+}
+
+li{
+  font-size: 13.92px;
+  font-weight: 500;
 }
 
 
@@ -87,13 +92,13 @@ $cinza-claro: #e6e6e6;
 
 .titulo-pagina {
 
-  margin-bottom: 22px;
+  margin-bottom: 25px;
 
 
   h1 {
     margin: 0;
 
-    color: $azul-escuro;
+    color:var(--cor-texto-azul);
 
     font-size: 1.80rem;
 
@@ -128,13 +133,14 @@ $cinza-claro: #e6e6e6;
 
   flex-direction: column;
 
-  gap: 18px;
+  gap: 12px;
 
   padding-right: 25px;
 
-  padding-top: 4px;
+  padding-top: 5px;
 
   border-right: 1px solid #dddddd;
+  min-height: 165px;  
 }
 
 
@@ -209,7 +215,7 @@ $cinza-claro: #e6e6e6;
 
   color: #333333;
 
-  font-size: 1rem;
+  font-size: 19px;
 
   font-weight: 600;
 
@@ -226,211 +232,20 @@ $cinza-claro: #e6e6e6;
 
 
   p {
-    margin: 0 0 4px;
+    margin: 0 0 12px;
 
     color: $cinza-texto;
 
-    font-size: 0.8rem;
+    font-size: 16px;
 
-    line-height: 1.45;
+    line-height: 1.35;
 
     font-weight: 400;
+    text-align: justify;
   }
 }
 
 
-// ============================================================
-// DIAGRAMA PDI
-// ============================================================
-
-.pdi-diagrama {
-  width: 100%;
-
-  min-height: 280px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  margin: 25px 0 10px;
-}
-
-
-// ============================================================
-// CÍRCULO PRINCIPAL
-// ============================================================
-
-.pdi-circulo {
-  position: relative;
-
-  width: 170px;
-
-  height: 170px;
-
-  border-radius: 50%;
-
-  background:
-    conic-gradient(
-      from 0deg,
-
-      #c9e3ef 0deg 52deg,
-      transparent 52deg 60deg,
-
-      #b7d7e7 60deg 112deg,
-      transparent 112deg 120deg,
-
-      #9cc7de 120deg 172deg,
-      transparent 172deg 180deg,
-
-      #7da9c7 180deg 232deg,
-      transparent 232deg 240deg,
-
-      #416c95 240deg 292deg,
-      transparent 292deg 300deg,
-
-      #244c75 300deg 352deg,
-      transparent 352deg 360deg
-    );
-}
-
-
-// ============================================================
-// CENTRO DO PDI
-// ============================================================
-
-.pdi-centro {
-  position: absolute;
-
-  top: 50%;
-
-  left: 50%;
-
-  transform: translate(-50%, -50%);
-
-  width: 105px;
-
-  height: 105px;
-
-  border-radius: 50%;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  background-color: $branco;
-
-  color: #31598a;
-
-  font-size: 2rem;
-
-  font-weight: 600;
-
-  z-index: 2;
-}
-
-
-// ============================================================
-// ITENS DO CÍRCULO
-// ============================================================
-
-.item-circulo {
-  position: absolute;
-
-  z-index: 3;
-
-  color: #163a60;
-
-  font-size: 0.68rem;
-
-  font-weight: 700;
-}
-
-
-// ============================================================
-// MISSÃO
-// ============================================================
-
-.missao {
-  top: 8px;
-
-  left: 50%;
-
-  transform: translateX(-50%) rotate(-18deg);
-}
-
-
-// ============================================================
-// VISÃO
-// ============================================================
-
-.visao {
-  top: 25px;
-
-  right: 13px;
-
-  transform: rotate(15deg);
-}
-
-
-// ============================================================
-// VALORES
-// ============================================================
-
-.valores {
-  top: 50%;
-
-  right: -4px;
-
-  transform: translateY(-50%) rotate(90deg);
-}
-
-
-// ============================================================
-// OBJETIVOS
-// ============================================================
-
-.objetivos {
-  bottom: 20px;
-
-  right: 12px;
-
-  transform: rotate(35deg);
-}
-
-
-// ============================================================
-// INICIATIVAS
-// ============================================================
-
-.iniciativas {
-  bottom: 18px;
-
-  left: 9px;
-
-  transform: rotate(-35deg);
-}
-
-
-// ============================================================
-// RESULTADOS
-// ============================================================
-
-.resultados {
-  top: 50%;
-
-  left: -14px;
-
-  transform: translateY(-50%) rotate(-90deg);
-}
-
-
-// ============================================================
-// TEXTO FINAL
-// ============================================================
 
 .texto-final {
   margin-top: 5px;
@@ -445,243 +260,6 @@ $cinza-claro: #e6e6e6;
   background-color: $branco;
 }
 
-
-// ======================================================
-// HEADER
-// ======================================================
-
-.cabecalho {
-  width: 100%;
-  height: 72px;
-
-  padding: 0 32px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  background-color: $branco;
-
-  border-top: 4px solid #f2aaaa;
-  border-bottom: 1px solid #dddddd;
-}
-
-
-// ======================================================
-// LOGO
-// ======================================================
-
-.logo-area {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  width: 52px;
-  height: auto;
-
-  object-fit: contain;
-}
-
-
-// ======================================================
-// LINKS DO HEADER
-// ======================================================
-
-.links-topo {
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  a {
-    color: #536174;
-
-    text-decoration: none;
-
-    font-size: 0.75rem;
-
-    white-space: nowrap;
-
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: $azul-card;
-    }
-  }
-
-  span {
-    color: #b0b5bc;
-  }
-
-  button {
-    border: none;
-    background: transparent;
-
-    padding: 2px;
-
-    cursor: pointer;
-
-    font-size: 0.9rem;
-  }
-}
-
-// ============================================================
-// FOOTER
-// ============================================================
-
-.rodape {
-  width: 100%;
-
-  background-color: $azul-escuro;
-
-  color: $branco;
-
-  flex-shrink: 0;
-}
-
-
-// ============================================================
-// CONTEÚDO DO FOOTER
-// ============================================================
-
-.rodape-conteudo {
-  width: 100%;
-  max-width: 1400px;
-
-  margin: 0 auto;
-
-  padding: 38px 45px 30px;
-
-  display: grid;
-
-  grid-template-columns:
-    1.1fr
-    1fr
-    1.5fr
-    1.5fr
-    1fr;
-
-  gap: 40px;
-}
-
-
-// ============================================================
-// LOGO DO FOOTER
-// ============================================================
-
-.rodape-logo {
-
-  img {
-    width: 125px;
-    height: auto;
-
-    display: block;
-
-    margin-bottom: 40px;
-  }
-}
-
-
-// ============================================================
-// REDES SOCIAIS
-// ============================================================
-
-.redes-sociais {
-
-  h3 {
-    margin: 0 0 10px;
-
-    font-size: 0.62rem;
-
-    font-weight: 600;
-  }
-}
-
-
-.icones {
-  display: flex;
-
-  gap: 14px;
-
-  a {
-    color: $branco;
-
-    text-decoration: none;
-
-    font-size: 1rem;
-
-    transition: opacity 0.2s ease;
-
-    &:hover {
-      opacity: 0.7;
-    }
-  }
-}
-
-
-// ============================================================
-// COLUNAS DO FOOTER
-// ============================================================
-
-.rodape-coluna {
-
-  h3 {
-    margin: 0 0 15px;
-
-    color: $branco;
-
-    font-size: 0.65rem;
-
-    font-weight: 600;
-
-    letter-spacing: 0.02em;
-  }
-
-  a {
-    display: block;
-
-    margin-bottom: 8px;
-
-    color: rgba(255, 255, 255, 0.72);
-
-    text-decoration: none;
-
-    font-size: 0.6rem;
-
-    line-height: 1.35;
-
-    &:hover {
-      color: $branco;
-    }
-  }
-}
-
-
-// ============================================================
-// RODAPÉ INFERIOR
-// ============================================================
-
-.rodape-bottom {
-  position: relative;
-
-  min-height: 38px;
-
-  padding: 8px 45px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-
-  span {
-    color: rgba(255, 255, 255, 0.65);
-
-    font-size: 0.58rem;
-  }
-}
 
 
 // ============================================================

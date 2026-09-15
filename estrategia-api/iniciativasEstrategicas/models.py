@@ -6,7 +6,7 @@ class IniciativaEstrategica(models.Model):
         ('APROVADO', 'Aprovado/Público'),
         ('REJEITADO', 'Rejeitado'),
         ('RASCUNHO', 'Rascunho'),
-        ('EM_ANALISE', 'Em análise'),
+        ('EM_ESPERA', 'Em Espera'),
     ]
     nome = models.CharField(max_length=255)
     data_preenchimento = models.DateTimeField(auto_now_add=True)
@@ -18,6 +18,9 @@ class IniciativaEstrategica(models.Model):
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='iniciativas_estrategicas')
     projeto = models.ForeignKey('projetosEstrategicos.ProjetoEstrategico', on_delete=models.PROTECT, null=True, blank=True, related_name='iniciativas_estrategicas')
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoIniciativa',related_name='iniciativas')
+    observacao_analise = models.TextField(blank=True)
+    analisado_por = models.ForeignKey('usuarios.Usuario', on_delete= models.SET_NULL, null=True, blank=True, related_name='iniciativas_analisadas')
+    data_analise = models.DateTimeField(null=True,blank=True)
 
     class Meta: 
         verbose_name = 'Iniciativa Estratégica'

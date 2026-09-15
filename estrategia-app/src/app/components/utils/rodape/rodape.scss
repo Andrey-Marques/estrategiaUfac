@@ -1,0 +1,537 @@
+// ============================================================
+// VARIÁVEIS
+// ============================================================
+
+$azul-fundo: #071f48;
+$azul-fundo-escuro: #061b40;
+
+$branco: #ffffff;
+$branco-suave: #d8deea;
+
+$amarelo: #f4c400;
+
+$fonte-principal: "Open Sans", Arial, sans-serif;
+
+
+// ============================================================
+// RODAPÉ
+// ============================================================
+
+.rodape {
+
+  width: 100%;
+
+  background-color: $azul-fundo;
+
+  color: $branco;
+
+  font-family: $fonte-principal;
+
+  box-sizing: border-box;
+
+  // Evita que margens internas dos elementos
+  // criem espaços inesperados
+  overflow: hidden;
+}
+
+
+// ============================================================
+// CONTEÚDO PRINCIPAL
+// ============================================================
+
+.rodape-conteudo {
+
+  width: min(1400px, calc(100% - 80px));
+
+  min-height: 255px;
+  margin-left: auto;
+  margin-right: auto;
+
+  margin-top: 100px;
+  margin-bottom: 100px;
+
+  padding: 60px 0 10px;
+
+  display: grid;
+
+  // A primeira coluna é menor porque contém
+  // apenas o logo de Planejamento
+  grid-template-columns:
+    210px
+    1.1fr
+    1.35fr
+    1.1fr
+    0.85fr;
+
+  column-gap: 35px;
+
+  box-sizing: border-box;
+}
+
+
+// ============================================================
+// IDENTIFICAÇÃO
+// ============================================================
+
+.identificacao {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: flex-start;
+
+  padding-top: 1px;
+}
+
+
+.logo-planejamento {
+
+  width: 85px;
+
+  height: auto;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+// ============================================================
+// COLUNAS
+// ============================================================
+
+.coluna {
+
+  min-width: 0;
+
+  h3 {
+
+    margin: 0 0 10px;
+
+    color: $branco;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    line-height: 2;
+
+    text-transform: uppercase;
+  }
+
+  ul {
+
+    margin: 0;
+
+    padding: 0;
+
+    list-style: none;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+  }
+
+  li {
+
+    margin: 0;
+
+    padding: 0;
+
+    line-height: 1.35;
+  }
+
+  a {
+
+    color: $branco-suave;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 400;
+
+    transition:
+      color 0.2s ease,
+      opacity 0.2s ease;
+
+    &:hover {
+
+      color: $branco;
+
+      opacity: 0.9;
+
+      text-decoration: underline;
+    }
+  }
+}
+
+
+// ============================================================
+// PARTE INFERIOR
+// ============================================================
+
+.rodape-inferior {
+
+  width: min(1400px, calc(100% - 80px));
+
+  min-height: 55px;
+
+  margin: 0 auto;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  box-sizing: border-box;
+}
+
+
+// ============================================================
+// REDES SOCIAIS
+// ============================================================
+
+.redes-sociais {
+
+  padding-bottom: 8px;
+
+  h3 {
+
+    margin: 0 0 9px;
+
+    color: $branco;
+
+    font-size: 11px;
+
+    font-weight: 700;
+  }
+}
+
+
+// ============================================================
+// ÍCONES SOCIAIS
+// ============================================================
+
+.icones-sociais {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+
+.icone-social {
+
+  width: 22px;
+
+  height: 22px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: $branco;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+
+  svg {
+
+    width: 21px;
+
+    height: 21px;
+
+    display: block;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.7;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+  }
+
+  .ponto {
+
+    fill: currentColor;
+
+    stroke: none;
+  }
+
+  &:hover {
+
+    transform: translateY(-2px);
+
+    opacity: 0.75;
+  }
+}
+
+
+// ============================================================
+// YOUTUBE
+// ============================================================
+
+.icone-social.youtube {
+
+  svg {
+
+    width: 23px;
+
+    height: 23px;
+
+    stroke: none;
+
+    fill: currentColor;
+  }
+
+  .play {
+
+    fill: $azul-fundo;
+  }
+}
+
+
+// ============================================================
+// LOGO UFAC
+// ============================================================
+
+.logo-ufac {
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: flex-end;
+
+  padding-bottom: 5px;
+}
+
+
+.logo-ufac img {
+
+  width: 125px;
+
+  height: auto;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+// ============================================================
+// COPYRIGHT
+// ============================================================
+
+.copyright {
+
+  width: 100%;
+
+  min-height: 27px;
+
+  padding: 7px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
+
+  color: $branco-suave;
+
+  font-size: 9px;
+
+  font-weight: 400;
+
+  text-align: center;
+
+  line-height: 1.3;
+}
+
+
+// ============================================================
+// RESPONSIVIDADE
+// ============================================================
+
+// ------------------------------------------------------------
+// Monitores menores / notebooks
+// ------------------------------------------------------------
+
+@media (max-width: 1200px) {
+
+  .rodape-conteudo,
+  .rodape-inferior {
+
+    width: calc(100% - 50px);
+  }
+
+  .rodape-conteudo {
+
+    grid-template-columns:
+      170px
+      1.1fr
+      1.3fr
+      1.1fr
+      0.8fr;
+
+    column-gap: 20px;
+  }
+
+  .logo-planejamento {
+
+    width: 130px;
+  }
+
+  .coluna {
+
+    a {
+
+      font-size: 9px;
+    }
+  }
+}
+
+
+// ------------------------------------------------------------
+// Tablets
+// ------------------------------------------------------------
+
+@media (max-width: 900px) {
+
+  .rodape-conteudo {
+
+    width: calc(100% - 40px);
+
+    grid-template-columns:
+      1fr
+      1fr;
+
+    row-gap: 25px;
+
+    padding: 30px 0;
+  }
+
+  .identificacao {
+
+    grid-column: 1 / -1;
+  }
+
+  .coluna {
+
+    h3 {
+
+      font-size: 11px;
+    }
+
+    a {
+
+      font-size: 10px;
+    }
+  }
+
+  .rodape-inferior {
+
+    width: calc(100% - 40px);
+  }
+}
+
+
+// ------------------------------------------------------------
+// Celulares
+// ------------------------------------------------------------
+
+@media (max-width: 600px) {
+
+  .rodape-conteudo {
+
+    width: calc(100% - 30px);
+
+    grid-template-columns: 1fr;
+
+    row-gap: 25px;
+
+    padding: 25px 0;
+  }
+
+  .identificacao {
+
+    grid-column: auto;
+  }
+
+  .logo-planejamento {
+
+    width: 135px;
+  }
+
+  .coluna {
+
+    h3 {
+
+      margin-bottom: 9px;
+    }
+
+    ul {
+
+      gap: 6px;
+    }
+
+    a {
+
+      font-size: 10px;
+    }
+  }
+
+
+  .rodape-inferior {
+
+    width: calc(100% - 30px);
+
+    min-height: 90px;
+
+    align-items: center;
+  }
+
+
+  .redes-sociais {
+
+    padding-bottom: 0;
+
+    h3 {
+
+      font-size: 10px;
+    }
+  }
+
+
+  .logo-ufac img {
+
+    width: 100px;
+  }
+
+
+  .copyright {
+
+    min-height: 35px;
+
+    font-size: 8px;
+  }
+}
