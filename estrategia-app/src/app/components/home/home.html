@@ -1,11 +1,18 @@
 <div>
-  <div class="div-home">
-    <span class="usuario-tipo">PERFIL: SERVIDOR</span>
+  <div class="div-home" *ngIf="usuarioAtual() as usuario">
+    <span class="usuario-tipo">{{ formatarPapel(usuario.papel) }}</span>
+
     <h3>Área de Acompanhamento de Metas Institucionais</h3>
-    <p>
+
+    <p *ngIf="!isAdmin()">
+      Bem vindo(a) de volta, {{ usuario.first_name || usuario.username }}. Aqui você pode monitorar
+      o andamento das suas metas institucionais e submeter propostas da sua unidade para avaliação
+      por um administrador da PROPLAN.
+    </p>
+    <p *ngIf="isAdmin()">
       Bem vindo(a) de volta, Andrey. Aqui você pode monitorar o andamento das suas metas
-      institucionais e submeter propostas da sua unidade para avaliação por um administrador da
-      PROPLAN.
+      institucionais e realizar a homologação das propostas enviadas pelas unidades descentralizadas
+      da UFAC.
     </p>
   </div>
 
@@ -35,9 +42,16 @@
       <div *ngIf="abaAtiva === 1" class="conteudo-animado">
         <!-- Mostra a pastinha SE a lista estiver vazia -->
         <div class="estado-vazio" *ngIf="listaProjetos().length === 0">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="#CBD5E1" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="#CBD5E1"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
-              d="M10 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V8C22 6.89543 21.1046 6 20 6H12L10 4Z" />
+              d="M10 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V8C22 6.89543 21.1046 6 20 6H12L10 4Z"
+            />
           </svg>
           <p>Nenhum formulário de projeto em espera encontrado no momento.</p>
         </div>
@@ -45,27 +59,19 @@
         <!-- Mostra a lista SE houver itens (usando *ngFor) -->
         <div class="lista-registros" *ngIf="listaProjetos().length > 0">
           <div class="registro-item" *ngFor="let projeto of listaProjetos()">
-
             <div class="registro-informacoes">
-
               <span class="registro-titulo">
                 {{ projeto.nome }}
               </span>
 
-              <small>
-                Líder: <br>{{ projeto.responsavel_nome || '-' }}
-              </small>
+              <small> Líder: <br />{{ projeto.responsavel_nome || '-' }} </small>
 
-              <small>
-                Unidade: <br>{{ projeto.unidade_sigla || '-' }}
-              </small>
-
+              <small> Unidade: <br />{{ projeto.unidade_sigla || '-' }} </small>
             </div>
 
             <button type="button" class="registro-acao" (click)="abrirAvaliacao(projeto)">
               {{ isAdmin() ? 'Avaliar' : 'Visualizar' }}
             </button>
-
           </div>
         </div>
       </div>
@@ -73,74 +79,59 @@
       <!-- ABA 2: INICIATIVAS ESTRATÉGICAS -->
       <!-- ABA 2: INICIATIVAS ESTRATÉGICAS -->
       <div *ngIf="abaAtiva === 2" class="conteudo-animado">
-
         <!-- VAZIO -->
         <div class="estado-vazio" *ngIf="listaIniciativas().length === 0">
-
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="#CBD5E1" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="#CBD5E1"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
-              d="M10 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V8C22 6.89543 21.1046 6 20 6H12L10 4Z" />
+              d="M10 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V8C22 6.89543 21.1046 6 20 6H12L10 4Z"
+            />
           </svg>
 
-          <p>
-            Nenhuma iniciativa em espera encontrada no momento.
-          </p>
-
+          <p>Nenhuma iniciativa em espera encontrada no momento.</p>
         </div>
-
 
         <!-- LISTA -->
         <div class="lista-registros" *ngIf="listaIniciativas().length > 0">
-
-          <div class="registro-item" *ngFor="
-        let iniciativa
-        of listaIniciativas()
-      ">
-
+          <div class="registro-item" *ngFor="let iniciativa of listaIniciativas()">
             <div class="registro-informacoes">
-
               <span class="registro-titulo">
                 {{ iniciativa.nome }}
               </span>
 
-
               <small>
                 Responsável:
-                <br>
+                <br />
 
-                {{
-                iniciativa.responsavel_nome
-                || '-'
-                }}
+                {{ iniciativa.responsavel_nome || '-' }}
               </small>
-
 
               <small>
                 Unidade:
-                <br>
+                <br />
 
-                {{
-                iniciativa.unidade_sigla
-                || '-'
-                }}
+                {{ iniciativa.unidade_sigla || '-' }}
               </small>
-
 
               <small>
                 Evolução:
-                <br>
+                <br />
 
-                {{
-                iniciativa.percentual_evolucao
-                || 0
-                }}%
+                {{ iniciativa.percentual_evolucao || 0 }}%
               </small>
-
             </div>
 
-
-            <button type="button" class="registro-acao" (click)="abrirAvaliacaoIniciativa(iniciativa)">
-              {{isAdmin()? 'Avaliar': 'Visualizar'}}
+            <button
+              type="button"
+              class="registro-acao"
+              (click)="abrirAvaliacaoIniciativa(iniciativa)"
+            >
+              {{ isAdmin() ? 'Avaliar' : 'Visualizar' }}
             </button>
           </div>
         </div>
@@ -149,9 +140,16 @@
       <!-- ABA 3: INDICADORES ESTRATÉGICOS -->
       <div *ngIf="abaAtiva === 3" class="conteudo-animado">
         <div class="estado-vazio" *ngIf="listaIndicadores.length === 0">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="#CBD5E1" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="#CBD5E1"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
-              d="M10 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V8C22 6.89543 21.1046 6 20 6H12L10 4Z" />
+              d="M10 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V8C22 6.89543 21.1046 6 20 6H12L10 4Z"
+            />
           </svg>
           <p>Nenhum formulário de indicadores em espera encontrado no momento.</p>
         </div>
@@ -159,18 +157,21 @@
     </div>
   </div>
 </div>
-<app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado"
-  [isAdmin]="isAdmin()" (fechado)="fecharAvaliacao()" (aprovado)="aprovarProjeto($event)"
-  (rejeitado)="rejeitarProjeto($event)">
+<app-avaliacao-projeto
+  *ngIf="projetoEmAnalise() as projetoSelecionado"
+  [projeto]="projetoSelecionado"
+  [isAdmin]="isAdmin()"
+  (fechado)="fecharAvaliacao()"
+  (aprovado)="aprovarProjeto($event)"
+  (rejeitado)="rejeitarProjeto($event)"
+>
 </app-avaliacao-projeto>
-<app-avaliacao-iniciativa *ngIf="iniciativaEmAnalise()  as iniciativaSelecionada
-  " [iniciativa]="
-    iniciativaSelecionada
-  " [isAdmin]="isAdmin()" (fechado)="
-    fecharAvaliacaoIniciativa()
-  " (aprovado)="
-    aprovarIniciativa($event)
-  " (rejeitado)="
-    rejeitarIniciativa($event)
-  ">
+<app-avaliacao-iniciativa
+  *ngIf="iniciativaEmAnalise() as iniciativaSelecionada"
+  [iniciativa]="iniciativaSelecionada"
+  [isAdmin]="isAdmin()"
+  (fechado)="fecharAvaliacaoIniciativa()"
+  (aprovado)="aprovarIniciativa($event)"
+  (rejeitado)="rejeitarIniciativa($event)"
+>
 </app-avaliacao-iniciativa>
