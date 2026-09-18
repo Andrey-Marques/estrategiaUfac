@@ -1,79 +1,73 @@
 <div>
 
-      <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h1 class="titulo-pagina m-0">Indicadores Estratégicos</h1>
-          <button type="button" class="btn botao-principal" data-bs-toggle="modal" data-bs-target="#modalIndicador">+Novo Indicador</button>
-        </div>
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="titulo-pagina m-0">Indicadores Estratégicos</h1>
+      <button type="button" class="btn botao-principal" data-bs-toggle="modal" data-bs-target="#modalIndicador">+Novo
+        Indicador</button>
+    </div>
 
-        <div class="card container-conteudo">
-          <!-- Filtro -->
-          <ul class="nav filtro px-4 pt-3 border-bottom">
-            <li class="nav-item">
-              <button class="nav-link filtro-item">Todos</button>
-            </li>
-            <li class="nav-item">
-              <button class="nav-link filtro-item ativa">Aprovados</button>
-            </li>
-            <li class="nav-item">
-              <button class="nav-link filtro-item">Rejeitados</button>
-            </li>
-            <li class="nav-item">
-              <button class="nav-link filtro-item">Rascunhos</button>
-            </li>
-            <li class="nav-item">
-              <button class="nav-link filtro-item">Em Espera</button>
-            </li>
-          </ul>
+    <div class="card container-conteudo">
+      <!-- Filtro -->
+      <ul class="nav filtro px-4 pt-3 border-bottom">
+        <li class="nav-item">
+          <button class="nav-link filtro-item">Todos</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link filtro-item ativa">Aprovados</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link filtro-item">Rejeitados</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link filtro-item">Rascunhos</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link filtro-item">Em Espera</button>
+        </li>
+      </ul>
 
-          <!-- Tabela de indicadores -->
-          <div class="table-responsive pb-4">
-            <table class="table align-middle mb-0">
-              <thead class="cabecalho-tabela">
-                <tr class="linha-cabecalho-tabela">
-                  <th scope="col" class="ps-4">INDICADOR</th>
-                  <th scope="col" class="text-center">DATA DE ENVIO</th>
-                  <th scope="col" class="text-center">STATUS</th>
-                  <th scope="col" class="text-center pe-4">AÇÕES</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="linha-tabela" *ngFor="let indicador of indicadores()">
-                  <td class="ps-4">
-                    <div class="titulo-indicador">
-                      {{indicador.nome}}
-                    </div>
-                    <div class="d-flex gap-1 mt-1">
-                      <span class="etiqueta">OE2</span>
-                      <span class="etiqueta">OE1</span>
-                    </div>
-                  </td>
-                  <td class="text-center">
-                    <strong class="d-block texto-data">Sem data informada</strong>
-                  </td>
-                  <td class="text-center">
-                    <span class="badge status-aprovado">{{indicador.status}}</span>
-                  </td>
-                  <td class="text-center pe-4">
-                    <button class="btn botao-visualizar">
-                      <i class="bi bi-eye"></i>Visualizar
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <!-- Tabela de indicadores -->
+      <div class="table-responsive pb-4">
+        <table class="table align-middle mb-0">
+          <thead class="cabecalho-tabela">
+            <tr class="linha-cabecalho-tabela">
+              <th scope="col" class="ps-4">INDICADOR</th>
+              <th scope="col" class="text-center">DATA DE ENVIO</th>
+              <th scope="col" class="text-center">STATUS</th>
+              <th scope="col" class="text-center pe-4">AÇÕES</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="linha-tabela" *ngFor="let indicador of indicadores()">
+              <td class="ps-4">
+                <div class="titulo-indicador">
+                  {{indicador.nome}}
+                </div>
+                <div class="d-flex gap-1 mt-1">
+                  <span class="etiqueta">OE2</span>
+                </div>
+              </td>
+              <td class="text-center">
+                <strong class="d-block texto-data">Sem data informada</strong>
+              </td>
+              <td class="text-center">
+                <span class="badge status-aprovado">{{indicador.status}}</span>
+              </td>
+              <td class="text-center pe-4">
+                <button class="btn botao-visualizar">
+                  <i class="bi bi-eye"></i>Visualizar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+    </div>
+  </div>
 
 </div>
-<div
-  class="modal fade"
-  id="modalIndicador"
-  aria-hidden="true"
-  aria-labelledby="modalIndicadorLabel"
-  tabindex="-1"
->
+<div class="modal fade" id="modalIndicador" aria-hidden="true" aria-labelledby="modalIndicadorLabel" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
 
@@ -89,12 +83,7 @@
             </p>
           </div>
 
-          <button
-            type="button"
-            class="btn-close btn-close-white"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
 
@@ -102,51 +91,32 @@
 
         <div class="etapas-formulario">
 
-          <div
-            class="etapa-formulario"
-            [class.etapa-atual]="etapaAtual === 1"
-            (click)="irParaEtapa(1)"
-          >
+          <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 1" (click)="irParaEtapa(1)">
             <span>1. Apresentação</span>
           </div>
 
-          <div
-            class="etapa-formulario"
-            [class.etapa-atual]="etapaAtual === 2"
-            (click)="irParaEtapa(2)"
-          >
+          <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 2" (click)="irParaEtapa(2)">
             <span>2. Método de cálculo</span>
           </div>
 
-          <div
-            class="etapa-formulario"
-            [class.etapa-atual]="etapaAtual === 3"
-            (click)="irParaEtapa(3)"
-          >
+          <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 3" (click)="irParaEtapa(3)">
             <span>3. Evolução</span>
           </div>
 
-          <div
-            class="etapa-formulario"
-            [class.etapa-atual]="etapaAtual === 4"
-            (click)="irParaEtapa(4)"
-          >
+          <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 4" (click)="irParaEtapa(4)">
             <span>4. Observações</span>
           </div>
 
         </div>
 
 
-        <form>
+        <form [formGroup]="formularioIndicador">
 
           <!-- ========================================================= -->
           <!-- ETAPA 1 - APRESENTAÇÃO                                   -->
           <!-- ========================================================= -->
 
-          <div
-            class="conteudo-formulario secao1"
-            [class.sumir]="etapaAtual !== 1"
-          >
+          <div class="conteudo-formulario secao1" [class.sumir]="etapaAtual !== 1">
 
             <div class="titulo-secao">
               <h2>Passo 1: Identificação Geral & Objetivos</h2>
@@ -163,31 +133,25 @@
                 <span class="campo-obrigatorio">*</span>
               </label>
 
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Insira o título aqui"
-              />
+              <input type="text" class="form-control" placeholder="Insira o título aqui" formControlName="nome" />
             </div>
 
 
             <!-- RESPONSÁVEL + UNIDADE -->
 
             <div class="linha-informacoes">
-
               <div class="campo-formulario">
                 <label>
                   RESPONSÁVEL PELO INDICADOR
                   <span class="campo-obrigatorio">*</span>
                 </label>
 
-                <select class="form-control">
-                  <option value="">
+                <select class="form-control" formControlName="responsavel">
+                  <option [ngValue]="null">
                     Selecione um responsável
                   </option>
-
-                  <option>
-                    Nome Completo — PROGRAD
+                  <option *ngFor="let usuario of usuarios()" [ngValue]="usuario.id">
+                    {{ usuario.nome_completo }}
                   </option>
                 </select>
               </div>
@@ -198,12 +162,15 @@
                   UNIDADE RESPONSÁVEL
                 </label>
 
-                <input
-                  type="text"
-                  class="form-control"
-                  value="PROGRAD - Pró-Reitoria de Graduação"
-                  disabled
-                />
+                <select class="form-control" formControlName="unidade">
+                  <option [ngValue]="null">
+                    Selecione a unidade
+                  </option>
+
+                  <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id">
+                    {{ unidade.sigla }} - {{ unidade.nome }}
+                  </option>
+                </select>
               </div>
 
             </div>
@@ -216,19 +183,16 @@
                 FINALIDADE
               </label>
 
-              <textarea
-                class="form-control finalidade-indicador"
-                placeholder="Insira a finalidade aqui"
-              ></textarea>
+              <textarea class="form-control finalidade-indicador" placeholder="Insira a finalidade aqui"
+                formControlName="finalidade"></textarea>
             </div>
 
 
             <!-- OBJETIVOS -->
 
             <section class="secao-objetivos">
-
               <div class="titulo-objetivos">
-                <h2 >Objetivos Estratégicos</h2>
+                <h2>Objetivos Estratégicos</h2>
                 <p>
                   Selecione quais objetivos institucionais o indicador mede
                 </p>
@@ -236,24 +200,27 @@
 
               <hr />
 
-
               <div class="container-objetivos">
 
-                <label
-                  class="card-objetivo-estrategico"
-                  *ngFor="let objetivo of objetivos()"
-                >
-                  <span class="codigo-objetivo">
-                    {{ objetivo.codigo }}
-                  </span>
+                <div class="card-objetivo-estrategico" *ngFor="let objetivo of objetivos()"
+                  [class.objetivo-selecionado]="objetivoSelecionado === objetivo.id"
+                  (click)="selecionarObjetivo(objetivo.id)">
+
+                  <div class="cabecalho-card-objetivo">
+
+                    <span class="codigo-objetivo">
+                      {{ objetivo.codigo }}
+                    </span>
+
+                  </div>
 
                   <p class="descricao-objetivo">
                     {{ objetivo.descricao }}
                   </p>
-                </label>
+
+                </div>
 
               </div>
-
             </section>
 
             <hr />
@@ -265,10 +232,7 @@
           <!-- ETAPA 2 - MÉTODO DE CÁLCULO                              -->
           <!-- ========================================================= -->
 
-          <div
-            class="conteudo-formulario"
-            [class.sumir]="etapaAtual !== 2"
-          >
+          <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 2">
 
             <div class="titulo-secao">
               <h2>Passo 2: Método de cálculo</h2>
@@ -287,18 +251,14 @@
               <div class="campo-formulario">
                 <label>UNIDADE DE MEDIDA</label>
 
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Ex.: Percentual"
-                />
+                <input type="text" class="form-control" placeholder="Ex.: Percentual" />
               </div>
 
 
               <div class="campo-formulario">
                 <label>POLARIDADE</label>
 
-                <select class="form-control">
+                <select class="form-control" formControlName="polaridade">
                   <option value="">
                     Selecione a polaridade
                   </option>
@@ -327,46 +287,22 @@
 
               <!-- UPLOAD DA FÓRMULA -->
 
-              <label
-                class="upload-formula"
-                [class.tem-imagem]="previewFormula"
-              >
+              <div class="campo-formulario">
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  (change)="selecionarImagemFormula($event)"
-                />
+                <label>
+                  FÓRMULA
+                </label>
 
+                <textarea class="form-control" formControlName="formula"
+                  placeholder="Ex.: \frac{A}{B} \times 100"></textarea>
 
-                <ng-container *ngIf="!previewFormula">
-
-                  <i class="bi bi-image icone-upload"></i>
-
-                  <span>
-                    Arraste a imagem da fórmula aqui ou clique para buscar
-                  </span>
-
-                </ng-container>
-
-
-                <img
-                  *ngIf="previewFormula"
-                  [src]="previewFormula"
-                  class="imagem-formula"
-                  alt="Fórmula do indicador"
-                />
-
-              </label>
+              </div>
 
 
               <!-- DESCRIÇÃO -->
 
-              <textarea
-                class="form-control descricao-metodo"
-                placeholder="Descreva o método de cálculo, variáveis e regras utilizadas..."
-              ></textarea>
+              <textarea class="form-control descricao-metodo" formControlName="metodoCalculo"
+                placeholder="Descreva o método de cálculo, variáveis e regras utilizadas..."></textarea>
 
             </div>
 
@@ -379,10 +315,7 @@
           <!-- ETAPA 3 - EVOLUÇÃO                                       -->
           <!-- ========================================================= -->
 
-          <div
-            class="conteudo-formulario"
-            [class.sumir]="etapaAtual !== 3"
-          >
+          <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 3">
 
             <div class="titulo-secao">
               <h2>Passo 3: Evoluções & Metas</h2>
@@ -409,11 +342,7 @@
                 </div>
 
 
-                <button
-                  type="button"
-                  class="btn botao-adicionar-ano"
-                  (click)="adicionarMeta()"
-                >
+                <button type="button" class="btn botao-adicionar-ano" (click)="adicionarMeta()">
                   <i class="bi bi-plus-lg"></i>
                   Adicionar ano
                 </button>
@@ -438,33 +367,18 @@
                 </div>
 
 
-                <div
-                  class="linha-meta"
-                  *ngFor="let meta of metas; let indice = index"
-                >
+                <div class="linha-meta" *ngFor="let meta of metas; let indice = index">
 
                   <div>
-                    <input
-                      type="number"
-                      class="form-control"
-                      [(ngModel)]="meta.ano"
-                      [ngModelOptions]="{standalone: true}"
-                      placeholder="2026"
-                    />
+                    <input type="number" class="form-control" [(ngModel)]="meta.ano"
+                      [ngModelOptions]="{standalone: true}" placeholder="2026" />
                   </div>
 
 
                   <div class="campo-meta-percentual">
 
-                    <input
-                      type="number"
-                      class="form-control"
-                      [(ngModel)]="meta.prevista"
-                      [ngModelOptions]="{standalone: true}"
-                      min="0"
-                      max="100"
-                      placeholder="-"
-                    />
+                    <input type="number" class="form-control" [(ngModel)]="meta.prevista"
+                      [ngModelOptions]="{standalone: true}" min="0" max="100" placeholder="-" />
 
                     <span>%</span>
 
@@ -473,15 +387,8 @@
 
                   <div class="campo-meta-percentual">
 
-                    <input
-                      type="number"
-                      class="form-control"
-                      [(ngModel)]="meta.alcancada"
-                      [ngModelOptions]="{standalone: true}"
-                      min="0"
-                      max="100"
-                      placeholder="-"
-                    />
+                    <input type="number" class="form-control" [(ngModel)]="meta.alcancada"
+                      [ngModelOptions]="{standalone: true}" min="0" max="100" placeholder="-" />
 
                     <span>%</span>
 
@@ -490,12 +397,7 @@
 
                   <div class="acoes-meta">
 
-                    <button
-                      type="button"
-                      class="botao-excluir-meta"
-                      title="Excluir"
-                      (click)="removerMeta(indice)"
-                    >
+                    <button type="button" class="botao-excluir-meta" title="Excluir" (click)="removerMeta(indice)">
                       <i class="bi bi-trash3"></i>
                     </button>
 
@@ -504,10 +406,7 @@
                 </div>
 
 
-                <div
-                  class="sem-metas"
-                  *ngIf="metas.length === 0"
-                >
+                <div class="sem-metas" *ngIf="metas.length === 0">
                   Nenhuma meta de monitoramento adicionada.
                 </div>
 
@@ -524,10 +423,7 @@
           <!-- ETAPA 4 - OBSERVAÇÕES                                    -->
           <!-- ========================================================= -->
 
-          <div
-            class="conteudo-formulario"
-            [class.sumir]="etapaAtual !== 4"
-          >
+          <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 4">
 
             <div class="titulo-secao">
 
@@ -544,10 +440,8 @@
 
             <div class="campo-formulario campo-observacao">
 
-              <textarea
-                class="form-control caixa-texto-observacao observacoes-indicador"
-                placeholder="Insira suas observações aqui!"
-              ></textarea>
+              <textarea class="form-control caixa-texto-observacao observacoes-indicador"
+                placeholder="Insira suas observações aqui!" formControlName="observacao"></textarea>
 
             </div>
 
@@ -571,12 +465,7 @@
 
               <!-- ANTERIOR -->
 
-              <button
-                type="button"
-                class="btn botao-anterior"
-                (click)="voltar()"
-                [disabled]="etapaAtual === 1"
-              >
+              <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1">
                 <i class="bi bi-chevron-left"></i>
                 Anterior
               </button>
@@ -584,12 +473,7 @@
 
               <!-- PRÓXIMO -->
 
-              <button
-                *ngIf="etapaAtual < 4"
-                type="button"
-                class="btn botao-proximo"
-                (click)="avancar()"
-              >
+              <button *ngIf="etapaAtual < 4" type="button" class="btn botao-proximo" (click)="avancar()">
                 Próximo
                 <i class="bi bi-chevron-right"></i>
               </button>
@@ -599,21 +483,20 @@
 
               <ng-container *ngIf="etapaAtual === 4">
 
-                <button
-                  type="button"
-                  class="btn botao-salvar-rascunho"
-                >
+                <button *ngIf="!isAdmin()" type="button" class="btn botao-salvar-rascunho"
+                  (click)="salvarIndicador('RASCUNHO')">
                   Salvar rascunho
                 </button>
 
-
-                <button
-                  type="button"
-                  class="btn botao-submeter-analise"
-                >
+                <button *ngIf="!isAdmin()" type="button" class="btn botao-submeter-analise"
+                  (click)="salvarIndicador('EM_ESPERA')">
                   Submeter à análise
                 </button>
 
+                <button *ngIf="isAdmin()" type="button" class="btn botao-submeter-analise"
+                  (click)="salvarIndicador('APROVADO')">
+                  Publicar indicador
+                </button>
               </ng-container>
 
             </div>
@@ -626,4 +509,3 @@
     </div>
   </div>
 </div>
-

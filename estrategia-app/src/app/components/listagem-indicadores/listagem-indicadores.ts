@@ -2,22 +2,52 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IndicadorEstrategico } from '../../model/indicadorEstrategico';
 import { IndicadorService } from '../../service/indicador.service';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ObjetivoEstrategico } from '../../model/objetivoEstrategico';
+import { UsuarioService } from '../../service/usuario.service';
+import { UnidadeService } from '../../service/unidade.service';
+import { ObjetivoService } from '../../service/objetivo.service';
+import { Usuario } from '../../model/usuario';
+import { Unidade } from '../../model/unidade';
 
 @Component({
   selector: 'app-listagem-indicadores',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './listagem-indicadores.html',
   styleUrl: './listagem-indicadores.scss',
 })
 export class ListagemIndicadores {
+  formularioIndicador: FormGroup;
+  usuarios = signal<Usuario[]>([]);
+  unidades = signal<Unidade[]>([]);
+  objetivos = signal<ObjetivoEstrategico[]>([])
+  usuarioAtual = signal<Usuario | null>(null);
+  isAdmin = signal(false);
+  objetivoSelecionado: number | null = null;
+
   indicadores = signal<IndicadorEstrategico[]>([]);
 
-  constructor(private indicadorService: IndicadorService) {}
+  constructor(private indicadorService: IndicadorService, private usuarioService: UsuarioService, private unidade: UnidadeService, private objetivoService: ObjetivoService, private fb: FormBuilder) {
+
+    this.formularioIndicador = this.fb.group({
+      nome: ['', Validators.required],
+      responsavel: [null, Validators.required],
+      unidade: [null, Validators.required],
+      finalidade: ['', Validators.required],
+      unidadeMedida: [''],
+      polaridade: ['', Validators.required],
+      metodoCalculo: ['', Validators.required],
+      formula: [''],
+      observacao: ['']
+    });
+  }
 
   ngOnInit(): void {
     this.buscarIndicador();
+    this.buscarUsuarioAtual();
+    this.buscarUsuarios();
+    this.buscarUnidades();
+    this.buscarObjetivos();
   }
 
   buscarIndicador(): void {
@@ -68,11 +98,6 @@ export class ListagemIndicadores {
     }
   }
 
-
-  /* =========================
-    METAS
-    ========================= */
-
   adicionarMeta(): void {
 
     const ultimoAno =
@@ -94,43 +119,189 @@ export class ListagemIndicadores {
     this.metas.splice(indice, 1);
   }
 
+  buscarUsuarioAtual(): void {
 
-  /* =========================
-    IMAGEM DA FÓRMULA
-    ========================= */
+    this.usuarioService.getAtual().subscribe({
 
-  selecionarImagemFormula(event: Event): void {
+      next: usuario => {
+        this.usuarioAtual.set(usuario);
+        this.isAdmin.set(usuario.papel === 'ADMIN');
 
-    const input = event.target as HTMLInputElement;
+      },
+      error: erro =>
+        console.error('Erro ao buscar usuário:', erro)
 
-    const arquivo = input.files?.[0];
+    });
+
+  }
+
+  selecionarObjetivo(objetivoId: number): void {
+    this.objetivoSelecionado = objetivoId;
+  }
+  buscarUsuarios(): void {
+
+    this.usuarioService.get().subscribe({
+      next: usuarios =>
+        this.usuarios.set(usuarios),
+      error: erro =>
+        console.error('Erro ao buscar usuários:', erro)
+    });
+  }
 
 
-    if (!arquivo) {
+  buscarUnidades(): void {
+
+    this.unidade.get().subscribe({
+      next: unidades =>
+        this.unidades.set(unidades),
+
+      error: erro =>
+        console.error('Erro ao buscar unidades:', erro
+        )
+    });
+
+  }
+
+
+  buscarObjetivos(): void {
+    this.objetivoService.get().subscribe({
+      next: objetivos =>
+        this.objetivos.set(objetivos),
+      error: erro =>
+        console.error('Erro ao buscar objetivos:', erro)
+    });
+  }
+
+  salvarIndicador(
+    status: 'RASCUNHO' | 'EM_ESPERA' | 'APROVADO'
+  ): void {
+
+    if (
+      status !== 'RASCUNHO' &&
+      this.formularioIndicador.invalid
+    ) {
+
+      this.formularioIndicador.markAllAsTouched();
+
+      alert(
+        'Preencha os campos obrigatórios.'
+      );
+
       return;
     }
 
 
-    const reader = new FileReader();
+    if (
+      status !== 'RASCUNHO' &&
+      !this.objetivoSelecionado
+    ) {
+
+      alert(
+        'Selecione um objetivo estratégico.'
+      );
+
+      this.etapaAtual = 1;
+
+      return;
+    }
 
 
-    reader.onload = () => {
-      this.previewFormula = reader.result as string;
+    const formulario =
+      this.formularioIndicador.getRawValue();
+
+
+    const dados = {
+
+      nome:
+        formulario.nome,
+
+      responsavel:
+        formulario.responsavel,
+
+      unidade:
+        formulario.unidade,
+
+      objetivo:
+        this.objetivoSelecionado,
+
+      finalidade:
+        formulario.finalidade,
+
+      polaridade:
+        formulario.polaridade,
+
+      metodo_calculo:
+        formulario.metodoCalculo,
+
+      formula:
+        formulario.formula || '',
+
+      observacao:
+        formulario.observacao || '',
+
+      status,
+
+      evolucao_indicador:
+        this.metas.map(meta => ({
+
+          ano:
+            String(meta.ano ?? ''),
+
+          meta_prevista:
+            String(meta.prevista ?? ''),
+
+          meta_alcancada:
+            String(meta.alcancada ?? '')
+
+        }))
+
     };
 
 
-    reader.readAsDataURL(arquivo);
+    console.log(
+      'Indicador enviado:',
+      dados
+    );
+
+
+    this.indicadorService
+      .criarIndicador(dados)
+      .subscribe({
+
+        next: indicador => {
+
+          console.log(
+            'Indicador criado:',
+            indicador
+          );
+
+          this.buscarIndicador();
+
+          this.fecharFormulario();
+
+        },
+
+        error: erro => {
+
+          console.error(
+            'Erro ao criar indicador:',
+            erro
+          );
+
+          console.error(
+            'Resposta do backend:',
+            erro.error
+          );
+
+        }
+
+      });
+
   }
 
-  objetivos = signal([
-    {
-      codigo: 'OBJ-001',
-      descricao: 'Exemplo de objetivo estratégico'
-    },
-    {
-      codigo: 'OBJ-002',
-      descricao: 'Outro objetivo estratégico'
-    }
-  ]);
+  formularioAberto = false;
 
+  fecharFormulario(): void {
+    this.formularioAberto = false;
+  }
 }
