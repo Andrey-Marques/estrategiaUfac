@@ -13,4 +13,7 @@ export class IndicadorService {
     get(){
         return this.http.get<IndicadorEstrategico[]>(this.apiUrl);
     }
+    criarIndicador(dados: any){
+        return this.http.post<IndicadorEstrategico>(this.apiUrl, dados);
+    }
 }

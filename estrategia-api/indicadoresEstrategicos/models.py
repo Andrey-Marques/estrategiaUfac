@@ -6,12 +6,13 @@ class IndicadorEstrategico(models.Model):
     polaridade = models.CharField(max_length=50)
     finalidade = models.TextField()
     status = models.CharField(max_length=20)
-    metodo_Calculo = models.TextField()  
+    metodo_calculo = models.TextField()  
     formula = models.TextField() #-----deve armazenar o codigo latex da formula------
     unidade = models.ForeignKey('unidades.Unidade', on_delete= models.PROTECT, related_name= "indicador_estrategico" )
     objetivo = models.ForeignKey('objetivosEstrategicos.ObjetivoEstrategico', on_delete=models.PROTECT, related_name="indicador_estrategico")
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete = models.PROTECT, related_name="indicador_estrategico")
-    
+    observacao = models.TextField(blank=True, null=True)
+    unidade_medida = models.CharField(max_length=100, blank=True)
     class Meta:
         verbose_name = 'Indicador Estratégico'
         verbose_name_plural = 'Indicadores Estratégicos'

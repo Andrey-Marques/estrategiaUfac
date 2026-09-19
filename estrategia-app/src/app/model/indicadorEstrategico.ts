@@ -4,11 +4,13 @@ export interface IndicadorEstrategico {
     polaridade: string;
     finalidade: string;
     status: string;
-    metodo_Calculo: string;
+    metodo_calculo: string;
     formula: string;
     unidade: number; 
     objetivo: number; 
     responsavel: number;
+    observacao: string;
+    unidade_medida: string;
 }
 
 export interface EvolucaoIndicador {

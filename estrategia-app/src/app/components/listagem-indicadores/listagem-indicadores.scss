@@ -7,8 +7,8 @@ body {
   justify-content: center;
 }
 .container-fluid {
-    width: 95%;           
-    height: auto;   
+  width: 95%;
+  height: auto;
 }
 .titulo-pagina {
   color: $cor-primaria-texto-destaque;
@@ -30,7 +30,6 @@ body {
   }
 }
 .container-conteudo {
-  
   border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
@@ -164,7 +163,6 @@ table {
   width: 100%;
 }
 
-
 /* =========================================================
    CABEÇALHO
    ========================================================= */
@@ -193,7 +191,6 @@ table {
 .btn-close {
   margin-top: 3px;
 }
-
 
 /* =========================================================
    ETAPAS
@@ -239,7 +236,6 @@ table {
   background: #2563eb;
 }
 
-
 /* =========================================================
    CONTEÚDO
    ========================================================= */
@@ -275,7 +271,6 @@ table {
   border-color: #e5e7eb;
   opacity: 1;
 }
-
 
 /* =========================================================
    CAMPOS
@@ -348,7 +343,6 @@ textarea.form-control {
   margin-top: 5px;
 }
 
-
 /* =========================================================
    LINHAS
    ========================================================= */
@@ -365,7 +359,6 @@ textarea.form-control {
 .campo-sigla {
   flex: 1;
 }
-
 
 /* =========================================================
    CARD INFORMATIVO
@@ -397,7 +390,6 @@ textarea.form-control {
   font-size: 13px;
   line-height: 1.5;
 }
-
 
 /* =========================================================
    CARD DE NOVA EVOLUÇÃO
@@ -447,7 +439,6 @@ textarea.form-control {
   margin-bottom: 0;
 }
 
-
 /* =========================================================
    BOTÃO ADICIONAR META
    ========================================================= */
@@ -477,7 +468,6 @@ textarea.form-control {
 .botao-adicionar-meta:hover {
   background: #1d4ed8;
 }
-
 
 /* =========================================================
    HISTÓRICO
@@ -519,7 +509,6 @@ textarea.form-control {
   font-size: 12px;
   font-weight: 600;
 }
-
 
 /* =========================================================
    TABELA DE EVOLUÇÃO
@@ -580,7 +569,6 @@ textarea.form-control {
   color: #9ca3af;
 }
 
-
 /* =========================================================
    AÇÕES
    ========================================================= */
@@ -616,7 +604,6 @@ textarea.form-control {
   color: #dc2626;
 }
 
-
 /* =========================================================
    HISTÓRICO VAZIO
    ========================================================= */
@@ -643,20 +630,6 @@ textarea.form-control {
 .sem-evolucoes p {
   margin: 0;
   font-size: 13px;
-}
-
-
-/* =========================================================
-   RODAPÉ
-   ========================================================= */
-
-.rodape-formulario {
-  padding: 18px 30px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
 }
 
 .texto-orientacao {
@@ -719,7 +692,6 @@ textarea.form-control {
   background: #15803d;
 }
 
-
 /* =========================================================
    BOTÃO PRINCIPAL
    ========================================================= */
@@ -738,13 +710,11 @@ textarea.form-control {
   color: #ffffff;
 }
 
-
 /* =========================================================
    RESPONSIVIDADE
    ========================================================= */
 
 @media (max-width: 900px) {
-
   .linha-formulario {
     flex-direction: column;
     gap: 0;
@@ -769,9 +739,7 @@ textarea.form-control {
   }
 }
 
-
 @media (max-width: 600px) {
-
   .cabecalho-formulario {
     padding: 20px;
   }
@@ -786,7 +754,6 @@ textarea.form-control {
   }
 
   .rodape-formulario {
-    padding: 15px 18px;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -804,4 +771,689 @@ textarea.form-control {
     grid-template-columns: 0.6fr 1fr 1fr 0.7fr;
     font-size: 11px;
   }
+}
+
+.sumir {
+  display: none !important;
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.modal-dialog {
+  max-width: 1100px;
+}
+
+.formulario-iniciativas {
+  width: 100%;
+  background-color: $cor-fundo-branco;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &.posicao-relativa {
+    position: relative;
+  }
+}
+
+.cabecalho-formulario {
+  min-height: 72px;
+  padding: 12px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: $cor-primaria;
+  color: #ffffff;
+
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: $cor-fundo-branco;
+  }
+
+  p {
+    margin: 5px 0 0;
+    font-size: 16px;
+    color: $cor-fundo-branco;
+  }
+
+  button.btn-close {
+    filter: invert(1);
+    width: 36px;
+    height: 36px;
+    opacity: 1;
+  }
+}
+
+.etapas-formulario {
+  min-height: 54px;
+  padding: 0 32px;
+  display: flex;
+  align-items: stretch;
+  background-color: $cor-fundo-branco;
+  border-bottom: 1px solid $cor-borda-secundaria;
+
+  .etapa-formulario {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 40px;
+    font-size: 16px;
+    font-weight: 500;
+    color: $cor-texto-desativado;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $cor-texto-rotulo;
+    }
+
+    &.etapa-atual {
+      color: $cor-primaria-texto-destaque;
+      font-weight: 700;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background-color: $cor-primaria;
+        border-radius: 2px 2px 0 0;
+      }
+    }
+  }
+}
+
+/* =========================================================
+   CONTEÚDO - EXATAMENTE PROJETOS
+   ========================================================= */
+
+.conteudo-formulario {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 24px 40px;
+
+  .titulo-secao {
+    margin-bottom: 25px;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: $cor-texto-titulo;
+    }
+
+    p {
+      margin: 5px 0 0;
+      font-size: 13px;
+      color: $cor-texto-auxiliar;
+    }
+  }
+
+  hr {
+    margin: 0;
+  }
+}
+
+.secao1 {
+  width: 100%;
+}
+
+/* =========================================================
+   CAMPOS - EXATAMENTE PROJETOS
+   ========================================================= */
+
+.campo-formulario {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 700;
+    color: $cor-texto-rotulo;
+
+    .campo-obrigatorio {
+      color: $cor-obrigatorio;
+    }
+  }
+
+  .form-control {
+    height: 40px;
+    padding: 6px 12px;
+    border: 1px solid $cor-borda-principal;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #858484;
+    box-shadow: none;
+
+    &::placeholder {
+      color: $cor-texto-placeholder;
+    }
+
+    &:focus {
+      border-color: $cor-foco-formulario;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
+    }
+  }
+}
+
+.campo-titulo-iniciativa {
+  margin-bottom: 22px;
+}
+
+/* =========================================================
+   CAMPOS LADO A LADO - EXATAMENTE PROJETOS
+   ========================================================= */
+
+.linha-informacoes {
+  display: flex;
+  gap: 55px;
+  margin-bottom: 30px;
+
+  .campo-responsavel,
+  .campo-unidade,
+  .campo-tempo,
+  .campo-custo {
+    flex: 1;
+  }
+}
+
+/*
+ * Indicadores usa outros nomes de classe.
+ * Somente fazemos eles ocuparem o mesmo espaço.
+ */
+.linha-informacoes > .campo-formulario {
+  flex: 1;
+}
+
+/* =========================================================
+   OBJETIVOS - EXATAMENTE PROJETOS
+   ========================================================= */
+
+.secao-objetivos {
+  margin-top: 20px;
+
+  .titulo-objetivos {
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: $cor-texto-subtitulo;
+    }
+
+    p {
+      margin: 5px 0 10px;
+      font-size: 13px;
+      color: $cor-texto-auxiliar;
+    }
+  }
+}
+
+.container-objetivos {
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+
+  .card-objetivo-estrategico {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5px;
+    background-color: $cor-fundo-branco;
+    border: 1px solid #d0d0d0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: #a0a0a0;
+    }
+
+    &.objetivo-selecionado {
+      border: 2.8px solid $cor-primaria;
+      box-shadow: 0 0 0 2px rgba($cor-primaria, 0.15);
+
+      .codigo-objetivo {
+        color: $cor-primaria;
+      }
+    }
+
+
+    .cabecalho-card-objetivo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+
+      .selecao-objetivo {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        border: 2.5px solid #858585;
+        border-radius: 6px;
+        cursor: pointer;
+
+        &:checked {
+          background-color: $cor-primaria;
+          border-color: $cor-primaria;
+        }
+
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      .codigo-objetivo {
+        font-size: 15px;
+        font-weight: 700;
+        color: #404040;
+      }
+    }
+
+    .descricao-objetivo {
+      width: 100%;
+      margin: 0;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #666666;
+      line-height: 1.4;
+    }
+  }
+}
+.ajuda-unidade {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: $cor-texto-auxiliar;
+}
+.vinculo-servidor-unidade {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  height: 80px;
+  padding: 6px 7px;
+  border: 1px solid #b7e4c7;
+  background: #f0fff4;
+  border-radius: 8px;
+
+  color: #24613b;
+
+  i {
+    font-size: 20px;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  strong {
+    font-size: 13px;
+  }
+
+  span {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+}
+/*TEXTAREA */
+
+textarea.finalidade-indicador,
+textarea.descricao-metodo {
+  min-height: 120px;
+  padding: 6px 12px;
+  border: 1px solid $cor-borda-principal;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #858484;
+  box-shadow: none;
+  resize: vertical;
+
+  &::placeholder {
+    color: $cor-texto-placeholder;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $cor-foco-formulario;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
+  }
+}
+
+/* =========================================================
+   OBSERVAÇÕES - EXATAMENTE O PADRÃO DE PROJETOS
+   ========================================================= */
+
+.campo-observacao {
+  margin: 25px 0;
+
+  .caixa-texto-observacao {
+    width: 100%;
+    min-height: 280px;
+    padding: 18px;
+    border: 1px solid $cor-borda-principal;
+    border-radius: 12px;
+    font-size: 16px;
+    color: $cor-texto-titulo;
+    resize: vertical;
+    background-color: $cor-fundo-branco;
+
+    &::placeholder {
+      color: #9e9e9e;
+      font-size: 16px;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $cor-foco-formulario;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
+    }
+  }
+}
+
+/*RODAPÉ */
+
+.rodape-formulario {
+  padding: 18px 30px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.texto-orientacao {
+  margin: 0;
+  font-size: 13px;
+  color: $cor-texto-desativado;
+}
+
+.botoes-navegacao {
+  display: flex;
+  gap: 10px;
+}
+
+/* =========================================================
+   BOTÕES - EXATAMENTE PROJETOS
+   ========================================================= */
+
+.botao-anterior,
+.botao-proximo {
+  height: 42px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.botao-anterior {
+  min-width: 105px;
+  border: 1px solid $cor-borda-principal;
+  background-color: #f8f9fa;
+  color: $cor-texto-rotulo;
+
+  &:disabled {
+    border-color: #eeeeee;
+    background-color: $cor-fundo-branco;
+    color: #cccccc;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    background-color: #e2e6ea;
+    color: $cor-texto-titulo;
+  }
+}
+
+.botao-proximo {
+  min-width: 105px;
+  border: 1px solid $cor-primaria-botao;
+  background-color: $cor-primaria-botao;
+  color: $cor-fundo-branco;
+
+  &:hover {
+    border-color: $cor-primaria-botao-hover;
+    background-color: $cor-primaria-botao-hover;
+    color: $cor-fundo-branco;
+  }
+}
+
+.botao-salvar-rascunho {
+  height: 42px;
+  padding: 0 20px;
+  border: 1px solid $cor-primaria;
+  border-radius: 8px;
+  background-color: $cor-primaria;
+  color: $cor-fundo-branco;
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    background-color: $cor-primaria-botao-hover;
+    border-color: $cor-primaria-botao-hover;
+    color: $cor-fundo-branco;
+  }
+}
+
+.botao-submeter-analise {
+  height: 42px;
+  padding: 0 20px;
+  border: 1px solid $cor-sucesso-submeter;
+  border-radius: 8px;
+  background-color: $cor-sucesso-submeter;
+  color: $cor-fundo-branco;
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    background-color: $cor-sucesso-submeter-hover;
+    border-color: $cor-sucesso-submeter-hover;
+    color: $cor-fundo-branco;
+  }
+}
+
+
+/*MÉTODO DE CÁLCULO*/
+
+.card-metodo-calculo {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: $cor-fundo-branco;
+  border: 1px solid $cor-borda-principal;
+  border-radius: 12px;
+}
+
+.titulo-metodo {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 14px;
+  font-weight: 700;
+  color: $cor-texto-rotulo;
+}
+
+/* Área para imagem da fórmula */
+
+.preview-formula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+  min-height: 96px;
+  padding: 24px 20px;
+
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow-x: auto;
+}
+
+/* =========================
+   METAS
+   ========================= */
+
+.card-metas-monitoramento {
+  margin: 20px 0;
+  padding: 20px;
+
+  border: 1px solid $cor-borda-principal;
+  border-radius: 12px;
+
+  background-color: $cor-fundo-branco;
+}
+
+.cabecalho-metas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 20px;
+
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: $cor-texto-rotulo;
+  }
+
+  p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: $cor-texto-auxiliar;
+  }
+}
+
+.botao-adicionar-ano {
+  height: 40px;
+  padding: 0 15px;
+
+  border: 1px solid $cor-primaria-botao;
+  border-radius: 8px;
+
+  background-color: $cor-primaria-botao;
+  color: $cor-fundo-branco;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    background-color: $cor-primaria-botao-hover;
+    border-color: $cor-primaria-botao-hover;
+    color: $cor-fundo-branco;
+  }
+}
+
+/* Tabela */
+
+.container-tabela-metas {
+  overflow: hidden;
+
+  border: 1px solid $cor-borda-principal;
+  border-radius: 12px;
+}
+
+.cabecalho-tabela-metas,
+.linha-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 100px;
+  align-items: center;
+  gap: 20px;
+}
+
+.cabecalho-tabela-metas {
+  padding: 12px 20px;
+
+  background-color: #f8f9fa;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: $cor-texto-rotulo;
+}
+
+.linha-meta {
+  padding: 10px 20px;
+  border-top: 1px solid $cor-borda-principal;
+}
+
+.linha-meta .form-control {
+  height: 40px;
+  padding: 6px 12px;
+
+  border: 1px solid $cor-borda-principal;
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  box-shadow: none;
+
+  &:focus {
+    border-color: $cor-foco-formulario;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
+  }
+}
+
+.campo-meta-percentual {
+  position: relative;
+
+  span {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+
+    transform: translateY(-50%);
+
+    font-size: 14px;
+    color: $cor-texto-auxiliar;
+  }
+
+  input {
+    padding-right: 30px;
+  }
+}
+
+.acoes-meta {
+  display: flex;
+  justify-content: center;
+}
+
+.botao-excluir-meta {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #dc3545;
+
+  &:hover {
+    background-color: #fff1f1;
+  }
+}
+
+.sem-metas {
+  padding: 30px;
+  text-align: center;
+
+  font-size: 14px;
+  color: $cor-texto-desativado;
 }

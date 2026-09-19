@@ -27,7 +27,7 @@ export class Home {
 
 
   abaAtiva: number = 1;
-
+  usuarioAtual = signal<any | null>(null);
   listaIniciativas = signal<IniciativaEstrategica[]>([]);
   iniciativaEmAnalise = signal<IniciativaEstrategica | null>(null);
   listaIndicadores: any[] = [];
@@ -46,7 +46,7 @@ export class Home {
   mudarAba(numeroDaAba: number): void {
     this.abaAtiva = numeroDaAba;
   }
-  
+
   buscarProjetosEmEspera(): void {
 
     this.projetoService.get().subscribe({
@@ -174,16 +174,34 @@ export class Home {
     });
   }
 
-  buscarUsuarioAtual(): void{
+  buscarUsuarioAtual(): void {
     this.usuarioService.getAtual().subscribe({
       next: (usuario) => {
+
+        this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
       },
+
       error: (erro) => {
-        console.error('Erro ao buscar usuário atual:' ,erro)
+        console.error('Erro ao buscar usuário atual:', erro);
       }
-    })
+    });
   }
+  formatarPapel(papel: string): string {
+
+  switch (papel) {
+
+    case 'ADMIN':
+      return 'ADMINISTRADOR';
+
+    case 'SERVIDOR':
+      return 'SERVIDOR';
+
+    default:
+      return papel;
+  }
+
+}
 
   abrirAvaliacaoIniciativa(iniciativa: IniciativaEstrategica): void {
     this.iniciativaService.getById(iniciativa.id).subscribe({
