@@ -7,8 +7,8 @@ body {
   justify-content: center;
 }
 .container-fluid {
-    width: 95%;
-    height: auto;
+  width: 95%;
+  height: auto;
 }
 .titulo-pagina {
   color: $cor-primaria-texto-destaque;
@@ -30,7 +30,6 @@ body {
   }
 }
 .container-conteudo {
-
   border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
@@ -164,7 +163,6 @@ table {
   width: 100%;
 }
 
-
 /* =========================================================
    CABEÇALHO
    ========================================================= */
@@ -193,7 +191,6 @@ table {
 .btn-close {
   margin-top: 3px;
 }
-
 
 /* =========================================================
    ETAPAS
@@ -239,7 +236,6 @@ table {
   background: #2563eb;
 }
 
-
 /* =========================================================
    CONTEÚDO
    ========================================================= */
@@ -275,7 +271,6 @@ table {
   border-color: #e5e7eb;
   opacity: 1;
 }
-
 
 /* =========================================================
    CAMPOS
@@ -348,7 +343,6 @@ textarea.form-control {
   margin-top: 5px;
 }
 
-
 /* =========================================================
    LINHAS
    ========================================================= */
@@ -365,7 +359,6 @@ textarea.form-control {
 .campo-sigla {
   flex: 1;
 }
-
 
 /* =========================================================
    CARD INFORMATIVO
@@ -397,7 +390,6 @@ textarea.form-control {
   font-size: 13px;
   line-height: 1.5;
 }
-
 
 /* =========================================================
    CARD DE NOVA EVOLUÇÃO
@@ -447,7 +439,6 @@ textarea.form-control {
   margin-bottom: 0;
 }
 
-
 /* =========================================================
    BOTÃO ADICIONAR META
    ========================================================= */
@@ -477,7 +468,6 @@ textarea.form-control {
 .botao-adicionar-meta:hover {
   background: #1d4ed8;
 }
-
 
 /* =========================================================
    HISTÓRICO
@@ -519,7 +509,6 @@ textarea.form-control {
   font-size: 12px;
   font-weight: 600;
 }
-
 
 /* =========================================================
    TABELA DE EVOLUÇÃO
@@ -580,7 +569,6 @@ textarea.form-control {
   color: #9ca3af;
 }
 
-
 /* =========================================================
    AÇÕES
    ========================================================= */
@@ -616,7 +604,6 @@ textarea.form-control {
   color: #dc2626;
 }
 
-
 /* =========================================================
    HISTÓRICO VAZIO
    ========================================================= */
@@ -643,20 +630,6 @@ textarea.form-control {
 .sem-evolucoes p {
   margin: 0;
   font-size: 13px;
-}
-
-
-/* =========================================================
-   RODAPÉ
-   ========================================================= */
-
-.rodape-formulario {
-  padding: 18px 30px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
 }
 
 .texto-orientacao {
@@ -719,7 +692,6 @@ textarea.form-control {
   background: #15803d;
 }
 
-
 /* =========================================================
    BOTÃO PRINCIPAL
    ========================================================= */
@@ -738,13 +710,11 @@ textarea.form-control {
   color: #ffffff;
 }
 
-
 /* =========================================================
    RESPONSIVIDADE
    ========================================================= */
 
 @media (max-width: 900px) {
-
   .linha-formulario {
     flex-direction: column;
     gap: 0;
@@ -769,10 +739,7 @@ textarea.form-control {
   }
 }
 
-
-
 @media (max-width: 600px) {
-
   .cabecalho-formulario {
     padding: 20px;
   }
@@ -787,7 +754,6 @@ textarea.form-control {
   }
 
   .rodape-formulario {
-    padding: 15px 18px;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -806,9 +772,6 @@ textarea.form-control {
     font-size: 11px;
   }
 }
-
-
-
 
 .sumir {
   display: none !important;
@@ -834,7 +797,6 @@ textarea.form-control {
   }
 }
 
-
 .cabecalho-formulario {
   min-height: 72px;
   padding: 12px 22px;
@@ -842,7 +804,7 @@ textarea.form-control {
   align-items: center;
   justify-content: space-between;
   background-color: $cor-primaria;
-  color: #FFFFFF;
+  color: #ffffff;
 
   h1 {
     margin: 0;
@@ -865,9 +827,6 @@ textarea.form-control {
     opacity: 1;
   }
 }
-
-
-
 
 .etapas-formulario {
   min-height: 54px;
@@ -911,7 +870,6 @@ textarea.form-control {
   }
 }
 
-
 /* =========================================================
    CONTEÚDO - EXATAMENTE PROJETOS
    ========================================================= */
@@ -947,7 +905,6 @@ textarea.form-control {
 .secao1 {
   width: 100%;
 }
-
 
 /* =========================================================
    CAMPOS - EXATAMENTE PROJETOS
@@ -992,7 +949,6 @@ textarea.form-control {
   margin-bottom: 22px;
 }
 
-
 /* =========================================================
    CAMPOS LADO A LADO - EXATAMENTE PROJETOS
    ========================================================= */
@@ -1017,7 +973,6 @@ textarea.form-control {
 .linha-informacoes > .campo-formulario {
   flex: 1;
 }
-
 
 /* =========================================================
    OBJETIVOS - EXATAMENTE PROJETOS
@@ -1066,13 +1021,14 @@ textarea.form-control {
     }
 
     &.objetivo-selecionado {
-      border-color: $cor-primaria;
+      border: 2.8px solid $cor-primaria;
       box-shadow: 0 0 0 2px rgba($cor-primaria, 0.15);
 
       .codigo-objetivo {
         color: $cor-primaria;
       }
     }
+
 
     .cabecalho-card-objetivo {
       display: flex;
@@ -1084,7 +1040,7 @@ textarea.form-control {
         width: 20px;
         height: 20px;
         margin: 0;
-        border: 1.5px solid #858585;
+        border: 2.5px solid #858585;
         border-radius: 6px;
         cursor: pointer;
 
@@ -1116,11 +1072,44 @@ textarea.form-control {
     }
   }
 }
+.ajuda-unidade {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: $cor-texto-auxiliar;
+}
+.vinculo-servidor-unidade {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  height: 80px;
+  padding: 6px 7px;
+  border: 1px solid #b7e4c7;
+  background: #f0fff4;
+  border-radius: 8px;
 
+  color: #24613b;
 
-/* =========================================================
-   TEXTAREA - MESMO PADRÃO DO PROJETO
-   ========================================================= */
+  i {
+    font-size: 20px;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  strong {
+    font-size: 13px;
+  }
+
+  span {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+}
+/*TEXTAREA */
 
 textarea.finalidade-indicador,
 textarea.descricao-metodo {
@@ -1143,7 +1132,6 @@ textarea.descricao-metodo {
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
   }
 }
-
 
 /* =========================================================
    OBSERVAÇÕES - EXATAMENTE O PADRÃO DE PROJETOS
@@ -1176,13 +1164,15 @@ textarea.descricao-metodo {
   }
 }
 
-
-/* =========================================================
-   RODAPÉ - EXATAMENTE PROJETOS
-   ========================================================= */
+/*RODAPÉ */
 
 .rodape-formulario {
-  padding: 0 40px 15px;
+  padding: 18px 30px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1198,7 +1188,6 @@ textarea.descricao-metodo {
   display: flex;
   gap: 10px;
 }
-
 
 /* =========================================================
    BOTÕES - EXATAMENTE PROJETOS
@@ -1279,15 +1268,7 @@ textarea.descricao-metodo {
 }
 
 
-/* =========================================================
-   DAQUI PARA BAIXO:
-   SOMENTE O QUE NÃO EXISTE EM PROJETOS/INICIATIVAS
-   ========================================================= */
-
-
-/* =========================
-   MÉTODO DE CÁLCULO
-   ========================= */
+/*MÉTODO DE CÁLCULO*/
 
 .card-metodo-calculo {
   margin: 20px 0;
@@ -1305,54 +1286,21 @@ textarea.descricao-metodo {
   color: $cor-texto-rotulo;
 }
 
-
 /* Área para imagem da fórmula */
 
-.upload-formula {
-  width: 80%;
-  min-height: 150px;
-  margin: 0 auto 20px;
-  padding: 20px;
-
+.preview-formula {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-top: 15px;
+  min-height: 96px;
+  padding: 24px 20px;
 
-  gap: 10px;
-
-  border: 2px dashed $cor-borda-principal;
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
-
-  background-color: $cor-fundo-branco;
-
-  cursor: pointer;
+  background-color: #ffffff;
+  overflow-x: auto;
 }
-
-.upload-formula:hover {
-  border-color: $cor-primaria;
-}
-
-.upload-formula .icone-upload {
-  font-size: 30px;
-  color: $cor-texto-desativado;
-}
-
-.upload-formula span {
-  font-size: 13px;
-  color: $cor-texto-desativado;
-}
-
-.upload-formula.tem-imagem {
-  border: none;
-}
-
-.imagem-formula {
-  max-width: 100%;
-  max-height: 160px;
-  object-fit: contain;
-}
-
 
 /* =========================
    METAS
@@ -1408,7 +1356,6 @@ textarea.descricao-metodo {
     color: $cor-fundo-branco;
   }
 }
-
 
 /* Tabela */
 

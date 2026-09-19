@@ -9,6 +9,8 @@ import { UnidadeService } from '../../service/unidade.service';
 import { ObjetivoService } from '../../service/objetivo.service';
 import { Usuario } from '../../model/usuario';
 import { Unidade } from '../../model/unidade';
+import * as katex from 'katex';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-listagem-indicadores',
@@ -24,10 +26,17 @@ export class ListagemIndicadores {
   usuarioAtual = signal<Usuario | null>(null);
   isAdmin = signal(false);
   objetivoSelecionado: number | null = null;
-
+  formulaRenderizada: SafeHtml | null = null;
   indicadores = signal<IndicadorEstrategico[]>([]);
 
-  constructor(private indicadorService: IndicadorService, private usuarioService: UsuarioService, private unidade: UnidadeService, private objetivoService: ObjetivoService, private fb: FormBuilder) {
+  constructor(
+    private indicadorService: IndicadorService,
+    private usuarioService: UsuarioService,
+    private unidade: UnidadeService,
+    private objetivoService: ObjetivoService,
+    private fb: FormBuilder,
+    private sanitizer: DomSanitizer
+  ) {
 
     this.formularioIndicador = this.fb.group({
       nome: ['', Validators.required],
@@ -48,6 +57,7 @@ export class ListagemIndicadores {
     this.buscarUsuarios();
     this.buscarUnidades();
     this.buscarObjetivos();
+    this.observarResponsavelSelecionado();
   }
 
   buscarIndicador(): void {
@@ -116,6 +126,17 @@ export class ListagemIndicadores {
 
 
   removerMeta(indice: number): void {
+
+    const meta = this.metas[indice];
+
+    const confirmar = window.confirm(
+      `Tem certeza que deseja excluir a meta do ano ${meta.ano ?? ''}?`
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
     this.metas.splice(indice, 1);
   }
 
@@ -133,6 +154,57 @@ export class ListagemIndicadores {
 
     });
 
+  }
+  private observarResponsavelSelecionado(): void {
+
+    this.formularioIndicador
+      .get('responsavel')?.valueChanges.subscribe(responsavelId => {
+
+        if (!responsavelId) {
+          this.formularioIndicador.patchValue(
+            {unidade: null},
+            {emitEvent: false}
+          );
+          return;
+        }
+
+        const responsavel = this.usuarios().find(usuario => Number(usuario.id) === Number(responsavelId));
+
+        if (!responsavel) {
+          return;
+        }
+
+        const unidadeId =
+          typeof responsavel.unidade === 'number' ? responsavel.unidade : responsavel.unidade?.id;
+        this.formularioIndicador.patchValue(
+          {unidade: unidadeId ?? null},
+          {emitEvent: false}
+        );
+      });
+  }
+
+  private obterIdUnidadeUsuario(usuario: Usuario): number | null {
+    if (!usuario.unidade) {
+      return null;
+    }
+
+    // Caso a API retorne somente o ID
+    if (typeof usuario.unidade === 'number') {
+      return usuario.unidade;
+    }
+
+    // Caso futuramente a API retorne o objeto completo
+    return usuario.unidade.id;
+  }
+
+  obterResponsavelSelecionado(): Usuario | null {
+    const id = Number(
+      this.formularioIndicador.get('responsavel')?.value
+    );
+
+    return this.usuarios().find(
+      usuario => usuario.id === id
+    ) ?? null;
   }
 
   selecionarObjetivo(objetivoId: number): void {
@@ -161,7 +233,21 @@ export class ListagemIndicadores {
     });
 
   }
+  obterSiglaUnidadeUsuario(usuario: Usuario): string {
+    return this.obterUnidadeUsuario(usuario)?.sigla ?? '';
+  }
 
+  obterUnidadeUsuario(usuario: Usuario): Unidade | undefined {
+    const unidadeId = this.obterIdUnidadeUsuario(usuario);
+
+    if (unidadeId === null) {
+      return undefined;
+    }
+
+    return this.unidades().find(
+      unidade => unidade.id === unidadeId
+    );
+  }
 
   buscarObjetivos(): void {
     this.objetivoService.get().subscribe({
@@ -172,136 +258,111 @@ export class ListagemIndicadores {
     });
   }
 
-  salvarIndicador(
-    status: 'RASCUNHO' | 'EM_ESPERA' | 'APROVADO'
-  ): void {
-
-    if (
-      status !== 'RASCUNHO' &&
-      this.formularioIndicador.invalid
-    ) {
-
+  salvarIndicador(status: 'RASCUNHO' | 'EM_ESPERA' | 'APROVADO'): void {
+    if (status !== 'RASCUNHO' && this.formularioIndicador.invalid) {
       this.formularioIndicador.markAllAsTouched();
-
-      alert(
-        'Preencha os campos obrigatórios.'
-      );
-
+      alert('Preencha os campos obrigatórios.');
       return;
     }
 
-
-    if (
-      status !== 'RASCUNHO' &&
-      !this.objetivoSelecionado
-    ) {
-
-      alert(
-        'Selecione um objetivo estratégico.'
-      );
-
+    if (status !== 'RASCUNHO' && !this.objetivoSelecionado) {
+      alert('Selecione um objetivo estratégico.');
       this.etapaAtual = 1;
-
       return;
     }
 
-
-    const formulario =
-      this.formularioIndicador.getRawValue();
-
-
-    const dados = {
-
-      nome:
-        formulario.nome,
-
-      responsavel:
-        formulario.responsavel,
-
-      unidade:
-        formulario.unidade,
-
-      objetivo:
-        this.objetivoSelecionado,
-
-      finalidade:
-        formulario.finalidade,
-
-      polaridade:
-        formulario.polaridade,
-
-      metodo_calculo:
-        formulario.metodoCalculo,
-
-      formula:
-        formulario.formula || '',
-
-      observacao:
-        formulario.observacao || '',
-
+    const formulario = this.formularioIndicador.getRawValue();
+    const dados = {nome: formulario.nome,
+      responsavel: formulario.responsavel,
+      unidade: formulario.unidade,
+      objetivo: this.objetivoSelecionado,
+      finalidade: formulario.finalidade,
+      polaridade: formulario.polaridade,
+      metodo_calculo: formulario.metodoCalculo,
+      formula: formulario.formula || '',
+      observacao: formulario.observacao || '',
       status,
-
-      evolucao_indicador:
-        this.metas.map(meta => ({
-
-          ano:
-            String(meta.ano ?? ''),
-
-          meta_prevista:
-            String(meta.prevista ?? ''),
-
-          meta_alcancada:
-            String(meta.alcancada ?? '')
-
+      evolucao_indicador: this.metas.map(meta => ({
+          ano: String(meta.ano ?? ''),
+          meta_prevista:  String(meta.prevista ?? ''),
+          meta_alcancada: String(meta.alcancada ?? '')
         }))
-
     };
 
-
-    console.log(
-      'Indicador enviado:',
-      dados
-    );
-
-
-    this.indicadorService
-      .criarIndicador(dados)
-      .subscribe({
-
+    this.indicadorService.criarIndicador(dados).subscribe({
         next: indicador => {
-
-          console.log(
-            'Indicador criado:',
-            indicador
-          );
-
           this.buscarIndicador();
-
           this.fecharFormulario();
-
         },
-
         error: erro => {
-
-          console.error(
-            'Erro ao criar indicador:',
-            erro
-          );
-
-          console.error(
-            'Resposta do backend:',
-            erro.error
-          );
+          console.error('Erro ao criar indicador:', erro);
 
         }
 
       });
-
   }
 
-  formularioAberto = false;
-
   fecharFormulario(): void {
-    this.formularioAberto = false;
+    const modal = document.getElementById('modalIndicador');
+
+    if (!modal) {
+      return;
+    }
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.style.display = 'none';
+
+    const backdrop = document.querySelector('.modal-backdrop');
+
+    if (backdrop) {
+      backdrop.remove();
+    }
+
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+
+    // Limpa o formulário
+    this.formularioIndicador.reset({
+      nome: '',
+      responsavel: null,
+      unidade: null,
+      finalidade: '',
+      unidadeMedida: '',
+      polaridade: '',
+      metodoCalculo: '',
+      formula: '',
+      observacao: ''
+    });
+
+    this.objetivoSelecionado = null;
+    this.formulaRenderizada = '';
+    this.metas = [
+      {
+        ano: new Date().getFullYear(),
+        prevista: null,
+        alcancada: null
+      }
+    ];
+    this.etapaAtual = 1;
+  }
+
+  renderizarFormula(): void {
+
+    const formula = this.formularioIndicador.get('formula')?.value;
+    if (!formula) {
+      this.formulaRenderizada = null;
+      return;
+    }
+    try {
+      const htmlFormula = katex.renderToString(formula, {
+        throwOnError: false,
+        displayMode: true
+      });
+      this.formulaRenderizada = this.sanitizer.bypassSecurityTrustHtml(htmlFormula);
+
+    } catch (erro) {
+      console.error('Erro ao renderizar fórmula:', erro);
+      this.formulaRenderizada = null;
+    }
   }
 }
