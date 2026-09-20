@@ -13,6 +13,8 @@ class IndicadorEstrategico(models.Model):
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete = models.PROTECT, related_name="indicador_estrategico")
     observacao = models.TextField(blank=True, null=True)
     unidade_medida = models.CharField(max_length=100, blank=True)
+    data_envio = models.DateTimeField(auto_now_add=True)
+    observacao_analise = models.TextField(blank=True, default='')
     class Meta:
         verbose_name = 'Indicador Estratégico'
         verbose_name_plural = 'Indicadores Estratégicos'

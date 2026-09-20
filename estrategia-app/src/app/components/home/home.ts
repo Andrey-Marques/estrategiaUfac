@@ -1,8 +1,5 @@
 import { Component, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BarraLateral } from '../utils/barra-lateral/barra-lateral';
-import { HeaderPrincipal } from '../utils/header-principal/header-principal';
-import { InfoBar } from '../utils/info-bar/info-bar';
 import { ProjetoEstrategico } from '../../model/projetoEstrategico';
 import { ProjetoService } from '../../service/projeto.service';
 import { UsuarioService } from '../../service/usuario.service';
@@ -10,12 +7,15 @@ import {AvaliacaoProjeto,DecisaoProjeto} from '../avaliacao-projeto/avaliacao-pr
 import { IniciativaEstrategica } from '../../model/iniciativaEstrategica';
 import { IniciativaService } from '../../service/iniciativa.service';
 import {AvaliacaoIniciativa, DecisaoIniciativa} from '../avaliacao-iniciativa/avaliacao-iniciativa';
+import { IndicadorEstrategico } from '../../model/indicadorEstrategico';
+import { IndicadorService } from '../../service/indicador.service';
+import { AvaliacaoIndicador, DecisaoIndicador } from '../avaliacao-indicador/avaliacao-indicador';
 
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, BarraLateral, HeaderPrincipal, InfoBar, AvaliacaoProjeto,AvaliacaoIniciativa],
+  imports: [CommonModule, AvaliacaoProjeto, AvaliacaoIniciativa, AvaliacaoIndicador],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -33,12 +33,22 @@ export class Home {
   listaIndicadores: any[] = [];
 
 
-  constructor(private projetoService: ProjetoService,  private iniciativaService: IniciativaService,private usuarioService: UsuarioService) {}
+  indicadorService: IndicadorService;
+
+  constructor(
+    private projetoService: ProjetoService,
+    private iniciativaService: IniciativaService,
+    private usuarioService: UsuarioService,
+    indicadorService: IndicadorService
+  ) {
+    this.indicadorService = indicadorService;
+  }
 
 
   ngOnInit(): void {
     this.buscarProjetosEmEspera();
     this.buscarIniciativasEmEspera();
+    this.buscarIndicadoresEmEspera();
     this.buscarUsuarioAtual();
   }
 
@@ -246,5 +256,51 @@ export class Home {
           window.alert(erro.error?.detail ?? erro.error?.observacao ?? 'Não foi possível rejeitar a iniciativa.');
         }
       });
+  }
+
+  buscarIndicadoresEmEspera(): void {
+    this.indicadorService.get().subscribe({
+      next: indicadores => {
+        this.listaIndicadores = indicadores.filter(indicador => indicador.status === 'EM_ESPERA');
+      },
+      error: erro => console.error('Erro ao buscar indicadores em espera:', erro),
+    });
+  }
+
+  indicadorEmAnalise: IndicadorEstrategico | null = null;
+
+  abrirAvaliacaoIndicador(indicador: IndicadorEstrategico): void {
+    this.indicadorService.getById(indicador.id).subscribe({
+      next: indicadorDetalhado => this.indicadorEmAnalise = indicadorDetalhado,
+      error: erro => console.error('Erro ao carregar indicador:', erro),
+    });
+  }
+
+  fecharAvaliacaoIndicador(): void {
+    this.indicadorEmAnalise = null;
+  }
+
+  avaliarIndicador(decisao: DecisaoIndicador, status: 'APROVADO' | 'REJEITADO'): void {
+    this.indicadorService.atualizarIndicador(decisao.indicador.id, {
+      status,
+      observacao_analise: decisao.observacao,
+    }).subscribe({
+      next: () => {
+        this.indicadorEmAnalise = null;
+        this.buscarIndicadoresEmEspera();
+      },
+      error: erro => {
+        console.error(`Erro ao ${status === 'APROVADO' ? 'aprovar' : 'rejeitar'} indicador:`, erro);
+        window.alert(erro.error?.detail ?? 'Não foi possível atualizar o indicador.');
+      },
+    });
+  }
+
+  aprovarIndicador(decisao: DecisaoIndicador): void {
+    this.avaliarIndicador(decisao, 'APROVADO');
+  }
+
+  rejeitarIndicador(decisao: DecisaoIndicador): void {
+    this.avaliarIndicador(decisao, 'REJEITADO');
   }
 }
