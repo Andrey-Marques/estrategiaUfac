@@ -153,6 +153,20 @@
           </svg>
           <p>Nenhum formulário de indicadores em espera encontrado no momento.</p>
         </div>
+
+        <div class="lista-registros" *ngIf="listaIndicadores.length > 0">
+          <div class="registro-item" *ngFor="let indicador of listaIndicadores">
+            <div class="registro-informacoes">
+              <span class="registro-titulo">{{ indicador.nome }}</span>
+              <small>Responsável:<br />{{ indicador.responsavel_nome || '-' }}</small>
+              <small>Unidade:<br />{{ indicador.unidade_sigla || '-' }}</small>
+            </div>
+
+            <button type="button" class="registro-acao" (click)="abrirAvaliacaoIndicador(indicador)">
+              {{ isAdmin() ? 'Avaliar' : 'Visualizar' }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -175,3 +189,11 @@
   (rejeitado)="rejeitarIniciativa($event)"
 >
 </app-avaliacao-iniciativa>
+<app-avaliacao-indicador
+  *ngIf="indicadorEmAnalise as indicadorSelecionado"
+  [indicador]="indicadorSelecionado"
+  [isAdmin]="isAdmin()"
+  (fechado)="fecharAvaliacaoIndicador()"
+  (aprovado)="aprovarIndicador($event)"
+  (rejeitado)="rejeitarIndicador($event)"
+></app-avaliacao-indicador>

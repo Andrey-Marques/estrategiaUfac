@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { InfoBar } from '../utils/info-bar/info-bar';
 import { IniciativaEstrategica } from '../../model/iniciativaEstrategica';
 import { IniciativaService } from '../../service/iniciativa.service';
 import { CommonModule, NgForOf } from '@angular/common';
@@ -23,7 +22,7 @@ export interface AcaoIniciativa {
 
 @Component({
   selector: 'app-listagem-iniciativas',
-  imports: [InfoBar, NgForOf, DatePipe, CommonModule, ReactiveFormsModule, AvaliacaoIniciativa],
+  imports: [NgForOf, DatePipe, CommonModule, ReactiveFormsModule, AvaliacaoIniciativa],
   templateUrl: './listagem-iniciativas.html',
   styleUrl: './listagem-iniciativas.scss',
   providers: [DatePipe],
@@ -51,6 +50,10 @@ export class ListagemIniciativas {
   editandoIniciativaRejeitada = false;
   iniciativaSelecionadaId: number | null = null;
   acaoEmEdicaoIndice: number | null = null;
+  filtroStatus = signal<string>('TODOS');
+  termoPesquisa = signal<string>('');
+  unidadesSelecionadas = signal<number[]>([]);
+  menuUnidadesAberto = signal(false);
 
   constructor(private iniciativaService: IniciativaService,private usuarioService: UsuarioService, private unidadeService: UnidadeService, private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder){
     this.formularioIniciativa = this.construtorFormulario.group({
@@ -119,6 +122,56 @@ export class ListagemIniciativas {
       },
       error: (erro) => {console.error('erro ao buscar iniciativas:', erro)}
     })
+  }
+
+  alterarFiltroStatus(status: string): void {
+    this.filtroStatus.set(status);
+  }
+
+  pesquisarIniciativa(evento: Event): void {
+    const input = evento.target as HTMLInputElement;
+    this.termoPesquisa.set(input.value.trim().toLowerCase());
+  }
+
+  alternarUnidade(unidadeId: number): void {
+    const selecionadas = this.unidadesSelecionadas();
+    this.unidadesSelecionadas.set(
+      selecionadas.includes(unidadeId)
+        ? selecionadas.filter(id => id !== unidadeId)
+        : [...selecionadas, unidadeId]
+    );
+  }
+
+  unidadeEstaSelecionada(unidadeId: number): boolean {
+    return this.unidadesSelecionadas().includes(unidadeId);
+  }
+
+  alternarMenuUnidades(): void {
+    this.menuUnidadesAberto.update(aberto => !aberto);
+  }
+
+  limparFiltroUnidades(): void {
+    this.unidadesSelecionadas.set([]);
+  }
+
+  iniciativasFiltradas(): IniciativaEstrategica[] {
+    const status = this.filtroStatus();
+    const pesquisa = this.termoPesquisa();
+    const unidadesSelecionadas = this.unidadesSelecionadas();
+
+    return this.iniciativas().filter(iniciativa => {
+      const atendeStatus = status === 'TODOS' || iniciativa.status === status;
+      const atendePesquisa = !pesquisa || iniciativa.nome.toLowerCase().includes(pesquisa);
+      const atendeUnidade = !this.isAdmin()
+        || unidadesSelecionadas.length === 0
+        || unidadesSelecionadas.includes(Number(iniciativa.unidade));
+
+      return atendeStatus && atendePesquisa && atendeUnidade;
+    });
+  }
+
+  obterUnidadeIniciativa(iniciativa: IniciativaEstrategica): Unidade | undefined {
+    return this.unidades().find(unidade => unidade.id === Number(iniciativa.unidade));
   }
 
  CriarNovaIniciativa(): void {
