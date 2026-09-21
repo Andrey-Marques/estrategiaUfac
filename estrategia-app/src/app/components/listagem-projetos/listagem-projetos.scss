@@ -9,6 +9,9 @@ body {
 .container-fluid {
   width: 95%;
   height: auto;
+  max-width: none;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 .titulo-pagina {
   color: $cor-primaria-texto-destaque;

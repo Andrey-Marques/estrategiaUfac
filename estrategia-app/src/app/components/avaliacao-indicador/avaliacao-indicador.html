@@ -1,0 +1,376 @@
+<div class="modal-backdrop-avaliacao">
+  <div class="modal-avaliacao">
+    <!-- ======================================= -->
+    <!-- CABEÇALHO -->
+    <!-- ======================================= -->
+
+    <header class="modal-header">
+      <div class="titulo-header">
+        <div class="icone-header">
+          <i class="bi bi-graph-up"></i>
+        </div>
+
+        <div>
+          <h2>
+            {{ modoAvaliacao ? 'Análise de Indicador' : 'Detalhes do Indicador' }}
+          </h2>
+
+          <p>
+            {{
+              modoAvaliacao
+                ? 'Revise as informações do indicador e tome uma decisão.'
+                : 'Visualize as informações e o resultado da análise do indicador.'
+            }}
+          </p>
+        </div>
+      </div>
+
+      <button type="button" class="btn-fechar" (click)="fechar()" aria-label="Fechar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <!-- ======================================= -->
+    <!-- CONTEÚDO -->
+    <!-- ======================================= -->
+
+    <div class="modal-conteudo">
+      <!-- INDICADOR / STATUS -->
+
+      <section class="cabecalho-projeto">
+        <div>
+          <h3>
+            {{ indicador.nome }}
+          </h3>
+
+          <div class="status-linha">
+            <span class="badge-status" [ngClass]="obterClasseStatus()">
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-check-circle': indicador.status === 'APROVADO',
+
+                  'bi-x-circle': indicador.status === 'REJEITADO',
+
+                  'bi-clock': indicador.status === 'EM_ESPERA',
+
+                  'bi-file-earmark': indicador.status === 'RASCUNHO',
+                }"
+              ></i>
+
+              {{ obterRotuloStatus() }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- RESPONSÁVEL / UNIDADE -->
+      <!-- ======================================= -->
+
+      <section class="dados-resumo">
+        <div class="resumo-item">
+          <div class="icone-resumo">
+            <i class="bi bi-person"></i>
+          </div>
+
+          <div>
+            <span> Responsável </span>
+
+            <strong>
+              {{ indicador.responsavel_nome || 'Não informado' }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="resumo-item">
+          <div class="icone-resumo">
+            <i class="bi bi-building"></i>
+          </div>
+
+          <div>
+            <span> Unidade </span>
+
+            <strong>
+              {{ indicador.unidade_sigla || 'Não informada' }}
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- FINALIDADE -->
+      <!-- ======================================= -->
+
+      <section class="bloco">
+        <div class="titulo-bloco">
+          <i class="bi bi-bullseye"></i>
+
+          <h4>Finalidade</h4>
+        </div>
+
+        <p class="descricao">
+          {{ indicador.finalidade || 'Nenhuma finalidade informada.' }}
+        </p>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- OBJETIVO -->
+      <!-- ======================================= -->
+
+      <section class="bloco">
+        <div class="titulo-bloco">
+          <i class="bi bi-diagram-3"></i>
+
+          <h4>Objetivo estratégico</h4>
+        </div>
+
+        <div class="objetivo-indicador" *ngIf="indicador.objetivo_detalhes; else semObjetivo">
+          <strong>
+            {{ indicador.objetivo_detalhes.codigo }}
+          </strong>
+
+          <span>
+            {{ indicador.objetivo_detalhes.descricao }}
+          </span>
+        </div>
+
+        <ng-template #semObjetivo>
+          <p class="texto-vazio">Nenhum objetivo estratégico informado.</p>
+        </ng-template>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- DADOS DE CÁLCULO -->
+      <!-- ======================================= -->
+
+      <div class="grid-informacoes">
+        <section class="info-card">
+          <div class="icone-info">
+            <i class="bi bi-rulers"></i>
+          </div>
+
+          <div>
+            <span> Unidade de medida </span>
+
+            <strong>
+              {{ indicador.unidade_medida || 'Não informada' }}
+            </strong>
+          </div>
+        </section>
+
+        <section class="info-card">
+          <div class="icone-info">
+            <i class="bi bi-arrow-up-down"></i>
+          </div>
+
+          <div>
+            <span> Polaridade </span>
+
+            <strong>
+              {{ indicador.polaridade || 'Não informada' }}
+            </strong>
+          </div>
+        </section>
+      </div>
+
+      <!-- ======================================= -->
+      <!-- MÉTODO DE CÁLCULO -->
+      <!-- ======================================= -->
+
+      <section class="bloco">
+        <div class="titulo-bloco">
+          <i class="bi bi-calculator"></i>
+
+          <h4>Método de cálculo</h4>
+        </div>
+
+        <p class="descricao">
+          {{ indicador.metodo_calculo || 'Nenhum método informado.' }}
+        </p>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- FÓRMULA -->
+      <!-- ======================================= -->
+
+      <section class="bloco" *ngIf="indicador.formula">
+        <div class="titulo-bloco">
+          <i class="bi bi-braces"></i>
+
+          <h4>Fórmula</h4>
+        </div>
+
+        <div class="formula-indicador" [innerHTML]="formulaRenderizada"></div>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- METAS -->
+      <!-- ======================================= -->
+
+      <section class="bloco">
+        <div class="titulo-bloco">
+          <i class="bi bi-bar-chart-line"></i>
+
+          <h4>Metas de monitoramento</h4>
+        </div>
+
+        <div class="tabela-metas" *ngIf="indicador.evolucao_indicador?.length; else semMetas">
+          <div class="cabecalho-meta">
+            <span>Ano</span>
+
+            <span>Prevista</span>
+
+            <span>Alcançada</span>
+          </div>
+
+          <div class="linha-meta" *ngFor="let meta of indicador.evolucao_indicador">
+            <strong>
+              {{ meta.ano }}
+            </strong>
+
+            <span> {{ meta.meta_prevista }}</span>
+
+            <span> {{ meta.meta_alcancada }}</span>
+          </div>
+        </div>
+
+        <ng-template #semMetas>
+          <p class="texto-vazio">Nenhuma meta de monitoramento registrada.</p>
+        </ng-template>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- OBSERVAÇÕES DO INDICADOR -->
+      <!-- ======================================= -->
+
+      <section class="bloco" *ngIf="indicador.observacao">
+        <div class="titulo-bloco">
+          <i class="bi bi-chat-left-text"></i>
+
+          <h4>Observações</h4>
+        </div>
+
+        <p class="descricao">
+          {{ indicador.observacao }}
+        </p>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- CAMPO DE AVALIAÇÃO -->
+      <!-- ======================================= -->
+
+      <section class="bloco-observacao" *ngIf="modoAvaliacao">
+        <div class="titulo-observacao">
+          <i class="bi bi-chat"></i>
+
+          <div>
+            <h4>Observação da análise</h4>
+
+            <p>
+              Registre uma observação ou justificativa para a aprovação ou rejeição do indicador.
+            </p>
+          </div>
+        </div>
+
+        <textarea
+          [(ngModel)]="observacao"
+          rows="4"
+          placeholder="Digite uma observação ou justificativa..."
+        ></textarea>
+
+        <p class="mensagem-erro" *ngIf="mensagemErro">
+          {{ mensagemErro }}
+        </p>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- RESULTADO APROVADO -->
+      <!-- ======================================= -->
+
+      <section
+        class="resultado-avaliacao aprovado"
+        *ngIf="modoVisualizacao && indicador.status === 'APROVADO'"
+      >
+        <div class="resultado-icone">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+
+        <div class="resultado-conteudo">
+          <h4>Indicador aprovado</h4>
+
+          <p class="resultado-descricao">Este indicador foi aprovado pela administração.</p>
+
+          <div class="mensagem-administracao" *ngIf="indicador.observacao_analise">
+            <span> Mensagem da avaliação </span>
+
+            <p>
+              {{ indicador.observacao_analise }}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================= -->
+      <!-- RESULTADO REJEITADO -->
+      <!-- ======================================= -->
+
+      <section
+        class="resultado-avaliacao rejeitado"
+        *ngIf="modoVisualizacao && indicador.status === 'REJEITADO'"
+      >
+        <div class="resultado-icone">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+
+        <div class="resultado-conteudo">
+          <h4>Indicador necessita de ajustes</h4>
+
+          <p class="resultado-descricao">
+            O indicador não foi aprovado. Revise as informações antes de reenviá-lo.
+          </p>
+
+          <div class="mensagem-administracao">
+            <span> Motivo da rejeição </span>
+
+            <p>
+              {{ indicador.observacao_analise || 'Nenhuma justificativa foi informada.' }}
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======================================= -->
+    <!-- RODAPÉ -->
+    <!-- ======================================= -->
+
+    <footer class="modal-footer">
+      <button type="button" class="btn btn-cancelar" (click)="fechar()">
+        {{ modoAvaliacao ? 'Cancelar' : 'Fechar' }}
+      </button>
+
+      <button *ngIf="modoAvaliacao" type="button" class="btn btn-rejeitar" (click)="rejeitar()">
+        <i class="bi bi-x-lg"></i>
+
+        Rejeitar indicador
+      </button>
+
+      <button *ngIf="modoAvaliacao" type="button" class="btn btn-aprovar" (click)="aprovar()">
+        <i class="bi bi-check-lg"></i>
+
+        Aprovar indicador
+      </button>
+
+      <button
+        *ngIf="!modoAvaliacao && ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO')) || (isAdmin && indicador.status !== 'EM_ESPERA'))"
+        type="button"
+        class="btn btn-editar"
+        (click)="editarIndicador()"
+      >
+        Editar indicador
+      </button>
+    </footer>
+  </div>
+</div>
+

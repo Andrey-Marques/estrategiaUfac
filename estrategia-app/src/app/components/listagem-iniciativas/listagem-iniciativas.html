@@ -10,43 +10,81 @@
       >
         +Nova Iniciativa
       </button>
-      <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal"
-        (click)="CriarNovaIniciativa()" *ngIf="!isAdmin()">
-        Propor novo projeto
-      </button>
     </div>
     <div class="card container-conteudo">
       <!-- Filtro -->
       <ul class="nav filtro px-4 pt-3 border-bottom">
         <li class="nav-item">
-          <button class="nav-link filtro-item">Todos</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'TODOS'"
+            (click)="alterarFiltroStatus('TODOS')">Todos</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link filtro-item ativa">Aprovados</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'APROVADO'"
+            (click)="alterarFiltroStatus('APROVADO')">Aprovados</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link filtro-item">Rejeitados</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'REJEITADO'"
+            (click)="alterarFiltroStatus('REJEITADO')">Rejeitados</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link filtro-item">Rascunhos</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'RASCUNHO'"
+            (click)="alterarFiltroStatus('RASCUNHO')">Rascunhos</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link filtro-item">Em Espera</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'EM_ESPERA'"
+            (click)="alterarFiltroStatus('EM_ESPERA')">Em Espera</button>
         </li>
       </ul>
+
+      <div class="area-filtros">
+        <div class="campo-pesquisa">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Pesquisar pelo nome da iniciativa..." (input)="pesquisarIniciativa($event)" />
+        </div>
+
+        <div class="filtro-unidades" *ngIf="isAdmin()">
+          <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
+            <i class="bi bi-building"></i>
+            Unidades
+            <span class="quantidade-unidades" *ngIf="unidadesSelecionadas().length > 0">
+              {{ unidadesSelecionadas().length }}
+            </span>
+            <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </button>
+
+          <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
+            <div class="cabecalho-filtro-unidades">
+              <strong>Filtrar por unidade</strong>
+              <button type="button" class="botao-limpar" *ngIf="unidadesSelecionadas().length > 0"
+                (click)="limparFiltroUnidades()">Limpar</button>
+            </div>
+
+            <label class="opcao-unidade" *ngFor="let unidade of unidades()">
+              <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
+                (change)="alternarUnidade(unidade.id)" />
+              <span class="checkbox-personalizado"></span>
+              <div class="dados-unidade">
+                <strong>{{ unidade.sigla }}</strong>
+                <small>{{ unidade.nome }}</small>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
       <!-- Tabela de Iniciativas -->
       <div class="table-responsive pb-4">
         <table class="table align-middle mb-0">
           <thead class="cabecalho-tabela">
             <tr class="linha-cabecalho-tabela">
               <th scope="col" class="ps-4">INICIATIVA</th>
+              <th scope="col" class="text-center" *ngIf="isAdmin()">UNIDADE</th>
               <th scope="col" class="text-center">DATA DE ENVIO</th>
               <th scope="col" class="text-center">STATUS</th>
               <th scope="col" class="text-center pe-4">AÇÕES</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="linha-tabela" *ngFor="let iniciativas of iniciativas()">
+            <tr class="linha-tabela" *ngFor="let iniciativas of iniciativasFiltradas()">
               <td class="ps-4">
                 <div class="titulo-iniciativa">
                   {{ iniciativas.nome }}
@@ -56,6 +94,14 @@
                     {{ objetivo.codigo }}
                   </span>
                 </div>
+              </td>
+              <td class="text-center" *ngIf="isAdmin()">
+                <ng-container *ngIf="obterUnidadeIniciativa(iniciativas) as unidade">
+                  <div class="unidade-iniciativa">
+                    <strong>{{ unidade.sigla }}</strong>
+                    <small>{{ unidade.nome }}</small>
+                  </div>
+                </ng-container>
               </td>
               <td class="text-center">
                 <strong class="d-block texto-data">{{
@@ -79,6 +125,12 @@
                   <i class="bi bi-eye"></i>
                   Visualizar
                 </button>
+              </td>
+            </tr>
+            <tr *ngIf="iniciativasFiltradas().length === 0">
+              <td [attr.colspan]="isAdmin() ? 5 : 4" class="text-center py-5">
+                <i class="bi bi-search fs-4"></i>
+                <p class="mt-2 mb-0">Nenhuma iniciativa encontrada com os filtros selecionados.</p>
               </td>
             </tr>
           </tbody>

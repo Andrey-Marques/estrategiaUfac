@@ -16,21 +16,62 @@
       <!-- Filtro -->
       <ul class="nav filtro px-4 pt-3 border-bottom">
         <li class="nav-item">
-          <button class="nav-link filtro-item">Todos</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'TODOS'"
+            (click)="alterarFiltroStatus('TODOS')">Todos</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link filtro-item ativa">Aprovados</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'APROVADO'"
+            (click)="alterarFiltroStatus('APROVADO')">Aprovados</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link filtro-item">Rejeitados</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'REJEITADO'"
+            (click)="alterarFiltroStatus('REJEITADO')">Rejeitados</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link filtro-item">Rascunhos</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'RASCUNHO'"
+            (click)="alterarFiltroStatus('RASCUNHO')">Rascunhos</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link filtro-item">Em Espera</button>
+          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'EM_ESPERA'"
+            (click)="alterarFiltroStatus('EM_ESPERA')">Em Espera</button>
         </li>
       </ul>
+
+      <div class="area-filtros">
+        <div class="campo-pesquisa">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Pesquisar pelo nome do indicador..." (input)="pesquisarIndicador($event)" />
+        </div>
+
+        <div class="filtro-unidades" *ngIf="isAdmin()">
+          <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
+            <i class="bi bi-building"></i>
+            Unidades
+            <span class="quantidade-unidades" *ngIf="unidadesSelecionadas().length > 0">
+              {{ unidadesSelecionadas().length }}
+            </span>
+            <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </button>
+
+          <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
+            <div class="cabecalho-filtro-unidades">
+              <strong>Filtrar por unidade</strong>
+              <button type="button" class="botao-limpar" *ngIf="unidadesSelecionadas().length > 0"
+                (click)="limparFiltroUnidades()">Limpar</button>
+            </div>
+
+            <label class="opcao-unidade" *ngFor="let unidade of unidades()">
+              <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
+                (change)="alternarUnidade(unidade.id)" />
+              <span class="checkbox-personalizado"></span>
+              <div class="dados-unidade">
+                <strong>{{ unidade.sigla }}</strong>
+                <small>{{ unidade.nome }}</small>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
 
       <!-- Tabela de indicadores -->
       <div class="table-responsive pb-4">
@@ -38,13 +79,14 @@
           <thead class="cabecalho-tabela">
             <tr class="linha-cabecalho-tabela">
               <th scope="col" class="ps-4">INDICADOR</th>
+              <th scope="col" class="text-center" *ngIf="isAdmin()">UNIDADE</th>
               <th scope="col" class="text-center">DATA DE ENVIO</th>
               <th scope="col" class="text-center">STATUS</th>
               <th scope="col" class="text-center pe-4">AÇÕES</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="linha-tabela" *ngFor="let indicador of indicadores()">
+            <tr class="linha-tabela" *ngFor="let indicador of indicadoresFiltrados()">
               <td class="ps-4">
                 <div class="titulo-indicador">
                   {{ indicador.nome }}
@@ -53,14 +95,33 @@
                   <span class="etiqueta">OE2</span>
                 </div>
               </td>
-              <td class="text-center">
-                <strong class="d-block texto-data">Sem data informada</strong>
+              <td class="text-center" *ngIf="isAdmin()">
+                <ng-container *ngIf="obterUnidadeIndicador(indicador) as unidade">
+                  <div class="unidade-indicador">
+                    <strong>{{ unidade.sigla }}</strong>
+                    <small>{{ unidade.nome }}</small>
+                  </div>
+                </ng-container>
               </td>
               <td class="text-center">
-                <span class="badge status-aprovado">{{ indicador.status }}</span>
+                <strong class="d-block texto-data">{{ formatarDataEnvio(indicador.data_envio) }}</strong>
+              </td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="obterClasseStatus(indicador.status)">
+                  {{ obterRotuloStatus(indicador.status) }}
+                </span>
               </td>
               <td class="text-center pe-4">
-                <button class="btn botao-visualizar"><i class="bi bi-eye"></i>Visualizar</button>
+                <button type="button" class="btn botao-visualizar" (click)="abrirIndicador(indicador)">
+                  <i class="bi bi-eye"></i>
+                  Visualizar
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="indicadoresFiltrados().length === 0">
+              <td [attr.colspan]="isAdmin() ? 5 : 4" class="text-center py-5">
+                <i class="bi bi-search fs-4"></i>
+                <p class="mt-2 mb-0">Nenhum indicador encontrado com os filtros selecionados.</p>
               </td>
             </tr>
           </tbody>
@@ -83,8 +144,8 @@
 
         <div class="cabecalho-formulario modal-header">
           <div>
-            <h1>RELATÓRIO DE MONITORAMENTO DE INDICADORES ESTRATÉGICOS</h1>
-            <p>Insira as informações técnicas para o preenchimento oficial do PDI</p>
+            <h1>{{ indicadorEmEdicao === null ? 'CRIAR INDICADOR ESTRATÉGICO' : 'EDITAR INDICADOR ESTRATÉGICO' }}</h1>
+            <p>Preencha as informações técnicas do indicador estratégico</p>
           </div>
 
           <button
@@ -101,6 +162,7 @@
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 1"
+            [class.etapa-bloqueada]="edicaoRestrita"
             (click)="irParaEtapa(1)"
           >
             <span>1. Apresentação</span>
@@ -109,6 +171,7 @@
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 2"
+            [class.etapa-bloqueada]="edicaoRestrita"
             (click)="irParaEtapa(2)"
           >
             <span>2. Método de cálculo</span>
@@ -270,7 +333,12 @@
               <div class="campo-formulario">
                 <label>UNIDADE DE MEDIDA</label>
 
-                <input type="text" class="form-control" placeholder="Ex.: Percentual" formControlName="unidadeMedida"/>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Ex.: Percentual"
+                  formControlName="unidadeMedida"
+                />
               </div>
 
               <div class="campo-formulario">
@@ -383,8 +451,6 @@
                       max="100"
                       placeholder="-"
                     />
-
-                    <span>%</span>
                   </div>
 
                   <div class="campo-meta-percentual">
@@ -397,8 +463,6 @@
                       max="100"
                       placeholder="-"
                     />
-
-                    <span>%</span>
                   </div>
 
                   <div class="acoes-meta">
@@ -456,7 +520,7 @@
                 type="button"
                 class="btn botao-anterior"
                 (click)="voltar()"
-                [disabled]="etapaAtual === 1"
+                [disabled]="etapaAtual === 1 || (edicaoRestrita && etapaAtual === 3)"
               >
                 <i class="bi bi-chevron-left"></i>
                 Anterior
@@ -511,3 +575,5 @@
     </div>
   </div>
 </div>
+<app-avaliacao-indicador *ngIf="indicadorSelecionado" [indicador]="indicadorSelecionado" [isAdmin]="isAdmin()" (fechado)="fecharIndicador()" (aprovado)="aprovarIndicador($event)" (rejeitado)="rejeitarIndicador($event)" (editar)="editarIndicadorEmAnalise($event)">
+</app-avaliacao-indicador>

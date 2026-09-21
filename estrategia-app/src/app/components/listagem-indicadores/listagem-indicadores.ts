@@ -11,10 +11,11 @@ import { Usuario } from '../../model/usuario';
 import { Unidade } from '../../model/unidade';
 import * as katex from 'katex';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { AvaliacaoIndicador, DecisaoIndicador } from '../avaliacao-indicador/avaliacao-indicador';
 
 @Component({
   selector: 'app-listagem-indicadores',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AvaliacaoIndicador],
   templateUrl: './listagem-indicadores.html',
   styleUrl: './listagem-indicadores.scss',
 })
@@ -28,6 +29,14 @@ export class ListagemIndicadores {
   objetivoSelecionado: number | null = null;
   formulaRenderizada: SafeHtml | null = null;
   indicadores = signal<IndicadorEstrategico[]>([]);
+  indicadorSelecionado: IndicadorEstrategico | null = null;
+  indicadorEmEdicao: number | null = null;
+  edicaoRestrita = false;
+  statusIndicadorEmEdicao: string | null = null;
+  filtroStatus = signal<string>('TODOS');
+  termoPesquisa = signal<string>('');
+  unidadesSelecionadas = signal<number[]>([]);
+  menuUnidadesAberto = signal(false);
 
   constructor(
     private indicadorService: IndicadorService,
@@ -67,6 +76,56 @@ export class ListagemIndicadores {
     });
   }
 
+  alterarFiltroStatus(status: string): void {
+    this.filtroStatus.set(status);
+  }
+
+  pesquisarIndicador(evento: Event): void {
+    const input = evento.target as HTMLInputElement;
+    this.termoPesquisa.set(input.value.trim().toLowerCase());
+  }
+
+  alternarUnidade(unidadeId: number): void {
+    const selecionadas = this.unidadesSelecionadas();
+    this.unidadesSelecionadas.set(
+      selecionadas.includes(unidadeId)
+        ? selecionadas.filter(id => id !== unidadeId)
+        : [...selecionadas, unidadeId]
+    );
+  }
+
+  unidadeEstaSelecionada(unidadeId: number): boolean {
+    return this.unidadesSelecionadas().includes(unidadeId);
+  }
+
+  alternarMenuUnidades(): void {
+    this.menuUnidadesAberto.update(aberto => !aberto);
+  }
+
+  limparFiltroUnidades(): void {
+    this.unidadesSelecionadas.set([]);
+  }
+
+  indicadoresFiltrados(): IndicadorEstrategico[] {
+    const status = this.filtroStatus();
+    const pesquisa = this.termoPesquisa();
+    const unidadesSelecionadas = this.unidadesSelecionadas();
+
+    return this.indicadores().filter(indicador => {
+      const atendeStatus = status === 'TODOS' || indicador.status === status;
+      const atendePesquisa = !pesquisa || indicador.nome.toLowerCase().includes(pesquisa);
+      const atendeUnidade = !this.isAdmin()
+        || unidadesSelecionadas.length === 0
+        || unidadesSelecionadas.includes(Number(indicador.unidade));
+
+      return atendeStatus && atendePesquisa && atendeUnidade;
+    });
+  }
+
+  obterUnidadeIndicador(indicador: IndicadorEstrategico): Unidade | undefined {
+    return this.unidades().find(unidade => unidade.id === Number(indicador.unidade));
+  }
+
   etapaAtual = 1;
 
   previewFormula: string | null = null;
@@ -75,13 +134,49 @@ export class ListagemIndicadores {
     ano: number | null;
     prevista: number | null;
     alcancada: number | null;
-  }[] = [
-    {
-      ano: new Date().getFullYear(),
-      prevista: null,
-      alcancada: null
-    }
-  ];
+  }[] = [];
+
+  abrirIndicador(indicador: IndicadorEstrategico): void {
+    this.indicadorSelecionado = indicador;
+  }
+
+  editarIndicador(indicador: IndicadorEstrategico): void {
+    this.indicadorEmEdicao = indicador.id;
+    this.edicaoRestrita = !this.isAdmin() && indicador.status === 'APROVADO';
+    this.statusIndicadorEmEdicao = indicador.status;
+    this.objetivoSelecionado = indicador.objetivo;
+    this.formularioIndicador.patchValue({
+      nome: indicador.nome,
+      responsavel: indicador.responsavel,
+      unidade: indicador.unidade,
+      finalidade: indicador.finalidade,
+      unidadeMedida: indicador.unidade_medida,
+      polaridade: indicador.polaridade,
+      metodoCalculo: indicador.metodo_calculo,
+      formula: indicador.formula,
+      observacao: indicador.observacao || '',
+    });
+    this.metas = (indicador.evolucao_indicador || []).map(meta => ({
+      ano: Number(meta.ano),
+      prevista: Number(meta.meta_prevista) || null,
+      alcancada: Number(meta.meta_alcancada) || null,
+    }));
+    this.etapaAtual = this.edicaoRestrita ? 3 : 1;
+  }
+
+  editarIndicadorEmAnalise(indicador: IndicadorEstrategico): void {
+    this.editarIndicador(indicador);
+    this.fecharIndicador();
+    setTimeout(() => {
+      const modal = document.getElementById('modalIndicador');
+      const bootstrap = (window as any).bootstrap;
+      bootstrap?.Modal.getOrCreateInstance(modal)?.show();
+    });
+  }
+
+  fecharIndicador(): void {
+    this.indicadorSelecionado = null;
+  }
 
 
   /* =========================
@@ -89,35 +184,35 @@ export class ListagemIndicadores {
     ========================= */
 
   avancar(): void {
-    if (this.etapaAtual < 4) {
+    if (this.etapaAtual < 4 && (!this.edicaoRestrita || this.etapaAtual >= 3)) {
       this.etapaAtual++;
     }
   }
 
 
   voltar(): void {
-    if (this.etapaAtual > 1) {
+    if (this.etapaAtual > (this.edicaoRestrita ? 3 : 1)) {
       this.etapaAtual--;
     }
   }
 
 
   irParaEtapa(etapa: number): void {
-    if (etapa >= 1 && etapa <= 4) {
+    if (etapa >= 1 && etapa <= 4 && (!this.edicaoRestrita || etapa >= 3)) {
       this.etapaAtual = etapa;
     }
   }
 
   adicionarMeta(): void {
-
-    const ultimoAno =
-      this.metas.length > 0
-        ? Number(this.metas[this.metas.length - 1].ano)
-        : new Date().getFullYear() - 1;
-
+    const anosPreenchidos = this.metas
+      .map(meta => Number(meta.ano))
+      .filter(ano => Number.isFinite(ano));
+    const ultimoAno = anosPreenchidos.length > 0
+      ? anosPreenchidos[anosPreenchidos.length - 1]
+      : null;
 
     this.metas.push({
-      ano: ultimoAno + 1,
+      ano: ultimoAno === null ? null : ultimoAno + 1,
       prevista: null,
       alcancada: null
     });
@@ -147,6 +242,13 @@ export class ListagemIndicadores {
       next: usuario => {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
+        this.atualizarUsuariosDaUnidade();
+        if (usuario.papel !== 'ADMIN') {
+          this.formularioIndicador.patchValue(
+            { unidade: this.obterIdUnidadeUsuario(usuario) },
+            { emitEvent: false }
+          );
+        }
 
       },
       error: erro =>
@@ -213,11 +315,27 @@ export class ListagemIndicadores {
   buscarUsuarios(): void {
 
     this.usuarioService.get().subscribe({
-      next: usuarios =>
-        this.usuarios.set(usuarios),
+      next: usuarios => {
+        this.usuarios.set(usuarios);
+        this.atualizarUsuariosDaUnidade();
+      },
       error: erro =>
         console.error('Erro ao buscar usuários:', erro)
     });
+  }
+
+  private atualizarUsuariosDaUnidade(): void {
+    const usuarioAtual = this.usuarioAtual();
+    const usuarios = this.usuarios();
+
+    if (!usuarioAtual || usuarioAtual.papel === 'ADMIN') {
+      return;
+    }
+
+    const unidadeId = this.obterIdUnidadeUsuario(usuarioAtual);
+    this.usuarios.set(
+      usuarios.filter(usuario => this.obterIdUnidadeUsuario(usuario) === unidadeId)
+    );
   }
 
 
@@ -272,11 +390,12 @@ export class ListagemIndicadores {
     }
 
     const formulario = this.formularioIndicador.getRawValue();
-    const dados = {nome: formulario.nome,
+    const dados: any = {nome: formulario.nome,
       responsavel: formulario.responsavel,
       unidade: formulario.unidade,
       objetivo: this.objetivoSelecionado,
       finalidade: formulario.finalidade,
+      unidade_medida: formulario.unidadeMedida || '',
       polaridade: formulario.polaridade,
       metodo_calculo: formulario.metodoCalculo,
       formula: formulario.formula || '',
@@ -289,7 +408,28 @@ export class ListagemIndicadores {
         }))
     };
 
-    this.indicadorService.criarIndicador(dados).subscribe({
+    if (this.indicadorEmEdicao !== null && !this.isAdmin() && this.statusIndicadorEmEdicao === 'APROVADO') {
+      Object.assign(dados, {
+        evolucao_indicador: dados.evolucao_indicador,
+        observacao: formulario.observacao || '',
+      });
+      delete dados.nome;
+      delete dados.responsavel;
+      delete dados.unidade;
+      delete dados.objetivo;
+      delete dados.finalidade;
+      delete dados.unidade_medida;
+      delete dados.polaridade;
+      delete dados.metodo_calculo;
+      delete dados.formula;
+      delete dados.status;
+    }
+
+    const operacao = this.indicadorEmEdicao === null
+      ? this.indicadorService.criarIndicador(dados)
+      : this.indicadorService.atualizarIndicador(this.indicadorEmEdicao, dados);
+
+    operacao.subscribe({
         next: indicador => {
           this.buscarIndicador();
           this.fecharFormulario();
@@ -299,6 +439,44 @@ export class ListagemIndicadores {
 
         }
 
+      });
+  }
+
+  aprovarIndicador(decisao: DecisaoIndicador): void {
+    const dados = {
+      status: 'APROVADO',
+      observacao_analise: decisao.observacao
+    };
+
+    this.indicadorService.atualizarIndicador(decisao.indicador.id, dados)
+      .subscribe({
+        next: () => {
+          this.fecharIndicador();
+          this.buscarIndicador();
+        },
+        error: erro => {
+          console.error('Erro ao aprovar indicador:', erro);
+          console.error(
+            erro.error
+          );
+        }
+      });
+  }
+
+  rejeitarIndicador(decisao: DecisaoIndicador): void {
+    const dados = {status: 'REJEITADO', observacao_analise: decisao.observacao
+    };
+
+    this.indicadorService.atualizarIndicador(decisao.indicador.id, dados)
+      .subscribe({
+        next: () => {
+          this.fecharIndicador();
+          this.buscarIndicador();
+        },
+        error: erro => {
+          console.error('Erro ao rejeitar indicador:', erro);
+          console.error(erro.error);
+        }
       });
   }
 
@@ -335,14 +513,11 @@ export class ListagemIndicadores {
     });
 
     this.objetivoSelecionado = null;
+    this.indicadorEmEdicao = null;
+    this.edicaoRestrita = false;
+    this.statusIndicadorEmEdicao = null;
     this.formulaRenderizada = '';
-    this.metas = [
-      {
-        ano: new Date().getFullYear(),
-        prevista: null,
-        alcancada: null
-      }
-    ];
+    this.metas = [];
     this.etapaAtual = 1;
   }
 
@@ -364,5 +539,35 @@ export class ListagemIndicadores {
       console.error('Erro ao renderizar fórmula:', erro);
       this.formulaRenderizada = null;
     }
+  }
+
+  formatarDataEnvio(data?: string): string {
+    if (!data) {
+      return 'Sem data informada';
+    }
+
+    return new Intl.DateTimeFormat('pt-BR').format(new Date(data));
+  }
+
+  obterRotuloStatus(status: string): string {
+    const rotulos: Record<string, string> = {
+      APROVADO: 'Aprovado',
+      REJEITADO: 'Rejeitado',
+      RASCUNHO: 'Rascunho',
+      EM_ESPERA: 'Em espera',
+    };
+
+    return rotulos[status] ?? status;
+  }
+
+  obterClasseStatus(status: string): string {
+    const classes: Record<string, string> = {
+      APROVADO: 'status-aprovado',
+      REJEITADO: 'status-rejeitado',
+      RASCUNHO: 'status-rascunho',
+      EM_ESPERA: 'status-em-espera',
+    };
+
+    return classes[status] ?? 'status-rascunho';
   }
 }
