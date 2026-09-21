@@ -187,10 +187,16 @@
 }
 
 .formula-indicador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+  margin-top: 15px;
+  padding: 24px 20px;
   overflow-x: auto;
-  padding: 10px;
-  background: #f8fafc;
-  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background-color: #ffffff;
   text-align: center;
 }
 

@@ -31,7 +31,7 @@
   border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  overflow: hidden;
+  overflow: visible;
 }
 .filtro {
   .filtro-item {
@@ -57,6 +57,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  position: relative;
+  z-index: 2;
   padding: 16px 24px;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -93,6 +95,31 @@
 }
 
 .filtro-unidades { position: relative; }
+
+.card-informativo {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 18px 0 22px;
+  padding: 16px 18px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e40af;
+
+  > i {
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 20px;
+  }
+
+  p {
+    margin: 0;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
 
 .botao-filtro-unidade {
   display: flex;

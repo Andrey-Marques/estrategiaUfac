@@ -36,8 +36,9 @@ body {
   border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  overflow: hidden;
+  overflow: visible;
 }
+
 .filtro {
   .filtro-item {
     background: transparent;
@@ -62,6 +63,8 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  position: relative;
+  z-index: 2;
   padding: 16px 24px;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -552,6 +555,7 @@ textarea.form-control {
 
 .card-informativo {
   display: flex;
+  margin: 20px 0;
   align-items: flex-start;
   gap: 14px;
   padding: 16px 18px;
@@ -1074,9 +1078,7 @@ textarea.form-control {
   }
 }
 
-/* =========================================================
-   CONTEÚDO - EXATAMENTE PROJETOS
-   ========================================================= */
+
 
 .conteudo-formulario {
   width: 100%;
@@ -1315,7 +1317,7 @@ textarea.form-control {
 }
 /*TEXTAREA */
 
-textarea.finalidade-indicador,
+.finalidade-indicador,
 textarea.descricao-metodo {
   min-height: 120px;
   padding: 6px 12px;
@@ -1324,7 +1326,7 @@ textarea.descricao-metodo {
   font-size: 14px;
   color: #858484;
   box-shadow: none;
-  resize: vertical;
+  resize: none;
 
   &::placeholder {
     color: $cor-texto-placeholder;

@@ -37,7 +37,7 @@ body {
   border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  overflow: hidden;
+  overflow: visible;
 }
 .filtro {
   .filtro-item {
@@ -63,6 +63,8 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  position: relative;
+  z-index: 2;
 
   padding: 16px 24px;
 
@@ -132,6 +134,31 @@ body {
 
 .filtro-unidades {
   position: relative;
+}
+
+.informacao-projeto-estrategico {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 18px 0 22px;
+  padding: 14px 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e40af;
+
+  i {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.5;
+  }
 }
 
 

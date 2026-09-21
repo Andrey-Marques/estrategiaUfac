@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { IndicadorEstrategico } from '../../model/indicadorEstrategico';
 import * as katex from 'katex';
 
@@ -46,6 +47,11 @@ export class AvaliacaoIndicador implements OnChanges {
 
   @Output()
   editar = new EventEmitter<IndicadorEstrategico>();
+
+  formulaRenderizada: SafeHtml | null = null;
+
+  constructor(private sanitizer: DomSanitizer) {}
+
   ngOnChanges(): void {
     this.renderizarFormula();
   }
@@ -55,16 +61,20 @@ export class AvaliacaoIndicador implements OnChanges {
       this.formulaRenderizada = '';
       return;
     }
-    this.formulaRenderizada =
-      katex.renderToString(
-        this.indicador.formula,
-        {throwOnError: false, displayMode: true}
-      );
+    try {
+      const htmlFormula = katex.renderToString(this.indicador.formula, {
+        throwOnError: false,
+        displayMode: true,
+      });
+      this.formulaRenderizada = this.sanitizer.bypassSecurityTrustHtml(htmlFormula);
+    } catch (erro) {
+      console.error('Erro ao renderizar fórmula:', erro);
+      this.formulaRenderizada = null;
+    }
   }
 
   observacao = '';
   mensagemErro = '';
-  formulaRenderizada = '';
 
   get modoAvaliacao(): boolean {
     return this.isAdmin && this.indicador.status === 'EM_ESPERA';

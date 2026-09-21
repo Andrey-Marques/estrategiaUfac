@@ -156,6 +156,7 @@ export class ListagemIndicadores {
       formula: indicador.formula,
       observacao: indicador.observacao || '',
     });
+    this.renderizarFormula();
     this.metas = (indicador.evolucao_indicador || []).map(meta => ({
       ano: Number(meta.ano),
       prevista: Number(meta.meta_prevista) || null,
@@ -167,10 +168,17 @@ export class ListagemIndicadores {
   editarIndicadorEmAnalise(indicador: IndicadorEstrategico): void {
     this.editarIndicador(indicador);
     this.fecharIndicador();
-    setTimeout(() => {
+
+    requestAnimationFrame(() => {
       const modal = document.getElementById('modalIndicador');
       const bootstrap = (window as any).bootstrap;
-      bootstrap?.Modal.getOrCreateInstance(modal)?.show();
+
+      if (!modal || !bootstrap?.Modal) {
+        return;
+      }
+
+      const instancia = bootstrap.Modal.getOrCreateInstance(modal);
+      instancia.show();
     });
   }
 
