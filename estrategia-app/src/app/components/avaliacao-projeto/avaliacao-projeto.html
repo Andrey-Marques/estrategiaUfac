@@ -14,7 +14,9 @@
 
           <p>
             {{
-            modoAvaliacao
+            revisao
+            ? 'Compare a versão publicada com a alteração enviada pelo servidor.'
+            : modoAvaliacao
             ? 'Revise as informações do projeto e tome uma decisão.'
             : 'Visualize as informações e o resultado da análise do projeto.'
             }}
@@ -162,6 +164,15 @@
         </section>
       </div>
 
+      <section class="bloco informacao-revisao" *ngIf="revisao" [ngClass]="'status-revisao-' + revisao.status.toLowerCase()">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+          <strong>{{ obterRotuloStatusRevisao(revisao.status) }}</strong>
+          <p>Enviada por {{ revisao.criado_por_nome }} em {{ revisao.criado_em | date:'dd/MM/yyyy' }} às {{ revisao.criado_em | date:'HH:mm' }}<span *ngIf="revisao.analisado_em">. Analisada em {{ revisao.analisado_em | date:'dd/MM/yyyy' }} às {{ revisao.analisado_em | date:'HH:mm' }}.</span></p>
+          <p class="observacao-revisao" *ngIf="revisao.observacao"><strong>Observação:</strong> {{ revisao.observacao }}</p>
+        </div>
+      </section>
+
       <section class="bloco-acompanhamento">
         <div class="titulo-secao">
           <i class="bi bi-activity"></i>
@@ -189,6 +200,16 @@
             <ng-template #semRealizacoes>
               <p class="sem-registros">Nenhuma realização registrada.</p>
             </ng-template>
+
+            <div class="registro-pendente" *ngFor="let evolucao of revisaoPendente ? realizacoesPropostas : []">
+              <span class="rotulo-pendente"><i class="bi bi-clock-history"></i> Alteração pendente</span>
+              <p class="texto-registro">{{ evolucao.descricao || 'Sem descrição' }}</p>
+            </div>
+
+            <div class="registro-removido" *ngFor="let evolucao of revisaoPendente ? realizacoesRemovidas : []">
+              <span class="rotulo-removido"><i class="bi bi-trash3"></i> Item removido</span>
+              <p class="texto-registro">{{ evolucao.descricao || 'Sem descrição' }}</p>
+            </div>
           </div>
 
           <div class="acompanhamento-card">
@@ -208,6 +229,16 @@
             <ng-template #semProximosPassos>
               <p class="sem-registros">Nenhum próximo passo registrado.</p>
             </ng-template>
+
+            <div class="registro-pendente" *ngFor="let evolucao of revisaoPendente ? proximosPassosPropostos : []">
+              <span class="rotulo-pendente"><i class="bi bi-clock-history"></i> Alteração pendente</span>
+              <p class="texto-registro">{{ evolucao.descricao || 'Sem descrição' }}</p>
+            </div>
+
+            <div class="registro-removido" *ngFor="let evolucao of revisaoPendente ? proximosPassosRemovidos : []">
+              <span class="rotulo-removido"><i class="bi bi-trash3"></i> Item removido</span>
+              <p class="texto-registro">{{ evolucao.descricao || 'Sem descrição' }}</p>
+            </div>
           </div>
         </div>
 
@@ -276,6 +307,40 @@
             </p>
           </ng-template>
 
+          <div class="registro-orcamentario registro-pendente" *ngFor="let orcamento of revisaoPendente ? orcamentosPropostos : []">
+            <span class="rotulo-pendente"><i class="bi bi-clock-history"></i> Alteração pendente</span>
+            <div class="orcamento-cabecalho">
+              <div>
+                <span class="orcamento-label">Valor proposto</span>
+                <strong class="orcamento-valor">{{ orcamento.valor | currency:'BRL' }}</strong>
+              </div>
+              <span class="orcamento-data" *ngIf="orcamento.data_registro">
+                <i class="bi bi-calendar3"></i> {{ orcamento.data_registro | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+            <div class="orcamento-descricao" *ngIf="orcamento.descricao">
+              <span>Descrição proposta</span>
+              <p>{{ orcamento.descricao }}</p>
+            </div>
+          </div>
+
+          <div class="registro-orcamentario registro-removido" *ngFor="let orcamento of revisaoPendente ? orcamentosRemovidos : []">
+            <span class="rotulo-removido"><i class="bi bi-trash3"></i> Item removido</span>
+            <div class="orcamento-cabecalho">
+              <div>
+                <span class="orcamento-label">Valor removido</span>
+                <strong class="orcamento-valor">{{ orcamento.valor | currency:'BRL' }}</strong>
+              </div>
+              <span class="orcamento-data" *ngIf="orcamento.data_registro">
+                <i class="bi bi-calendar3"></i> {{ orcamento.data_registro | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+            <div class="orcamento-descricao" *ngIf="orcamento.descricao">
+              <span>Descrição removida</span>
+              <p>{{ orcamento.descricao }}</p>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -298,6 +363,16 @@
 
         <div class="barra-progresso">
           <div class="barra-progresso-preenchimento" [style.width.%]="projeto.percentual_progresso || 0"></div>
+        </div>
+
+        <div class="progresso-pendente" *ngIf="revisaoPendente && diferencaProgresso">
+          <div>
+            <span><i class="bi bi-clock-history"></i> Alteração proposta pendente</span>
+            <strong>{{ diferencaProgresso.proposto }}%</strong>
+          </div>
+          <div class="barra-progresso barra-pendente">
+            <div class="barra-progresso-preenchimento" [style.width.%]="diferencaProgresso.proposto"></div>
+          </div>
         </div>
 
       </section>
@@ -374,12 +449,12 @@
       </button>
 
       <!-- SERVIDOR: PROJETO REJEITADO -->
-      <button *ngIf="!isAdmin && projeto.status === 'REJEITADO'" type="button" class="btn btn-editar-rejeitado"
+      <button *ngIf="!isAdmin && projeto.status === 'REJEITADO' && !revisaoPendente" type="button" class="btn btn-editar-rejeitado"
         data-bs-toggle="modal" data-bs-target="#modalProjeto" (click)="editarProjeto()">
         <i class="bi bi-pencil-square"></i>
         Editar projeto
       </button>
-      <button *ngIf="isAdmin && projeto.status !== 'EM_ESPERA'" type="button" class="btn btn-editar-rejeitado" data-bs-toggle="modal"
+      <button *ngIf="isAdmin && projeto.status !== 'EM_ESPERA' && !revisaoPendente" type="button" class="btn btn-editar-rejeitado" data-bs-toggle="modal"
         data-bs-target="#modalProjeto" (click)="editarProjeto()">
         <i class="bi bi-pencil-square"></i>
         Editar projeto
@@ -388,12 +463,12 @@
       <!-- ADMIN: PROJETO AGUARDANDO ANÁLISE -->
       <button *ngIf="modoAvaliacao " type="button" class="btn btn-rejeitar" (click)="rejeitar()">
         <i class="bi bi-x-lg"></i>
-        Rejeitar projeto
+        {{ revisaoPendente ? 'Rejeitar alterações' : 'Rejeitar projeto' }}
       </button>
 
       <button *ngIf="modoAvaliacao" type="button" class="btn btn-aprovar" (click)="aprovar()">
         <i class="bi bi-check-lg"></i>
-        Aprovar projeto
+        {{ revisaoPendente ? 'Aprovar alterações' : 'Aprovar projeto' }}
       </button>
     </footer>
   </div>

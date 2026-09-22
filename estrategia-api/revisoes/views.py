@@ -7,6 +7,8 @@ from rest_framework import status
 
 from .services import (
     aprovar_revisao_projeto,
+    aprovar_revisao_iniciativa,
+    aprovar_revisao_indicador,
     rejeitar_revisao
 )
 
@@ -73,6 +75,20 @@ class RevisaoEdicaoViewSet(
 
                 'projeto_id':
                     projeto.id
+            })
+
+        if revisao.entidade == 'INICIATIVA':
+            iniciativa = aprovar_revisao_iniciativa(revisao, request.user)
+            return Response({
+                'detail': 'Alterações aprovadas e publicadas.',
+                'iniciativa_id': iniciativa.id
+            })
+
+        if revisao.entidade == 'INDICADOR':
+            indicador = aprovar_revisao_indicador(revisao, request.user)
+            return Response({
+                'detail': 'Alterações aprovadas e publicadas.',
+                'indicador_id': indicador.id
             })
 
         return Response(

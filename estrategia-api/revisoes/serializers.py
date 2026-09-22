@@ -3,6 +3,8 @@ from decimal import Decimal
 from datetime import date, datetime
 from .models import RevisaoEdicao
 from projetosEstrategicos.serializers import (EvolucaoProjetoSerializer, EvolucaoOrcamentariaSerializer)
+from iniciativasEstrategicas.serializers import AcaoRealizadaSerializer
+from indicadoresEstrategicos.serializers import EvolucaoIndicadorSerializer
 
 
 class SubmissaoRevisaoProjetoSerializer(serializers.Serializer):
@@ -14,6 +16,23 @@ class SubmissaoRevisaoProjetoSerializer(serializers.Serializer):
         max_value=100,
         required=False
     )
+
+
+class SubmissaoRevisaoIniciativaSerializer(serializers.Serializer):
+    percentual_evolucao = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        min_value=0,
+        max_value=100,
+        required=False
+    )
+    observacao = serializers.CharField(required=False, allow_blank=True)
+    acoes = AcaoRealizadaSerializer(many=True, required=False)
+
+
+class SubmissaoRevisaoIndicadorSerializer(serializers.Serializer):
+    observacao = serializers.CharField(required=False, allow_blank=True)
+    evolucao_indicador = EvolucaoIndicadorSerializer(many=True, required=False)
 
     evolucoes = EvolucaoProjetoSerializer(
         many=True,

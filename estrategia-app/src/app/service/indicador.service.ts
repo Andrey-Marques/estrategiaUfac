@@ -22,4 +22,8 @@ export class IndicadorService {
     atualizarIndicador(id: number, dados: Partial<IndicadorEstrategico>) {
       return this.http.patch<IndicadorEstrategico>(`${this.apiUrl}${id}/`, dados);
     }
+
+        submeterAtualizacao(id: number, dados: Partial<IndicadorEstrategico>) {
+            return this.http.post(`${this.apiUrl}${id}/submeter-atualizacao/`, dados);
+        }
 }

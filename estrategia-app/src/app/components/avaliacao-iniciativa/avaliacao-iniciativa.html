@@ -86,6 +86,15 @@
         </div>
       </section>
 
+      <section class="bloco informacao-revisao" *ngIf="revisao" [ngClass]="'status-revisao-' + revisao.status.toLowerCase()">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+          <strong>{{ obterRotuloRevisao(revisao.status) }}</strong>
+          <p>Enviada por {{ revisao.criado_por_nome }} em {{ revisao.criado_em | date:'dd/MM/yyyy HH:mm' }}<span *ngIf="revisao.analisado_em">. Analisada em {{ revisao.analisado_em | date:'dd/MM/yyyy HH:mm' }}.</span></p>
+          <p *ngIf="revisao.observacao"><strong>Observação:</strong> {{ revisao.observacao }}</p>
+        </div>
+      </section>
+
       <!-- RESPONSÁVEL / UNIDADE -->
       <section class="dados-resumo">
         <div class="resumo-item">
@@ -167,6 +176,16 @@
             [style.width.%]="iniciativa.percentual_evolucao || 0"
           ></div>
         </div>
+
+        <div class="progresso-pendente-iniciativa" *ngIf="revisaoPendente && percentualProposto !== null">
+          <div>
+            <span><i class="bi bi-clock-history"></i> Alteração proposta pendente</span>
+            <strong>{{ percentualProposto }}%</strong>
+          </div>
+          <div class="barra-progresso barra-pendente-iniciativa">
+            <div class="barra-progresso-preenchimento" [style.width.%]="percentualProposto"></div>
+          </div>
+        </div>
       </section>
 
       <!-- AÇÕES -->
@@ -247,10 +266,25 @@
             <p>Nenhuma ação registrada.</p>
           </div>
         </ng-template>
+
+        <div class="acao-card acao-pendente" *ngFor="let acao of revisaoPendente ? acoesPropostas : []">
+          <div class="acao-topo">
+            <div>
+              <span class="acao-label"><i class="bi bi-clock-history"></i> Ação proposta pendente</span>
+              <strong class="acao-nome">{{ acao.nome || 'Ação sem nome' }}</strong>
+            </div>
+            <span class="badge-acao">{{ acao.status || 'Sem status' }}</span>
+          </div>
+          <div class="acao-grid">
+            <div class="acao-info"><span>Início</span><strong>{{ acao.prazo_inicio | date:'dd/MM/yyyy' }}</strong></div>
+            <div class="acao-info"><span>Fim</span><strong>{{ acao.prazo_fim | date:'dd/MM/yyyy' }}</strong></div>
+            <div class="acao-info"><span>Custo</span><strong>{{ acao.custo | currency:'BRL' }}</strong></div>
+          </div>
+        </div>
       </section>
 
       <!-- OBSERVAÇÕES DA INICIATIVA -->
-      <section class="bloco">
+      <section class="bloco" *ngIf="iniciativa.observacao || (revisaoPendente && observacaoProposta !== null)">
         <div class="titulo-bloco">
           <i class="bi bi-chat-left-text"></i>
 
@@ -265,8 +299,13 @@
         </p>
 
         <ng-template #semObservacaoIniciativa>
-          <p class="texto-vazio">Nenhuma observação registrada.</p>
+          <p class="texto-vazio" *ngIf="!revisaoPendente || observacaoProposta === null">Nenhuma observação registrada.</p>
         </ng-template>
+
+        <div class="observacao-pendente-iniciativa" *ngIf="revisaoPendente && observacaoProposta !== null">
+          <span><i class="bi bi-clock-history"></i> Observação proposta pendente</span>
+          <p>{{ observacaoProposta || 'Observação removida na proposta.' }}</p>
+        </div>
       </section>
 
       <!-- CAMPO DA AVALIAÇÃO -->
@@ -353,7 +392,7 @@
 
       <!-- SERVIDOR + APROVADA -->
       <button
-        *ngIf="!isAdmin && iniciativa.status === 'APROVADO'"
+        *ngIf="!isAdmin && iniciativa.status === 'APROVADO' && !revisaoPendente"
         type="button"
         class="btn btn-atualizar"
         data-bs-toggle="modal"
@@ -367,7 +406,7 @@
 
       <!-- REJEITADA -->
       <button
-        *ngIf="iniciativa.status === 'REJEITADO'"
+        *ngIf="iniciativa.status === 'REJEITADO' && revisao?.status !== 'PENDENTE'"
         type="button"
         class="btn btn-editar"
         data-bs-toggle="modal"
@@ -381,7 +420,7 @@
 
       <!-- ADMIN, FORA DA AVALIAÇÃO -->
       <button
-        *ngIf="isAdmin && !modoAvaliacao && iniciativa.status !== 'REJEITADO'"
+        *ngIf="isAdmin && !modoAvaliacao && iniciativa.status !== 'REJEITADO' && revisao?.status !== 'PENDENTE'"
         type="button"
         class="btn btn-editar"
         data-bs-toggle="modal"
@@ -394,16 +433,16 @@
       </button>
 
       <!-- ADMIN AVALIANDO -->
-      <button *ngIf="modoAvaliacao" type="button" class="btn btn-rejeitar" (click)="rejeitar()">
+      <button *ngIf="modoAvaliacao && isAdmin" type="button" class="btn btn-rejeitar" (click)="rejeitar()">
         <i class="bi bi-x-lg"></i>
 
-        Rejeitar iniciativa
+        {{ revisao?.status === 'PENDENTE' ? 'Rejeitar alterações' : 'Rejeitar iniciativa' }}
       </button>
 
-      <button *ngIf="modoAvaliacao" type="button" class="btn btn-aprovar" (click)="aprovar()">
+      <button *ngIf="modoAvaliacao && isAdmin" type="button" class="btn btn-aprovar" (click)="aprovar()">
         <i class="bi bi-check-lg"></i>
 
-        Aprovar iniciativa
+        {{ revisao?.status === 'PENDENTE' ? 'Aprovar alterações' : 'Aprovar iniciativa' }}
       </button>
     </footer>
   </div>

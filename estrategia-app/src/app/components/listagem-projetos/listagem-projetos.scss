@@ -32,6 +32,7 @@ body {
     color: #ffffff;
   }
 }
+
 .container-conteudo {
   margin-bottom: 30px;
   border-radius: 5px;
@@ -70,6 +71,7 @@ body {
 
   border-bottom: 1px solid #e5e7eb;
 }
+
 
 
 /* ===============================
@@ -419,6 +421,30 @@ table {
   }
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+}
+
+.notificacao-revisao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 10px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.notificacao-revisao.revisao-aprovada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.notificacao-revisao.revisao-rejeitada {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 .linha-tabela:hover {
     background: #ffffff;
