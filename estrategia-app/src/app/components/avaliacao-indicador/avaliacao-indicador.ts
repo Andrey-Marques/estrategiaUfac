@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { IndicadorEstrategico } from '../../model/indicadorEstrategico';
+import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import * as katex from 'katex';
 
 type IndicadorAvaliacao = IndicadorEstrategico & {
@@ -35,6 +37,9 @@ export class AvaliacaoIndicador implements OnChanges {
   @Input()
   isAdmin = false;
 
+  @Input()
+  revisao: RevisaoEdicao | null = null;
+
   @Output()
   fechado = new EventEmitter<void>();
 
@@ -45,7 +50,18 @@ export class AvaliacaoIndicador implements OnChanges {
   rejeitado = new EventEmitter<DecisaoIndicador>();
 
   @Output()
+  revisaoAprovada = new EventEmitter<RevisaoEdicao>();
+
+  @Output()
+  revisaoRejeitada = new EventEmitter<{ revisao: RevisaoEdicao; observacao: string }>();
+
+  @Output()
   editar = new EventEmitter<IndicadorEstrategico>();
+
+  formulaRenderizada: SafeHtml | null = null;
+
+  constructor(private sanitizer: DomSanitizer) {}
+
   ngOnChanges(): void {
     this.renderizarFormula();
   }
@@ -55,23 +71,41 @@ export class AvaliacaoIndicador implements OnChanges {
       this.formulaRenderizada = '';
       return;
     }
-    this.formulaRenderizada =
-      katex.renderToString(
-        this.indicador.formula,
-        {throwOnError: false, displayMode: true}
-      );
+    try {
+      const htmlFormula = katex.renderToString(this.indicador.formula, {
+        throwOnError: false,
+        displayMode: true,
+      });
+      this.formulaRenderizada = this.sanitizer.bypassSecurityTrustHtml(htmlFormula);
+    } catch (erro) {
+      console.error('Erro ao renderizar fórmula:', erro);
+      this.formulaRenderizada = null;
+    }
   }
 
   observacao = '';
   mensagemErro = '';
-  formulaRenderizada = '';
 
   get modoAvaliacao(): boolean {
-    return this.isAdmin && this.indicador.status === 'EM_ESPERA';
+    return this.isAdmin && (this.indicador.status === 'EM_ESPERA' || this.revisao?.status === 'PENDENTE');
   }
 
   get modoVisualizacao(): boolean {
     return !this.modoAvaliacao;
+  }
+
+  get revisaoPendente(): boolean {
+    return this.revisao?.status === 'PENDENTE';
+  }
+
+  get metasPropostas(): Array<{ ano?: string; meta_prevista?: string; meta_alcancada?: string }> {
+    const metas = this.revisao?.diferencas['evolucao_indicador']?.proposto;
+    return Array.isArray(metas) ? metas : [];
+  }
+
+  get observacaoProposta(): string | null {
+    const observacao = this.revisao?.diferencas['observacao']?.proposto;
+    return observacao === null || observacao === undefined ? null : String(observacao);
   }
 
   fechar(): void {
@@ -81,6 +115,11 @@ export class AvaliacaoIndicador implements OnChanges {
   }
 
   aprovar(): void {
+    if (this.revisao?.status === 'PENDENTE') {
+      this.revisaoAprovada.emit(this.revisao);
+      return;
+    }
+
     this.aprovado.emit({
       indicador: this.indicador,
       observacao: this.observacao.trim(),
@@ -92,6 +131,11 @@ export class AvaliacaoIndicador implements OnChanges {
 
     if (!observacao) {
       this.mensagemErro = 'Informe o motivo da rejeição.';
+      return;
+    }
+
+    if (this.revisao?.status === 'PENDENTE') {
+      this.revisaoRejeitada.emit({ revisao: this.revisao, observacao });
       return;
     }
 
@@ -122,5 +166,17 @@ export class AvaliacaoIndicador implements OnChanges {
     };
 
     return classes[this.indicador.status] ?? 'status-rascunho';
+  }
+
+  obterRotuloRevisao(status: string): string {
+    return ({ PENDENTE: 'Alteração pendente', APROVADA: 'Alteração aprovada', REJEITADA: 'Alteração rejeitada' } as Record<string, string>)[status] ?? status;
+  }
+
+  obterValorRevisao(valor: unknown, campo: string): string {
+    if (valor === null || valor === undefined || valor === '') return 'Não informado';
+    if (campo === 'evolucao_indicador' && Array.isArray(valor)) {
+      return valor.map(meta => `${meta.ano || 'Ano'} | Prevista: ${meta.meta_prevista || '-'} | Alcançada: ${meta.meta_alcancada || '-'}`).join('\n') || 'Nenhuma evolução';
+    }
+    return String(valor);
   }
 }

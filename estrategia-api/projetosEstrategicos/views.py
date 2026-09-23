@@ -6,6 +6,8 @@ from rest_framework import status
 from django.utils import timezone
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from revisoes.serializers import (SubmissaoRevisaoProjetoSerializer, RevisaoEdicaoSerializer)
+from revisoes.services import (criar_revisao_projeto)
 
 class ProjetoEstrategicoViewSet(ModelViewSet):
     queryset = ProjetoEstrategico.objects.all()
@@ -155,17 +157,23 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
         
     def perform_update(self, serializer):
         usuario = self.request.user
-
+        projeto = self.get_object()
+       
         if usuario.papel == 'ADMIN':
             serializer.save()
             return
 
-        serializer.save(
-            status='EM_ESPERA',
-            observacao_analise='',
-            data_analise=None,
-            analisado_por=None
-        )
+        if projeto.status == 'APROVADO':
+
+            raise ValidationError({
+                'detail':
+                    'Projetos publicados devem ser '
+                    'alterados através do fluxo '
+                    'de revisão.'
+            })
+
+        serializer.save(status='EM_ESPERA', observacao_analise='', data_analise=None, analisado_por=None)
+        
     
     @action(detail=True, methods=['post'])
     def aprovar(self, request, pk=None):
@@ -274,6 +282,34 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
             serializer.data,
             status=status.HTTP_200_OK
         )
+        
+    @action(detail=True, methods=['post'], url_path='submeter-atualizacao')
+    def submeter_atualizacao(self, request, pk=None):
+
+        usuario = request.user
+        projeto = self.get_object()
+        
+        if usuario.papel == 'ADMIN':
+
+            return Response(
+                {
+                    'detail':
+                        'Administradores podem editar '
+                        'o projeto diretamente.'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if projeto.status != 'APROVADO':
+
+            return Response({'detail': 'Este projeto ainda não está ' 'publicado.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = (SubmissaoRevisaoProjetoSerializer(data=request.data))
+
+        serializer.is_valid(raise_exception=True)
+
+        revisao = criar_revisao_projeto(projeto=projeto, dados=serializer.validated_data, usuario=usuario)
+        return Response(RevisaoEdicaoSerializer(revisao).data,  status=status.HTTP_201_CREATED)
 
 
 class EvolucaoProjetoViewSet(ReadOnlyModelViewSet):

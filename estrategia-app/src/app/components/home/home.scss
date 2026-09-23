@@ -112,6 +112,27 @@
     }
 }
 
+.tabulo-com-notificacao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.notificacao-aba {
+    display: inline-grid;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    place-items: center;
+    border-radius: 10px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+
 
 .tabela-conteudo {
     padding: 10px 24px;
@@ -200,6 +221,30 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.notificacao-revisao {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: #fff7ed;
+    color: #c2410c;
+    font-size: 10px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.notificacao-revisao.revisao-aprovada {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.notificacao-revisao.revisao-rejeitada {
+    background: #fee2e2;
+    color: #b91c1c;
 }
 
 .dark .registro-titulo {

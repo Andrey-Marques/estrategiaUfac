@@ -11,6 +11,8 @@ import { Usuario } from '../../model/usuario';
 import { UnidadeService } from '../../service/unidade.service';
 import { Unidade } from '../../model/unidade';
 import {AvaliacaoIniciativa, DecisaoIniciativa} from '../avaliacao-iniciativa/avaliacao-iniciativa';
+import { RevisaoEdicao } from '../../model/revisaoEdicao';
+import { RevisaoService } from '../../service/revisao.service';
 
 export interface AcaoIniciativa {
   descricaoAcao: string;
@@ -46,6 +48,8 @@ export class ListagemIniciativas {
   objetivosSelecionados : number[] = [];
   //----------------------------
   iniciativaEmAnalise = signal<IniciativaEstrategica | null>(null);
+  revisoes = signal<RevisaoEdicao[]>([]);
+  revisaoEmAnalise = signal<RevisaoEdicao | null>(null);
   modoEdicao = false;
   editandoIniciativaRejeitada = false;
   iniciativaSelecionadaId: number | null = null;
@@ -55,7 +59,7 @@ export class ListagemIniciativas {
   unidadesSelecionadas = signal<number[]>([]);
   menuUnidadesAberto = signal(false);
 
-  constructor(private iniciativaService: IniciativaService,private usuarioService: UsuarioService, private unidadeService: UnidadeService, private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder){
+  constructor(private iniciativaService: IniciativaService,private usuarioService: UsuarioService, private unidadeService: UnidadeService, private objetivoService: ObjetivoService, private construtorFormulario: FormBuilder, private revisaoService: RevisaoService){
     this.formularioIniciativa = this.construtorFormulario.group({
       tituloIniciativa: ['', Validators.required],
       responsavelPreenchimento: [null, Validators.required],
@@ -88,6 +92,7 @@ export class ListagemIniciativas {
       next: usuario => {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
+        this.buscarRevisoes();
       },
       error: erro =>
         console.error('Erro ao buscar usuário atual:',erro)
@@ -472,6 +477,7 @@ export class ListagemIniciativas {
   }
 
   abrirAvaliacao(iniciativa: IniciativaEstrategica): void {
+    this.revisaoEmAnalise.set(this.obterRevisao(iniciativa.id));
     this.iniciativaService.getById(iniciativa.id).subscribe({
         next: dados => {
           this.iniciativaEmAnalise.set(dados);
@@ -483,6 +489,31 @@ export class ListagemIniciativas {
 
   fecharAvaliacao(): void {
     this.iniciativaEmAnalise.set(null);
+    this.revisaoEmAnalise.set(null);
+  }
+
+  buscarRevisoes(): void {
+    this.revisaoService.listar().subscribe({ next: revisoes => this.revisoes.set(revisoes), error: erro => console.error('Erro ao buscar revisões:', erro) });
+  }
+
+  obterRevisao(id: number): RevisaoEdicao | null {
+    return this.revisoes().filter(revisao => revisao.entidade === 'INICIATIVA' && revisao.entidade_id === id).sort((a, b) => {
+      if (a.status === 'PENDENTE' && b.status !== 'PENDENTE') return -1;
+      if (a.status !== 'PENDENTE' && b.status === 'PENDENTE') return 1;
+      return new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime();
+    })[0] ?? null;
+  }
+
+  aprovarRevisao(revisao: RevisaoEdicao): void {
+    this.revisaoService.aprovar(revisao.id).subscribe({ next: () => { this.fecharAvaliacao(); this.buscarRevisoes(); this.buscarIniciativa(); }, error: erro => window.alert(erro.error?.detail ?? 'Não foi possível aprovar a alteração.') });
+  }
+
+  rejeitarRevisao(evento: { revisao: RevisaoEdicao; observacao: string }): void {
+    this.revisaoService.rejeitar(evento.revisao.id, evento.observacao).subscribe({ next: () => { this.fecharAvaliacao(); this.buscarRevisoes(); this.buscarIniciativa(); }, error: erro => window.alert(erro.error?.detail ?? 'Não foi possível rejeitar a alteração.') });
+  }
+
+  obterRotuloRevisao(status: string): string {
+    return ({ PENDENTE: 'Alteração pendente', APROVADA: 'Alteração aprovada', REJEITADA: 'Alteração rejeitada' } as Record<string, string>)[status] ?? status;
   }
 
   aprovarIniciativa(decisao: DecisaoIniciativa): void {
@@ -637,7 +668,11 @@ export class ListagemIniciativas {
       };
     }
 
-    this.iniciativaService .atualizarIniciativa(this.iniciativaSelecionadaId, dados).subscribe({
+    const operacao = this.isAdmin() || this.editandoIniciativaRejeitada
+      ? this.iniciativaService.atualizarIniciativa(this.iniciativaSelecionadaId, dados)
+      : this.iniciativaService.submeterAtualizacao(this.iniciativaSelecionadaId, dados);
+
+    operacao.subscribe({
         next: () => {
           this.fecharModal();
           this.buscarIniciativa();
