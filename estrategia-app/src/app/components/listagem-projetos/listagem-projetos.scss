@@ -1,13 +1,6 @@
 @use '../../../styles.scss' as *;
 
-body {
-  margin: 0;
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-}
 .container-fluid {
-  width: 95%;
   height: auto;
   max-width: none;
   margin: 0 auto;
@@ -25,7 +18,7 @@ body {
   color: #ffffff;
   font-weight: 600;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: $borda-botao;
 
   &:hover {
     background-color: $cor-primaria;

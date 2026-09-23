@@ -1,5 +1,3 @@
-
-
 <div class="container-cadastro">
         <header class="header-cadastro">
 
@@ -7,7 +5,7 @@
                 Usuários Cadastrados
             </h1>
 
-            <button type="button" class="btn-novo-usuario">
+            <button type="button" class="btn-novo-usuario" (click)="abrirModal()">
                 + Novo Usuário
             </button>
 
@@ -18,88 +16,87 @@
         <section class="filtros-unidades">
             <div class="filtro-cabecalho" >
                 <span>FILTRO POR UNIDADES</span>
-                <svg [class.filtro-seta-aberta]="filtroAberto" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"  (click)="alternarFiltro()">
-                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
             </div>
- <!--  -->
-        <div class="opcoes-unidades-wrapper" [class.aberto]="filtroAberto">
-            <div class="opcoes-unidades">
 
-                    <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROPLAN')" (click)="filtrarUnidade('PROPLAN')">
-                        PROPLAN
-                    </button>
+            
 
-                    <button type="button" class="filtro-unidade"[class.unidade-selecionada]="unidades_selecionadas.includes('PROPEG')" (click)="filtrarUnidade('PROPEG')">
-                        PROPEG
-                    </button>
+            <!-- <div class="opcoes-unidades-wrapper" [class.aberto]="filtroAberto">
+                <div class="opcoes-unidades">
 
-                    <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROGRAD')" (click)="filtrarUnidade('PROGRAD')">
-                        PROGRAD
-                    </button>
+                        <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROPLAN')" (click)="filtrarUnidade('PROPLAN')">
+                            PROPLAN
+                        </button>
 
-                    <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROEX')" (click)="filtrarUnidade('PROEX')">
-                        PROEX
-                    </button>
+                        <button type="button" class="filtro-unidade"[class.unidade-selecionada]="unidades_selecionadas.includes('PROPEG')" (click)="filtrarUnidade('PROPEG')">
+                            PROPEG
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        PROAS
-                    </button>
+                        <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROGRAD')" (click)="filtrarUnidade('PROGRAD')">
+                            PROGRAD
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        PRAD
-                    </button>
+                        <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROEX')" (click)="filtrarUnidade('PROEX')">
+                            PROEX
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        PRODGEP
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            PROAS
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        ASCOM
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            PRAD
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        ACI
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            PRODGEP
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        UEPMV
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            ASCOM
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        UTAL
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            ACI
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        NIED
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            UEPMV
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        AC
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            UTAL
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        EDUFAC
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            NIED
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        CAP
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            AC
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        BC
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            EDUFAC
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        PZ
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            CAP
+                        </button>
 
-                    <button type="button" class="filtro-unidade">
-                        PREFCAM
-                    </button>
+                        <button type="button" class="filtro-unidade">
+                            BC
+                        </button>
 
-            </div>
-        </div>
+                        <button type="button" class="filtro-unidade">
+                            PZ
+                        </button>
+
+                        <button type="button" class="filtro-unidade">
+                            PREFCAM
+                        </button>
+
+                </div>
+          </div> -->
         </section>
 
 
@@ -119,15 +116,16 @@
 
                 <tbody>
 
-                    <tr>
-                        <td>Fulano Sicrano Da Silva</td>
-
-                        <td>PROGRAD</td>
-
-                        <td>2026-07-09</td>
-
+                    <tr *ngFor="let u of usuarios">
+                        <td>{{ u.nome_completo }}</td>
+                        <td>{{ u.unidade }}</td>
+                        <td>{{ u.dataCadastro }}</td>
                         <td>
-                            <span class="status status-ativo">ATIVO</span>
+                            <span class="status"
+                                [class.status-ativo]="u.status === 'ATIVO'"
+                                [class.status-inativo]="u.status !== 'ATIVO'">
+                            {{ u.status }}
+                            </span>
                         </td>
 
                         <td class="acoes">
@@ -135,7 +133,9 @@
                             <button
                                 type="button"
                                 class="btn-acao"
-                                aria-label="visualizar usuário">
+                                aria-label="visualizar usuário"
+                                (click)="abrirVisualizacao(u)">
+                                
                                 <svg
                                         width="18"
                                         height="18"
@@ -145,7 +145,7 @@
                                     >
                                         <path
                                             d="M2 12C2 12 5.5 6 12 6C18.5 6 22 12 22 12C22 12 18.5 18 12 18C5.5 18 2 12 2 12Z"
-                                            stroke="#667085"
+                                            stroke="currentColor"
                                             stroke-width="1.7"
                                             stroke-linecap="round"
                                             stroke-linejoin="round"
@@ -164,7 +164,8 @@
                             <button
                                 type="button"
                                 class="btn-acao"
-                                aria-label="excluir usuário">
+                                aria-label="excluir usuário"
+                                (click)="abrirConfirmacaoExclusao(u)">
                                 <svg
                                         width="18"
                                         height="18"
@@ -174,21 +175,21 @@
                                     >
                                         <path
                                             d="M5 7H19"
-                                            stroke="#667085"
+                                            stroke="currentColor"
                                             stroke-width="1.7"
                                             stroke-linecap="round"
                                         />
 
                                         <path
                                             d="M10 4H14"
-                                            stroke="#667085"
+                                            stroke="currentColor"
                                             stroke-width="1.7"
                                             stroke-linecap="round"
                                         />
 
                                         <path
                                             d="M7 7L8 20H16L17 7"
-                                            stroke="#667085"
+                                            stroke="currentColor"
                                             stroke-width="1.7"
                                             stroke-linecap="round"
                                             stroke-linejoin="round"
@@ -196,14 +197,14 @@
 
                                         <path
                                             d="M10 10V17"
-                                            stroke="#667085"
+                                            stroke="currentColor"
                                             stroke-width="1.7"
                                             stroke-linecap="round"
                                         />
 
                                         <path
                                             d="M14 10V17"
-                                            stroke="#667085"
+                                            stroke="currentColor"
                                             stroke-width="1.7"
                                             stroke-linecap="round"
                                         />
@@ -213,7 +214,11 @@
                             <button
                                 type="button"
                                 class="btn-acao"
-                                aria-label="desativar usuário">
+                                aria-label="desativar usuário"
+                                [class.btn-acao-inativo]="u.status !== 'ATIVO'"
+                                [attr.aria-label]="u.status === 'ATIVO' ? 'inativar usuário' : 'ativar usuário'"
+                                (click)="abrirConfirmacaoStatus(u)">
+
                                 <svg
                                     width="18"
                                     height="18"
@@ -225,16 +230,18 @@
                                         cx="12"
                                         cy="12"
                                         r="8.5"
-                                        stroke="#667085"
+                                        stroke="currentColor"
                                         stroke-width="1.7"
                                     />
 
                                     <path
                                         d="M8.5 12H15.5"
-                                        stroke="#667085"
+                                        stroke="currentColor"
                                         stroke-width="1.7"
                                         stroke-linecap="round"
                                     />
+                                    <path *ngIf="u.status !== 'ATIVO'" d="M12 8.5V15.5"
+                                       stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
                                 </svg>
 
                             </button>
@@ -249,10 +256,10 @@
             <div class="rodape-tabela">
 
                 <span class="quantidade-resultados">
-                    Mostrando 1 até 5 de 97 resultados
+                    Mostrando 10 resultados
                 </span>
 
-                <nav class="paginacao" aria-label="Paginação">
+                <!-- <nav class="paginacao" aria-label="Paginação">
 
                     <button
                         type="button"
@@ -286,10 +293,320 @@
                         &gt;
                     </button>
 
-                </nav>
+                </nav> -->
 
             </div>
 
         </section>
+        <!-- =========================================
+            MODAL
+            ========================================= -->
+
+        <div
+            class="modal-overlay"
+            *ngIf="modalAberto"
+            (click)="fecharModal()"
+             >
+
+            <div
+                class="modal-cadastro"
+                (click)="$event.stopPropagation()"
+                >
+
+                <!-- =========================================
+                    CABEÇALHO
+                    ========================================= -->
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h2>
+                            {{ modoVisualizacao ? 'Cadastro de Usuário' : 'Cadastro de Usuário' }}
+                        </h2>
+
+                        <p>
+                            {{ modoVisualizacao
+                                ? 'Visualize as informações do servidor cadastrado.'
+                                : 'Preencha as informações para realizar o cadastro do servidor.'
+                            }}
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-fechar-modal"
+                        (click)="fecharModal()"
+                        aria-label="Fechar modal"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <!-- =========================================
+                    CONTEÚDO DO MODAL
+                    ========================================= -->
+
+                <div class="modal-conteudo">
+
+                    <!-- NOME -->
+                    <div class="campo-modal">
+
+                        <label for="nome">
+                            NOME COMPLETO*
+                        </label>
+
+                    <input id="nome" type="text"
+                        [(ngModel)]="usuarioSelecionado!.nome_completo"
+                        [readonly]="modoVisualizacao">
+
+                    </div>
+
+
+                    <!-- EMAIL + UNIDADE -->
+                    <div class="linha-campos">
+
+                        <div class="campo-modal">
+
+                            <label for="email">
+                                E-MAIL
+                            </label>
+
+                            <input id="email" type="email"
+                                [(ngModel)]="usuarioSelecionado!.email"
+                                [readonly]="modoVisualizacao">
+
+                        </div>
+
+
+                        <div class="campo-modal">
+
+                            <label for="unidade">
+                                UNIDADE RESPONSÁVEL
+                            </label>
+
+                            <select id="unidade" [(ngModel)]="usuarioSelecionado!.unidade"
+                                    [disabled]="modoVisualizacao">
+
+                                <option value="">
+                                    Selecione
+                                </option>
+
+                                <option value="PROPLAN">
+                                    PROPLAN
+                                </option>
+
+                                <option value="PROPEG">
+                                    PROPEG
+                                </option>
+
+                                <option value="PROGRAD">
+                                    PROGRAD
+                                </option>
+
+                                <option value="PROEX">
+                                    PROEX
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PAPEL -->
+                    <div class="campo-modal">
+
+                        <label for="papel">
+                            PAPEL
+                        </label>
+
+                        <select id="papel" [(ngModel)]="usuarioSelecionado!.papel"
+                                [disabled]="modoVisualizacao">
+
+                            <option value="">
+                                Selecione
+                            </option>
+
+                            <option value="ADMIN">
+                                Administrador
+                            </option>
+
+                            <option value="UNIDADE">
+                                Unidade
+                            </option>
+
+                            <option value="SERVIDOR">
+                                Servidor
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- USUÁRIO + SENHA -->
+                    <div class="linha-campos">
+
+                        <div class="campo-modal">
+
+                            <label for="usuario">
+                                USUÁRIO
+                            </label>
+
+                            <input
+                                id="usuario"
+                                type="text"
+                                [(ngModel)]="usuarioSelecionado.username"
+                                [readonly]="modoVisualizacao"
+                            >
+
+                        </div>
+
+
+                        <div class="campo-modal" *ngIf="!modoVisualizacao">
+
+                            <label for="senha">
+                                SENHA
+                            </label>
+
+                            <input
+                                id="senha"
+                                type="password"
+                                [(ngModel)]="usuarioSelecionado.password"
+
+                            >
+
+                        </div>
+
+                        <div class="campo-modal" >
+
+                                <label for="nome-social">
+                                    NOME SOCIAL
+                                </label>
+
+                                <input
+                                    id="nome-social"
+                                    type="text"
+                                    [(ngModel)]="usuarioSelecionado.nome_social"
+                                    [readonly]="modoVisualizacao"
+                                >
+
+                        </div>
+
+                        <div class="campo-modal" >
+
+                                <label for="cpf">
+                                    CPF
+                                </label>
+
+                                <input
+                                    id="cpf"
+                                    type="text"
+                                    [(ngModel)]="usuarioSelecionado.cpf"
+                                    [readonly]="modoVisualizacao"
+                                >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                    RODAPÉ
+                    ========================================= -->
+
+                <div class="modal-footer">
+
+                    <!-- VISUALIZAÇÃO -->
+                    <ng-container *ngIf="modoVisualizacao">
+
+                        <button
+                            type="button"
+                            class="btn-cancelar"
+                            (click)="fecharModal()"
+                        >
+                            Fechar
+                        </button>
+
+                    </ng-container>
+
+
+                    <ng-container *ngIf="!modoVisualizacao">
+                    <button type="button" class="btn-cancelar" (click)="fecharModal()">Cancelar</button>
+                    <button type="button" class="btn-salvar-usuario" (click)="cadastrarUsuario()">Cadastrar</button>
+                    </ng-container>
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO -->
+        <div class="modal-overlay" *ngIf="confirmarExclusaoAberto" (click)="cancelarExclusao()">
+
+            <div class="modal-confirmacao"
+                role="alertdialog"
+                aria-labelledby="titulo-exclusao"
+                (click)="$event.stopPropagation()">
+
+                <div class="icone-alerta">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="12" cy="18" r="1.3" fill="currentColor"/>
+                    </svg>
+                </div>
+
+                <h2 id="titulo-exclusao">Atenção!</h2>
+
+                <p>
+                    Tem certeza que deseja excluir esse usuário?
+                </p>
+
+                <div class="confirmacao-botoes">
+                    <button type="button" class="btn-confirmar-exclusao" (click)="confirmarExclusao()">
+                        Excluir
+                    </button>
+                    <button type="button" class="btn-cancelar-exclusao" (click)="cancelarExclusao()">
+                        Cancelar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+                <!-- MODAL DE ATIVAR / INATIVAR -->
+        <div class="modal-overlay" *ngIf="statusAberto" (click)="cancelarAlteracaoStatus()">
+
+            <div class="modal-status"
+                role="alertdialog"
+                aria-labelledby="titulo-status"
+                (click)="$event.stopPropagation()">
+
+                <div class="modal-status-header">
+                    <h2 id="titulo-status">{{ acaoStatus }} Usuário?</h2>
+                </div>
+
+                <div class="modal-status-corpo">
+                    <p>Tem certeza que quer {{ acaoStatus | lowercase }} esse usuário?</p>
+                </div>
+
+                <div class="modal-status-footer">
+                    <button type="button" class="btn-cancelar" (click)="cancelarAlteracaoStatus()">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn-salvar-usuario" (click)="confirmarAlteracaoStatus()">
+                        {{ acaoStatus }}
+                    </button>
+                </div>
+
+            </div>
+        </div>
 
  </div>

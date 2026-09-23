@@ -16,7 +16,6 @@
 .notificacao-revisao.revisao-rejeitada { background: #fee2e2; color: #b91c1c; }
 
 .container-fluid {
-  width: 95%;
   height: auto;
   max-width: none;
   margin: 0 auto;
@@ -34,7 +33,7 @@
   color: #ffffff;
   font-weight: 600;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: $borda-botao;
 
   &:hover {
     background-color: $cor-primaria;

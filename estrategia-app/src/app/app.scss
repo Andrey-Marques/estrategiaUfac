@@ -1,18 +1,17 @@
-
 .layout-principal {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
     width: 100%;
-    align-items: flex-start;
-    min-height: calc(100vh - var(--altura-header) + var(--altura-info-bar));
+    min-height: calc(100vh - var(--altura-header));
     position: relative;
 }
 
 .conteudo-principal {
-    flex: 1;
     min-width: 0;
+    overflow-x: hidden;   
     box-sizing: border-box;
-    padding: 40px 60px;
+    padding: 30px 50px;
     position: relative;
 }
 

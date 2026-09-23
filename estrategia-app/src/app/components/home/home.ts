@@ -10,6 +10,7 @@ import {AvaliacaoIniciativa, DecisaoIniciativa} from '../avaliacao-iniciativa/av
 import { IndicadorEstrategico } from '../../model/indicadorEstrategico';
 import { IndicadorService } from '../../service/indicador.service';
 import { AvaliacaoIndicador, DecisaoIndicador } from '../avaliacao-indicador/avaliacao-indicador';
+import { InfoBar } from '../utils/info-bar/info-bar';
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import { RevisaoService } from '../../service/revisao.service';
 
@@ -17,7 +18,7 @@ import { RevisaoService } from '../../service/revisao.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, AvaliacaoProjeto, AvaliacaoIniciativa, AvaliacaoIndicador],
+  imports: [CommonModule, AvaliacaoProjeto, AvaliacaoIniciativa, AvaliacaoIndicador, InfoBar],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
