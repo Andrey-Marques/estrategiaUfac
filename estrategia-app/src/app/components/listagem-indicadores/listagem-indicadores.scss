@@ -1,5 +1,41 @@
 @use '../../../styles.scss' as *;
 
+.feedback-edicao-indicador {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 24px 0;
+  padding: 10px 12px;
+  border: 1px solid #f5d76e;
+  border-radius: 6px;
+  background: #fffbea;
+  color: #7a5b00;
+  font-size: 12px;
+
+  strong, span, small { display: block; }
+  strong { font-size: 13px; }
+  span { margin-top: 3px; }
+  small { margin-top: 4px; white-space: pre-line; }
+}
+
+.feedback-aprovada { border-color: #86efac; background: #f0fdf4; color: #166534; }
+.feedback-rejeitada { border-color: #fca5a5; background: #fff1f2; color: #b91c1c; }
+
+.notificacao-revisao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 10px;
+  font-weight: 700;
+}
+.notificacao-revisao.revisao-aprovada { background: #dcfce7; color: #166534; }
+.notificacao-revisao.revisao-rejeitada { background: #fee2e2; color: #b91c1c; }
+
 body {
   margin: 0;
   margin-top: 30px;
@@ -36,8 +72,9 @@ body {
   border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  overflow: hidden;
+  overflow: visible;
 }
+
 .filtro {
   .filtro-item {
     background: transparent;
@@ -62,6 +99,8 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  position: relative;
+  z-index: 2;
   padding: 16px 24px;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -552,6 +591,7 @@ textarea.form-control {
 
 .card-informativo {
   display: flex;
+  margin: 20px 0;
   align-items: flex-start;
   gap: 14px;
   padding: 16px 18px;
@@ -1074,9 +1114,7 @@ textarea.form-control {
   }
 }
 
-/* =========================================================
-   CONTEÚDO - EXATAMENTE PROJETOS
-   ========================================================= */
+
 
 .conteudo-formulario {
   width: 100%;
@@ -1315,7 +1353,7 @@ textarea.form-control {
 }
 /*TEXTAREA */
 
-textarea.finalidade-indicador,
+.finalidade-indicador,
 textarea.descricao-metodo {
   min-height: 120px;
   padding: 6px 12px;
@@ -1324,7 +1362,7 @@ textarea.descricao-metodo {
   font-size: 14px;
   color: #858484;
   box-shadow: none;
-  resize: vertical;
+  resize: none;
 
   &::placeholder {
     color: $cor-texto-placeholder;

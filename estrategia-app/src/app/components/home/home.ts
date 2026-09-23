@@ -10,6 +10,8 @@ import {AvaliacaoIniciativa, DecisaoIniciativa} from '../avaliacao-iniciativa/av
 import { IndicadorEstrategico } from '../../model/indicadorEstrategico';
 import { IndicadorService } from '../../service/indicador.service';
 import { AvaliacaoIndicador, DecisaoIndicador } from '../avaliacao-indicador/avaliacao-indicador';
+import { RevisaoEdicao } from '../../model/revisaoEdicao';
+import { RevisaoService } from '../../service/revisao.service';
 
 
 @Component({
@@ -24,13 +26,17 @@ export class Home {
   isAdmin = signal(false);
   projetoEmAnalise = signal<
   (ProjetoEstrategico & {responsavel_nome?: string;unidade_sigla?: string;}) | null>(null);
+  revisoes = signal<RevisaoEdicao[]>([]);
+  revisaoEmAnalise = signal<RevisaoEdicao | null>(null);
 
 
   abaAtiva: number = 1;
   usuarioAtual = signal<any | null>(null);
   listaIniciativas = signal<IniciativaEstrategica[]>([]);
   iniciativaEmAnalise = signal<IniciativaEstrategica | null>(null);
+  revisaoIniciativaEmAnalise = signal<RevisaoEdicao | null>(null);
   listaIndicadores: any[] = [];
+  revisaoIndicadorEmAnalise = signal<RevisaoEdicao | null>(null);
 
 
   indicadorService: IndicadorService;
@@ -39,7 +45,8 @@ export class Home {
     private projetoService: ProjetoService,
     private iniciativaService: IniciativaService,
     private usuarioService: UsuarioService,
-    indicadorService: IndicadorService
+    indicadorService: IndicadorService,
+    private revisaoService: RevisaoService
   ) {
     this.indicadorService = indicadorService;
   }
@@ -62,8 +69,8 @@ export class Home {
     this.projetoService.get().subscribe({
       next: projetos => {
 
-        const pendentes = projetos.filter(
-          projeto => projeto.status === 'EM_ESPERA'
+        const pendentes = projetos.filter(projeto =>
+          projeto.status === 'EM_ESPERA' || this.obterRevisaoPendente('PROJETO', projeto.id) !== null
         );
 
         this.listaProjetos.set(pendentes);
@@ -78,6 +85,7 @@ export class Home {
     });
   }
   abrirAvaliacao(projeto: ProjetoEstrategico): void {
+    this.revisaoEmAnalise.set(this.obterRevisaoProjeto(projeto.id));
     this.projetoService
       .getById(projeto.id)
       .subscribe({
@@ -100,6 +108,60 @@ export class Home {
 
   fecharAvaliacao(): void {
     this.projetoEmAnalise.set(null);
+    this.revisaoEmAnalise.set(null);
+  }
+
+  buscarRevisoes(): void {
+    this.revisaoService.listar().subscribe({
+      next: revisoes => {
+        this.revisoes.set(revisoes);
+        this.buscarProjetosEmEspera();
+        this.buscarIniciativasEmEspera();
+        this.buscarIndicadoresEmEspera();
+      },
+      error: erro => console.error('Erro ao buscar revisões de edição:', erro),
+    });
+  }
+
+  obterRevisaoProjeto(projetoId: number): RevisaoEdicao | null {
+    return this.revisoes()
+      .filter(revisao => revisao.entidade === 'PROJETO' && revisao.entidade_id === projetoId)
+      .sort((a, b) => {
+        if (a.status === 'PENDENTE' && b.status !== 'PENDENTE') return -1;
+        if (a.status !== 'PENDENTE' && b.status === 'PENDENTE') return 1;
+        return new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime();
+      })[0] ?? null;
+  }
+
+  obterRotuloStatusRevisao(status: string): string {
+    const rotulos: Record<string, string> = {
+      PENDENTE: 'Alteração pendente',
+      APROVADA: 'Alteração aprovada',
+      REJEITADA: 'Alteração rejeitada'
+    };
+    return rotulos[status] ?? status;
+  }
+
+  aprovarRevisao(revisao: RevisaoEdicao): void {
+    this.revisaoService.aprovar(revisao.id).subscribe({
+      next: () => {
+        window.alert('Alteração aprovada e publicada com sucesso.');
+        this.fecharAvaliacao();
+        this.buscarRevisoes();
+      },
+      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível aprovar a revisão.'),
+    });
+  }
+
+  rejeitarRevisao(evento: { revisao: RevisaoEdicao; observacao: string }): void {
+    this.revisaoService.rejeitar(evento.revisao.id, evento.observacao).subscribe({
+      next: () => {
+        window.alert('Alteração rejeitada.');
+        this.fecharAvaliacao();
+        this.buscarRevisoes();
+      },
+      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível rejeitar a revisão.'),
+    });
   }
   aprovarProjeto(
     decisao: DecisaoProjeto
@@ -174,7 +236,7 @@ export class Home {
 
     this.iniciativaService.get().subscribe({
       next: iniciativas => {
-        const pendentes = iniciativas.filter(iniciativa => iniciativa.status === 'EM_ESPERA');
+        const pendentes = iniciativas.filter(iniciativa => iniciativa.status === 'EM_ESPERA' || this.obterRevisaoPendente('INICIATIVA', iniciativa.id));
         this.listaIniciativas.set(pendentes);
       },
       error: erro => {
@@ -190,6 +252,7 @@ export class Home {
 
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
+        this.buscarRevisoes();
       },
 
       error: (erro) => {
@@ -214,6 +277,7 @@ export class Home {
 }
 
   abrirAvaliacaoIniciativa(iniciativa: IniciativaEstrategica): void {
+    this.revisaoIniciativaEmAnalise.set(this.obterRevisao('INICIATIVA', iniciativa.id));
     this.iniciativaService.getById(iniciativa.id).subscribe({
         next: iniciativaDetalhada => {
           this.iniciativaEmAnalise.set(iniciativaDetalhada);
@@ -227,6 +291,7 @@ export class Home {
     this.iniciativaEmAnalise.set(
       null
     );
+    this.revisaoIniciativaEmAnalise.set(null);
   }
 
   aprovarIniciativa(decisao: DecisaoIniciativa): void {
@@ -261,7 +326,7 @@ export class Home {
   buscarIndicadoresEmEspera(): void {
     this.indicadorService.get().subscribe({
       next: indicadores => {
-        this.listaIndicadores = indicadores.filter(indicador => indicador.status === 'EM_ESPERA');
+        this.listaIndicadores = indicadores.filter(indicador => indicador.status === 'EM_ESPERA' || this.obterRevisaoPendente('INDICADOR', indicador.id));
       },
       error: erro => console.error('Erro ao buscar indicadores em espera:', erro),
     });
@@ -270,6 +335,7 @@ export class Home {
   indicadorEmAnalise: IndicadorEstrategico | null = null;
 
   abrirAvaliacaoIndicador(indicador: IndicadorEstrategico): void {
+    this.revisaoIndicadorEmAnalise.set(this.obterRevisao('INDICADOR', indicador.id));
     this.indicadorService.getById(indicador.id).subscribe({
       next: indicadorDetalhado => this.indicadorEmAnalise = indicadorDetalhado,
       error: erro => console.error('Erro ao carregar indicador:', erro),
@@ -278,6 +344,19 @@ export class Home {
 
   fecharAvaliacaoIndicador(): void {
     this.indicadorEmAnalise = null;
+    this.revisaoIndicadorEmAnalise.set(null);
+  }
+
+  obterRevisao(tipo: 'PROJETO' | 'INICIATIVA' | 'INDICADOR', id: number): RevisaoEdicao | null {
+    return this.revisoes().filter(revisao => revisao.entidade === tipo && revisao.entidade_id === id).sort((a, b) => {
+      if (a.status === 'PENDENTE' && b.status !== 'PENDENTE') return -1;
+      if (a.status !== 'PENDENTE' && b.status === 'PENDENTE') return 1;
+      return new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime();
+    })[0] ?? null;
+  }
+
+  obterRevisaoPendente(tipo: 'PROJETO' | 'INICIATIVA' | 'INDICADOR', id: number): RevisaoEdicao | null {
+    return this.revisoes().find(revisao => revisao.entidade === tipo && revisao.entidade_id === id && revisao.status === 'PENDENTE') ?? null;
   }
 
   avaliarIndicador(decisao: DecisaoIndicador, status: 'APROVADO' | 'REJEITADO'): void {

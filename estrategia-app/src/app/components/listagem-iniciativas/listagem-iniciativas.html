@@ -88,6 +88,12 @@
               <td class="ps-4">
                 <div class="titulo-iniciativa">
                   {{ iniciativas.nome }}
+                  <ng-container *ngIf="obterRevisao(iniciativas.id) as revisao">
+                    <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
+                      <i class="bi" [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+                      {{ obterRotuloRevisao(revisao.status) }}
+                    </span>
+                  </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1">
                   <span class="etiqueta" *ngFor="let objetivo of iniciativas.objetivos_detalhes">
@@ -207,6 +213,15 @@
                 <h2>Passo 1: Identificação Geral &amp; Objetivos</h2>
                 <p>Informe os dados básicos da iniciativa</p>
                 <hr />
+              </div>
+
+              <div class="card-informativo">
+                <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+
+                <p>
+                  Iniciativa Estratégica é um programa, projeto ou ação desenvolvida por uma unidade da UFAC para
+                  contribuir para o alcance de um ou mais objetivos estratégicos institucionais.
+                </p>
               </div>
 
               <div class="campo-formulario campo-titulo-iniciativa">
@@ -599,9 +614,12 @@
   *ngIf="iniciativaEmAnalise() as iniciativaSelecionada"
   [iniciativa]="iniciativaSelecionada"
   [isAdmin]="isAdmin()"
+  [revisao]="revisaoEmAnalise()"
   (fechado)="fecharAvaliacao()"
   (aprovado)="aprovarIniciativa($event)"
   (rejeitado)="rejeitarIniciativa($event)"
+  (revisaoAprovada)="aprovarRevisao($event)"
+  (revisaoRejeitada)="rejeitarRevisao($event)"
   (editar)="abrirEdicaoPeloModal($event)"
 >
 </app-avaliacao-iniciativa>

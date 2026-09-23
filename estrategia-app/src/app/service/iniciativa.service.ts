@@ -27,6 +27,10 @@ export class IniciativaService{
       return this.http.patch<IniciativaEstrategica>(`${this.apiUrl}${id}/`, dados);
     }
 
+    submeterAtualizacao(id: number, dados: any): Observable<any> {
+      return this.http.post(`${this.apiUrl}${id}/submeter-atualizacao/`, dados);
+    }
+
     aprovar(id: number, observacao: string): Observable<IniciativaEstrategica>{
       return this.http.post<IniciativaEstrategica>(
         `${this.apiUrl}${id}/aprovar/`, {observacao}
