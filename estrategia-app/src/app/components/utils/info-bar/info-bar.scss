@@ -1,4 +1,7 @@
 .info-bar {
+    // no scss do component da home
+    margin: -30px -50px 30px -50px;  // cancela o padding do .conteudo-principal nos 3 lados
+
     display: flex;
     justify-content: space-between;
     align-items: center;

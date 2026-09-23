@@ -9,6 +9,8 @@ interface Usuario {
   id: number;
   username: string;
   nome_completo: string;
+  nome_social?: string;
+  cpf: string
   email: string;
   papel: string;
   unidade: string;
@@ -53,7 +55,8 @@ export class TelaCadastro {
           papel: 'SERVIDOR',
           unidade: 'PROGRAD',
           dataCadastro: '2026-07-09',
-          status: 'ATIVO'
+          status: 'ATIVO',
+          cpf: "00000000000"
         }
       ];
     modalAberto = false;
@@ -69,7 +72,7 @@ export class TelaCadastro {
       //chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
       this.usuarioSelecionado = {
         id: 0, username: '', nome_completo: '', email: '',
-        papel: '', unidade: '', password: ''
+        papel: '', unidade: '', password: '',  nome_social: '', cpf:''
       };
       this.modalAberto = true;
       this.modoVisualizacao = false;
@@ -161,8 +164,6 @@ export class TelaCadastro {
         );
 
         this.cancelarAlteracaoStatus();
-        // TODO integração: PATCH /usuarios/{id} com { status: novoStatus }
-        // e só atualizar a lista depois que a API responder com sucesso
       }
 
 }

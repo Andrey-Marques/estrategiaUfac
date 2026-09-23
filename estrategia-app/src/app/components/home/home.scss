@@ -1,34 +1,11 @@
 
-// .layout-principal{
-//             position: relative;
-//             display: flex;
-//             flex-direction: row;
-//             width: 100%;
-//             align-items: flex-start;
-//         }
-
-// //----------Conteudo Principal
-// .conteudo-principal{
-//     display: flex;
-//     flex-direction: column;
-
-//     flex: 1;
-
-//     padding: 40px 60px;
-//     box-sizing: border-box;}
-
-body{
-    display: flex;
-    flex-direction: column;
-}
 .div-home{
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
     align-self: center;
-
-    width: 95%;           
+        
     height: auto;          
     box-sizing: border-box;
 

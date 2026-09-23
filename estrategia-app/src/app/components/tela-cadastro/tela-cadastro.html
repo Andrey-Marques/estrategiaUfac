@@ -16,12 +16,11 @@
         <section class="filtros-unidades">
             <div class="filtro-cabecalho" >
                 <span>FILTRO POR UNIDADES</span>
-                <svg [class.filtro-seta-aberta]="filtroAberto" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"  (click)="alternarFiltro()">
-                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
             </div>
 
-            <div class="opcoes-unidades-wrapper" [class.aberto]="filtroAberto">
+            
+
+            <!-- <div class="opcoes-unidades-wrapper" [class.aberto]="filtroAberto">
                 <div class="opcoes-unidades">
 
                         <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROPLAN')" (click)="filtrarUnidade('PROPLAN')">
@@ -97,7 +96,7 @@
                         </button>
 
                 </div>
-          </div>
+          </div> -->
         </section>
 
 
@@ -257,10 +256,10 @@
             <div class="rodape-tabela">
 
                 <span class="quantidade-resultados">
-                    Mostrando 1 até 5 de 97 resultados
+                    Mostrando 10 resultados
                 </span>
 
-                <nav class="paginacao" aria-label="Paginação">
+                <!-- <nav class="paginacao" aria-label="Paginação">
 
                     <button
                         type="button"
@@ -294,7 +293,7 @@
                         &gt;
                     </button>
 
-                </nav>
+                </nav> -->
 
             </div>
 
@@ -469,7 +468,7 @@
                         </div>
 
 
-                        <div class="campo-modal">
+                        <div class="campo-modal" *ngIf="!modoVisualizacao">
 
                             <label for="senha">
                                 SENHA
@@ -479,8 +478,38 @@
                                 id="senha"
                                 type="password"
                                 [(ngModel)]="usuarioSelecionado.password"
-                                [readonly]="modoVisualizacao"
+
                             >
+
+                        </div>
+
+                        <div class="campo-modal" >
+
+                                <label for="nome-social">
+                                    NOME SOCIAL
+                                </label>
+
+                                <input
+                                    id="nome-social"
+                                    type="text"
+                                    [(ngModel)]="usuarioSelecionado.nome_social"
+                                    [readonly]="modoVisualizacao"
+                                >
+
+                        </div>
+
+                        <div class="campo-modal" >
+
+                                <label for="cpf">
+                                    CPF
+                                </label>
+
+                                <input
+                                    id="cpf"
+                                    type="text"
+                                    [(ngModel)]="usuarioSelecionado.cpf"
+                                    [readonly]="modoVisualizacao"
+                                >
 
                         </div>
 

@@ -1,21 +1,18 @@
+@use '../../../../styles.scss' as *;
 :host {
     display: block;
-
     position: sticky;
     top: var(--altura-header);
-
     width: 62px;
     height: calc(100vh - var(--altura-header));
-
+    min-height: 0;
+    overflow: hidden;     
     flex-shrink: 0;
-
     z-index: 200;
-
     transition: width 0.25s ease;
 }
-
 :host(.menu-expandido) {
-    width: 350px;
+    width: 300px;
 }
 
 .menu-lateral {
@@ -36,36 +33,9 @@
 }
 
 .menu-lateral.menu-expandido {
-    width: 350px;
+    width: 300px;
 }
 
-//OVERLAY DO MENU
-
-// .overlay {
-//     position: absolute;
-
-
-//     left: 0;
-//     right: 0;
-
-//     width: 100%;
-//     height: 100%;
-
-//     background-color: rgba(0, 0, 0, 0.45);
-
-//     backdrop-filter: blur(4px);
-//     -webkit-backdrop-filter: blur(4px);
-
-//     opacity: 0;
-//     visibility: hidden;
-//     pointer-events: none;
-
-//     transition:
-//         opacity 0.25s ease,
-//         visibility 0.25s ease;
-
-//     z-index: 900;
-// }
 
 .overlay.ativo {
     opacity: 1;
@@ -73,32 +43,6 @@
     pointer-events: auto;
 }
 
-//BOTAO DE EXPANDIR/DIMINUIR MENU LATERAL
-// .botao-recolher {
-//     display: flex;
-//     width: 30px;
-//     height: 30px;
-
-//     justify-content: center;
-//     align-items: center;
-
-//     padding: 0;
-//     margin: 10px 0px 10px 15px;
-
-
-//     background-color: #F8FAFC;
-//     border: 1px solid #D1D5DB;
-//     border-radius: 3px;
-
-//     cursor: pointer;
-// }
-.menu-item-ativo {
-    background-color: rgba(187, 187, 189, 0.8);
-
-    &::before {
-        opacity: 1;
-    }
-}
 
 
 .botao-recolher {
@@ -161,7 +105,7 @@
     font-size: 15px;
     font-weight: 650;
 
-    color: #374151;
+    color: $cor-primaria-texto-destaque;
 
     border-bottom: 1px solid #D1D5DB;
 
@@ -177,25 +121,41 @@
     display: flex;
     flex-direction: column;
 
-    padding-top: 12px;
+    padding-top: 10px;
 }
 
-// .menu-item {
-//     position: relative;
-
-//     display: grid;
-//     grid-template-columns: 30px 1fr;
-//     align-items: center;
-
-//     width: 100%;
-//     padding: 10px 20px;
-
-//     box-sizing: border-box;
-
-//     transition: 0.2s ease;
-// }
 
 //-------------------ITENS DO MENU
+.menu-item.menu-item-ativo {
+    background-color: $cor-selecao-item;
+    color: $cor-primaria-botao;
+
+    &::before {
+        content: "";
+
+        position: absolute;
+        left: 0;
+        top: 0;
+
+        width: 5px;
+        height: 100%;
+
+        background-color: $cor-primaria-botao-hover;
+
+        opacity: 1;
+
+        transition: opacity 0.25s ease-out;
+    }
+}
+
+.menu-item.menu-item-ativo span {
+    color: $cor-primaria-botao;
+}
+
+.menu-item.menu-item-ativo:hover span {
+    color: $cor-primaria-botao;
+}
+
 
 .menu-item {
     position: relative;
@@ -210,45 +170,22 @@
 
     box-sizing: border-box;
 
-    color: #555A65;
+    color: $cor-primaria-texto-destaque;
 
     text-decoration: none;
 
     transition:
-        background-color 0.2s ease,
+        background-color 0.5s ease,
         color 0.2s ease;
 }
 
-.menu-item::before {
-    content: "";
-
-    position: absolute;
-    left: 0;
-    top: 0;
-
-    width: 5px;
-    height: 100%;
-
-    background-color: #152778;
-
-    opacity: 0;
-
-    transition: opacity 0.2s ease;
-}
 
 .menu-item:hover {
-    background-color: #F8FAFC;
+    background-color: $cor-hover-item;
+    color:$cor-primaria-botao;
+    
 }
 
-.menu-item:hover::before {
-    opacity: 1;
-}
-
-// .menu-item img {
-//     width: 18px;
-//     height: 18px;
-//     object-fit: contain;
-// }
 
 .menu-item img {
     width: 20px;
@@ -259,19 +196,13 @@
     flex-shrink: 0;
 }
 
-// .menu-item span {
-//     margin-left: 20px;
-//     color: #555a65;
-//     font-family: "Inter", sans-serif;
-//     font-weight: 550;
-// }
 
 .menu-item span {
     display: none;
 
     margin-left: 20px;
 
-    color: #555A65;
+    color: $cor-primaria-texto-destaque;
 
     font-family: "Inter", sans-serif;
 
@@ -279,6 +210,7 @@
     font-weight: 550;
 
     white-space: nowrap;
+    transition: color 0.25s ease; 
 }
 
 .menu-lateral.menu-expandido .menu-item span {
@@ -287,7 +219,7 @@
 
 
 .menu-item:hover span {
-    color: #152778;
+    color: $cor-primaria-botao;
 }
 
 
@@ -297,7 +229,7 @@
 
     height: 1px;
 
-    margin: 15px 20px;
+    margin: 10px 20px;
 
     background-color: #D1D5DB;
 }
