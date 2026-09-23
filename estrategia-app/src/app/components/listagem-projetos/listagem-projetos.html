@@ -108,6 +108,15 @@
               <td class="ps-4">
                 <div class="titulo-projeto">
                   {{ projeto.nome }}
+                  <ng-container *ngIf="obterRevisaoProjeto(projeto.id) as revisaoProjeto">
+                    <span class="notificacao-revisao" [ngClass]="'revisao-' + revisaoProjeto.status.toLowerCase()">
+                      <i class="bi" [ngClass]="{
+                        'bi-bell-fill': revisaoProjeto.status === 'PENDENTE',
+                        'bi-check-circle-fill': revisaoProjeto.status === 'APROVADA',
+                        'bi-x-circle-fill': revisaoProjeto.status === 'REJEITADA'
+                      }"></i> {{ obterRotuloStatusRevisao(revisaoProjeto.status) }}
+                    </span>
+                  </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1" *ngIf="obterObjetivosProjeto(projeto)?.length; else semObjetivos">
                   <span class="etiqueta" *ngFor="let objetivo of obterObjetivosProjeto(projeto)">
@@ -216,6 +225,14 @@
                 <h2>Passo 1: Identificação Geral &amp; Objetivo</h2>
                 <p>Informe os dados básicos do projeto</p>
                 <hr />
+              </div>
+
+              <div class="informacao-projeto-estrategico">
+                <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+                <p>
+                  Os projetos estratégicos contribuem diretamente para o alcance dos objetivos estratégicos,
+                  uma vez que organizam as ações com foco nos resultados voltados para o sucesso do planejamento.
+                </p>
               </div>
 
               <div class="campo-formulario campo-titulo-iniciativa">
@@ -606,6 +623,8 @@
     </div>
   </div>
   <app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado"
-    [isAdmin]="isAdmin()" (fechado)="fecharAvaliacao()" (editar)="abrirEdicaoPeloModal($event)">
+    [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
+    (editar)="abrirEdicaoPeloModal($event)" (revisaoAprovada)="aprovarRevisao($event)"
+    (revisaoRejeitada)="rejeitarRevisao($event)">
   </app-avaliacao-projeto>
 </div>

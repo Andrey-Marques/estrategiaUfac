@@ -43,11 +43,7 @@ export class ProjetoService {
     removerEvolucao(id: number): Observable<any> {
       return this.http.delete(`${this.apiUrlEvolucao}${id}/`);
     }
-    aprovarProjeto(
-      id: number,
-      observacao: string
-    ): Observable<ProjetoEstrategico> {
-
+    aprovarProjeto(id: number, observacao: string): Observable<ProjetoEstrategico> {
       return this.http.post<ProjetoEstrategico>(
         `${this.apiUrl}${id}/aprovar/`,
         {
@@ -56,16 +52,18 @@ export class ProjetoService {
       );
     }
 
-    rejeitarProjeto(
-      id: number,
-      observacao: string
-    ): Observable<ProjetoEstrategico> {
-
+    rejeitarProjeto(id: number, observacao: string): Observable<ProjetoEstrategico> {
       return this.http.post<ProjetoEstrategico>(
         `${this.apiUrl}${id}/rejeitar/`,
         {
           observacao
         }
+      );
+    }
+    submeterAtualizacao(projetoId: number, dados: any) {
+      return this.http.post(
+        `${this.apiUrl}${projetoId}/submeter-atualizacao/`,
+        dados
       );
     }
 }

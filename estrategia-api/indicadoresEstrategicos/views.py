@@ -2,8 +2,11 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
 from .models import IndicadorEstrategico
 from .serializers import IndicadorEstrategicoSerializer
+from revisoes.serializers import SubmissaoRevisaoIndicadorSerializer, RevisaoEdicaoSerializer
+from revisoes.services import criar_revisao_indicador
 
 class IndicadorEstrategicoViewSet(ModelViewSet):
     queryset = IndicadorEstrategico.objects.all()
@@ -47,6 +50,12 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
             return None
 
         indicador = self.get_object()
+
+        if indicador.status == 'APROVADO':
+            return Response(
+                {'detail': 'Indicadores publicados devem ser alterados através do fluxo de revisão.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if indicador.status == 'REJEITADO':
             campos_permitidos = {
@@ -124,3 +133,19 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
             status='EM_ESPERA',
             observacao_analise='',
         )
+
+    @action(detail=True, methods=['post'], url_path='submeter-atualizacao')
+    def submeter_atualizacao(self, request, pk=None):
+        usuario = request.user
+        indicador = self.get_object()
+
+        if usuario.papel == 'ADMIN':
+            return Response(
+                {'detail': 'Administradores devem atualizar o indicador diretamente.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = SubmissaoRevisaoIndicadorSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        revisao = criar_revisao_indicador(indicador, serializer.validated_data, usuario)
+        return Response(RevisaoEdicaoSerializer(revisao).data, status=status.HTTP_201_CREATED)

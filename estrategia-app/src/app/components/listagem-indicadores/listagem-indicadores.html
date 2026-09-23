@@ -90,6 +90,12 @@
               <td class="ps-4">
                 <div class="titulo-indicador">
                   {{ indicador.nome }}
+                  <ng-container *ngIf="obterRevisao(indicador.id) as revisao">
+                    <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
+                      <i class="bi" [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+                      {{ obterRotuloRevisao(revisao.status) }}
+                    </span>
+                  </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1">
                   <span class="etiqueta">OE2</span>
@@ -156,6 +162,16 @@
           ></button>
         </div>
 
+        <section class="feedback-edicao-indicador" *ngIf="indicadorEmEdicao !== null && obterRevisao(indicadorEmEdicao) as revisaoEdicao"
+          [ngClass]="'feedback-' + revisaoEdicao.status.toLowerCase()">
+          <i class="bi" [ngClass]="revisaoEdicao.status === 'PENDENTE' ? 'bi-bell-fill' : revisaoEdicao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+          <div>
+            <strong>{{ obterRotuloRevisao(revisaoEdicao.status) }}</strong>
+            <span>Enviada em {{ revisaoEdicao.criado_em | date:'dd/MM/yyyy HH:mm' }}<span *ngIf="revisaoEdicao.analisado_em"> · Analisada em {{ revisaoEdicao.analisado_em | date:'dd/MM/yyyy HH:mm' }}</span></span>
+            <small *ngIf="revisaoEdicao.observacao">{{ revisaoEdicao.observacao }}</small>
+          </div>
+        </section>
+
         <!-- ================= ETAPAS ================= -->
 
         <div class="etapas-formulario">
@@ -204,6 +220,16 @@
               <h2>Passo 1: Identificação Geral & Objetivos</h2>
               <p>Informe os dados básicos do indicador</p>
               <hr />
+            </div>
+
+            <div class="card-informativo">
+              <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+
+              <p>
+                Indicadores traduzem de forma numérica os objetivos estratégicos, com vistas a representar a evolução
+                no alcance de cada objetivo, enquanto as metas buscam estabelecer o nível desejado de cada indicador
+                quanto ao alcance dos resultados.
+              </p>
             </div>
 
             <!-- NOME -->
@@ -365,7 +391,7 @@
                 <label> FÓRMULA </label>
 
                 <textarea
-                  class="form-control"
+                  class="form-control formula-textarea"
                   formControlName="formula"
                   placeholder="Ex.: \frac{A}{B} \times 100"
                   (input)="renderizarFormula()"
@@ -575,5 +601,5 @@
     </div>
   </div>
 </div>
-<app-avaliacao-indicador *ngIf="indicadorSelecionado" [indicador]="indicadorSelecionado" [isAdmin]="isAdmin()" (fechado)="fecharIndicador()" (aprovado)="aprovarIndicador($event)" (rejeitado)="rejeitarIndicador($event)" (editar)="editarIndicadorEmAnalise($event)">
+<app-avaliacao-indicador *ngIf="indicadorSelecionado" [indicador]="indicadorSelecionado" [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharIndicador()" (aprovado)="aprovarIndicador($event)" (rejeitado)="rejeitarIndicador($event)" (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)" (editar)="editarIndicadorEmAnalise($event)">
 </app-avaliacao-indicador>

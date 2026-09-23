@@ -220,71 +220,116 @@ class Command(BaseCommand):
         # =====================================================
 
         objetivos = [
-
             {
                 'codigo': 'OE1',
                 'descricao':
-                    'Ampliar o número de profissionais '
-                    'formados e qualificados'
+                    'Ampliar o número de profissionais formados e '
+                    'qualificados'
             },
-
             {
                 'codigo': 'OE2',
                 'descricao':
-                    'Ampliar a produção de conhecimentos '
-                    'científicos e artístico-culturais '
-                    'aplicados às necessidades da sociedade'
+                    'Ampliar a produção de conhecimentos científicos '
+                    'e artístico-culturais aplicados às necessidades '
+                    'da sociedade'
             },
-
             {
                 'codigo': 'OE3',
                 'descricao':
-                    'Desenvolver ações e projetos junto '
-                    'à sociedade visando às melhorias sociais'
+                    'Desenvolver ações e projetos junto à sociedade '
+                    'visando às melhorias sociais'
             },
-
             {
                 'codigo': 'OE4',
                 'descricao':
-                    'Desenvolver soluções inovadoras visando '
-                    'à transformação da realidade regional'
+                    'Desenvolver soluções inovadoras visando à '
+                    'transformação da realidade regional'
             },
-
             {
                 'codigo': 'OE5',
                 'descricao':
-                    'Promover a melhoria da qualidade '
-                    'e a adequação da oferta de cursos'
+                    'Promover a melhoria da qualidade e a adequação '
+                    'da oferta de cursos'
             },
-
             {
                 'codigo': 'OE6',
                 'descricao':
-                    'Intensificar e integrar as ações '
-                    'relacionadas ao ensino, pesquisa e extensão'
+                    'Intensificar e integrar as ações relacionadas '
+                    'ao ensino, pesquisa e extensão'
             },
-
             {
                 'codigo': 'OE7',
                 'descricao':
                     'Potencializar a produção científica '
                     'institucional'
             },
-
             {
                 'codigo': 'OE8',
                 'descricao':
-                    'Fortalecer políticas de acesso, '
-                    'permanência e sucesso no Ensino Superior'
+                    'Fortalecer políticas de acesso, permanência e '
+                    'sucesso no Ensino Superior'
             },
-
             {
                 'codigo': 'OE9',
                 'descricao':
-                    'Promover um ambiente institucional que '
-                    'estimule o empreendedorismo e a inovação'
+                    'Promover um ambiente institucional que estimule '
+                    'o empreendedorismo e a inovação'
             },
-
+            {
+                'codigo': 'OE10',
+                'descricao':
+                    'Aprimorar os mecanismos de inclusão com equidade, '
+                    'garantindo a acessibilidade e o aprendizado do '
+                    'estudante'
+            },
+            {
+                'codigo': 'OE11',
+                'descricao':
+                    'Ampliar e qualificar parcerias estratégicas '
+                    'nacionais e internacionais'
+            },
+            {
+                'codigo': 'OE12',
+                'descricao':
+                    'Fortalecer os processos de governança '
+                    'institucional'
+            },
+            {
+                'codigo': 'OE13',
+                'descricao':
+                    'Fortalecer a comunicação institucional de forma '
+                    'efetiva e transparente'
+            },
+            {
+                'codigo': 'OE14',
+                'descricao':
+                    'Fortalecer políticas de valorização, motivação '
+                    'e desenvolvimento dos servidores'
+            },
+            {
+                'codigo': 'OE15',
+                'descricao':
+                    'Otimizar a força de trabalho alinhada às '
+                    'necessidades estratégicas'
+            },
+            {
+                'codigo': 'OE16',
+                'descricao':
+                    'Ampliar, otimizar e modernizar as instalações '
+                    'físicas'
+            },
+            {
+                'codigo': 'OE17',
+                'descricao':
+                    'Prover soluções de TIC alinhadas às necessidades '
+                    'estratégicas'
+            },
+            {
+                'codigo': 'OE18',
+                'descricao':
+                    'Viabilizar recursos orçamentários e financeiros '
+                    'para a execução da estratégia'
+            },
         ]
 
 

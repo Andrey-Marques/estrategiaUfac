@@ -12,6 +12,8 @@ import { Unidade } from '../../model/unidade';
 import * as katex from 'katex';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AvaliacaoIndicador, DecisaoIndicador } from '../avaliacao-indicador/avaliacao-indicador';
+import { RevisaoEdicao } from '../../model/revisaoEdicao';
+import { RevisaoService } from '../../service/revisao.service';
 
 @Component({
   selector: 'app-listagem-indicadores',
@@ -30,6 +32,8 @@ export class ListagemIndicadores {
   formulaRenderizada: SafeHtml | null = null;
   indicadores = signal<IndicadorEstrategico[]>([]);
   indicadorSelecionado: IndicadorEstrategico | null = null;
+  revisoes = signal<RevisaoEdicao[]>([]);
+  revisaoEmAnalise = signal<RevisaoEdicao | null>(null);
   indicadorEmEdicao: number | null = null;
   edicaoRestrita = false;
   statusIndicadorEmEdicao: string | null = null;
@@ -44,7 +48,8 @@ export class ListagemIndicadores {
     private unidade: UnidadeService,
     private objetivoService: ObjetivoService,
     private fb: FormBuilder,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private revisaoService: RevisaoService
   ) {
 
     this.formularioIndicador = this.fb.group({
@@ -137,6 +142,7 @@ export class ListagemIndicadores {
   }[] = [];
 
   abrirIndicador(indicador: IndicadorEstrategico): void {
+    this.revisaoEmAnalise.set(this.obterRevisao(indicador.id));
     this.indicadorSelecionado = indicador;
   }
 
@@ -156,6 +162,7 @@ export class ListagemIndicadores {
       formula: indicador.formula,
       observacao: indicador.observacao || '',
     });
+    this.renderizarFormula();
     this.metas = (indicador.evolucao_indicador || []).map(meta => ({
       ano: Number(meta.ano),
       prevista: Number(meta.meta_prevista) || null,
@@ -167,15 +174,37 @@ export class ListagemIndicadores {
   editarIndicadorEmAnalise(indicador: IndicadorEstrategico): void {
     this.editarIndicador(indicador);
     this.fecharIndicador();
-    setTimeout(() => {
+
+    requestAnimationFrame(() => {
       const modal = document.getElementById('modalIndicador');
       const bootstrap = (window as any).bootstrap;
-      bootstrap?.Modal.getOrCreateInstance(modal)?.show();
+
+      if (!modal || !bootstrap?.Modal) {
+        return;
+      }
+
+      const instancia = bootstrap.Modal.getOrCreateInstance(modal);
+      instancia.show();
     });
   }
 
   fecharIndicador(): void {
     this.indicadorSelecionado = null;
+    this.revisaoEmAnalise.set(null);
+  }
+
+  aprovarRevisao(revisao: RevisaoEdicao): void {
+    this.revisaoService.aprovar(revisao.id).subscribe({
+      next: () => { this.fecharIndicador(); this.buscarRevisoes(); this.buscarIndicador(); },
+      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível aprovar a alteração.')
+    });
+  }
+
+  rejeitarRevisao(evento: { revisao: RevisaoEdicao; observacao: string }): void {
+    this.revisaoService.rejeitar(evento.revisao.id, evento.observacao).subscribe({
+      next: () => { this.fecharIndicador(); this.buscarRevisoes(); this.buscarIndicador(); },
+      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível rejeitar a alteração.')
+    });
   }
 
 
@@ -242,6 +271,7 @@ export class ListagemIndicadores {
       next: usuario => {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
+        this.buscarRevisoes();
         this.atualizarUsuariosDaUnidade();
         if (usuario.papel !== 'ADMIN') {
           this.formularioIndicador.patchValue(
@@ -256,6 +286,27 @@ export class ListagemIndicadores {
 
     });
 
+  }
+
+  buscarRevisoes(): void {
+    this.revisaoService.listar().subscribe({
+      next: revisoes => this.revisoes.set(revisoes),
+      error: erro => console.error('Erro ao buscar revisões:', erro)
+    });
+  }
+
+  obterRevisao(id: number): RevisaoEdicao | null {
+    return this.revisoes()
+      .filter(revisao => revisao.entidade === 'INDICADOR' && revisao.entidade_id === id)
+      .sort((a, b) => {
+        if (a.status === 'PENDENTE' && b.status !== 'PENDENTE') return -1;
+        if (a.status !== 'PENDENTE' && b.status === 'PENDENTE') return 1;
+        return new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime();
+      })[0] ?? null;
+  }
+
+  obterRotuloRevisao(status: string): string {
+    return ({ PENDENTE: 'Alteração pendente', APROVADA: 'Alteração aprovada', REJEITADA: 'Alteração rejeitada' } as Record<string, string>)[status] ?? status;
   }
   private observarResponsavelSelecionado(): void {
 
@@ -427,7 +478,12 @@ export class ListagemIndicadores {
 
     const operacao = this.indicadorEmEdicao === null
       ? this.indicadorService.criarIndicador(dados)
-      : this.indicadorService.atualizarIndicador(this.indicadorEmEdicao, dados);
+      : (!this.isAdmin() && this.statusIndicadorEmEdicao === 'APROVADO'
+        ? this.indicadorService.submeterAtualizacao(this.indicadorEmEdicao, {
+            evolucao_indicador: dados.evolucao_indicador,
+            observacao: dados.observacao
+          })
+        : this.indicadorService.atualizarIndicador(this.indicadorEmEdicao, dados));
 
     operacao.subscribe({
         next: indicador => {
@@ -551,7 +607,7 @@ export class ListagemIndicadores {
 
   obterRotuloStatus(status: string): string {
     const rotulos: Record<string, string> = {
-      APROVADO: 'Aprovado',
+      APROVADO: 'Aprovado/Público',
       REJEITADO: 'Rejeitado',
       RASCUNHO: 'Rascunho',
       EM_ESPERA: 'Em espera',

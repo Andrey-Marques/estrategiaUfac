@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/login/', TokenObtainPairView.as_view(), name='login'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/resumo-unidade/', ResumoUnidadeView.as_view(), name='resumo-unidade'),
+    path('api/revisoes/', include('revisoes.urls')),
 ]

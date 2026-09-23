@@ -8,6 +8,62 @@
   background: rgba(15, 23, 42, 0.55);
   z-index: 2000;
 }
+.informacao-revisao {
+  display: flex;
+  gap: 10px;
+  border-color: #f5d76e;
+  background: #fffbea;
+  color: #7a5b00;
+  p { margin: 3px 0 0; font-size: 12px; }
+}
+.status-revisao-aprovada { border-color: #86efac; background: #f0fdf4; color: #166534; }
+.status-revisao-rejeitada { border-color: #fca5a5; background: #fff1f2; color: #b91c1c; }
+.revisao-diferencas { border-color: #f5d76e; background: #fffdf0; }
+.revisao-campo { margin-top: 12px; }
+.revisao-valores { display: grid; grid-template-columns: 70px 1fr; gap: 5px 10px; margin-top: 6px; font-size: 12px; }
+.revisao-valores span { font-weight: 700; color: #64748b; }
+.revisao-valores p { margin: 0; white-space: pre-line; }
+.revisao-valores .proposto { color: #8a6800; font-weight: 600; }
+
+.metas-pendentes {
+  margin-top: 14px;
+  padding: 10px;
+  border: 1px solid #f2cf58;
+  border-radius: 6px;
+  background: #fff8d8;
+}
+
+.metas-pendentes .rotulo-pendente {
+  margin-bottom: 8px;
+  color: #8a6800;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.meta-proposta {
+  color: #6b5300;
+}
+
+.observacao-pendente {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid #f2cf58;
+  border-radius: 6px;
+  background: #fff8d8;
+  color: #6b5300;
+  font-size: 11px;
+  overflow-y: auto;
+
+  span { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  p { 
+  margin: 6px 0 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%; 
+}
+}
 
 .modal-avaliacao {
   display: flex;
@@ -139,7 +195,14 @@
   h4 { margin: 0; color: #1f2937; font-size: 13px; font-weight: 700; }
 }
 
-.descricao, .texto-vazio { margin: 0; color: #475569; font-size: 12px; line-height: 1.6; }
+.descricao, .texto-vazio { 
+  margin: 0; color: #475569; 
+  font-size: 12px; 
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  word-break: break-word; 
+  white-space: pre-line;
+}
 .texto-vazio { color: #94a3b8; font-style: italic; }
 
 .objetivo-indicador {
@@ -187,10 +250,16 @@
 }
 
 .formula-indicador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+  margin-top: 15px;
+  padding: 24px 20px;
   overflow-x: auto;
-  padding: 10px;
-  background: #f8fafc;
-  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background-color: #ffffff;
   text-align: center;
 }
 

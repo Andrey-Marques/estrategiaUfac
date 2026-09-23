@@ -279,6 +279,149 @@
   white-space: pre-line;
 }
 
+.informacao-revisao {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-color: #f5d76e;
+  background: #fffbea;
+  color: #7a5b00;
+
+  > i {
+    margin-top: 2px;
+    font-size: 17px;
+  }
+
+  strong {
+    display: block;
+    font-size: 14px;
+  }
+
+  p {
+    margin: 3px 0 0;
+    color: #806b2a;
+    font-size: 12px;
+  }
+
+  .observacao-revisao {
+    margin-top: 7px;
+    color: inherit;
+  }
+}
+
+.status-revisao-aprovada {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #166534;
+
+  p { color: #34734c; }
+}
+
+.status-revisao-rejeitada {
+  border-color: #fca5a5;
+  background: #fff1f2;
+  color: #b91c1c;
+
+  p { color: #a34b4b; }
+}
+
+.registro-pendente {
+  margin-top: 10px;
+  border: 1px solid #f2cf58;
+  border-radius: 6px;
+  background: #fff8d8;
+}
+
+.registro-pendente .texto-registro {
+  margin: 0;
+  color: #5f4b00;
+}
+
+.rotulo-pendente {
+  display: block;
+  padding: 8px 10px 0;
+  color: #8a6800;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.registro-pendente .texto-registro {
+  padding: 8px 10px 10px;
+}
+
+.registro-removido {
+  margin-top: 10px;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  background: #fff1f2;
+}
+
+.registro-removido .texto-registro {
+  margin: 0;
+  padding: 8px 10px 10px;
+  color: #991b1b;
+}
+
+.rotulo-removido {
+  display: block;
+  padding: 8px 10px 0;
+  color: #b91c1c;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.registro-orcamentario.registro-pendente {
+  padding: 0 10px 10px;
+}
+
+.registro-orcamentario.registro-pendente .rotulo-pendente {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.registro-orcamentario.registro-removido {
+  padding: 0 10px 10px;
+}
+
+.registro-orcamentario.registro-removido .rotulo-removido {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.progresso-pendente {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid #f2cf58;
+  border-radius: 6px;
+  background: #fff8d8;
+
+  > div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #8a6800;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  strong {
+    color: #5f4b00;
+    font-size: 16px;
+  }
+}
+
+.barra-pendente {
+  margin-top: 8px;
+  background: #f1e5a7;
+
+  .barra-progresso-preenchimento {
+    background: #d6a900;
+  }
+}
+
 
 /* TEMPO E CUSTO */
 

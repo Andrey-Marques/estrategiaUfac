@@ -25,12 +25,13 @@
     color: #ffffff;
   }
 }
+
 .container-conteudo {
   margin-bottom: 30px;
   border-radius: 5px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  overflow: hidden;
+  overflow: visible;
 }
 .filtro {
   .filtro-item {
@@ -56,11 +57,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  position: relative;
+  z-index: 2;
 
   padding: 16px 24px;
 
   border-bottom: 1px solid #e5e7eb;
 }
+
 
 
 /* ===============================
@@ -125,6 +129,31 @@
 
 .filtro-unidades {
   position: relative;
+}
+
+.informacao-projeto-estrategico {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 18px 0 22px;
+  padding: 14px 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e40af;
+
+  i {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.5;
+  }
 }
 
 
@@ -385,6 +414,30 @@ table {
   }
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+}
+
+.notificacao-revisao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 10px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.notificacao-revisao.revisao-aprovada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.notificacao-revisao.revisao-rejeitada {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 .linha-tabela:hover {
     background: #ffffff;

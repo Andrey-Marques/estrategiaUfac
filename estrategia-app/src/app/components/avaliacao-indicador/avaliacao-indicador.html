@@ -64,6 +64,15 @@
         </div>
       </section>
 
+      <section class="bloco informacao-revisao" *ngIf="revisao" [ngClass]="'status-revisao-' + revisao.status.toLowerCase()">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+          <strong>{{ obterRotuloRevisao(revisao.status) }}</strong>
+          <p>Enviada por {{ revisao.criado_por_nome }} em {{ revisao.criado_em | date:'dd/MM/yyyy HH:mm' }}<span *ngIf="revisao.analisado_em">. Analisada em {{ revisao.analisado_em | date:'dd/MM/yyyy HH:mm' }}.</span></p>
+          <p *ngIf="revisao.observacao"><strong>Observação:</strong> {{ revisao.observacao }}</p>
+        </div>
+      </section>
+
       <!-- ======================================= -->
       <!-- RESPONSÁVEL / UNIDADE -->
       <!-- ======================================= -->
@@ -238,13 +247,27 @@
         <ng-template #semMetas>
           <p class="texto-vazio">Nenhuma meta de monitoramento registrada.</p>
         </ng-template>
+
+        <div class="metas-pendentes" *ngIf="revisaoPendente && metasPropostas.length">
+          <div class="rotulo-pendente"><i class="bi bi-clock-history"></i> Metas propostas pendentes</div>
+          <div class="cabecalho-meta">
+            <span>Ano</span>
+            <span>Prevista</span>
+            <span>Alcançada</span>
+          </div>
+          <div class="linha-meta meta-proposta" *ngFor="let meta of metasPropostas">
+            <strong>{{ meta.ano }}</strong>
+            <span>{{ meta.meta_prevista }}</span>
+            <span>{{ meta.meta_alcancada }}</span>
+          </div>
+        </div>
       </section>
 
       <!-- ======================================= -->
       <!-- OBSERVAÇÕES DO INDICADOR -->
       <!-- ======================================= -->
 
-      <section class="bloco" *ngIf="indicador.observacao">
+      <section class="bloco" *ngIf="indicador.observacao || (revisaoPendente && observacaoProposta !== null)">
         <div class="titulo-bloco">
           <i class="bi bi-chat-left-text"></i>
 
@@ -254,6 +277,11 @@
         <p class="descricao">
           {{ indicador.observacao }}
         </p>
+
+        <div class="observacao-pendente" *ngIf="revisaoPendente && observacaoProposta !== null">
+          <span><i class="bi bi-clock-history"></i> Observação proposta pendente</span>
+          <p>{{ observacaoProposta || 'Observação removida na proposta.' }}</p>
+        </div>
       </section>
 
       <!-- ======================================= -->
@@ -353,17 +381,17 @@
       <button *ngIf="modoAvaliacao" type="button" class="btn btn-rejeitar" (click)="rejeitar()">
         <i class="bi bi-x-lg"></i>
 
-        Rejeitar indicador
+        {{ revisao?.status === 'PENDENTE' ? 'Rejeitar alterações' : 'Rejeitar indicador' }}
       </button>
 
       <button *ngIf="modoAvaliacao" type="button" class="btn btn-aprovar" (click)="aprovar()">
         <i class="bi bi-check-lg"></i>
 
-        Aprovar indicador
+        {{ revisao?.status === 'PENDENTE' ? 'Aprovar alterações' : 'Aprovar indicador' }}
       </button>
 
       <button
-        *ngIf="!modoAvaliacao && ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO')) || (isAdmin && indicador.status !== 'EM_ESPERA'))"
+        *ngIf="!modoAvaliacao && revisao?.status !== 'PENDENTE' && ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO')) || (isAdmin && indicador.status !== 'EM_ESPERA'))"
         type="button"
         class="btn btn-editar"
         (click)="editarIndicador()"

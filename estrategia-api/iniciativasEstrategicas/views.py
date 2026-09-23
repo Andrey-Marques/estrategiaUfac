@@ -6,6 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 from rest_framework.response import Response
+from revisoes.serializers import SubmissaoRevisaoIniciativaSerializer, RevisaoEdicaoSerializer
+from revisoes.services import criar_revisao_iniciativa
 class IniciativaEstrategicaViewSet(ModelViewSet):
     queryset = IniciativaEstrategica.objects.all()
     serializer_class = IniciativaEstrategicaSerializer
@@ -49,6 +51,12 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
             return None
 
         iniciativa = self.get_object()
+
+        if iniciativa.status == 'APROVADO':
+            return Response(
+                {'detail': 'Iniciativas publicadas devem ser alteradas através do fluxo de revisão.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if iniciativa.status == 'REJEITADO':
             campos_permitidos = {
@@ -100,6 +108,22 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
             serializer.save()
             return
         serializer.save(status='EM_ESPERA', observacao_analise='', data_analise=None, analisado_por=None)
+
+    @action(detail=True, methods=['post'], url_path='submeter-atualizacao')
+    def submeter_atualizacao(self, request, pk=None):
+        usuario = request.user
+        iniciativa = self.get_object()
+
+        if usuario.papel == 'ADMIN':
+            return Response(
+                {'detail': 'Administradores devem atualizar a iniciativa diretamente.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = SubmissaoRevisaoIniciativaSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        revisao = criar_revisao_iniciativa(iniciativa, serializer.validated_data, usuario)
+        return Response(RevisaoEdicaoSerializer(revisao).data, status=status.HTTP_201_CREATED)
         
     @action(detail=True, methods=['post'])
     def aprovar(self, request, pk=None):

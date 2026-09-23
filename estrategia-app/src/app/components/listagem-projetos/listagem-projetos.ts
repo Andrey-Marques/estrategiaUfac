@@ -11,6 +11,8 @@ import { UnidadeService } from '../../service/unidade.service';
 import { UsuarioService } from '../../service/usuario.service';
 import {EvolucaoOrcamentaria } from '../../model/projetoEstrategico';
 import { AvaliacaoProjeto } from '../avaliacao-projeto/avaliacao-projeto';
+import { RevisaoEdicao } from '../../model/revisaoEdicao';
+import { RevisaoService } from '../../service/revisao.service';
 
 @Component({
   selector: 'app-listagem-projetos',
@@ -47,6 +49,8 @@ export class ListagemProjetos {
   dadosFormularioAntesDaEdicao: any = null;
 
   projetoEmAnalise = signal<ProjetoEstrategico | null>(null);
+  revisoes = signal<RevisaoEdicao[]>([]);
+  revisaoEmAnalise = signal<RevisaoEdicao | null>(null);
 
   private datePipe = inject(DatePipe);
 
@@ -56,6 +60,7 @@ export class ListagemProjetos {
     private usuarioService: UsuarioService,
     private unidadeService: UnidadeService,
     private objetivoService: ObjetivoService,
+    private revisaoService: RevisaoService,
   ) {
     this.formularioProjeto = this.construtorFormulario.group({
       tituloProjeto: ['', Validators.required],
@@ -89,11 +94,22 @@ export class ListagemProjetos {
     });
   }
 
+  buscarRevisoes(): void {
+    this.revisaoService.listar().subscribe({
+      next: revisoes => {
+        this.revisoes.set(revisoes);
+        this.buscarProjeto();
+      },
+      error: erro => console.error('Erro ao buscar revisões de edição:', erro),
+    });
+  }
+
   buscarUsuarioAtual(): void {
     this.usuarioService.getAtual().subscribe({
       next: (usuario) => {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
+        this.buscarRevisoes();
       },
 
       error: (erro) => {
@@ -273,6 +289,7 @@ export class ListagemProjetos {
   }
 
   abrirAvaliacao(projeto: ProjetoEstrategico): void {
+    this.revisaoEmAnalise.set(this.obterRevisaoProjeto(projeto.id));
     this.projetoService.getById(projeto.id).subscribe({
       next: projetoDetalhado => {
         this.projetoEmAnalise.set(projetoDetalhado);
@@ -289,7 +306,52 @@ export class ListagemProjetos {
 
   fecharAvaliacao(): void {
     this.projetoEmAnalise.set(null);
+    this.revisaoEmAnalise.set(null);
   }
+
+  obterRevisaoProjeto(projetoId: number): RevisaoEdicao | null {
+    return this.revisoes()
+      .filter(revisao => revisao.entidade === 'PROJETO' && revisao.entidade_id === projetoId)
+      .sort((a, b) => {
+        if (a.status === 'PENDENTE' && b.status !== 'PENDENTE') return -1;
+        if (a.status !== 'PENDENTE' && b.status === 'PENDENTE') return 1;
+        return new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime();
+      })[0] ?? null;
+  }
+
+  obterRotuloStatusRevisao(status: string): string {
+    const rotulos: Record<string, string> = {
+      PENDENTE: 'Alteração pendente',
+      APROVADA: 'Alteração aprovada',
+      REJEITADA: 'Alteração rejeitada'
+    };
+    return rotulos[status] ?? status;
+  }
+
+  aprovarRevisao(revisao: RevisaoEdicao): void {
+    this.revisaoService.aprovar(revisao.id).subscribe({
+      next: () => {
+        window.alert('Alteração aprovada e publicada com sucesso.');
+        this.fecharAvaliacao();
+        this.buscarRevisoes();
+        this.buscarProjeto();
+      },
+      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível aprovar a revisão.'),
+    });
+  }
+
+  rejeitarRevisao(evento: { revisao: RevisaoEdicao; observacao: string }): void {
+    this.revisaoService.rejeitar(evento.revisao.id, evento.observacao).subscribe({
+      next: () => {
+        window.alert('Alteração rejeitada.');
+        this.fecharAvaliacao();
+        this.buscarRevisoes();
+        this.buscarProjeto();
+      },
+      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível rejeitar a revisão.'),
+    });
+  }
+
 
   editarProjetoRejeitado( projeto: ProjetoEstrategico): void {
 
@@ -420,11 +482,11 @@ export class ListagemProjetos {
     };
 
 
-    this.projetoService
-      .atualizarProjeto(
-        this.projetoSelecionadoId,
-        dadosAtualizacao
-      )
+    const envio = this.isAdmin()
+      ? this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao)
+      : this.projetoService.submeterAtualizacao(this.projetoSelecionadoId, dadosAtualizacao);
+
+    envio
       .subscribe({
 
         next: () => {
@@ -944,11 +1006,11 @@ export class ListagemProjetos {
         evolucoesOrcamentarias
     };
 
-    this.projetoService
-      .atualizarProjeto(
-        this.projetoSelecionadoId,
-        dadosAtualizacao
-      )
+    const envio = this.isAdmin()
+      ? this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao)
+      : this.projetoService.submeterAtualizacao(this.projetoSelecionadoId, dadosAtualizacao);
+
+    envio
       .subscribe({
         next: () => {
           if (this.isAdmin()) {

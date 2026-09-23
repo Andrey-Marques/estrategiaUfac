@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProjetoEstrategico } from '../../model/projetoEstrategico';
+import { DiferencaRevisao, RevisaoEdicao } from '../../model/revisaoEdicao';
 
 type ProjetoAvaliacao = ProjetoEstrategico & {
   responsavel_nome?: string;
@@ -27,6 +28,8 @@ export class AvaliacaoProjeto {
 
   @Input() isAdmin = false;
 
+  @Input() revisao: RevisaoEdicao | null = null;
+
   @Output()
   fechado = new EventEmitter<void>();
 
@@ -37,13 +40,22 @@ export class AvaliacaoProjeto {
   rejeitado = new EventEmitter<DecisaoProjeto>();
 
   @Output()
+  revisaoAprovada = new EventEmitter<RevisaoEdicao>();
+
+  @Output()
+  revisaoRejeitada = new EventEmitter<{ revisao: RevisaoEdicao; observacao: string }>();
+
+  @Output()
   editar = new EventEmitter<ProjetoEstrategico>();
 
     observacao = '';
     mensagemErro = '';
 
   get modoAvaliacao(): boolean {
-    return this.isAdmin && this.projeto.status === 'EM_ESPERA';
+    return this.isAdmin && (
+      this.projeto.status === 'EM_ESPERA' ||
+      this.revisao?.status === 'PENDENTE'
+    );
   }
 
   get modoVisualizacao(): boolean {
@@ -67,6 +79,82 @@ export class AvaliacaoProjeto {
       );
   }
 
+  get diferencaRealizacoes(): DiferencaRevisao | null {
+    return this.revisao?.diferencas['evolucoes'] ?? null;
+  }
+
+  get diferencaOrcamento(): DiferencaRevisao | null {
+    return this.revisao?.diferencas['evolucoesOrcamentarias'] ?? null;
+  }
+
+  get diferencaProgresso(): DiferencaRevisao | null {
+    return this.revisao?.diferencas['percentual_progresso'] ?? null;
+  }
+
+  get revisaoPendente(): boolean {
+    return this.revisao?.status === 'PENDENTE';
+  }
+
+  obterRotuloStatusRevisao(status: string): string {
+    const rotulos: Record<string, string> = {
+      PENDENTE: 'Alteração pendente de análise',
+      APROVADA: 'Alteração aprovada',
+      REJEITADA: 'Alteração rejeitada'
+    };
+    return rotulos[status] ?? status;
+  }
+
+  get realizacoesPropostas(): Array<{ descricao?: string }> {
+    const evolucoes = this.diferencaRealizacoes?.proposto;
+    return Array.isArray(evolucoes)
+      ? evolucoes.filter(item => item?.tipo === 'REALIZACAO')
+      : [];
+  }
+
+  get proximosPassosPropostos(): Array<{ descricao?: string }> {
+    const evolucoes = this.diferencaRealizacoes?.proposto;
+    return Array.isArray(evolucoes)
+      ? evolucoes.filter(item => item?.tipo === 'PROXIMO_PASSO')
+      : [];
+  }
+
+  get realizacoesRemovidas(): Array<{ descricao?: string }> {
+    const anteriores = this.diferencaRealizacoes?.anterior;
+    const propostos = this.diferencaRealizacoes?.proposto;
+    if (!Array.isArray(anteriores) || !Array.isArray(propostos)) return [];
+
+    return anteriores.filter(item => item?.tipo === 'REALIZACAO' && !propostos.some(proposto =>
+      proposto?.tipo === item.tipo && proposto?.descricao === item.descricao
+    ));
+  }
+
+  get proximosPassosRemovidos(): Array<{ descricao?: string }> {
+    const anteriores = this.diferencaRealizacoes?.anterior;
+    const propostos = this.diferencaRealizacoes?.proposto;
+    if (!Array.isArray(anteriores) || !Array.isArray(propostos)) return [];
+
+    return anteriores.filter(item => item?.tipo === 'PROXIMO_PASSO' && !propostos.some(proposto =>
+      proposto?.tipo === item.tipo && proposto?.descricao === item.descricao
+    ));
+  }
+
+  get orcamentosPropostos(): Array<{ valor?: string | number; descricao?: string; data_registro?: string }> {
+    const orcamentos = this.diferencaOrcamento?.proposto;
+    return Array.isArray(orcamentos) ? orcamentos : [];
+  }
+
+  get orcamentosRemovidos(): Array<{ valor?: string | number; descricao?: string; data_registro?: string }> {
+    const anteriores = this.diferencaOrcamento?.anterior;
+    const propostos = this.diferencaOrcamento?.proposto;
+    if (!Array.isArray(anteriores) || !Array.isArray(propostos)) return [];
+
+    return anteriores.filter(item => !propostos.some(proposto =>
+      String(proposto?.valor) === String(item?.valor) &&
+      proposto?.descricao === item?.descricao &&
+      proposto?.data_registro === item?.data_registro
+    ));
+  }
+
   editarProjeto(): void {
     this.editar.emit(this.projeto);
   }
@@ -78,6 +166,11 @@ export class AvaliacaoProjeto {
   }
 
   aprovar(): void {
+    if (this.revisao) {
+      this.revisaoAprovada.emit(this.revisao);
+      return;
+    }
+
     this.aprovado.emit({
       projeto: this.projeto,
       observacao: this.observacao.trim()
@@ -92,11 +185,17 @@ export class AvaliacaoProjeto {
       return;
     }
 
+    if (this.revisao) {
+      this.revisaoRejeitada.emit({ revisao: this.revisao, observacao });
+      return;
+    }
+
     this.rejeitado.emit({
       projeto: this.projeto,
       observacao
     });
   }
+
 
   obterRotuloStatus(): string {
     const rotulos: Record<string, string> = {

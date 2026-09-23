@@ -11,7 +11,7 @@
       por um administrador da PROPLAN.
     </p>
     <p *ngIf="isAdmin()">
-      Bem vindo(a) de volta, Andrey. Aqui você pode monitorar o andamento das suas metas
+      Bem vindo(a) de volta, {{ usuario.first_name || usuario.username }}. Aqui você pode monitorar o andamento das suas metas
       institucionais e realizar a homologação das propostas enviadas pelas unidades descentralizadas
       da UFAC.
     </p>
@@ -27,13 +27,28 @@
     <!-- Abas de Navegação -->
     <div class="tabela-tabs">
       <button class="tab-item" [class.ativo]="abaAtiva === 1" (click)="mudarAba(1)">
-        Projetos Estratégicos
+        <span class="tabulo-com-notificacao">
+          Projetos Estratégicos
+          <span class="notificacao-aba" *ngIf="isAdmin() && listaProjetos().length > 0" [attr.aria-label]="listaProjetos().length + ' projeto(s) pendente(s)'">
+            {{ listaProjetos().length }}
+          </span>
+        </span>
       </button>
       <button class="tab-item" [class.ativo]="abaAtiva === 2" (click)="mudarAba(2)">
-        Iniciativas Estratégicas
+        <span class="tabulo-com-notificacao">
+          Iniciativas Estratégicas
+          <span class="notificacao-aba" *ngIf="isAdmin() && listaIniciativas().length > 0" [attr.aria-label]="listaIniciativas().length + ' iniciativa(s) pendente(s)'">
+            {{ listaIniciativas().length }}
+          </span>
+        </span>
       </button>
       <button class="tab-item" [class.ativo]="abaAtiva === 3" (click)="mudarAba(3)">
-        Indicadores Estratégicos
+        <span class="tabulo-com-notificacao">
+          Indicadores Estratégicos
+          <span class="notificacao-aba" *ngIf="isAdmin() && listaIndicadores.length > 0" [attr.aria-label]="listaIndicadores.length + ' indicador(es) pendente(s)'">
+            {{ listaIndicadores.length }}
+          </span>
+        </span>
       </button>
     </div>
 
@@ -63,6 +78,15 @@
             <div class="registro-informacoes">
               <span class="registro-titulo">
                 {{ projeto.nome }}
+                <ng-container *ngIf="obterRevisaoProjeto(projeto.id) as revisaoProjeto">
+                  <span class="notificacao-revisao" [ngClass]="'revisao-' + revisaoProjeto.status.toLowerCase()">
+                    <i class="bi" [ngClass]="{
+                      'bi-bell-fill': revisaoProjeto.status === 'PENDENTE',
+                      'bi-check-circle-fill': revisaoProjeto.status === 'APROVADA',
+                      'bi-x-circle-fill': revisaoProjeto.status === 'REJEITADA'
+                    }"></i> {{ obterRotuloStatusRevisao(revisaoProjeto.status) }}
+                  </span>
+                </ng-container>
               </span>
 
               <small> Líder: <br />{{ projeto.responsavel_nome || '-' }} </small>
@@ -103,6 +127,12 @@
             <div class="registro-informacoes">
               <span class="registro-titulo">
                 {{ iniciativa.nome }}
+                <ng-container *ngIf="obterRevisao('INICIATIVA', iniciativa.id) as revisao">
+                  <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
+                    <i class="bi" [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+                    {{ obterRotuloStatusRevisao(revisao.status) }}
+                  </span>
+                </ng-container>
               </span>
 
               <small>
@@ -158,7 +188,15 @@
         <div class="lista-registros" *ngIf="listaIndicadores.length > 0">
           <div class="registro-item" *ngFor="let indicador of listaIndicadores">
             <div class="registro-informacoes">
-              <span class="registro-titulo">{{ indicador.nome }}</span>
+              <span class="registro-titulo">
+                {{ indicador.nome }}
+                <ng-container *ngIf="obterRevisao('INDICADOR', indicador.id) as revisao">
+                  <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
+                    <i class="bi" [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+                    {{ obterRotuloStatusRevisao(revisao.status) }}
+                  </span>
+                </ng-container>
+              </span>
               <small>Responsável:<br />{{ indicador.responsavel_nome || '-' }}</small>
               <small>Unidade:<br />{{ indicador.unidade_sigla || '-' }}</small>
             </div>
@@ -176,25 +214,34 @@
   *ngIf="projetoEmAnalise() as projetoSelecionado"
   [projeto]="projetoSelecionado"
   [isAdmin]="isAdmin()"
+  [revisao]="revisaoEmAnalise()"
   (fechado)="fecharAvaliacao()"
   (aprovado)="aprovarProjeto($event)"
   (rejeitado)="rejeitarProjeto($event)"
+  (revisaoAprovada)="aprovarRevisao($event)"
+  (revisaoRejeitada)="rejeitarRevisao($event)"
 >
 </app-avaliacao-projeto>
 <app-avaliacao-iniciativa
   *ngIf="iniciativaEmAnalise() as iniciativaSelecionada"
   [iniciativa]="iniciativaSelecionada"
   [isAdmin]="isAdmin()"
+  [revisao]="revisaoIniciativaEmAnalise()"
   (fechado)="fecharAvaliacaoIniciativa()"
   (aprovado)="aprovarIniciativa($event)"
   (rejeitado)="rejeitarIniciativa($event)"
+  (revisaoAprovada)="aprovarRevisao($event)"
+  (revisaoRejeitada)="rejeitarRevisao($event)"
 >
 </app-avaliacao-iniciativa>
 <app-avaliacao-indicador
   *ngIf="indicadorEmAnalise as indicadorSelecionado"
   [indicador]="indicadorSelecionado"
   [isAdmin]="isAdmin()"
+  [revisao]="revisaoIndicadorEmAnalise()"
   (fechado)="fecharAvaliacaoIndicador()"
   (aprovado)="aprovarIndicador($event)"
   (rejeitado)="rejeitarIndicador($event)"
+  (revisaoAprovada)="aprovarRevisao($event)"
+  (revisaoRejeitada)="rejeitarRevisao($event)"
 ></app-avaliacao-indicador>
