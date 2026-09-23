@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Usuario } from '../model/usuario';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
@@ -22,5 +23,9 @@ export class UsuarioService {
 
   salvarMeuPerfil(dados: Partial<Usuario>) {
     return this.http.patch<Usuario>(`${this.url}me/`, dados);
+  }
+
+  cadastrarUsuario(dados: any):Observable<any>{
+    return this.http.post(this.url, dados)
   }
 }

@@ -1,32 +1,53 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal } from '@angular/core';
+import { CommonModule, DatePipe} from '@angular/common';
 import { BarraLateral } from '../utils/barra-lateral/barra-lateral';
 import { InfoBar } from '../utils/info-bar/info-bar';
 import { FormsModule } from '@angular/forms';
+import { UsuarioService } from '../../service/usuario.service';
+import { Usuario } from '../../model/usuario';
+import { Unidade } from '../../model/unidade';
+import { UnidadeService } from '../../service/unidade.service';
 
       //chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
-interface Usuario {
-  id: number;
-  username: string;
-  nome_completo: string;
-  nome_social?: string;
-  cpf: string
-  email: string;
-  papel: string;
-  unidade: string;
-  password?: string;
-  dataCadastro?: string;
-  status?: 'ATIVO' | 'INATIVO';
-}
 @Component({
   selector: 'app-tela-cadastro',
   imports: [CommonModule, BarraLateral, InfoBar, FormsModule],
   templateUrl: './tela-cadastro.html',
   styleUrl: './tela-cadastro.scss',
+  providers: [DatePipe]
 })
 export class TelaCadastro {
 
+  constructor(private usuarioService: UsuarioService, private unidadeService: UnidadeService){}
+  ngOnInit(): void {
+    this.buscarUsuarios();
+    this.buscarUnidade();
+  }
+  
+
+  usuarios = signal<Usuario[]>([]);
+  unidades = signal<Unidade[]>([]);
   unidades_selecionadas: string[] = [];
+
+  buscarUsuarios(){
+    this.usuarioService.get().subscribe({
+      next: (usuario) => this.usuarios.set(usuario),
+      error: (erro) => console.error('erro ao buscar projetos', erro)
+    })
+  }
+
+  buscarUnidade(){
+    this.unidadeService.get().subscribe({
+      next: (unidade)=> this.unidades.set(unidade),
+      error: (erro) => console.error('Erro ao buscar unidade', erro)
+    })
+  }
+
+  obterUnidade(usuario: Usuario): Unidade | undefined{
+    return this.unidades().find(
+      unidade => unidade.id === usuario.unidade
+    )
+  }
 
   filtrarUnidade(unidade: string): void {
      if (this.unidades_selecionadas.includes(unidade)){
@@ -45,20 +66,6 @@ export class TelaCadastro {
       this.filtroAberto = !this.filtroAberto;
     }
 
-
-      usuarios: Usuario[] = [
-        {
-          id: 1,
-          username: 'fulano.silva',
-          nome_completo: 'Fulano Sicrano Da Silva',
-          email: 'fulano@ufac.br',
-          papel: 'SERVIDOR',
-          unidade: 'PROGRAD',
-          dataCadastro: '2026-07-09',
-          status: 'ATIVO',
-          cpf: "00000000000"
-        }
-      ];
     modalAberto = false;
     modoVisualizacao = false;
  
@@ -69,11 +76,19 @@ export class TelaCadastro {
     }
 
     abrirModal():void {
-      //chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
       this.usuarioSelecionado = {
-        id: 0, username: '', nome_completo: '', email: '',
-        papel: '', unidade: '', password: '',  nome_social: '', cpf:''
+        id: 0,
+        username: '',
+        nome_completo: '',
+        nome_social: '',
+        cpf: '',
+        email: '',
+        date_joined: '',
+        papel: '',
+        unidade: null,
+        password: ''
       };
+
       this.modalAberto = true;
       this.modoVisualizacao = false;
     }
@@ -88,17 +103,7 @@ export class TelaCadastro {
  
 
       cadastrarUsuario(): void {
-          if (!this.usuarioSelecionado?.nome_completo) return;
-
-              const novo: Usuario = {
-                ...this.usuarioSelecionado,
-                id: Date.now(), // provisório; o backend vai gerar o id
-                dataCadastro: new Date().toISOString().slice(0, 10),
-                status: 'ATIVO'
-          };
-
-          this.usuarios = [...this.usuarios, novo];
-          this.fecharModal();
+         
           // TODO integração: POST /usuarios
         }
 
@@ -126,7 +131,6 @@ export class TelaCadastro {
         if (!this.usuarioParaExcluir) return;
 
         const id = this.usuarioParaExcluir.id;
-        this.usuarios = this.usuarios.filter(u => u.id !== id);
 
         this.cancelarExclusao();
         // TODO integração: DELETE /usuarios/{id}
@@ -138,9 +142,10 @@ export class TelaCadastro {
       usuarioParaStatus: Usuario | null = null;
 
       // texto do modal: se está ativo, a ação é inativar (e vice-versa)
-      get acaoStatus(): 'Ativar' | 'Inativar' {
-        return this.usuarioParaStatus?.status === 'ATIVO' ? 'Inativar' : 'Ativar';
-      }
+
+      // get acaoStatus(): 'Ativar' | 'Inativar' {
+      //   return this.usuarioParaStatus?. === 'ATIVO' ? 'Inativar' : 'Ativar';
+      // }
 
       abrirConfirmacaoStatus(usuario: Usuario): void {
         this.usuarioParaStatus = usuario;
@@ -152,18 +157,14 @@ export class TelaCadastro {
         this.usuarioParaStatus = null;
       }
 
-      confirmarAlteracaoStatus(): void {
-        if (!this.usuarioParaStatus) return;
+      // confirmarAlteracaoStatus(): void {
+      //   if (!this.usuarioParaStatus) return;
 
-        const id = this.usuarioParaStatus.id;
-        const novoStatus: 'ATIVO' | 'INATIVO' =
-          this.usuarioParaStatus.status === 'ATIVO' ? 'INATIVO' : 'ATIVO';
+      //   const id = this.usuarioParaStatus.id;
+      //   const novoStatus: 'ATIVO' | 'INATIVO' =
+      //     this.usuarioParaStatus.status === 'ATIVO' ? 'INATIVO' : 'ATIVO';
 
-        this.usuarios = this.usuarios.map(u =>
-          u.id === id ? { ...u, status: novoStatus } : u
-        );
-
-        this.cancelarAlteracaoStatus();
-      }
+      //   this.cancelarAlteracaoStatus();
+      // }
 
 }

@@ -9,6 +9,7 @@ export interface Usuario {
   nome_social: string;
   cpf: string;
   email: string;
+  date_joined: string;
   papel: PapelUsuario;
   unidade: Unidade | number | null;
   unidade_nome?: string;
