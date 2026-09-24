@@ -9,7 +9,7 @@ import { ObjetivoService } from '../../service/objetivo.service';
 import { ProjetoService } from '../../service/projeto.service';
 import { UnidadeService } from '../../service/unidade.service';
 import { UsuarioService } from '../../service/usuario.service';
-import {EvolucaoOrcamentaria } from '../../model/projetoEstrategico';
+import { EvolucaoOrcamentaria } from '../../model/projetoEstrategico';
 import { AvaliacaoProjeto } from '../avaliacao-projeto/avaliacao-projeto';
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import { RevisaoService } from '../../service/revisao.service';
@@ -38,7 +38,7 @@ export class ListagemProjetos {
 
   filtroStatus = signal<string>('TODOS');
   termoPesquisa = signal<string>('');
-  unidadeSelecionadas =signal<number[]>([]);
+  unidadeSelecionadas = signal<number[]>([]);
   menuUnidadesAberto = signal(false);
 
   realizacoesConcluidas = signal<string[]>([]);
@@ -70,7 +70,7 @@ export class ListagemProjetos {
       tempoEstimado: ['', Validators.required],
       custoEstimado: [0, Validators.required],
 
-      percentualProgresso: [0,[ Validators.required, Validators.min(0), Validators.max(100)]],
+      percentualProgresso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
       valorInvestido: [null],
       descricaoOrcamentaria: [''],
       dataOrcamentaria: [''],
@@ -96,11 +96,11 @@ export class ListagemProjetos {
 
   buscarRevisoes(): void {
     this.revisaoService.listar().subscribe({
-      next: revisoes => {
+      next: (revisoes) => {
         this.revisoes.set(revisoes);
         this.buscarProjeto();
       },
-      error: erro => console.error('Erro ao buscar revisões de edição:', erro),
+      error: (erro) => console.error('Erro ao buscar revisões de edição:', erro),
     });
   }
 
@@ -113,10 +113,7 @@ export class ListagemProjetos {
       },
 
       error: (erro) => {
-        console.error(
-          'Erro ao buscar usuário atual:',
-          erro
-        );
+        console.error('Erro ao buscar usuário atual:', erro);
       },
     });
   }
@@ -125,47 +122,27 @@ export class ListagemProjetos {
     this.filtroStatus.set(status);
   }
 
-  pesquisarProjeto(evento: Event): void{
+  pesquisarProjeto(evento: Event): void {
     const input = evento.target as HTMLInputElement;
 
-    this.termoPesquisa.set(
-      input.value.trim().toLowerCase()
-    );
+    this.termoPesquisa.set(input.value.trim().toLowerCase());
   }
 
   alternarUnidade(unidadeId: number): void {
-
     const selecionadas = this.unidadeSelecionadas();
 
     if (selecionadas.includes(unidadeId)) {
-
-      this.unidadeSelecionadas.set(
-        selecionadas.filter(
-          id => id !== unidadeId
-        )
-      );
-
+      this.unidadeSelecionadas.set(selecionadas.filter((id) => id !== unidadeId));
     } else {
-
-      this.unidadeSelecionadas.set([
-        ...selecionadas,
-        unidadeId
-      ]);
-
+      this.unidadeSelecionadas.set([...selecionadas, unidadeId]);
     }
   }
-  unidadeEstaSelecionada(
-    unidadeId: number
-  ): boolean {
-
-    return this.unidadeSelecionadas()
-      .includes(unidadeId);
+  unidadeEstaSelecionada(unidadeId: number): boolean {
+    return this.unidadeSelecionadas().includes(unidadeId);
   }
 
   alternarMenuUnidades(): void {
-    this.menuUnidadesAberto.update(
-      aberto => !aberto
-    );
+    this.menuUnidadesAberto.update((aberto) => !aberto);
   }
 
   limparFiltroUnidades(): void {
@@ -173,60 +150,36 @@ export class ListagemProjetos {
   }
 
   projetosFiltrados(): ProjetoEstrategico[] {
+    const status = this.filtroStatus();
 
-    const status =
-      this.filtroStatus();
+    const pesquisa = this.termoPesquisa();
 
-    const pesquisa =
-      this.termoPesquisa();
+    const unidadeSelecionadas = this.unidadeSelecionadas();
 
-    const unidadeSelecionadas =
-      this.unidadeSelecionadas();
+    return this.projetos().filter((projeto) => {
+      // ========================
+      // FILTRO DE STATUS
+      // ========================
 
+      const atendeStatus = status === 'TODOS' || projeto.status === status;
 
-    return this.projetos().filter(
-      projeto => {
+      // ========================
+      // PESQUISA PELO NOME
+      // ========================
 
-        // ========================
-        // FILTRO DE STATUS
-        // ========================
+      const nomeProjeto = projeto.nome?.toLowerCase() ?? '';
 
-        const atendeStatus =
-          status === 'TODOS' ||
-          projeto.status === status;
+      const atendePesquisa = !pesquisa || nomeProjeto.includes(pesquisa);
 
+      // ========================
+      // FILTRO DE UNIDADE
+      // ========================
 
-        // ========================
-        // PESQUISA PELO NOME
-        // ========================
+      const atendeUnidade =
+        unidadeSelecionadas.length === 0 || unidadeSelecionadas.includes(Number(projeto.unidade));
 
-        const nomeProjeto =
-          projeto.nome
-            ?.toLowerCase() ?? '';
-
-        const atendePesquisa =
-          !pesquisa ||
-          nomeProjeto.includes(pesquisa);
-
-
-        // ========================
-        // FILTRO DE UNIDADE
-        // ========================
-
-        const atendeUnidade =
-          unidadeSelecionadas.length === 0 ||
-          unidadeSelecionadas.includes(
-            Number(projeto.unidade)
-          );
-
-
-        return (
-          atendeStatus &&
-          atendePesquisa &&
-          atendeUnidade
-        );
-      }
-    );
+      return atendeStatus && atendePesquisa && atendeUnidade;
+    });
   }
 
   visualizarProjeto(projeto: ProjetoEstrategico): void {
@@ -237,13 +190,9 @@ export class ListagemProjetos {
 
     this.projetoService.getById(projeto.id).subscribe({
       next: (projetoDetalhado) => {
-        this.carregarEvolucoesProjeto(
-          projetoDetalhado
-        );
+        this.carregarEvolucoesProjeto(projetoDetalhado);
 
-        this.evolucoesOrcamentarias.set(
-          projetoDetalhado.evolucoesOrcamentarias ?? []
-        );
+        this.evolucoesOrcamentarias.set(projetoDetalhado.evolucoesOrcamentarias ?? []);
         this.formularioProjeto.patchValue({
           tituloProjeto: projetoDetalhado.nome,
           liderProjeto: projetoDetalhado.responsavel,
@@ -252,18 +201,14 @@ export class ListagemProjetos {
           tempoEstimado: projetoDetalhado.tempo_estimado,
           custoEstimado: projetoDetalhado.custo_estimado,
 
-          percentualProgresso:
-            projetoDetalhado.percentual_progresso,
+          percentualProgresso: projetoDetalhado.percentual_progresso,
 
           valorInvestido: null,
           descricaoOrcamentaria: '',
 
-          acoesPrevistas:
-            projetoDetalhado.acoes_previstas,
+          acoesPrevistas: projetoDetalhado.acoes_previstas,
 
-          objetivos: this.normalizarIds(
-            projetoDetalhado.objetivos ?? []
-          )
+          objetivos: this.normalizarIds(projetoDetalhado.objetivos ?? []),
         });
         this.formularioProjeto.disable();
         this.etapaAtual = 1;
@@ -291,16 +236,13 @@ export class ListagemProjetos {
   abrirAvaliacao(projeto: ProjetoEstrategico): void {
     this.revisaoEmAnalise.set(this.obterRevisaoProjeto(projeto.id));
     this.projetoService.getById(projeto.id).subscribe({
-      next: projetoDetalhado => {
+      next: (projetoDetalhado) => {
         this.projetoEmAnalise.set(projetoDetalhado);
       },
 
-      error: erro => {
-        console.error(
-          'Erro ao carregar projeto:',
-          erro
-        );
-      }
+      error: (erro) => {
+        console.error('Erro ao carregar projeto:', erro);
+      },
     });
   }
 
@@ -310,20 +252,22 @@ export class ListagemProjetos {
   }
 
   obterRevisaoProjeto(projetoId: number): RevisaoEdicao | null {
-    return this.revisoes()
-      .filter(revisao => revisao.entidade === 'PROJETO' && revisao.entidade_id === projetoId)
-      .sort((a, b) => {
-        if (a.status === 'PENDENTE' && b.status !== 'PENDENTE') return -1;
-        if (a.status !== 'PENDENTE' && b.status === 'PENDENTE') return 1;
-        return new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime();
-      })[0] ?? null;
+    return (
+      this.revisoes()
+        .filter((revisao) => revisao.entidade === 'PROJETO' && revisao.entidade_id === projetoId)
+        .sort((a, b) => {
+          if (a.status === 'PENDENTE' && b.status !== 'PENDENTE') return -1;
+          if (a.status !== 'PENDENTE' && b.status === 'PENDENTE') return 1;
+          return new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime();
+        })[0] ?? null
+    );
   }
 
   obterRotuloStatusRevisao(status: string): string {
     const rotulos: Record<string, string> = {
       PENDENTE: 'Alteração pendente',
       APROVADA: 'Alteração aprovada',
-      REJEITADA: 'Alteração rejeitada'
+      REJEITADA: 'Alteração rejeitada',
     };
     return rotulos[status] ?? status;
   }
@@ -336,7 +280,7 @@ export class ListagemProjetos {
         this.buscarRevisoes();
         this.buscarProjeto();
       },
-      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível aprovar a revisão.'),
+      error: (erro) => window.alert(erro.error?.detail ?? 'Não foi possível aprovar a revisão.'),
     });
   }
 
@@ -348,13 +292,11 @@ export class ListagemProjetos {
         this.buscarRevisoes();
         this.buscarProjeto();
       },
-      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível rejeitar a revisão.'),
+      error: (erro) => window.alert(erro.error?.detail ?? 'Não foi possível rejeitar a revisão.'),
     });
   }
 
-
-  editarProjetoRejeitado( projeto: ProjetoEstrategico): void {
-
+  editarProjetoRejeitado(projeto: ProjetoEstrategico): void {
     this.fecharAvaliacao();
 
     this.projetoSelecionadoId = projeto.id;
@@ -366,69 +308,46 @@ export class ListagemProjetos {
     this.modoEdicaoEtapa3 = false;
 
     this.projetoService.getById(projeto.id).subscribe({
-      next: projetoDetalhado => {
-
-        this.carregarEvolucoesProjeto(
-          projetoDetalhado
-        );
-        this.evolucoesOrcamentarias.set(
-          projetoDetalhado.evolucoesOrcamentarias ?? []
-        );
+      next: (projetoDetalhado) => {
+        this.carregarEvolucoesProjeto(projetoDetalhado);
+        this.evolucoesOrcamentarias.set(projetoDetalhado.evolucoesOrcamentarias ?? []);
         this.formularioProjeto.enable();
 
         this.formularioProjeto.patchValue({
+          tituloProjeto: projetoDetalhado.nome,
 
-          tituloProjeto:
-            projetoDetalhado.nome,
+          liderProjeto: projetoDetalhado.responsavel,
 
-          liderProjeto:
-            projetoDetalhado.responsavel,
+          unidadeResponsavel: projetoDetalhado.unidade,
 
-          unidadeResponsavel:
-            projetoDetalhado.unidade,
+          descricao: projetoDetalhado.descricao,
 
-          descricao:
-            projetoDetalhado.descricao,
+          tempoEstimado: projetoDetalhado.tempo_estimado,
 
-          tempoEstimado:
-            projetoDetalhado.tempo_estimado,
+          custoEstimado: projetoDetalhado.custo_estimado,
 
-          custoEstimado:
-            projetoDetalhado.custo_estimado,
-
-          percentualProgresso:
-            projetoDetalhado.percentual_progresso,
+          percentualProgresso: projetoDetalhado.percentual_progresso,
 
           valorInvestido: null,
 
           descricaoOrcamentaria: '',
 
-          acoesPrevistas:
-            projetoDetalhado.acoes_previstas,
+          acoesPrevistas: projetoDetalhado.acoes_previstas,
 
-          objetivos: this.normalizarIds(
-            projetoDetalhado.objetivos ?? []
-          )
+          objetivos: this.normalizarIds(projetoDetalhado.objetivos ?? []),
         });
 
         this.etapaAtual = 1;
       },
-      error: erro => {
-        console.error(
-          'Erro ao carregar projeto rejeitado:',
-          erro
-        );
+      error: (erro) => {
+        console.error('Erro ao carregar projeto rejeitado:', erro);
 
-        window.alert(
-          'Não foi possível carregar o projeto para edição.'
-        );
-      }
-
+        window.alert('Não foi possível carregar o projeto para edição.');
+      },
     });
   }
 
   reenviarProjetoRejeitado(): void {
-
     if (!this.projetoSelecionadoId) {
       return;
     }
@@ -436,90 +355,63 @@ export class ListagemProjetos {
     if (this.formularioProjeto.invalid) {
       this.formularioProjeto.markAllAsTouched();
 
-      window.alert(
-        'Preencha corretamente os campos obrigatórios.'
-      );
+      window.alert('Preencha corretamente os campos obrigatórios.');
 
       return;
     }
 
-    const formulario =
-      this.formularioProjeto.getRawValue();
+    const formulario = this.formularioProjeto.getRawValue();
 
     const dadosAtualizacao = {
+      nome: formulario.tituloProjeto,
 
-      nome:
-        formulario.tituloProjeto,
+      descricao: formulario.descricao,
 
-      descricao:
-        formulario.descricao,
+      tempo_estimado: formulario.tempoEstimado,
 
-      tempo_estimado:
-        formulario.tempoEstimado,
+      custo_estimado: Number(formulario.custoEstimado),
 
-      custo_estimado:
-        Number(formulario.custoEstimado),
+      percentual_progresso: Number(formulario.percentualProgresso ?? 0),
 
-      percentual_progresso:
-        Number(formulario.percentualProgresso ?? 0),
+      responsavel: formulario.liderProjeto,
 
-      responsavel:
-        formulario.liderProjeto,
+      unidade: formulario.unidadeResponsavel,
 
-      unidade:
-        formulario.unidadeResponsavel,
+      acoes_previstas: formulario.acoesPrevistas,
 
-      acoes_previstas:
-        formulario.acoesPrevistas,
+      objetivos: formulario.objetivos ?? [],
 
-      objetivos:
-        formulario.objetivos ?? [],
+      evolucoes: this.montarEvolucoes(),
 
-      evolucoes:
-        this.montarEvolucoes(),
-
-      status: 'EM_ESPERA'
+      status: 'EM_ESPERA',
     };
-
 
     const envio = this.isAdmin()
       ? this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao)
       : this.projetoService.submeterAtualizacao(this.projetoSelecionadoId, dadosAtualizacao);
 
-    envio
-      .subscribe({
+    envio.subscribe({
+      next: () => {
+        window.alert('Projeto reenviado para análise com sucesso.');
 
-        next: () => {
+        this.editandoProjetoRejeitado = false;
+        this.projetoSelecionadoId = null;
 
-          window.alert(
-            'Projeto reenviado para análise com sucesso.'
-          );
+        this.fecharModal();
+        this.buscarProjeto();
 
-          this.editandoProjetoRejeitado = false;
-          this.projetoSelecionadoId = null;
+        this.formularioProjeto.reset();
+        this.limparEvolucoesProjeto();
 
-          this.fecharModal();
-          this.buscarProjeto();
+        this.etapaAtual = 1;
+      },
 
-          this.formularioProjeto.reset();
-          this.limparEvolucoesProjeto();
+      error: (erro) => {
+        console.error('Erro ao reenviar projeto:', erro);
 
-          this.etapaAtual = 1;
-        },
-
-        error: erro => {
-
-          console.error(
-            'Erro ao reenviar projeto:',
-            erro
-          );
-
-          window.alert(
-            'Não foi possível reenviar o projeto.'
-          );
-        }
-
-      });
+        window.alert('Não foi possível reenviar o projeto.');
+      },
+    });
   }
 
   cancelarEdicaoProjetoRejeitado(): void {
@@ -532,16 +424,12 @@ export class ListagemProjetos {
     this.etapaAtual = 1;
     this.fecharModal();
   }
-  abrirEdicaoPeloModal( projeto: ProjetoEstrategico): void {
-
+  abrirEdicaoPeloModal(projeto: ProjetoEstrategico): void {
     this.fecharAvaliacao();
 
     this.editandoProjetoRejeitado = false;
 
-    if (
-      projeto.status === 'REJEITADO' &&
-      !this.isAdmin()
-    ) {
+    if (projeto.status === 'REJEITADO' && !this.isAdmin()) {
       this.editarProjetoRejeitado(projeto);
       return;
     }
@@ -549,109 +437,77 @@ export class ListagemProjetos {
     this.visualizando = true;
 
     this.projetoService.getById(projeto.id).subscribe({
-      next: projetoDetalhado => {
-
-        this.projetoSelecionadoId =
-          projetoDetalhado.id;
+      next: (projetoDetalhado) => {
+        this.projetoSelecionadoId = projetoDetalhado.id;
 
         this.formularioProjeto.patchValue({
-          tituloProjeto:
-            projetoDetalhado.nome,
+          tituloProjeto: projetoDetalhado.nome,
 
-          liderProjeto:
-            projetoDetalhado.responsavel,
+          liderProjeto: projetoDetalhado.responsavel,
 
-          unidadeResponsavel:
-            projetoDetalhado.unidade,
+          unidadeResponsavel: projetoDetalhado.unidade,
 
-          descricao:
-            projetoDetalhado.descricao,
+          descricao: projetoDetalhado.descricao,
 
-          tempoEstimado:
-            projetoDetalhado.tempo_estimado,
+          tempoEstimado: projetoDetalhado.tempo_estimado,
 
-          custoEstimado:
-            projetoDetalhado.custo_estimado,
+          custoEstimado: projetoDetalhado.custo_estimado,
 
-          percentualProgresso:
-            projetoDetalhado.percentual_progresso,
+          percentualProgresso: projetoDetalhado.percentual_progresso,
 
-          acoesPrevistas:
-            projetoDetalhado.acoes_previstas,
+          acoesPrevistas: projetoDetalhado.acoes_previstas,
 
-          objetivos:
-            this.normalizarIds(
-              projetoDetalhado.objetivos ?? []
-            )
+          objetivos: this.normalizarIds(projetoDetalhado.objetivos ?? []),
         });
 
-        this.carregarEvolucoesProjeto(
-          projetoDetalhado
-        );
+        this.carregarEvolucoesProjeto(projetoDetalhado);
 
-        this.evolucoesOrcamentarias.set(
-          projetoDetalhado.evolucoesOrcamentarias ?? []
-        );
+        this.evolucoesOrcamentarias.set(projetoDetalhado.evolucoesOrcamentarias ?? []);
 
         this.etapaAtual = 3;
 
         this.editarProjeto();
       },
 
-      error: erro => {
-        console.error(
-          'Erro ao carregar projeto para edição:',
-          erro
-        );
-      }
+      error: (erro) => {
+        console.error('Erro ao carregar projeto para edição:', erro);
+      },
     });
   }
 
   editarProjeto(): void {
-    this.realizacoesAntesDaEdicao = [
-      ...this.realizacoesConcluidas()
-    ];
+    this.realizacoesAntesDaEdicao = [...this.realizacoesConcluidas()];
 
-    this.proximosPassosAntesDaEdicao = [
-      ...this.proximosPassos()
-    ];
+    this.proximosPassosAntesDaEdicao = [...this.proximosPassos()];
 
-    this.dadosFormularioAntesDaEdicao =
-      this.formularioProjeto.getRawValue();
+    this.dadosFormularioAntesDaEdicao = this.formularioProjeto.getRawValue();
 
     this.modoEdicaoEtapa3 = true;
 
     if (this.isAdmin()) {
-
       // ADMIN pode editar tudo
       this.formularioProjeto.enable();
-
     } else {
-
       // SERVIDOR: primeiro bloqueia tudo
       this.formularioProjeto.disable();
 
       // Depois libera somente os campos
       // relacionados à atualização do projeto
-      this.formularioProjeto
-        .get('percentualProgresso')
-        ?.enable();
+      this.formularioProjeto.get('percentualProgresso')?.enable();
 
-      this.formularioProjeto
-        .get('valorInvestido')
-        ?.enable();
+      this.formularioProjeto.get('valorInvestido')?.enable();
 
-      this.formularioProjeto
-        .get('descricaoOrcamentaria')
-        ?.enable();
+      this.formularioProjeto.get('descricaoOrcamentaria')?.enable();
 
-      this.formularioProjeto
-      .get('dataOrcamentaria')
-      ?.enable();
+      this.formularioProjeto.get('dataOrcamentaria')?.enable();
     }
   }
 
-  private normalizarIds(valores: Array<number | { id?: number; objetivo?: number; objetivo_id?: number } | null | undefined>): number[] {
+  private normalizarIds(
+    valores: Array<
+      number | { id?: number; objetivo?: number; objetivo_id?: number } | null | undefined
+    >,
+  ): number[] {
     return (valores ?? [])
       .map((item) => {
         if (typeof item === 'number') return item;
@@ -661,8 +517,12 @@ export class ListagemProjetos {
   }
 
   private carregarEvolucoesProjeto(projeto: ProjetoEstrategico): void {
-    const realizacoes = (projeto.evolucoes ?? []).filter(evolucao => evolucao.tipo === 'REALIZACAO').map(evolucao =>  evolucao.descricao.trim());
-    const passos = (projeto.evolucoes ?? []).filter(evolucao =>  evolucao.tipo === 'PROXIMO_PASSO').map(evolucao =>  evolucao.descricao.trim());
+    const realizacoes = (projeto.evolucoes ?? [])
+      .filter((evolucao) => evolucao.tipo === 'REALIZACAO')
+      .map((evolucao) => evolucao.descricao.trim());
+    const passos = (projeto.evolucoes ?? [])
+      .filter((evolucao) => evolucao.tipo === 'PROXIMO_PASSO')
+      .map((evolucao) => evolucao.descricao.trim());
 
     this.realizacoesConcluidas.set(realizacoes);
     this.proximosPassos.set(passos);
@@ -687,39 +547,28 @@ export class ListagemProjetos {
 
     const formulario = this.formularioProjeto.getRawValue();
 
-    const evolucoesOrcamentarias =
-      this.evolucoesOrcamentarias().map(
-        evolucao => ({
-          valor: Number(evolucao.valor),
-          descricao: evolucao.descricao,
-          data_registro: evolucao.data_registro
-        })
-      );
+    const evolucoesOrcamentarias = this.evolucoesOrcamentarias().map((evolucao) => ({
+      valor: Number(evolucao.valor),
+      descricao: evolucao.descricao,
+      data_registro: evolucao.data_registro,
+    }));
 
     const responsavel = this.usuarios().find(
-      usuario => usuario.id === Number(formulario.liderProjeto)
+      (usuario) => usuario.id === Number(formulario.liderProjeto),
     );
 
     if (!responsavel?.unidade) {
-      window.alert(
-        'O servidor responsável não possui uma unidade vinculada.'
-      );
+      window.alert('O servidor responsável não possui uma unidade vinculada.');
       return;
     }
 
-    const unidadeIdResponsavel =
-  this.obterIdUnidadeUsuario(responsavel);
+    const unidadeIdResponsavel = this.obterIdUnidadeUsuario(responsavel);
 
-  if (
-    unidadeIdResponsavel !==
-    Number(formulario.unidadeResponsavel)
-  ) {
-    window.alert(
-      'O servidor responsável não pertence à unidade selecionada.'
-    );
+    if (unidadeIdResponsavel !== Number(formulario.unidadeResponsavel)) {
+      window.alert('O servidor responsável não pertence à unidade selecionada.');
 
-    return;
-  }
+      return;
+    }
 
     const projeto = {
       nome: formulario.tituloProjeto,
@@ -883,7 +732,9 @@ export class ListagemProjetos {
   }
 
   objetivoEstaSelecionado(objetivo: ObjetivoEstrategico): boolean {
-    return this.normalizarIds(this.formularioProjeto.get('objetivos')?.value || []).includes(objetivo.id);
+    return this.normalizarIds(this.formularioProjeto.get('objetivos')?.value || []).includes(
+      objetivo.id,
+    );
   }
 
   adicionarRealizacaoDireta(): void {
@@ -965,11 +816,14 @@ export class ListagemProjetos {
     this.dadosFormularioAntesDaEdicao = null;
   }
 
-  private montarEvolucoes(): Array<{descricao: string; tipo: 'REALIZACAO' | 'PROXIMO_PASSO';}> {
+  private montarEvolucoes(): Array<{ descricao: string; tipo: 'REALIZACAO' | 'PROXIMO_PASSO' }> {
+    const realizacoes = this.realizacoesConcluidas()
+      .filter((valor) => !!valor?.trim())
+      .map((valor) => ({ descricao: valor.trim(), tipo: 'REALIZACAO' as const }));
 
-    const realizacoes = this.realizacoesConcluidas().filter(valor => !!valor?.trim()).map(valor => ({ descricao: valor.trim(), tipo: 'REALIZACAO' as const}));
-
-    const proximos = this.proximosPassos().filter(valor => !!valor?.trim()).map(valor => ({descricao: valor.trim(),tipo: 'PROXIMO_PASSO' as const}));
+    const proximos = this.proximosPassos()
+      .filter((valor) => !!valor?.trim())
+      .map((valor) => ({ descricao: valor.trim(), tipo: 'PROXIMO_PASSO' as const }));
 
     return [...realizacoes, ...proximos];
   }
@@ -984,61 +838,44 @@ export class ListagemProjetos {
       valor: number;
       descricao: string;
       data_registro: string;
-    }> = this.evolucoesOrcamentarias().map(
-      evolucao => ({
-        id: evolucao.id || undefined,
-        valor: Number(evolucao.valor),
-        descricao: evolucao.descricao,
-        data_registro: evolucao.data_registro
-      })
-    );;
+    }> = this.evolucoesOrcamentarias().map((evolucao) => ({
+      id: evolucao.id || undefined,
+      valor: Number(evolucao.valor),
+      descricao: evolucao.descricao,
+      data_registro: evolucao.data_registro,
+    }));
 
     const dadosAtualizacao = {
-      percentual_progresso: Number(
-        this.formularioProjeto
-          .get('percentualProgresso')
-          ?.value ?? 0
-      ),
+      percentual_progresso: Number(this.formularioProjeto.get('percentualProgresso')?.value ?? 0),
 
       evolucoes: this.montarEvolucoes(),
 
-      evolucoesOrcamentarias:
-        evolucoesOrcamentarias
+      evolucoesOrcamentarias: evolucoesOrcamentarias,
     };
 
     const envio = this.isAdmin()
       ? this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao)
       : this.projetoService.submeterAtualizacao(this.projetoSelecionadoId, dadosAtualizacao);
 
-    envio
-      .subscribe({
-        next: () => {
-          if (this.isAdmin()) {
-            window.alert(
-              'Projeto atualizado com sucesso.'
-            );
-          } else {
-            window.alert(
-              'Atualizações enviadas para análise com sucesso.'
-            );
-          }
-
-          this.modoEdicaoEtapa3 = false;
-          this.fecharModal();
-          this.buscarProjeto();
-        },
-
-        error: erro => {
-          console.error(
-            'Erro ao atualizar projeto:',
-            erro
-          );
-
-          window.alert(
-            'Não foi possível salvar a atualização.'
-          );
+    envio.subscribe({
+      next: () => {
+        if (this.isAdmin()) {
+          window.alert('Projeto atualizado com sucesso.');
+        } else {
+          window.alert('Atualizações enviadas para análise com sucesso.');
         }
-      });
+
+        this.modoEdicaoEtapa3 = false;
+        this.fecharModal();
+        this.buscarProjeto();
+      },
+
+      error: (erro) => {
+        console.error('Erro ao atualizar projeto:', erro);
+
+        window.alert('Não foi possível salvar a atualização.');
+      },
+    });
   }
 
   obterClasseStatus(status: string): string {
@@ -1064,7 +901,6 @@ export class ListagemProjetos {
   }
 
   adicionarEvolucaoOrcamentaria(): void {
-
     const campoData = this.formularioProjeto.get('dataOrcamentaria');
     const campoValor = this.formularioProjeto.get('valorInvestido');
     const campoDescricao = this.formularioProjeto.get('descricaoOrcamentaria');
@@ -1075,20 +911,17 @@ export class ListagemProjetos {
 
     const descricao = (campoDescricao?.value ?? '').trim();
 
-
     if (!data) {
-      window.alert( 'Informe a data da evolução orçamentária.');
+      window.alert('Informe a data da evolução orçamentária.');
       campoData?.markAsTouched();
       return;
     }
-
 
     if (valor <= 0) {
       window.alert('Informe um valor investido maior que zero.');
       campoValor?.markAsTouched();
       return;
     }
-
 
     if (!descricao) {
       window.alert('Informe uma descrição para a evolução orçamentária.');
@@ -1101,11 +934,10 @@ export class ListagemProjetos {
       valor: valor,
       descricao: descricao,
       data_registro: data,
-      fk_projeto: this.projetoSelecionadoId ?? 0
+      fk_projeto: this.projetoSelecionadoId ?? 0,
     };
 
-    this.evolucoesOrcamentarias.update(lista => [...lista, novaEvolucao]);
-
+    this.evolucoesOrcamentarias.update((lista) => [...lista, novaEvolucao]);
 
     campoData?.reset('');
     campoValor?.reset(null);
@@ -1116,11 +948,8 @@ export class ListagemProjetos {
     campoDescricao?.markAsUntouched();
   }
 
-
   obterUnidadeProjeto(projeto: ProjetoEstrategico): Unidade | undefined {
-    return this.unidades().find(
-      unidade => unidade.id === projeto.unidade
-    );
+    return this.unidades().find((unidade) => unidade.id === projeto.unidade);
   }
 
   servidoresComUnidade(): Usuario[] {
@@ -1133,30 +962,24 @@ export class ListagemProjetos {
     // ADMIN pode visualizar servidores de todas as unidades
     if (usuarioLogado.papel === 'ADMIN') {
       return this.usuarios().filter(
-        usuario =>
-          (usuario.papel === 'SERVIDOR' ||
-            usuario.papel === 'ADMIN') &&
-          usuario.unidade != null
+        (usuario) =>
+          (usuario.papel === 'SERVIDOR' || usuario.papel === 'GESTOR' || usuario.papel === 'ADMIN') && usuario.unidade != null,
       );
     }
 
     // Obtém a unidade do servidor logado
-    const unidadeUsuarioLogado =
-      this.obterIdUnidadeUsuario(usuarioLogado);
+    const unidadeUsuarioLogado = this.obterIdUnidadeUsuario(usuarioLogado);
 
     if (unidadeUsuarioLogado === null) {
       return [];
     }
 
     // SERVIDOR vê somente pessoas da própria unidade
-    return this.usuarios().filter(usuario => {
-
-      const unidadeUsuario =
-        this.obterIdUnidadeUsuario(usuario);
+    return this.usuarios().filter((usuario) => {
+      const unidadeUsuario = this.obterIdUnidadeUsuario(usuario);
 
       return (
-        (usuario.papel === 'SERVIDOR' ||
-          usuario.papel === 'ADMIN') &&
+        (usuario.papel === 'SERVIDOR' || usuario.papel === 'GESTOR' || usuario.papel === 'ADMIN') &&
         unidadeUsuario === unidadeUsuarioLogado
       );
     });
@@ -1183,23 +1006,17 @@ export class ListagemProjetos {
       return undefined;
     }
 
-    return this.unidades().find(
-      unidade => unidade.id === unidadeId
-    );
+    return this.unidades().find((unidade) => unidade.id === unidadeId);
   }
 
   aoSelecionarResponsavel(): void {
-    const responsavelId = Number(
-      this.formularioProjeto.get('liderProjeto')?.value
-    );
+    const responsavelId = Number(this.formularioProjeto.get('liderProjeto')?.value);
 
-    const responsavel = this.usuarios().find(
-      usuario => usuario.id === responsavelId
-    );
+    const responsavel = this.usuarios().find((usuario) => usuario.id === responsavelId);
 
     if (!responsavel) {
       this.formularioProjeto.patchValue({
-        unidadeResponsavel: ''
+        unidadeResponsavel: '',
       });
 
       return;
@@ -1209,25 +1026,21 @@ export class ListagemProjetos {
 
     if (unidadeId === null) {
       this.formularioProjeto.patchValue({
-        unidadeResponsavel: ''
+        unidadeResponsavel: '',
       });
 
       return;
     }
 
     this.formularioProjeto.patchValue({
-      unidadeResponsavel: unidadeId
+      unidadeResponsavel: unidadeId,
     });
   }
 
   unidadesDoResponsavel(): Unidade[] {
-    const responsavelId = Number(
-      this.formularioProjeto.get('liderProjeto')?.value
-    );
+    const responsavelId = Number(this.formularioProjeto.get('liderProjeto')?.value);
 
-    const responsavel = this.usuarios().find(
-      usuario => usuario.id === responsavelId
-    );
+    const responsavel = this.usuarios().find((usuario) => usuario.id === responsavelId);
 
     if (!responsavel) {
       return [];
@@ -1239,23 +1052,15 @@ export class ListagemProjetos {
   }
 
   obterResponsavelSelecionado(): Usuario | null {
-    const id = Number(
-      this.formularioProjeto.get('liderProjeto')?.value
-    );
+    const id = Number(this.formularioProjeto.get('liderProjeto')?.value);
 
-    return this.usuarios().find(
-      usuario => usuario.id === id
-    ) ?? null;
+    return this.usuarios().find((usuario) => usuario.id === id) ?? null;
   }
-
 
   obterPercentual(projeto: ProjetoEstrategico): number {
     const percentual = Number(projeto.percentual_progresso) || 0;
 
-    return Math.min(
-      Math.max(percentual, 0),
-      100
-    );
+    return Math.min(Math.max(percentual, 0), 100);
   }
 
   obterObjetivosProjeto(projeto: ProjetoEstrategico): ObjetivoEstrategico[] {
@@ -1289,14 +1094,16 @@ export class ListagemProjetos {
     valor = Math.max(0, Math.min(100, valor));
 
     this.formularioProjeto.patchValue({
-      percentualProgresso: valor
+      percentualProgresso: valor,
     });
 
     input.value = String(valor);
   }
 
   editarEvolucaoOrcamentaria(indice: number): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) {return;}
+    if (this.visualizando && !this.modoEdicaoEtapa3) {
+      return;
+    }
 
     const evolucao = this.evolucoesOrcamentarias()[indice];
 
@@ -1312,9 +1119,7 @@ export class ListagemProjetos {
     const valor = Number(valorInformado.replace(',', '.'));
 
     if (Number.isNaN(valor) || valor < 0) {
-      window.alert(
-        'Informe um valor válido, maior ou igual a zero.'
-      );
+      window.alert('Informe um valor válido, maior ou igual a zero.');
       return;
     }
 
@@ -1324,10 +1129,10 @@ export class ListagemProjetos {
       return;
     }
 
-    this.evolucoesOrcamentarias.update(lista =>
+    this.evolucoesOrcamentarias.update((lista) =>
       lista.map((item, i) =>
-        i === indice? {...item,  valor: valor, descricao: descricao.trim()}: item
-      )
+        i === indice ? { ...item, valor: valor, descricao: descricao.trim() } : item,
+      ),
     );
   }
   excluirEvolucaoOrcamentaria(indice: number): void {
@@ -1335,19 +1140,12 @@ export class ListagemProjetos {
       return;
     }
 
-    const confirmou = window.confirm(
-      'Tem certeza que deseja excluir esta evolução orçamentária?'
-    );
+    const confirmou = window.confirm('Tem certeza que deseja excluir esta evolução orçamentária?');
 
     if (!confirmou) {
       return;
     }
 
-    this.evolucoesOrcamentarias.update(lista =>
-      lista.filter((_, i) => i !== indice)
-    );
+    this.evolucoesOrcamentarias.update((lista) => lista.filter((_, i) => i !== indice));
   }
-
 }
-
-

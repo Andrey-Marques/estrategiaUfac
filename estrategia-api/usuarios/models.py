@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 class Usuario(AbstractUser):
     PAPEL_CHOICES = [
         ('ADMIN', 'Administrador'),
-        ('UNIDADE', 'Unidade'),
+        ('GESTOR', 'Gestor'),
         ('SERVIDOR', 'Servidor'),
     ]
     nome_completo = models.CharField(max_length=255)

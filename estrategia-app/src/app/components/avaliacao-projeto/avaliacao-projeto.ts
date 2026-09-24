@@ -19,10 +19,9 @@ export interface DecisaoProjeto {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './avaliacao-projeto.html',
-  styleUrl: './avaliacao-projeto.scss'
+  styleUrl: './avaliacao-projeto.scss',
 })
 export class AvaliacaoProjeto {
-
   @Input({ required: true })
   projeto!: ProjetoAvaliacao;
 
@@ -48,13 +47,12 @@ export class AvaliacaoProjeto {
   @Output()
   editar = new EventEmitter<ProjetoEstrategico>();
 
-    observacao = '';
-    mensagemErro = '';
+  observacao = '';
+  mensagemErro = '';
 
   get modoAvaliacao(): boolean {
-    return this.isAdmin && (
-      this.projeto.status === 'EM_ESPERA' ||
-      this.revisao?.status === 'PENDENTE'
+    return (
+      this.isAdmin && (this.projeto.status === 'EM_ESPERA' || this.revisao?.status === 'PENDENTE')
     );
   }
 
@@ -62,21 +60,15 @@ export class AvaliacaoProjeto {
     return !this.modoAvaliacao;
   }
   get realizacoesValidas() {
-    return (this.projeto.evolucoes ?? [])
-      .filter(
-        evolucao =>
-          evolucao.tipo === 'REALIZACAO' &&
-          !!evolucao.descricao?.trim()
-      );
+    return (this.projeto.evolucoes ?? []).filter(
+      (evolucao) => evolucao.tipo === 'REALIZACAO' && !!evolucao.descricao?.trim(),
+    );
   }
 
   get proximosPassosValidos() {
-    return (this.projeto.evolucoes ?? [])
-      .filter(
-        evolucao =>
-          evolucao.tipo === 'PROXIMO_PASSO' &&
-          !!evolucao.descricao?.trim()
-      );
+    return (this.projeto.evolucoes ?? []).filter(
+      (evolucao) => evolucao.tipo === 'PROXIMO_PASSO' && !!evolucao.descricao?.trim(),
+    );
   }
 
   get diferencaRealizacoes(): DiferencaRevisao | null {
@@ -99,22 +91,20 @@ export class AvaliacaoProjeto {
     const rotulos: Record<string, string> = {
       PENDENTE: 'Alteração pendente de análise',
       APROVADA: 'Alteração aprovada',
-      REJEITADA: 'Alteração rejeitada'
+      REJEITADA: 'Alteração rejeitada',
     };
     return rotulos[status] ?? status;
   }
 
   get realizacoesPropostas(): Array<{ descricao?: string }> {
     const evolucoes = this.diferencaRealizacoes?.proposto;
-    return Array.isArray(evolucoes)
-      ? evolucoes.filter(item => item?.tipo === 'REALIZACAO')
-      : [];
+    return Array.isArray(evolucoes) ? evolucoes.filter((item) => item?.tipo === 'REALIZACAO') : [];
   }
 
   get proximosPassosPropostos(): Array<{ descricao?: string }> {
     const evolucoes = this.diferencaRealizacoes?.proposto;
     return Array.isArray(evolucoes)
-      ? evolucoes.filter(item => item?.tipo === 'PROXIMO_PASSO')
+      ? evolucoes.filter((item) => item?.tipo === 'PROXIMO_PASSO')
       : [];
   }
 
@@ -123,9 +113,13 @@ export class AvaliacaoProjeto {
     const propostos = this.diferencaRealizacoes?.proposto;
     if (!Array.isArray(anteriores) || !Array.isArray(propostos)) return [];
 
-    return anteriores.filter(item => item?.tipo === 'REALIZACAO' && !propostos.some(proposto =>
-      proposto?.tipo === item.tipo && proposto?.descricao === item.descricao
-    ));
+    return anteriores.filter(
+      (item) =>
+        item?.tipo === 'REALIZACAO' &&
+        !propostos.some(
+          (proposto) => proposto?.tipo === item.tipo && proposto?.descricao === item.descricao,
+        ),
+    );
   }
 
   get proximosPassosRemovidos(): Array<{ descricao?: string }> {
@@ -133,26 +127,42 @@ export class AvaliacaoProjeto {
     const propostos = this.diferencaRealizacoes?.proposto;
     if (!Array.isArray(anteriores) || !Array.isArray(propostos)) return [];
 
-    return anteriores.filter(item => item?.tipo === 'PROXIMO_PASSO' && !propostos.some(proposto =>
-      proposto?.tipo === item.tipo && proposto?.descricao === item.descricao
-    ));
+    return anteriores.filter(
+      (item) =>
+        item?.tipo === 'PROXIMO_PASSO' &&
+        !propostos.some(
+          (proposto) => proposto?.tipo === item.tipo && proposto?.descricao === item.descricao,
+        ),
+    );
   }
 
-  get orcamentosPropostos(): Array<{ valor?: string | number; descricao?: string; data_registro?: string }> {
+  get orcamentosPropostos(): Array<{
+    valor?: string | number;
+    descricao?: string;
+    data_registro?: string;
+  }> {
     const orcamentos = this.diferencaOrcamento?.proposto;
     return Array.isArray(orcamentos) ? orcamentos : [];
   }
 
-  get orcamentosRemovidos(): Array<{ valor?: string | number; descricao?: string; data_registro?: string }> {
+  get orcamentosRemovidos(): Array<{
+    valor?: string | number;
+    descricao?: string;
+    data_registro?: string;
+  }> {
     const anteriores = this.diferencaOrcamento?.anterior;
     const propostos = this.diferencaOrcamento?.proposto;
     if (!Array.isArray(anteriores) || !Array.isArray(propostos)) return [];
 
-    return anteriores.filter(item => !propostos.some(proposto =>
-      String(proposto?.valor) === String(item?.valor) &&
-      proposto?.descricao === item?.descricao &&
-      proposto?.data_registro === item?.data_registro
-    ));
+    return anteriores.filter(
+      (item) =>
+        !propostos.some(
+          (proposto) =>
+            String(proposto?.valor) === String(item?.valor) &&
+            proposto?.descricao === item?.descricao &&
+            proposto?.data_registro === item?.data_registro,
+        ),
+    );
   }
 
   editarProjeto(): void {
@@ -173,7 +183,7 @@ export class AvaliacaoProjeto {
 
     this.aprovado.emit({
       projeto: this.projeto,
-      observacao: this.observacao.trim()
+      observacao: this.observacao.trim(),
     });
   }
 
@@ -192,10 +202,9 @@ export class AvaliacaoProjeto {
 
     this.rejeitado.emit({
       projeto: this.projeto,
-      observacao
+      observacao,
     });
   }
-
 
   obterRotuloStatus(): string {
     const rotulos: Record<string, string> = {

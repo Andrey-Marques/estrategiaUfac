@@ -1,12 +1,10 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {IniciativaEstrategica} from '../../model/iniciativaEstrategica';
+import { IniciativaEstrategica } from '../../model/iniciativaEstrategica';
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 
-
 export interface DecisaoIniciativa {
-
   iniciativa: IniciativaEstrategica;
   observacao: string;
 }
@@ -15,11 +13,10 @@ export interface DecisaoIniciativa {
   selector: 'app-avaliacao-iniciativa',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl:'./avaliacao-iniciativa.html',
-  styleUrl:'./avaliacao-iniciativa.scss'
+  templateUrl: './avaliacao-iniciativa.html',
+  styleUrl: './avaliacao-iniciativa.scss',
 })
 export class AvaliacaoIniciativa {
-
   @Input({ required: true })
   iniciativa!: IniciativaEstrategica;
 
@@ -33,12 +30,10 @@ export class AvaliacaoIniciativa {
   fechado = new EventEmitter<void>();
 
   @Output()
-  aprovado =
-    new EventEmitter<DecisaoIniciativa>();
+  aprovado = new EventEmitter<DecisaoIniciativa>();
 
   @Output()
-  rejeitado =
-    new EventEmitter<DecisaoIniciativa>();
+  rejeitado = new EventEmitter<DecisaoIniciativa>();
 
   @Output()
   revisaoAprovada = new EventEmitter<RevisaoEdicao>();
@@ -47,12 +42,10 @@ export class AvaliacaoIniciativa {
   revisaoRejeitada = new EventEmitter<{ revisao: RevisaoEdicao; observacao: string }>();
 
   @Output()
-  editar =
-    new EventEmitter<IniciativaEstrategica>();
+  editar = new EventEmitter<IniciativaEstrategica>();
 
   observacao = '';
   mensagemErro = '';
-
 
   get modoAvaliacao(): boolean {
     return (
@@ -60,7 +53,6 @@ export class AvaliacaoIniciativa {
       (this.iniciativa.status === 'EM_ESPERA' || this.revisao?.status === 'PENDENTE')
     );
   }
-
 
   get modoVisualizacao(): boolean {
     return !this.modoAvaliacao;
@@ -70,7 +62,13 @@ export class AvaliacaoIniciativa {
     return this.revisao?.status === 'PENDENTE';
   }
 
-  get acoesPropostas(): Array<{ nome?: string; prazo_inicio?: string; prazo_fim?: string; custo?: string | number; status?: string }> {
+  get acoesPropostas(): Array<{
+    nome?: string;
+    prazo_inicio?: string;
+    prazo_fim?: string;
+    custo?: string | number;
+    status?: string;
+  }> {
     const acoes = this.revisao?.diferencas['acoes']?.proposto;
     return Array.isArray(acoes) ? acoes : [];
   }
@@ -85,16 +83,13 @@ export class AvaliacaoIniciativa {
     return percentual === null || percentual === undefined ? null : percentual;
   }
 
-
   fechar(): void {
     this.fechado.emit();
   }
 
-
   editarIniciativa(): void {
-    this.editar.emit( this.iniciativa);
+    this.editar.emit(this.iniciativa);
   }
-
 
   rejeitar(): void {
     const observacao = this.observacao.trim();
@@ -109,7 +104,7 @@ export class AvaliacaoIniciativa {
       return;
     }
 
-    this.rejeitado.emit({iniciativa: this.iniciativa, observacao});
+    this.rejeitado.emit({ iniciativa: this.iniciativa, observacao });
   }
 
   aprovar(): void {
@@ -122,14 +117,29 @@ export class AvaliacaoIniciativa {
   }
 
   obterRotuloRevisao(status: string): string {
-    return ({ PENDENTE: 'Alteração pendente', APROVADA: 'Alteração aprovada', REJEITADA: 'Alteração rejeitada' } as Record<string, string>)[status] ?? status;
+    return (
+      (
+        {
+          PENDENTE: 'Alteração pendente',
+          APROVADA: 'Alteração aprovada',
+          REJEITADA: 'Alteração rejeitada',
+        } as Record<string, string>
+      )[status] ?? status
+    );
   }
 
   obterValorRevisao(valor: unknown, campo: string): string {
     if (valor === null || valor === undefined || valor === '') return 'Não informado';
     if (campo === 'percentual_evolucao') return `${valor}%`;
     if (campo === 'acoes' && Array.isArray(valor)) {
-      return valor.map(acao => `${acao.nome || 'Ação sem nome'} | ${acao.status || 'Sem status'} | ${acao.custo ?? 'Sem custo'}`).join('\n') || 'Nenhuma ação';
+      return (
+        valor
+          .map(
+            (acao) =>
+              `${acao.nome || 'Ação sem nome'} | ${acao.status || 'Sem status'} | ${acao.custo ?? 'Sem custo'}`,
+          )
+          .join('\n') || 'Nenhuma ação'
+      );
     }
     return String(valor);
   }

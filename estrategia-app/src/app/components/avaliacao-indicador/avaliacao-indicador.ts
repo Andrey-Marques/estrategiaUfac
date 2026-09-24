@@ -87,7 +87,9 @@ export class AvaliacaoIndicador implements OnChanges {
   mensagemErro = '';
 
   get modoAvaliacao(): boolean {
-    return this.isAdmin && (this.indicador.status === 'EM_ESPERA' || this.revisao?.status === 'PENDENTE');
+    return (
+      this.isAdmin && (this.indicador.status === 'EM_ESPERA' || this.revisao?.status === 'PENDENTE')
+    );
   }
 
   get modoVisualizacao(): boolean {
@@ -169,13 +171,28 @@ export class AvaliacaoIndicador implements OnChanges {
   }
 
   obterRotuloRevisao(status: string): string {
-    return ({ PENDENTE: 'Alteração pendente', APROVADA: 'Alteração aprovada', REJEITADA: 'Alteração rejeitada' } as Record<string, string>)[status] ?? status;
+    return (
+      (
+        {
+          PENDENTE: 'Alteração pendente',
+          APROVADA: 'Alteração aprovada',
+          REJEITADA: 'Alteração rejeitada',
+        } as Record<string, string>
+      )[status] ?? status
+    );
   }
 
   obterValorRevisao(valor: unknown, campo: string): string {
     if (valor === null || valor === undefined || valor === '') return 'Não informado';
     if (campo === 'evolucao_indicador' && Array.isArray(valor)) {
-      return valor.map(meta => `${meta.ano || 'Ano'} | Prevista: ${meta.meta_prevista || '-'} | Alcançada: ${meta.meta_alcancada || '-'}`).join('\n') || 'Nenhuma evolução';
+      return (
+        valor
+          .map(
+            (meta) =>
+              `${meta.ano || 'Ano'} | Prevista: ${meta.meta_prevista || '-'} | Alcançada: ${meta.meta_alcancada || '-'}`,
+          )
+          .join('\n') || 'Nenhuma evolução'
+      );
     }
     return String(valor);
   }

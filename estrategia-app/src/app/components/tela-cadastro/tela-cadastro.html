@@ -5,7 +5,7 @@
             Usuários Cadastrados
         </h1>
 
-        <button type="button" class="btn-novo-usuario" (click)="abrirModal()">
+        <button type="button" class="btn-novo-usuario" *ngIf="podeCadastrarUsuarios()" (click)="abrirModal()">
             + Novo Usuário
         </button>
 
@@ -13,90 +13,40 @@
 
     <hr class="linha-divisor">
 
-    <section class="filtros-unidades">
-        <div class="filtro-cabecalho">
-            <span>FILTRO POR UNIDADES</span>
+    <section class="area-filtros">
+        <div class="campo-pesquisa">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Pesquisar pelo nome do usuário..." (input)="pesquisarUsuario($event)" />
         </div>
 
+        <div class="filtro-unidades" *ngIf="usuarioAtual()?.papel === 'ADMIN'">
+            <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
+                <i class="bi bi-building"></i>
+                Unidades
+                <span class="quantidade-unidades" *ngIf="unidadesSelecionadas().length > 0">
+                    {{ unidadesSelecionadas().length }}
+                </span>
+                <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            </button>
 
-
-        <!-- <div class="opcoes-unidades-wrapper" [class.aberto]="filtroAberto">
-                <div class="opcoes-unidades">
-
-                        <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROPLAN')" (click)="filtrarUnidade('PROPLAN')">
-                            PROPLAN
-                        </button>
-
-                        <button type="button" class="filtro-unidade"[class.unidade-selecionada]="unidades_selecionadas.includes('PROPEG')" (click)="filtrarUnidade('PROPEG')">
-                            PROPEG
-                        </button>
-
-                        <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROGRAD')" (click)="filtrarUnidade('PROGRAD')">
-                            PROGRAD
-                        </button>
-
-                        <button type="button" class="filtro-unidade" [class.unidade-selecionada]="unidades_selecionadas.includes('PROEX')" (click)="filtrarUnidade('PROEX')">
-                            PROEX
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            PROAS
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            PRAD
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            PRODGEP
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            ASCOM
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            ACI
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            UEPMV
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            UTAL
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            NIED
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            AC
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            EDUFAC
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            CAP
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            BC
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            PZ
-                        </button>
-
-                        <button type="button" class="filtro-unidade">
-                            PREFCAM
-                        </button>
-
+            <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
+                <div class="cabecalho-filtro-unidades">
+                    <strong>Filtrar por unidade</strong>
+                    <button type="button" class="botao-limpar" *ngIf="unidadesSelecionadas().length > 0"
+                        (click)="limparFiltroUnidades()">Limpar</button>
                 </div>
-          </div> -->
+
+                <label class="opcao-unidade" *ngFor="let unidade of unidades()">
+                    <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
+                        (change)="alternarUnidade(unidade.id)" />
+                    <span class="checkbox-personalizado"></span>
+                    <div class="dados-unidade">
+                        <strong>{{ unidade.sigla }}</strong>
+                        <small>{{ unidade.nome }}</small>
+                    </div>
+                </label>
+            </div>
+        </div>
     </section>
 
 
@@ -116,7 +66,7 @@
 
             <tbody>
 
-                <tr *ngFor="let u of usuarios()">
+                <tr *ngFor="let u of usuariosFiltrados()">
                     <td>{{ u.nome_completo }}</td>
                     <td>
                         <ng-container *ngIf="obterUnidade(u) as unidade">
@@ -209,7 +159,7 @@
         <div class="rodape-tabela">
 
             <span class="quantidade-resultados">
-                Mostrando {{usuarios().length}} resultados
+                Mostrando {{usuariosFiltrados().length}} resultados
             </span>
 
             <!-- <nav class="paginacao" aria-label="Paginação">
@@ -302,7 +252,7 @@
                         NOME COMPLETO*
                     </label>
 
-                    <input id="nome" type="text" [(ngModel)]="usuarioSelecionado!.nome_completo"
+                    <input id="nome" type="text" [(ngModel)]="usuarioFormulario!.nome_completo"
                         [readonly]="modoVisualizacao">
 
                 </div>
@@ -317,7 +267,7 @@
                             E-MAIL
                         </label>
 
-                        <input id="email" type="email" [(ngModel)]="usuarioSelecionado!.email"
+                        <input id="email" type="email" [(ngModel)]="usuarioFormulario!.email"
                             [readonly]="modoVisualizacao">
 
                     </div>
@@ -329,8 +279,8 @@
                             UNIDADE RESPONSÁVEL
                         </label>
 
-                        <select id="unidade" [(ngModel)]="usuarioSelecionado!.unidade"  [disabled]="modoVisualizacao">
-                            <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id">
+                        <select id="unidade" [(ngModel)]="usuarioFormulario!.unidade"  [disabled]="modoVisualizacao">
+                            <option *ngFor="let unidade of unidadesDisponiveis()" [ngValue]="unidade.id">
                                 {{unidade.sigla}}
                             </option>
 
@@ -348,18 +298,18 @@
                         PAPEL
                     </label>
 
-                    <select id="papel" [(ngModel)]="usuarioSelecionado!.papel" [disabled]="modoVisualizacao">
+                    <select id="papel" [(ngModel)]="usuarioFormulario!.papel" [disabled]="modoVisualizacao">
 
                         <option value="">
                             Selecione
                         </option>
 
-                        <option value="ADMIN">
+                        <option value="ADMIN" *ngIf="usuarioAtual()?.papel === 'ADMIN'">
                             Administrador
                         </option>
 
-                        <option value="UNIDADE">
-                            Unidade
+                        <option value="GESTOR">
+                            Gestor
                         </option>
 
                         <option value="SERVIDOR">
@@ -380,7 +330,7 @@
                             USUÁRIO
                         </label>
 
-                        <input id="usuario" type="text" [(ngModel)]="usuarioSelecionado.username"
+                        <input id="usuario" type="text" [(ngModel)]="usuarioFormulario.username"
                             [readonly]="modoVisualizacao">
 
                     </div>
@@ -392,7 +342,7 @@
                             SENHA
                         </label>
 
-                        <input id="senha" type="password" [(ngModel)]="usuarioSelecionado.password">
+                        <input id="senha" type="password" [(ngModel)]="usuarioFormulario.password">
 
                     </div>
 
@@ -402,7 +352,7 @@
                             NOME SOCIAL
                         </label>
 
-                        <input id="nome-social" type="text" [(ngModel)]="usuarioSelecionado.nome_social"
+                        <input id="nome-social" type="text" [(ngModel)]="usuarioFormulario.nome_social"
                             [readonly]="modoVisualizacao">
 
                     </div>
@@ -413,7 +363,7 @@
                             CPF
                         </label>
 
-                        <input id="cpf" type="text" [(ngModel)]="usuarioSelecionado.cpf" [readonly]="modoVisualizacao">
+                        <input id="cpf" type="text" [(ngModel)]="usuarioFormulario.cpf" [readonly]="modoVisualizacao">
 
                     </div>
 
