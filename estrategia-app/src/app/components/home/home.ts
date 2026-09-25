@@ -10,9 +10,9 @@ import {AvaliacaoIniciativa, DecisaoIniciativa} from '../avaliacao-iniciativa/av
 import { IndicadorEstrategico } from '../../model/indicadorEstrategico';
 import { IndicadorService } from '../../service/indicador.service';
 import { AvaliacaoIndicador, DecisaoIndicador } from '../avaliacao-indicador/avaliacao-indicador';
+import { InfoBar } from '../utils/info-bar/info-bar';
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import { RevisaoService } from '../../service/revisao.service';
-import { InfoBar } from '../utils/info-bar/info-bar';
 
 
 @Component({
