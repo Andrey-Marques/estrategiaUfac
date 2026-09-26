@@ -28,6 +28,10 @@ export class TelaCadastro {
   usuarios = signal<Usuario[]>([]);
   unidades = signal<Unidade[]>([]);
   usuarioAtual = signal<Usuario | null>(null);
+
+  ehProprioUsuario(usuario: Usuario): boolean {
+    return this.usuarioAtual()?.id === usuario.id;
+  }
   termoPesquisa = signal('');
   unidadesSelecionadas = signal<number[]>([]);
   menuUnidadesAberto = signal(false);

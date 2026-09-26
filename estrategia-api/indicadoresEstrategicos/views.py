@@ -61,6 +61,20 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
 
         indicador = self.get_object()
 
+        campos_enviados = set(request.data.keys())
+        if usuario.papel == 'GESTOR' and campos_enviados == {'responsavel'}:
+            responsavel_id = request.data.get('responsavel')
+            if not usuario.__class__.objects.filter(
+                id=responsavel_id,
+                unidade=usuario.unidade,
+                is_active=True,
+            ).exists():
+                return Response(
+                    {'detail': 'O responsável deve pertencer à sua unidade.'},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            return None
+
         if indicador.status == 'APROVADO':
             return Response(
                 {'detail': 'Indicadores publicados devem ser alterados através do fluxo de revisão.'},
@@ -136,6 +150,13 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
 
         if usuario.papel == 'ADMIN':
             serializer.save()
+            return
+
+        if (
+            usuario.papel == 'GESTOR'
+            and set(self.request.data.keys()) == {'responsavel'}
+        ):
+            serializer.save(unidade=usuario.unidade)
             return
 
         serializer.save(

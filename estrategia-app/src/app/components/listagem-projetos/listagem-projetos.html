@@ -579,6 +579,11 @@
                 </button>
 
                 <ng-container *ngIf="visualizando && modoEdicaoEtapa3">
+                  <button type="button" class="btn botao-submeter-analise"
+                    *ngIf="usuarioAtual()?.papel === 'GESTOR' && etapaAtual === 1"
+                    (click)="salvarResponsavelProjeto()">
+                    Salvar responsável
+                  </button>
                   <button type="button" class="btn btn-secondary" (click)="cancelarEdicaoEtapa3()">
                     Cancelar edição
                   </button>

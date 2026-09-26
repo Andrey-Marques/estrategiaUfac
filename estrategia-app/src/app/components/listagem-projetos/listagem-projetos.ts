@@ -505,9 +505,12 @@ export class ListagemProjetos {
 
     this.modoEdicaoEtapa3 = true;
 
-    if (this.isAdmin()) {
+    const papel = this.usuarioAtual()?.papel;
+
+    if (papel === 'ADMIN') {
       // ADMIN pode editar tudo
       this.formularioProjeto.enable();
+      this.etapaAtual = 1;
     } else {
       // SERVIDOR: primeiro bloqueia tudo
       this.formularioProjeto.disable();
@@ -521,7 +524,41 @@ export class ListagemProjetos {
       this.formularioProjeto.get('descricaoOrcamentaria')?.enable();
 
       this.formularioProjeto.get('dataOrcamentaria')?.enable();
+
+      if (papel === 'GESTOR') {
+        this.formularioProjeto.get('liderProjeto')?.enable();
+        this.etapaAtual = 1;
+      } else {
+        this.etapaAtual = 3;
+      }
     }
+  }
+
+  salvarResponsavelProjeto(): void {
+    if (
+      this.usuarioAtual()?.papel !== 'GESTOR' ||
+      !this.projetoSelecionadoId
+    ) {
+      return;
+    }
+
+    const responsavel = this.formularioProjeto.get('liderProjeto')?.value;
+
+    this.projetoService
+      .atualizarProjeto(this.projetoSelecionadoId, { responsavel })
+      .subscribe({
+        next: () => {
+          window.alert('Responsável alterado com sucesso.');
+          this.buscarProjeto();
+        },
+        error: erro => {
+          window.alert(
+            erro.error?.responsavel ??
+            erro.error?.detail ??
+            'Não foi possível alterar o responsável.'
+          );
+        },
+      });
   }
 
   private normalizarIds(
@@ -547,17 +584,6 @@ export class ListagemProjetos {
 
     this.realizacoesConcluidas.set(realizacoes);
     this.proximosPassos.set(passos);
-  }
-
-  private recarregarDetalhesProjeto(): void {
-    if (!this.projetoSelecionadoId) return;
-
-    this.projetoService.getById(this.projetoSelecionadoId).subscribe({
-      next: (projetoDetalhado) => {
-        this.carregarEvolucoesProjeto(projetoDetalhado);
-      },
-      error: (erro) => console.error('Erro ao recarregar projeto:', erro),
-    });
   }
 
   salvarProjeto(status: string): void {
@@ -733,9 +759,17 @@ export class ListagemProjetos {
   }
 
   buscarUsuarios(): void {
-    this.usuarioService.get().subscribe({
-      next: (dados) => this.usuarios.set(dados),
-      error: (erro) => console.error('erro ao buscar usuarios', erro),
+    this.usuarioService.getResponsaveis().subscribe({
+      next: (usuarios) => {
+        this.usuarios.set(usuarios);
+      },
+
+      error: (erro) => {
+        console.error(
+          'Erro ao buscar responsáveis:',
+          erro
+        );
+      }
     });
   }
 

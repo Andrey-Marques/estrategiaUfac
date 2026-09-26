@@ -257,7 +257,7 @@ export class ListagemIniciativas {
   //--------logica para o modal------------
 
   buscarUsuarios(): void {
-    this.usuarioService.get().subscribe({
+    this.usuarioService.getResponsaveis().subscribe({
       next: (dados) => this.usuarios.set(dados),
       error: (erro) => console.error('erro ao buscar usuarios', erro),
     });
@@ -312,6 +312,9 @@ export class ListagemIniciativas {
   }
 
   selecionarObjetivo(objetivo: ObjetivoEstrategico, evento: Event): void {
+    if (this.formularioIniciativa.get('objetivosEstrategicos')?.disabled) {
+      return;
+    }
     const caixaSelecao = evento.target as HTMLInputElement;
     const selecionados = this.formularioIniciativa.get('objetivosEstrategicos')?.value || [];
     const novos = caixaSelecao.checked
@@ -467,7 +470,7 @@ export class ListagemIniciativas {
       );
     });
   }
-  
+
 
   obterRotuloStatus(status: string): string {
     const mapa: Record<string, string> = {
@@ -667,12 +670,44 @@ export class ListagemIniciativas {
         this.formularioIniciativa.disable();
         this.formularioIniciativa.get('evolucaoPercentual')?.enable();
         this.formularioIniciativa.get('observacoes')?.enable();
-        this.etapaAtual = 2;
+        if (this.usuarioAtual()?.papel === 'GESTOR') {
+          this.formularioIniciativa.get('responsavelPreenchimento')?.enable();
+          this.etapaAtual = 1;
+        } else {
+          this.etapaAtual = 2;
+        }
       },
       error: (erro) => {
         console.error('Erro ao carregar iniciativa para edição:', erro);
       },
     });
+  }
+
+  salvarResponsavelIniciativa(): void {
+    if (
+      this.usuarioAtual()?.papel !== 'GESTOR' ||
+      !this.iniciativaSelecionadaId
+    ) {
+      return;
+    }
+
+    const responsavel = this.formularioIniciativa
+      .get('responsavelPreenchimento')?.value;
+
+    this.iniciativaService
+      .atualizarIniciativa(this.iniciativaSelecionadaId, { responsavel })
+      .subscribe({
+        next: () => {
+          window.alert('Responsável alterado com sucesso.');
+          this.buscarIniciativa();
+        },
+        error: erro => {
+          window.alert(
+            erro.error?.detail ??
+            'Não foi possível alterar o responsável.'
+          );
+        },
+      });
   }
 
   montarAcoesApi() {

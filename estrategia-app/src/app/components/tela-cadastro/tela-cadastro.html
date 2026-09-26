@@ -98,6 +98,7 @@
                         </button>
 
                         <button type="button" class="btn-acao" aria-label="excluir usuário"
+                            [disabled]="ehProprioUsuario(usuario)"
                             (click)="abrirConfirmacaoExclusao(usuario)">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -118,6 +119,7 @@
                                 type="button"
                                 class="btn-acao"
                                 aria-label="desativar usuário"
+                                [disabled]="ehProprioUsuario(usuario)"
                                 [class.btn-acao-inativo]="!usuario.is_active"
                                 [attr.aria-label]="usuario.is_active ? 'Inativar usuário' : 'Ativar usuário'"
                                 (click)="abrirConfirmacaoStatus(usuario)">

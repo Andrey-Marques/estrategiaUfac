@@ -24,6 +24,12 @@ export class UsuarioService {
     return this.getAtual();
   }
 
+  getResponsaveis(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(
+      `${this.url}responsaveis/`
+    );
+  }
+
   salvarMeuPerfil(dados: Partial<Usuario>) {
     return this.http.patch<Usuario>(`${this.url}me/`, dados);
   }

@@ -8,6 +8,7 @@ import { TelaCadastro } from './components/tela-cadastro/tela-cadastro';
 import { ListagemProjetos } from './components/listagem-projetos/listagem-projetos';
 import { ListagemIndicadores } from './components/listagem-indicadores/listagem-indicadores';
 import { authGuard } from './guards/auth.guard';
+import { usuariosGuard } from './guards/usuarios.guard';
 import { PerfilUsuario } from './components/perfil-usuario/perfil-usuario';
 import { PaginaInicial } from './components/pagina-inicial/pagina-inicial';
 import { PainelUnidades } from './components/painel-unidades/painel-unidades';
@@ -48,6 +49,7 @@ export const routes: Routes = [
       },
       {
         path: "tela-cadastro",
+        canActivate: [usuariosGuard],
         component: TelaCadastro
       },
       {

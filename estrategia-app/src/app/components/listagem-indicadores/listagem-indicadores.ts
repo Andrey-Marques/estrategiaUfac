@@ -153,6 +153,7 @@ export class ListagemIndicadores {
   }
 
   editarIndicador(indicador: IndicadorEstrategico): void {
+    this.formularioIndicador.enable();
     this.indicadorEmEdicao = indicador.id;
     this.edicaoRestrita = !this.isAdmin() && indicador.status === 'APROVADO';
     this.statusIndicadorEmEdicao = indicador.status;
@@ -174,7 +175,16 @@ export class ListagemIndicadores {
       prevista: Number(meta.meta_prevista) || null,
       alcancada: Number(meta.meta_alcancada) || null,
     }));
-    this.etapaAtual = this.edicaoRestrita ? 3 : 1;
+    if (this.ehGestor() && indicador.status === 'APROVADO') {
+      this.formularioIndicador.disable();
+      this.formularioIndicador.get('responsavel')?.enable();
+    }
+
+    this.etapaAtual = this.ehGestor() ? 1 : this.edicaoRestrita ? 3 : 1;
+  }
+
+  ehGestor(): boolean {
+    return this.usuarioAtual()?.papel === 'GESTOR';
   }
 
   editarIndicadorEmAnalise(indicador: IndicadorEstrategico): void {
@@ -226,19 +236,19 @@ export class ListagemIndicadores {
     ========================= */
 
   avancar(): void {
-    if (this.etapaAtual < 4 && (!this.edicaoRestrita || this.etapaAtual >= 3)) {
+    if (this.etapaAtual < 4 && (!this.edicaoRestrita || this.ehGestor() || this.etapaAtual >= 3)) {
       this.etapaAtual++;
     }
   }
 
   voltar(): void {
-    if (this.etapaAtual > (this.edicaoRestrita ? 3 : 1)) {
+    if (this.etapaAtual > (this.edicaoRestrita && !this.ehGestor() ? 3 : 1)) {
       this.etapaAtual--;
     }
   }
 
   irParaEtapa(etapa: number): void {
-    if (etapa >= 1 && etapa <= 4 && (!this.edicaoRestrita || etapa >= 3)) {
+    if (etapa >= 1 && etapa <= 4 && (!this.edicaoRestrita || this.ehGestor() || etapa >= 3)) {
       this.etapaAtual = etapa;
     }
   }
@@ -380,10 +390,13 @@ export class ListagemIndicadores {
   }
 
   selecionarObjetivo(objetivoId: number): void {
+    if (this.ehGestor() && this.edicaoRestrita) {
+      return;
+    }
     this.objetivoSelecionado = objetivoId;
   }
   buscarUsuarios(): void {
-    this.usuarioService.get().subscribe({
+    this.usuarioService.getResponsaveis().subscribe({
       next: (usuarios) => {
         this.usuarios.set(usuarios);
         this.atualizarUsuariosDaUnidade();
@@ -466,6 +479,30 @@ export class ListagemIndicadores {
         meta_alcancada: String(meta.alcancada ?? ''),
       })),
     };
+
+    if (
+      this.indicadorEmEdicao !== null &&
+      this.ehGestor() &&
+      this.statusIndicadorEmEdicao === 'APROVADO'
+    ) {
+      const dadosResponsavel = { responsavel: formulario.responsavel };
+
+      this.indicadorService
+        .atualizarIndicador(this.indicadorEmEdicao, dadosResponsavel)
+        .subscribe({
+          next: () => {
+            window.alert('Responsável alterado com sucesso.');
+            this.buscarIndicador();
+          },
+          error: erro => {
+            window.alert(
+              erro.error?.detail ??
+              'Não foi possível alterar o responsável.'
+            );
+          },
+        });
+      return;
+    }
 
     if (
       this.indicadorEmEdicao !== null &&
@@ -600,6 +637,7 @@ export class ListagemIndicadores {
     document.body.style.removeProperty('padding-right');
 
     // Limpa o formulário
+    this.formularioIndicador.enable();
     this.formularioIndicador.reset({
       nome: '',
       responsavel: null,
