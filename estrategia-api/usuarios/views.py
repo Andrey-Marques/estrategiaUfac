@@ -3,15 +3,36 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied, ValidationError
-
+from django.db.models.deletion import ProtectedError
 from .models import Usuario
 from .serializers import UsuarioSerializer, MeuPerfilSerializer
+from django.db.models.deletion import ProtectedError
+from rest_framework import status
+from rest_framework.response import Response
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     permission_classes = [IsAuthenticated]
+    
+    def destroy(self, request, *args, **kwargs):
+        usuario = self.get_object()
+
+        try:
+            usuario.delete()
+
+        except ProtectedError:
+            return Response(
+                {
+                    'detail': 'Este usuário não pode ser excluído porque possui projetos, iniciativas ou indicadores vinculados.'
+                },
+                status=status.HTTP_409_CONFLICT
+            )
+
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     def get_queryset(self):
         usuario = self.request.user

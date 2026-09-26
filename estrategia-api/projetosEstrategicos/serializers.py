@@ -23,10 +23,7 @@ class EvolucaoOrcamentariaSerializer(serializers.ModelSerializer):
         read_only_fields = ['fk_projeto']
 
 class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
-    responsavel_nome = serializers.CharField(
-        source='responsavel.nome_completo',
-        read_only=True
-    )
+    responsavel_nome = serializers.SerializerMethodField()
 
     unidade_sigla = serializers.CharField(
         source='unidade.sigla',
@@ -92,7 +89,6 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
         objetivos = validated_data.pop('objetivos', [])
         evolucoes = validated_data.pop('evolucoes', [])
         orcamentarias = validated_data.pop('evolucoesOrcamentarias', [])
-
         projeto = ProjetoEstrategico.objects.create(**validated_data)
         projeto.objetivos.set(objetivos)
 
@@ -105,20 +101,9 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        evolucoes = validated_data.pop(
-            'evolucoes',
-            None
-        )
-
-        evolucoes_orcamentarias = validated_data.pop(
-            'evolucoesOrcamentarias',
-            None
-        )
-
-        objetivos = validated_data.pop(
-            'objetivos',
-            None
-        )
+        evolucoes = validated_data.pop('evolucoes', None)
+        evolucoes_orcamentarias = validated_data.pop('evolucoesOrcamentarias', None)
+        objetivos = validated_data.pop('objetivos',None)
 
         for atributo, valor in validated_data.items():
             setattr(
@@ -126,27 +111,22 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
                 atributo,
                 valor
             )
-
         instance.save()
-
 
         if objetivos is not None:
             instance.objetivos.set(
                 objetivos
             )
 
-
         if evolucoes is not None:
             instance.evolucoes.all().delete()
             self._salvar_evolucoes(instance, evolucoes)
-
 
         if evolucoes_orcamentarias is not None:
             self._sincronizar_evolucoes_orcamentarias(
                 instance,
                 evolucoes_orcamentarias
             )
-
 
         return instance
     
@@ -182,3 +162,9 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
         projeto.evolucoesOrcamentarias.exclude(
             id__in=ids_mantidos
         ).delete()
+        
+    def get_responsavel_nome(self, obj):
+        if obj.responsavel is None:
+            return None
+
+        return obj.responsavel.nome_social or obj.responsavel.nome_completo

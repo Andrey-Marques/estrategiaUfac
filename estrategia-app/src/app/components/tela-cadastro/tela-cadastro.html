@@ -66,26 +66,26 @@
 
             <tbody>
 
-                <tr *ngFor="let u of usuariosFiltrados()">
-                    <td>{{ u.nome_completo }}</td>
+                <tr *ngFor="let usuario of usuariosFiltrados()">
+                    <td>{{ usuario.nome_completo }}</td>
                     <td>
-                        <ng-container *ngIf="obterUnidade(u) as unidade">
+                        <ng-container *ngIf="obterUnidade(usuario) as unidade">
                             {{unidade.sigla}}
                         </ng-container>
                     </td>
-                    <td>{{ u.date_joined | date: 'dd/MM/yyyy'}}</td>
+                    <td>{{ usuario.date_joined | date: 'dd/MM/yyyy'}}</td>
                     <td>
-                        <!-- <span class="status"
-                                [class.status-ativo]="u.status === 'ATIVO'"
-                                [class.status-inativo]="u.status !== 'ATIVO'">
-                            {{ u.status }}
-                            </span> -->
+                        <span class="status"
+                                [class.status-ativo]="usuario.is_active"
+                                [class.status-inativo]="!usuario.is_active">
+                            {{ usuario.is_active ? 'ATIVO' : 'INATIVO' }}
+                            </span>
                     </td>
 
                     <td class="acoes">
 
                         <button type="button" class="btn-acao" aria-label="visualizar usuário"
-                            (click)="abrirVisualizacao(u)">
+                            (click)="abrirVisualizacao(usuario)">
 
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -98,7 +98,7 @@
                         </button>
 
                         <button type="button" class="btn-acao" aria-label="excluir usuário"
-                            (click)="abrirConfirmacaoExclusao(u)">
+                            (click)="abrirConfirmacaoExclusao(usuario)">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path d="M5 7H19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
@@ -114,13 +114,13 @@
                             </svg>
                         </button>
 
-                        <!-- <button
+                        <button
                                 type="button"
                                 class="btn-acao"
                                 aria-label="desativar usuário"
-                                [class.btn-acao-inativo]="u.status !== 'ATIVO'"
-                                [attr.aria-label]="u.status === 'ATIVO' ? 'inativar usuário' : 'ativar usuário'"
-                                (click)="abrirConfirmacaoStatus(u)">
+                                [class.btn-acao-inativo]="!usuario.is_active"
+                                [attr.aria-label]="usuario.is_active ? 'Inativar usuário' : 'Ativar usuário'"
+                                (click)="abrirConfirmacaoStatus(usuario)">
 
                                 <svg
                                     width="18"
@@ -143,11 +143,11 @@
                                         stroke-width="1.7"
                                         stroke-linecap="round"
                                     />
-                                    <path *ngIf="u.status !== 'ATIVO'" d="M12 8.5V15.5"
+                                    <path *ngIf="!usuario.is_active" d="M12 8.5V15.5"
                                        stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
                                 </svg>
 
-                            </button> -->
+                            </button>
 
                     </td>
                 </tr>
@@ -429,7 +429,7 @@
     </div>
 
     <!-- MODAL DE ATIVAR / INATIVAR -->
-    <!-- <div class="modal-overlay" *ngIf="statusAberto" (click)="cancelarAlteracaoStatus()">
+    <div class="modal-overlay" *ngIf="statusAberto" (click)="cancelarAlteracaoStatus()">
 
             <div class="modal-status"
                 role="alertdialog"
@@ -454,6 +454,6 @@
                 </div>
 
             </div>
-        </div> -->
+        </div>
 
 </div>

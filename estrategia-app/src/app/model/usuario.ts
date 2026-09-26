@@ -15,4 +15,5 @@ export interface Usuario {
   unidade: Unidade | number | null;
   unidade_nome?: string;
   unidade_sigla?: string;
+  is_active: boolean;
 }

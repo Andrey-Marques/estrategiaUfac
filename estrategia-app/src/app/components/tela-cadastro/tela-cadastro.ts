@@ -229,10 +229,13 @@ export class TelaCadastro {
       },
       error: (erro) => {
         console.error('Erro ao excluir usuário', erro);
+
+        alert(
+          erro.error?.detail ||
+          'Não foi possível excluir o usuário.'
+        );
       }
     })
-    // TODO integração: DELETE /usuarios/{id}
-    // e só remover da lista depois que a API responder com sucesso
   }
 
   modalAberto = false;
@@ -241,17 +244,20 @@ export class TelaCadastro {
   usuarioFormulario: any = null;
 
   get camposBloqueados(): boolean {
-    return this.modoVisualizacao; // em visualização, tudo (exceto e-mail) fica travado
+    return this.modoVisualizacao; 
   }
 
   statusAberto = false;
   usuarioParaStatus: Usuario | null = null;
 
-  // texto do modal: se está ativo, a ação é inativar (e vice-versa)
+  
 
-  // get acaoStatus(): 'Ativar' | 'Inativar' {
-  //   return this.usuarioParaStatus?. === 'ATIVO' ? 'Inativar' : 'Ativar';
-  // }
+  get acaoStatus(): 'Ativar' | 'Inativar' {
+
+    return this.usuarioParaStatus?.is_active
+      ? 'Inativar'
+      : 'Ativar';
+  }
 
   abrirConfirmacaoStatus(usuario: Usuario): void {
     this.usuarioParaStatus = usuario;
@@ -263,13 +269,25 @@ export class TelaCadastro {
     this.usuarioParaStatus = null;
   }
 
-  // confirmarAlteracaoStatus(): void {
-  //   if (!this.usuarioParaStatus) return;
+  confirmarAlteracaoStatus(): void {
 
-  //   const id = this.usuarioParaStatus.id;
-  //   const novoStatus: 'ATIVO' | 'INATIVO' =
-  //     this.usuarioParaStatus.status === 'ATIVO' ? 'INATIVO' : 'ATIVO';
+    if (!this.usuarioParaStatus) {
+      return;
+    }
+    const id = this.usuarioParaStatus.id;
+    const novoStatus = !this.usuarioParaStatus.is_active;
 
-  //   this.cancelarAlteracaoStatus();
-  // }
+    this.usuarioService.alterarStatus(id, novoStatus).subscribe({
+        next: () => {
+
+          alert('Status alterado');
+          this.cancelarAlteracaoStatus();
+          this.buscarUsuarios();
+        },
+        error: (erro) => {
+          console.error('Erro ao alterar status do usuário:', erro);
+        }
+
+      });
+  }
 }

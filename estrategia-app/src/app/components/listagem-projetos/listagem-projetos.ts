@@ -110,6 +110,27 @@ export class ListagemProjetos {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
         this.buscarRevisoes();
+        const campoResponsavel = this.formularioProjeto.get('liderProjeto');
+        if (usuario.papel !== 'ADMIN') {
+
+          const unidadeId =
+            this.obterIdUnidadeUsuario(usuario);
+
+          this.formularioProjeto.patchValue({
+            unidadeResponsavel: unidadeId
+          });
+
+        }
+
+        if (usuario.papel === 'ADMIN') {
+          campoResponsavel?.clearValidators();
+
+        } else {
+
+          campoResponsavel?.setValidators(Validators.required);
+        }
+
+        campoResponsavel?.updateValueAndValidity();
       },
 
       error: (erro) => {
@@ -373,7 +394,7 @@ export class ListagemProjetos {
 
       percentual_progresso: Number(formulario.percentualProgresso ?? 0),
 
-      responsavel: formulario.liderProjeto,
+      responsavel: formulario.liderProjeto || null,
 
       unidade: formulario.unidadeResponsavel,
 
@@ -553,21 +574,37 @@ export class ListagemProjetos {
       data_registro: evolucao.data_registro,
     }));
 
-    const responsavel = this.usuarios().find(
-      (usuario) => usuario.id === Number(formulario.liderProjeto),
-    );
+    if (formulario.liderProjeto) {
 
-    if (!responsavel?.unidade) {
-      window.alert('O servidor responsável não possui uma unidade vinculada.');
-      return;
-    }
+      const responsavel = this.usuarios().find(
+        usuario =>
+          usuario.id ===
+          Number(formulario.liderProjeto)
+      );
 
-    const unidadeIdResponsavel = this.obterIdUnidadeUsuario(responsavel);
+      if (!responsavel?.unidade) {
 
-    if (unidadeIdResponsavel !== Number(formulario.unidadeResponsavel)) {
-      window.alert('O servidor responsável não pertence à unidade selecionada.');
+        window.alert(
+          'O responsável não possui uma unidade vinculada.'
+        );
 
-      return;
+        return;
+      }
+
+      const unidadeIdResponsavel =
+        this.obterIdUnidadeUsuario(responsavel);
+
+      if (
+        unidadeIdResponsavel !==
+        Number(formulario.unidadeResponsavel)
+      ) {
+
+        window.alert(
+          'O responsável não pertence à unidade selecionada.'
+        );
+
+        return;
+      }
     }
 
     const projeto = {
@@ -578,7 +615,7 @@ export class ListagemProjetos {
       percentual_progresso: Number(formulario.percentualProgresso ?? 0),
       evolucoesOrcamentarias: evolucoesOrcamentarias,
       status: status,
-      responsavel: formulario.liderProjeto,
+      responsavel: formulario.liderProjeto || null,
       unidade: formulario.unidadeResponsavel,
       acoes_previstas: formulario.acoesPrevistas,
       objetivos: formulario.objetivos ?? [],
@@ -952,39 +989,6 @@ export class ListagemProjetos {
     return this.unidades().find((unidade) => unidade.id === projeto.unidade);
   }
 
-  servidoresComUnidade(): Usuario[] {
-    const usuarioLogado = this.usuarioAtual();
-
-    if (!usuarioLogado) {
-      return [];
-    }
-
-    // ADMIN pode visualizar servidores de todas as unidades
-    if (usuarioLogado.papel === 'ADMIN') {
-      return this.usuarios().filter(
-        (usuario) =>
-          (usuario.papel === 'SERVIDOR' || usuario.papel === 'GESTOR' || usuario.papel === 'ADMIN') && usuario.unidade != null,
-      );
-    }
-
-    // Obtém a unidade do servidor logado
-    const unidadeUsuarioLogado = this.obterIdUnidadeUsuario(usuarioLogado);
-
-    if (unidadeUsuarioLogado === null) {
-      return [];
-    }
-
-    // SERVIDOR vê somente pessoas da própria unidade
-    return this.usuarios().filter((usuario) => {
-      const unidadeUsuario = this.obterIdUnidadeUsuario(usuario);
-
-      return (
-        (usuario.papel === 'SERVIDOR' || usuario.papel === 'GESTOR' || usuario.papel === 'ADMIN') &&
-        unidadeUsuario === unidadeUsuarioLogado
-      );
-    });
-  }
-
   private obterIdUnidadeUsuario(usuario: Usuario): number | null {
     if (!usuario.unidade) {
       return null;
@@ -1009,46 +1013,23 @@ export class ListagemProjetos {
     return this.unidades().find((unidade) => unidade.id === unidadeId);
   }
 
-  aoSelecionarResponsavel(): void {
-    const responsavelId = Number(this.formularioProjeto.get('liderProjeto')?.value);
+  aoSelecionarUnidade(): void {
 
-    const responsavel = this.usuarios().find((usuario) => usuario.id === responsavelId);
-
+    const responsavel =
+      this.obterResponsavelSelecionado();
     if (!responsavel) {
-      this.formularioProjeto.patchValue({
-        unidadeResponsavel: '',
-      });
-
       return;
     }
 
-    const unidadeId = this.obterIdUnidadeUsuario(responsavel);
+    const unidadeSelecionada = Number(this.formularioProjeto.get('unidadeResponsavel') ?.value);
+    const unidadeResponsavel = this.obterIdUnidadeUsuario(responsavel);
 
-    if (unidadeId === null) {
-      this.formularioProjeto.patchValue({
-        unidadeResponsavel: '',
-      });
+    if (
+      unidadeResponsavel !== unidadeSelecionada
+    ) {
 
-      return;
+      this.formularioProjeto.patchValue({liderProjeto: ''});
     }
-
-    this.formularioProjeto.patchValue({
-      unidadeResponsavel: unidadeId,
-    });
-  }
-
-  unidadesDoResponsavel(): Unidade[] {
-    const responsavelId = Number(this.formularioProjeto.get('liderProjeto')?.value);
-
-    const responsavel = this.usuarios().find((usuario) => usuario.id === responsavelId);
-
-    if (!responsavel) {
-      return [];
-    }
-
-    const unidade = this.obterUnidadeUsuario(responsavel);
-
-    return unidade ? [unidade] : [];
   }
 
   obterResponsavelSelecionado(): Usuario | null {
@@ -1098,6 +1079,36 @@ export class ListagemProjetos {
     });
 
     input.value = String(valor);
+  }
+
+  responsaveisDisponiveis(): Usuario[] {
+
+    const unidadeId = Number(this.formularioProjeto.get('unidadeResponsavel') ?.value);
+
+    if (!unidadeId) {
+      return [];
+    }
+
+    return this.usuarios().filter(
+      usuario =>
+        this.obterIdUnidadeUsuario(usuario) === unidadeId
+    );
+  }
+
+  unidadesDisponiveisProjeto(): Unidade[] {
+
+    const usuario = this.usuarioAtual();
+    if (!usuario) {
+      return [];
+    }
+    if (usuario.papel === 'ADMIN') {
+      return this.unidades();
+    }
+    const unidadeId = this.obterIdUnidadeUsuario(usuario);
+
+    return this.unidades().filter(
+      unidade => unidade.id === unidadeId
+    );
   }
 
   editarEvolucaoOrcamentaria(indice: number): void {

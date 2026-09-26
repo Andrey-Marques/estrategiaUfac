@@ -277,6 +277,18 @@ export class ListagemIndicadores {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
         this.buscarRevisoes();
+        const campoResponsavel = this.formularioIndicador.get('responsavel');
+
+        if (usuario.papel === 'ADMIN') {
+          campoResponsavel?.clearValidators();
+        } else {
+          campoResponsavel?.setValidators(
+            Validators.required
+          );
+        }
+
+        campoResponsavel?.updateValueAndValidity();
+
         this.atualizarUsuariosDaUnidade();
         if (usuario.papel !== 'ADMIN') {
           this.formularioIndicador.patchValue(
@@ -320,24 +332,31 @@ export class ListagemIndicadores {
     );
   }
   private observarResponsavelSelecionado(): void {
-    this.formularioIndicador.get('responsavel')?.valueChanges.subscribe((responsavelId) => {
-      if (!responsavelId) {
-        this.formularioIndicador.patchValue({ unidade: null }, { emitEvent: false });
-        return;
-      }
 
-      const responsavel = this.usuarios().find(
-        (usuario) => Number(usuario.id) === Number(responsavelId),
-      );
+    this.formularioIndicador
+      .get('responsavel') ?.valueChanges.subscribe((responsavelId) => {
 
-      if (!responsavel) {
-        return;
-      }
+        if (this.isAdmin()) {
+          return;
+        }
 
-      const unidadeId =
-        typeof responsavel.unidade === 'number' ? responsavel.unidade : responsavel.unidade?.id;
-      this.formularioIndicador.patchValue({ unidade: unidadeId ?? null }, { emitEvent: false });
-    });
+        if (!responsavelId) {
+          return;
+        }
+
+        const responsavel = this.usuarios().find(usuario =>  Number(usuario.id) === Number(responsavelId));
+
+        if (!responsavel) {
+          return;
+        }
+
+        const unidadeId = this.obterIdUnidadeUsuario(responsavel);
+
+        this.formularioIndicador.patchValue(
+
+          {unidade: unidadeId}, {emitEvent: false}
+        );
+      });
   }
 
   private obterIdUnidadeUsuario(usuario: Usuario): number | null {
@@ -431,7 +450,7 @@ export class ListagemIndicadores {
     const formulario = this.formularioIndicador.getRawValue();
     const dados: any = {
       nome: formulario.nome,
-      responsavel: formulario.responsavel,
+      responsavel: formulario.responsavel || null,
       unidade: formulario.unidade,
       objetivo: this.objetivoSelecionado,
       finalidade: formulario.finalidade,
@@ -488,6 +507,44 @@ export class ListagemIndicadores {
         console.error('Erro ao criar indicador:', erro);
       },
     });
+  }
+
+  responsaveisDisponiveis(): Usuario[] {
+
+    const unidadeId = Number(this.formularioIndicador.get('unidade')  ?.value);
+
+    if (!unidadeId) {
+      return [];
+    }
+
+    return this.usuarios().filter(
+      usuario =>
+        this.obterIdUnidadeUsuario(usuario)
+          === unidadeId
+    );
+  }
+
+  aoSelecionarUnidade(): void {
+
+    if (!this.isAdmin()) {
+      return;
+    }
+
+    const unidadeId = Number(this.formularioIndicador.get('unidade') ?.value);
+
+    const responsavel = this.obterResponsavelSelecionado();
+
+    if (!responsavel) {
+      return;
+    }
+
+    const unidadeResponsavel = this.obterIdUnidadeUsuario(responsavel);
+
+    if (unidadeResponsavel !== unidadeId) {
+
+      this.formularioIndicador.patchValue({responsavel: null});
+
+    }
   }
 
   aprovarIndicador(decisao: DecisaoIndicador): void {

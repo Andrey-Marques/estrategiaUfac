@@ -2,12 +2,8 @@
   <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="titulo-pagina m-0">Iniciativas Estratégicas</h1>
-      <button
-        class="btn botao-principal"
-        (click)="CriarNovaIniciativa()"
-        data-bs-target="#exampleModalToggle"
-        data-bs-toggle="modal"
-      >
+      <button class="btn botao-principal" (click)="CriarNovaIniciativa()" data-bs-target="#exampleModalToggle"
+        data-bs-toggle="modal">
         +Nova Iniciativa
       </button>
     </div>
@@ -90,7 +86,8 @@
                   {{ iniciativas.nome }}
                   <ng-container *ngIf="obterRevisao(iniciativas.id) as revisao">
                     <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
-                      <i class="bi" [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+                      <i class="bi"
+                        [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
                       {{ obterRotuloRevisao(revisao.status) }}
                     </span>
                   </ng-container>
@@ -112,7 +109,7 @@
               <td class="text-center">
                 <strong class="d-block texto-data">{{
                   iniciativas.data_preenchimento | date: 'dd/MM/yyyy'
-                }}</strong>
+                  }}</strong>
                 <small class="texto-subtitulo">
                   Última atualização:{{ iniciativas.ultima_atualizacao | date: 'dd/MM/yyyy' }}
                 </small>
@@ -123,11 +120,7 @@
                 </span>
               </td>
               <td class="text-center pe-4">
-                <button
-                  type="button"
-                  class="btn botao-visualizar"
-                  (click)="abrirAvaliacao(iniciativas)"
-                >
+                <button type="button" class="btn botao-visualizar" (click)="abrirAvaliacao(iniciativas)">
                   <i class="bi bi-eye"></i>
                   Visualizar
                 </button>
@@ -144,13 +137,8 @@
       </div>
     </div>
   </div>
-  <div
-    class="modal fade"
-    id="exampleModalToggle"
-    aria-hidden="true"
-    aria-labelledby="exampleModalToggleLabel"
-    tabindex="-1"
-  >
+  <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+    tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="formulario-iniciativas posicao-relativa">
@@ -158,50 +146,33 @@
             <div>
               <h1>
                 {{
-                  modoEdicao
-                    ? 'EDIÇÃO DE INICIATIVA ESTRATÉGICA'
-                    : 'CRIAÇÃO DE UMA INICIATIVA ESTRATÉGICA'
+                modoEdicao
+                ? 'EDIÇÃO DE INICIATIVA ESTRATÉGICA'
+                : 'CRIAÇÃO DE UMA INICIATIVA ESTRATÉGICA'
                 }}
               </h1>
               <p>
                 {{
-                  editandoIniciativaRejeitada
-                    ? 'Corrija as informações apontadas na avaliação e reenvie a iniciativa.'
-                    : modoEdicao
-                      ? 'Atualize as informações de acompanhamento da iniciativa.'
-                      : 'Insira as informações técnicas para o preenchimento oficial do PDI'
+                editandoIniciativaRejeitada
+                ? 'Corrija as informações apontadas na avaliação e reenvie a iniciativa.'
+                : modoEdicao
+                ? 'Atualize as informações de acompanhamento da iniciativa.'
+                : 'Insira as informações técnicas para o preenchimento oficial do PDI'
                 }}
               </p>
             </div>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-              (click)="fecharFormulario()"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+              (click)="fecharFormulario()"></button>
           </div>
 
           <div class="etapas-formulario">
-            <div
-              class="etapa-formulario"
-              [class.etapa-atual]="etapaAtual === 1"
-              (click)="irParaEtapa(1)"
-            >
+            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 1" (click)="irParaEtapa(1)">
               <span>1. Apresentação</span>
             </div>
-            <div
-              class="etapa-formulario"
-              [class.etapa-atual]="etapaAtual === 2"
-              (click)="irParaEtapa(2)"
-            >
+            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 2" (click)="irParaEtapa(2)">
               <span>2. Ações e Evolução</span>
             </div>
-            <div
-              class="etapa-formulario"
-              [class.etapa-atual]="etapaAtual === 3"
-              (click)="irParaEtapa(3)"
-            >
+            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 3" (click)="irParaEtapa(3)">
               <span>3. Observações</span>
             </div>
           </div>
@@ -225,45 +196,13 @@
               </div>
 
               <div class="campo-formulario campo-titulo-iniciativa">
-                <label for="nome"
-                  >TÍTULO DA INICIATIVA <span class="campo-obrigatorio">*</span></label
-                >
-                <input
-                  id="tituloIniciativa"
-                  type="text"
-                  class="form-control"
-                  placeholder="Insira o título aqui"
-                  formControlName="tituloIniciativa"
-                />
+                <label for="nome">TÍTULO DA INICIATIVA <span class="campo-obrigatorio">*</span></label>
+                <input id="tituloIniciativa" type="text" class="form-control" placeholder="Insira o título aqui"
+                  formControlName="tituloIniciativa" />
               </div>
 
               <div class="linha-informacoes">
                 <div class="linha-vinculo">
-                  <!-- RESPONSÁVEL -->
-                  <div class="campo-formulario">
-                    <label for="responsavelPreenchimento">
-                      RESPONSÁVEL PELA INICIATIVA
-                      <span class="obrigatorio">*</span>
-                    </label>
-
-                    <select
-                      id="responsavelPreenchimento"
-                      class="form-control"
-                      formControlName="responsavelPreenchimento"
-                    >
-                      <option [ngValue]="null">Selecione um responsável</option>
-
-                      <option
-                        *ngFor="let usuario of responsaveisDisponiveis()"
-                        [ngValue]="usuario.id"
-                      >
-                        {{ usuario.nome_completo }}
-                        -
-                        {{ obterSiglaUnidadeUsuario(usuario) }}
-                      </option>
-                    </select>
-                  </div>
-
                   <!-- UNIDADE -->
                   <div class="campo-formulario">
                     <label for="unidadeResponsavel">
@@ -271,17 +210,20 @@
                       <span class="obrigatorio">*</span>
                     </label>
 
-                    <select
-                      id="unidadeResponsavel"
-                      class="form-control"
-                      formControlName="unidadeResponsavel"
-                    >
-                      <option [ngValue]="null" disabled>Unidade do responsável</option>
+                    <select id="unidadeResponsavel" class="form-control" formControlName="unidadeResponsavel"
+                      (change)="aoSelecionarUnidade()">
 
-                      <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id" disabled>
+                      <option [ngValue]="null">
+                        Selecione uma unidade
+                      </option>
+
+                      <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id">
+
                         {{ unidade.nome }}
                         ({{ unidade.sigla }})
+
                       </option>
+
                     </select>
 
                     <small class="texto-ajuda">
@@ -289,22 +231,32 @@
                     </small>
                   </div>
 
-                  <!-- VÍNCULO VERIFICADO -->
-                  <div class="vinculo-verificado" *ngIf="responsavelSelecionado() as responsavel">
-                    <div class="icone-vinculo">
-                      <i class="bi bi-check-circle-fill"></i>
-                    </div>
+                  <!-- RESPONSÁVEL -->
+                  <div class="campo-formulario">
+                    <label for="responsavelPreenchimento">
+                      RESPONSÁVEL PELA INICIATIVA
+                      <span class="obrigatorio">*</span>
+                    </label>
 
-                    <div class="conteudo-vinculo">
-                      <strong> Vínculo verificado </strong>
+                    <select id="responsavelPreenchimento" class="form-control"
+                      formControlName="responsavelPreenchimento">
+                      <option [ngValue]="null">
+                        {{
+                        isAdmin()
+                        ? 'Sem responsável'
+                        : 'Selecione um responsável'
+                        }}
+                      </option>
 
-                      <span>
-                        {{ responsavel.nome_completo }}
-                        pertence à
-                        {{ obterSiglaUnidadeUsuario(responsavel) }}
-                      </span>
-                    </div>
+                      <option *ngFor="let usuario of responsaveisDisponiveis()" [ngValue]="usuario.id">
+
+                        {{ usuario.nome_social || usuario.nome_completo }}
+                        — {{ obterSiglaUnidadeUsuario(usuario) }}
+
+                      </option>
+                    </select>
                   </div>
+
                 </div>
               </div>
 
@@ -317,12 +269,8 @@
                 <div class="container-objetivos">
                   <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivos()">
                     <div class="cabecalho-card-objetivo">
-                      <input
-                        class="form-check-input selecao-objetivo"
-                        type="checkbox"
-                        [checked]="objetivoEstaSelecionado(objetivo)"
-                        (change)="selecionarObjetivo(objetivo, $event)"
-                      />
+                      <input class="form-check-input selecao-objetivo" type="checkbox"
+                        [checked]="objetivoEstaSelecionado(objetivo)" (change)="selecionarObjetivo(objetivo, $event)" />
                       <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
                     </div>
                     <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
@@ -339,12 +287,8 @@
                   <h2>Passo 2: Ações Relacionadas à Iniciativa</h2>
                   <p>Adicione e edite prazos, custos e progressos das ações.</p>
                 </div>
-                <button
-                  *ngIf="!visualizando"
-                  type="button"
-                  class="btn btn-adicionar-acao"
-                  (click)="abrirSubmodalAcao()"
-                >
+                <button *ngIf="!visualizando" type="button" class="btn btn-adicionar-acao"
+                  (click)="abrirSubmodalAcao()">
                   + Adicionar Ação
                 </button>
               </div>
@@ -363,10 +307,7 @@
                   <p>Nenhuma ação adicionada ainda. Clique em "Adicionar Ação"</p>
                 </div>
 
-                <div
-                  *ngFor="let acao of acoesIniciativa(); let indice = index"
-                  class="linha-tabela-acao"
-                >
+                <div *ngFor="let acao of acoesIniciativa(); let indice = index" class="linha-tabela-acao">
                   <div class="coluna col-acao">{{ acao.descricaoAcao }}</div>
                   <div class="coluna col-prazo">{{ acao.prazoInicio }}</div>
                   <div class="coluna col-prazo">{{ acao.prazoFim }}</div>
@@ -374,25 +315,15 @@
                   <div class="coluna col-status">
                     <span class="badge-status" [ngClass]="acao.statusAtual">{{
                       obterRotuloStatus(acao.statusAtual)
-                    }}</span>
+                      }}</span>
                   </div>
                   <div class="coluna col-acoes">
-                    <button
-                      *ngIf="!visualizando"
-                      type="button"
-                      class="btn-editar-acao"
-                      (click)="editarAcaoIniciativa(acao, indice)"
-                      title="Editar ação"
-                    >
+                    <button *ngIf="!visualizando" type="button" class="btn-editar-acao"
+                      (click)="editarAcaoIniciativa(acao, indice)" title="Editar ação">
                       <i class="bi bi-pencil-square"></i>
                     </button>
-                    <button
-                      *ngIf="!visualizando"
-                      type="button"
-                      class="btn-excluir-acao"
-                      (click)="removerAcaoIniciativa(indice)"
-                      title="Excluir ação"
-                    >
+                    <button *ngIf="!visualizando" type="button" class="btn-excluir-acao"
+                      (click)="removerAcaoIniciativa(indice)" title="Excluir ação">
                       <i class="bi bi-trash"></i>
                     </button>
                   </div>
@@ -413,21 +344,14 @@
                   <div class="widget-cabecalho">
                     <span>Evolução da iniciativa</span>
                     <div class="campo-porcentagem">
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        formControlName="evolucaoPercentual"
-                        (input)="validarEvolucaoPercentual($event)"
-                      />
+                      <input type="number" min="0" max="100" formControlName="evolucaoPercentual"
+                        (input)="validarEvolucaoPercentual($event)" />
                       <span>%</span>
                     </div>
                   </div>
                   <div class="trilho-progresso">
-                    <div
-                      class="preenchimento-progresso"
-                      [style.width.%]="formularioIniciativa.get('evolucaoPercentual')?.value || 0"
-                    ></div>
+                    <div class="preenchimento-progresso"
+                      [style.width.%]="formularioIniciativa.get('evolucaoPercentual')?.value || 0"></div>
                   </div>
                 </div>
               </div>
@@ -442,12 +366,8 @@
                 <hr />
               </div>
               <div class="campo-formulario campo-observacao">
-                <textarea
-                  class="form-control caixa-texto-observacao"
-                  rows="8"
-                  placeholder="Insira suas observações aqui!"
-                  formControlName="observacoes"
-                ></textarea>
+                <textarea class="form-control caixa-texto-observacao" rows="8"
+                  placeholder="Insira suas observações aqui!" formControlName="observacoes"></textarea>
               </div>
               <hr />
             </div>
@@ -456,59 +376,33 @@
             <div class="rodape-formulario">
               <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
               <div class="botoes-navegacao">
-                <button
-                  type="button"
-                  class="btn botao-anterior"
-                  (click)="voltar()"
-                  [disabled]="etapaAtual === 1"
-                >
+                <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1">
                   <i class="bi bi-chevron-left"></i> Anterior
                 </button>
-                <button
-                  *ngIf="etapaAtual < 3"
-                  type="button"
-                  class="btn botao-proximo"
-                  (click)="avancar()"
-                >
+                <button *ngIf="etapaAtual < 3" type="button" class="btn botao-proximo" (click)="avancar()">
                   Próximo <i class="bi bi-chevron-compact-right"></i>
                 </button>
 
                 <ng-container *ngIf="etapaAtual === 3">
                   <ng-container *ngIf="modoEdicao && etapaAtual === 3">
-                    <button
-                      type="button"
-                      class="btn botao-submeter-analise"
-                      (click)="salvarEdicaoIniciativa()"
-                    >
+                    <button type="button" class="btn botao-submeter-analise" (click)="salvarEdicaoIniciativa()">
                       {{ isAdmin() ? 'Salvar alterações' : 'Enviar atualização para análise' }}
                     </button>
                   </ng-container>
 
                   <ng-container *ngIf="!visualizando && !modoEdicao && etapaAtual === 3">
-                    <button
-                      *ngIf="!isAdmin()"
-                      type="button"
-                      class="btn botao-salvar-rascunho"
-                      (click)="salvarIniciativa('RASCUNHO')"
-                    >
+                    <button *ngIf="!isAdmin()" type="button" class="btn botao-salvar-rascunho"
+                      (click)="salvarIniciativa('RASCUNHO')">
                       Salvar rascunho
                     </button>
 
-                    <button
-                      *ngIf="!isAdmin()"
-                      type="button"
-                      class="btn botao-submeter-analise"
-                      (click)="salvarIniciativa('EM_ESPERA')"
-                    >
+                    <button *ngIf="!isAdmin()" type="button" class="btn botao-submeter-analise"
+                      (click)="salvarIniciativa('EM_ESPERA')">
                       Submeter à análise
                     </button>
 
-                    <button
-                      *ngIf="isAdmin()"
-                      type="button"
-                      class="btn botao-submeter-analise"
-                      (click)="salvarIniciativa('APROVADO')"
-                    >
+                    <button *ngIf="isAdmin()" type="button" class="btn botao-submeter-analise"
+                      (click)="salvarIniciativa('APROVADO')">
                       Publicar iniciativa
                     </button>
                   </ng-container>
@@ -528,65 +422,31 @@
               </div>
               <div class="corpo-modal-acao">
                 <div class="campo-formulario">
-                  <label for="descricaoAcaoInterna"
-                    >DESCRIÇÃO DA AÇÃO <span class="campo-obrigatorio">*</span></label
-                  >
-                  <input
-                    type="text"
-                    id="descricaoAcaoInterna"
-                    class="form-control"
-                    placeholder="Ex: Implantação da Central de Empresas Juniores"
-                    formControlName="descricaoAcao"
-                  />
+                  <label for="descricaoAcaoInterna">DESCRIÇÃO DA AÇÃO <span class="campo-obrigatorio">*</span></label>
+                  <input type="text" id="descricaoAcaoInterna" class="form-control"
+                    placeholder="Ex: Implantação da Central de Empresas Juniores" formControlName="descricaoAcao" />
                 </div>
                 <div class="linha-informacoes">
                   <div class="campo-formulario">
-                    <label for="prazoInicioInterno"
-                      >PRAZO DE INÍCIO <span class="campo-obrigatorio">*</span></label
-                    >
-                    <input
-                      type="text"
-                      id="prazoInicioInterno"
-                      class="form-control"
-                      placeholder="DD/MM/AAAA"
-                      formControlName="prazoInicio"
-                    />
+                    <label for="prazoInicioInterno">PRAZO DE INÍCIO <span class="campo-obrigatorio">*</span></label>
+                    <input type="text" id="prazoInicioInterno" class="form-control" placeholder="DD/MM/AAAA"
+                      formControlName="prazoInicio" />
                   </div>
                   <div class="campo-formulario">
-                    <label for="prazoFimInterno"
-                      >PRAZO DE FIM <span class="campo-obrigatorio">*</span></label
-                    >
-                    <input
-                      type="text"
-                      id="prazoFimInterno"
-                      class="form-control"
-                      placeholder="DD/MM/AAAA ou contínua"
-                      formControlName="prazoFim"
-                    />
+                    <label for="prazoFimInterno">PRAZO DE FIM <span class="campo-obrigatorio">*</span></label>
+                    <input type="text" id="prazoFimInterno" class="form-control" placeholder="DD/MM/AAAA ou contínua"
+                      formControlName="prazoFim" />
                   </div>
                 </div>
                 <div class="linha-informacoes">
                   <div class="campo-formulario">
-                    <label for="custoEstimadoInterno"
-                      >CUSTO ESTIMADO <span class="campo-obrigatorio">*</span></label
-                    >
-                    <input
-                      type="text"
-                      id="custoEstimadoInterno"
-                      class="form-control"
-                      placeholder="0.00"
-                      formControlName="custoEstimado"
-                    />
+                    <label for="custoEstimadoInterno">CUSTO ESTIMADO <span class="campo-obrigatorio">*</span></label>
+                    <input type="text" id="custoEstimadoInterno" class="form-control" placeholder="0.00"
+                      formControlName="custoEstimado" />
                   </div>
                   <div class="campo-formulario">
-                    <label for="statusAtualInterno"
-                      >STATUS ATUAL <span class="campo-obrigatorio">*</span></label
-                    >
-                    <select
-                      id="statusAtualInterno"
-                      class="form-select selecao-status"
-                      formControlName="statusAtual"
-                    >
+                    <label for="statusAtualInterno">STATUS ATUAL <span class="campo-obrigatorio">*</span></label>
+                    <select id="statusAtualInterno" class="form-select selecao-status" formControlName="statusAtual">
                       <option value="nao-iniciada">Não iniciada</option>
                       <option value="em-execucao">Em execução</option>
                       <option value="concluida">Concluída</option>
@@ -610,16 +470,9 @@
     </div>
   </div>
 </div>
-<app-avaliacao-iniciativa
-  *ngIf="iniciativaEmAnalise() as iniciativaSelecionada"
-  [iniciativa]="iniciativaSelecionada"
-  [isAdmin]="isAdmin()"
-  [revisao]="revisaoEmAnalise()"
-  (fechado)="fecharAvaliacao()"
-  (aprovado)="aprovarIniciativa($event)"
-  (rejeitado)="rejeitarIniciativa($event)"
-  (revisaoAprovada)="aprovarRevisao($event)"
-  (revisaoRejeitada)="rejeitarRevisao($event)"
-  (editar)="abrirEdicaoPeloModal($event)"
->
+<app-avaliacao-iniciativa *ngIf="iniciativaEmAnalise() as iniciativaSelecionada" [iniciativa]="iniciativaSelecionada"
+  [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
+  (aprovado)="aprovarIniciativa($event)" (rejeitado)="rejeitarIniciativa($event)"
+  (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)"
+  (editar)="abrirEdicaoPeloModal($event)">
 </app-avaliacao-iniciativa>

@@ -10,7 +10,7 @@ class IndicadorEstrategico(models.Model):
     formula = models.TextField() #-----deve armazenar o codigo latex da formula------
     unidade = models.ForeignKey('unidades.Unidade', on_delete= models.PROTECT, related_name= "indicador_estrategico" )
     objetivo = models.ForeignKey('objetivosEstrategicos.ObjetivoEstrategico', on_delete=models.PROTECT, related_name="indicador_estrategico")
-    responsavel = models.ForeignKey('usuarios.Usuario', on_delete = models.PROTECT, related_name="indicador_estrategico")
+    responsavel = models.ForeignKey('usuarios.Usuario', on_delete = models.PROTECT, related_name="indicador_estrategico", null=True, blank=True)
     observacao = models.TextField(blank=True, null=True)
     unidade_medida = models.CharField(max_length=100, blank=True)
     data_envio = models.DateTimeField(auto_now_add=True)

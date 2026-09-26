@@ -55,8 +55,13 @@ class IndicadorEstrategicoSerializer(serializers.ModelSerializer):
         ]
 
     def get_responsavel_nome(self, obj):
-        nome = obj.responsavel.get_full_name().strip()
-        return nome or obj.responsavel.nome_completo
+        if obj.responsavel is None:
+            return None
+
+        return (
+            obj.responsavel.nome_social
+            or obj.responsavel.nome_completo
+        )
 
 
     def get_objetivo_detalhes(self, obj):

@@ -19,7 +19,7 @@ class ProjetoEstrategico(models.Model):
     status = models.CharField(max_length=20)
     acoes_previstas = models.TextField()
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='projetos_estrategicos')
-    responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos')
+    responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos', null=True, blank=True)
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoProjeto',related_name='projetos')
     observacao_analise = models.TextField( blank=True, default='')
     data_analise = models.DateTimeField(null=True,blank=True)

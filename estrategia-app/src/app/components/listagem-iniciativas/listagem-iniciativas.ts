@@ -103,28 +103,39 @@ export class ListagemIniciativas {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
         this.buscarRevisoes();
+
+        const campoResponsavel = this.formularioIniciativa.get('responsavelPreenchimento');
+
+        if (usuario.papel === 'ADMIN') {
+          campoResponsavel?.clearValidators();
+        } else {
+          campoResponsavel?.setValidators(Validators.required);
+        }
+
+        campoResponsavel?.updateValueAndValidity();
       },
       error: (erro) => console.error('Erro ao buscar usuário atual:', erro),
     });
   }
 
   responsaveisDisponiveis(): Usuario[] {
-    const atual = this.usuarioAtual();
-    if (!atual) {
+
+    const unidadeId = Number(
+      this.formularioIniciativa.get('unidadeResponsavel') ?.value
+    );
+
+    if (!unidadeId) {
       return [];
     }
 
-    if (this.isAdmin()) {
-      return this.usuarios();
-    }
+    return this.usuarios().filter(usuario => {
 
-    const unidadeAtual = typeof atual.unidade === 'number' ? atual.unidade : atual.unidade?.id;
-
-    return this.usuarios().filter((usuario) => {
       const unidadeUsuario =
-        typeof usuario.unidade === 'number' ? usuario.unidade : usuario.unidade?.id;
+        typeof usuario.unidade === 'number'
+          ? usuario.unidade
+          : usuario.unidade?.id;
 
-      return unidadeUsuario === unidadeAtual;
+      return unidadeUsuario === unidadeId;
     });
   }
 
@@ -272,7 +283,7 @@ export class ListagemIniciativas {
     const formulario = this.formularioIniciativa.getRawValue();
     const dados = {
       nome: formulario.tituloIniciativa,
-      responsavel: formulario.responsavelPreenchimento,
+      responsavel: formulario.responsavelPreenchimento || null,
       unidade: formulario.unidadeResponsavel,
       objetivos: formulario.objetivosEstrategicos,
       percentual_evolucao: formulario.evolucaoPercentual,
@@ -365,6 +376,39 @@ export class ListagemIniciativas {
     this.acoesIniciativa.update((lista) => lista.filter((_, i) => i !== indiceAcao));
   }
 
+  aoSelecionarUnidade(): void {
+    if (!this.isAdmin()) {
+      return;
+    }
+
+    const unidadeId = Number(this.formularioIniciativa.get('unidadeResponsavel') ?.value);
+
+    const responsavelId = this.formularioIniciativa.get('responsavelPreenchimento')  ?.value;
+
+    if (!responsavelId) {
+      return;
+    }
+
+    const responsavel = this.usuarios().find(usuario => Number(usuario.id) === Number(responsavelId));
+
+    if (!responsavel) {
+      return;
+    }
+
+    const unidadeResponsavel =
+      typeof responsavel.unidade === 'number'
+        ? responsavel.unidade
+        : responsavel.unidade?.id;
+
+    if (unidadeResponsavel !== unidadeId) {
+
+      this.formularioIniciativa.patchValue({
+        responsavelPreenchimento: null
+      });
+
+    }
+  }
+
   validarEvolucaoPercentual(evento: Event): void {
     const valor = Math.min(100, Math.max(0, Number((evento.target as HTMLInputElement).value)));
     this.formularioIniciativa.patchValue({ evolucaoPercentual: valor });
@@ -393,33 +437,37 @@ export class ListagemIniciativas {
     return mapa[status] || status;
   }
   private observarResponsavelSelecionado(): void {
-    this.formularioIniciativa
-      .get('responsavelPreenchimento')
-      ?.valueChanges.subscribe((responsavelId) => {
-        if (!responsavelId) {
-          this.formularioIniciativa.patchValue({ unidadeResponsavel: null }, { emitEvent: false });
-          return;
+   this.formularioIniciativa.get('responsavelPreenchimento') ?.valueChanges.subscribe((responsavelId) => {
+
+      if (this.isAdmin()) {
+        return;
+      }
+
+      if (!responsavelId) {
+        return;
+      }
+
+      const responsavel = this.usuarios().find(
+        usuario => Number(usuario.id) === Number(responsavelId)
+      );
+
+      if (!responsavel) {
+        return;
+      }
+
+      const unidadeId = typeof responsavel.unidade === 'number' ? responsavel.unidade : responsavel.unidade?.id;
+
+      this.formularioIniciativa.patchValue(
+        {
+          unidadeResponsavel: unidadeId ?? null
+        },
+        {
+          emitEvent: false
         }
-
-        const responsavel = this.usuarios().find(
-          (usuario) => Number(usuario.id) === Number(responsavelId),
-        );
-
-        if (!responsavel) {
-          return;
-        }
-
-        const unidadeId =
-          typeof responsavel.unidade === 'number' ? responsavel.unidade : responsavel.unidade?.id;
-
-        this.formularioIniciativa.patchValue(
-          { unidadeResponsavel: unidadeId ?? null },
-          {
-            emitEvent: false,
-          },
-        );
-      });
+      );
+    });
   }
+  
 
   obterRotuloStatus(status: string): string {
     const mapa: Record<string, string> = {
@@ -445,9 +493,10 @@ export class ListagemIniciativas {
       return false;
     }
 
-    if (!formulario.responsavelPreenchimento) {
-      window.alert('Selecione o responsável pela iniciativa.');
-      this.etapaAtual = 1;
+    if (!this.isAdmin() && !formulario.responsavelPreenchimento) {
+      window.alert(
+        'Selecione um responsável pela iniciativa.'
+      );
       return false;
     }
 
@@ -697,15 +746,7 @@ export class ListagemIniciativas {
       error: (erro) => console.error('Erro ao atualizar iniciativa:', erro),
     });
   }
-  responsavelSelecionado(): Usuario | null {
-    const responsavelId = this.formularioIniciativa.get('responsavelPreenchimento')?.value;
 
-    if (!responsavelId) {
-      return null;
-    }
-
-    return this.usuarios().find((usuario) => Number(usuario.id) === Number(responsavelId)) ?? null;
-  }
   obterSiglaUnidadeUsuario(usuario: Usuario): string {
     if (usuario.unidade && typeof usuario.unidade === 'object') {
       return usuario.unidade.sigla;

@@ -251,50 +251,56 @@
             <!-- RESPONSÁVEL e UNIDADE -->
 
             <div class="linha-informacoes">
-              <div class="campo-formulario">
-                <label>
-                  RESPONSÁVEL PELO INDICADOR
-                  <span class="campo-obrigatorio">*</span>
-                </label>
-
-                <select class="form-control" formControlName="responsavel">
-                  <option [ngValue]="null">Selecione um responsável</option>
-                  <option *ngFor="let usuario of usuarios()" [ngValue]="usuario.id">
-                    {{ usuario.nome_completo }}
-                  </option>
-                </select>
-              </div>
+             
 
               <div class="campo-formulario">
                 <label> UNIDADE RESPONSÁVEL </label>
 
-                <select class="form-control" formControlName="unidade">
-                  <option [ngValue]="null" disabled>Selecione primeiro o responsável</option>
+                <select class="form-control" formControlName="unidade" (change)="aoSelecionarUnidade()">
 
-                  <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id" disabled>
+                  <option [ngValue]="null">
+                    Selecione uma unidade
+                  </option>
+
+                  <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id">
                     {{ unidade.sigla }} - {{ unidade.nome }}
                   </option>
                 </select>
-                <small class="ajuda-unidade">
-                  A unidade é definida de acordo com o servidor responsável.
-                </small>
               </div>
               <div
                 class="vinculo-servidor-unidade"
                 *ngIf="obterResponsavelSelecionado() as responsavel"
               >
                 <i class="bi bi-check-circle-fill"></i>
+              </div>
+               <div class="campo-formulario">
+                <label>
+                  RESPONSÁVEL PELO INDICADOR
+                  <span class="campo-obrigatorio" *ngIf="!isAdmin()">*</span>
+                </label>
 
-                <div>
-                  <strong>Vínculo verificado</strong>
+                <select class="form-control" formControlName="responsavel">
+                  <option [ngValue]="null">
+                    {{
+                      isAdmin()
+                        ? 'Sem responsável'
+                        : 'Selecione um responsável'
+                    }}
+                  </option>
 
-                  <span>
-                    {{ responsavel.nome_completo }} pertence à
-                    {{ obterSiglaUnidadeUsuario(responsavel) }}
-                  </span>
-                </div>
+                  <option
+                    *ngFor="let usuario of responsaveisDisponiveis()"
+                    [ngValue]="usuario.id">
+
+                    {{ usuario.nome_social || usuario.nome_completo }}
+                    — {{ obterSiglaUnidadeUsuario(usuario) }}
+
+                  </option>
+                </select>
               </div>
             </div>
+
+            
 
             <!-- FINALIDADE -->
 

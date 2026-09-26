@@ -242,39 +242,41 @@
               </div>
 
               <div class="linha-informacoes">
-                <div class="campo-formulario campo-responsavel">
-                  <label for="liderProjeto">
-                    LÍDER DO PROJETO
-                    <span class="campo-obrigatorio">*</span>
-                  </label>
-
-                  <select id="liderProjeto" class="form-control" formControlName="liderProjeto"
-                    (change)="aoSelecionarResponsavel()">
-                    <option value="">Selecione um servidor</option>
-                    <option *ngFor="let usuario of servidoresComUnidade()" [ngValue]="usuario.id">
-                      {{ usuario.nome_completo }} —
-                      {{ obterSiglaUnidadeUsuario(usuario) }}
-                    </option>
-                  </select>
-                </div>
-
                 <div class="campo-formulario campo-unidade">
                   <label for="unidadeResponsavel">
                     UNIDADE RESPONSÁVEL <span class="campo-obrigatorio">*</span>
                   </label>
 
-                  <select id="unidadeResponsavel" class="form-control" formControlName="unidadeResponsavel">
-                    <option value="">Selecione primeiro o responsável</option>
+                  <select id="unidadeResponsavel" class="form-control" formControlName="unidadeResponsavel"
+                    (change)="aoSelecionarUnidade()">
 
-                    <option [ngValue]="unidade.id" *ngFor="let unidade of unidadesDoResponsavel()">
+                    <option value="">
+                      Selecione uma unidade
+                    </option>
+
+                    <option *ngFor="let unidade of unidadesDisponiveisProjeto()" [ngValue]="unidade.id">
                       {{ unidade.nome }} ({{ unidade.sigla }})
                     </option>
                   </select>
-
-                  <small class="ajuda-unidade">
-                    A unidade é definida de acordo com o servidor responsável.
-                  </small>
                 </div>
+
+                <div class="campo-formulario campo-responsavel">
+                  <label for="liderProjeto">
+                    LÍDER DO PROJETO
+                    <span class="campo-obrigatorio" *ngIf="!isAdmin()">*</span>
+                  </label>
+
+                  <select id="liderProjeto" class="form-control" formControlName="liderProjeto">
+                    <option value="">
+                      {{ isAdmin() ? 'Sem responsável' : 'Selecione um responsável' }}
+                    </option>
+                    <option *ngFor="let usuario of responsaveisDisponiveis()" [ngValue]="usuario.id">
+                      {{ usuario.nome_social || usuario.nome_completo }}
+                      — {{ obterSiglaUnidadeUsuario(usuario) }}
+                    </option>
+                  </select>
+                </div>
+
                 <div class="vinculo-servidor-unidade" *ngIf="obterResponsavelSelecionado() as responsavel">
                   <i class="bi bi-check-circle-fill"></i>
 
