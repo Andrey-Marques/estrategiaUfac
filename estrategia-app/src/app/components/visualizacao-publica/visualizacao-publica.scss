@@ -1,0 +1,447 @@
+@use '../../../styles.scss' as *;
+
+// ============================================================
+// VARIÁVEIS
+// ============================================================
+
+$azul-principal: #08088b;
+$azul-escuro: #071f48;
+$azul-claro: #1762bd;
+$azul-card-bg: #e8f0ff;
+$branco: #ffffff;
+$cinza-texto: #555555;
+$cinza-claro: #777777;
+$cinza-borda: #dddddd;
+$cinza-fundo: #f8f8f8;
+$fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
+
+
+.pagina {
+  width: 100%;
+  min-height: 100vh;
+  font-family: $fonte-principal;
+  background-color: $branco;
+  padding-top: var(--altura-header);
+}
+
+
+// ============================================================
+// BREADCRUMB
+// ============================================================
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 30px;
+  font-size: 0.7rem;
+
+  a {
+    text-decoration: none;
+    color: $azul-claro;
+
+    &:hover {
+      border-radius: 100%;
+      background-color: $cinza-fundo;
+      cursor: pointer;
+    }
+  }
+
+  span {
+    color: $azul-claro;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .atual {
+    color: $cinza-texto;
+    font-weight: 600;
+    cursor: default;
+  }
+}
+
+
+// ============================================================
+// CONTEÚDO
+// ============================================================
+
+.conteudo-principal {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 40px 80px;
+  box-sizing: border-box;
+}
+
+
+// ============================================================
+// TÍTULO
+// ============================================================
+
+.titulo-projeto {
+  margin: 0 0 24px;
+  color: $azul-principal;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+
+// ============================================================
+// CARDS DE INFORMAÇÃO
+// (1) Objetivo ocupa a linha toda; os demais formam pares
+//     lado a lado na ordem em que aparecem no HTML.
+// ============================================================
+
+.info-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.info-card {
+  border: 1px solid $cinza-borda;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.info-card--objetivo {
+  grid-column: 1 / -1;
+}
+
+.info-card-titulo {
+  padding: 10px 20px;
+  background-color: $azul-card-bg;
+  color: $azul-escuro;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.info-card-conteudo {
+  padding: 14px 20px;
+  background-color: $branco;
+
+  p {
+    margin: 0;
+    color: $cinza-texto;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+
+// ============================================================
+// AÇÕES PREVISTAS
+// (2) Cada ação vira um card esticado (largura total) com
+//     leve movimento no hover.
+// ============================================================
+
+.acoes-previstas {
+  margin-bottom: 36px;
+
+  h2 {
+    margin: 0 0 14px;
+    color: $azul-principal;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+//talvez utilizar posteriormente
+
+// .lista-acoes {
+//   margin: 0;
+//   padding: 0;
+//   list-style: none;
+
+//   display: flex;
+//   flex-direction: column;
+//   gap: 10px;
+// }
+
+// .acao-card {
+//   padding: 14px 20px;
+
+//   border: 1px solid $cinza-borda;
+//   border-left: 4px solid $azul-claro;
+//   border-radius: 8px;
+
+//   background-color: $branco;
+//   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+//   color: $cinza-texto;
+//   font-size: 13px;
+//   line-height: 1.5;
+
+//   cursor: default;
+
+//   transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+//   &:hover {
+//     transform: translateX(4px) scale(1.005);
+//     background-color: $azul-card-bg;
+//     box-shadow: 0 4px 12px rgba(8, 8, 139, 0.12);
+//   }
+// }
+
+
+// ============================================================
+// EVOLUÇÃO DO PROJETO (TABELA)
+// (3) Envolvida num container com faixa de título, no mesmo
+//     padrão visual dos info-card-titulo.
+// ============================================================
+
+.evolucao-projeto {
+  margin-bottom: 36px;
+}
+
+.evolucao-container {
+  border: 1px solid $cinza-borda;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.faixa {
+  margin: 10px 0;
+  padding: 10px 20px;
+
+  background-color: $azul-card-bg;
+  color: $azul-principal;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.tabela-evolucao {
+  // a borda externa agora fica por conta do .evolucao-container
+  border: none;
+  border-radius: 0;
+}
+
+.tabela-cabecalho,
+.tabela-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.tabela-cabecalho {
+  padding: 10px 20px;
+  background-color: $cinza-fundo;
+
+  span {
+    color: $azul-escuro;
+    font-size: 12px;
+    font-weight: 700;
+  }
+}
+
+.tabela-linha {
+  padding: 14px 20px;
+  border-top: 1px solid $cinza-borda;
+  background-color: $branco;
+
+  span {
+    color: $cinza-texto;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+}
+
+
+// ============================================================
+// RODAPÉ: ORÇAMENTO + OBJETIVOS CONTRIBUÍDOS
+// (4) Card de orçamento maior, destacado e centralizado.
+// ============================================================
+
+.rodape-projeto {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.card-orcamento,
+.card-objetivos {
+         background: linear-gradient(180deg, $azul-card-bg 0%, $branco 60%);
+         box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
+         padding: 32px 28px;
+         border-radius: 8px;
+         border: 1px solid $azul-claro;
+
+  h3 {
+    margin: 0 0 12px;
+    color: $azul-escuro;
+    font-size: 14px;
+    font-weight: 700;
+        font-size: 18px;
+    margin-bottom: 20px;
+  }
+}
+
+.card-orcamento--destaque {
+  text-align: center;
+
+}
+
+.orcamento-valores {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 32px;
+
+  margin-bottom: 24px;
+}
+
+.orcamento-valor-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.orcamento-label {
+  color: $cinza-claro;
+  font-size: 12px;
+}
+
+.orcamento-valor {
+  color: $azul-principal;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.progresso {
+  margin: 0 auto 10px;
+  max-width: 420px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progresso-titulo {
+  flex-shrink: 0;
+  color: $cinza-texto;
+  font-size: 12px;
+}
+
+.barra-progresso {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background-color: $cinza-borda;
+  overflow: hidden;
+}
+
+.barra-progresso-preenchida {
+  height: 100%;
+  border-radius: 5px;
+  background-color: $azul-claro;
+  transition: width 0.3s ease;
+}
+
+.progresso-valor {
+  flex-shrink: 0;
+  color: $azul-escuro;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.ultima-modificacao {
+  display: block;
+  color: $cinza-claro;
+  font-size: 10px;
+}
+
+.card-objetivos {
+  ul {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  li {
+    color: $cinza-texto;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+
+// ============================================================
+// RESPONSIVIDADE
+// ============================================================
+
+@media (max-width: 900px) {
+
+  .conteudo-principal {
+    padding: 18px 25px 60px;
+  }
+
+  .titulo-projeto {
+    font-size: 22px;
+  }
+
+  .info-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .info-card--objetivo {
+    grid-column: auto;
+  }
+
+  .tabela-cabecalho,
+  .tabela-linha {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .tabela-linha span:first-child {
+    font-weight: 600;
+    color: $azul-escuro;
+  }
+
+  .rodape-projeto {
+    grid-template-columns: 1fr;
+  }
+
+  .orcamento-valores {
+    gap: 20px;
+  }
+}
+
+
+@media (max-width: 550px) {
+
+  .conteudo-principal {
+    padding: 16px 18px 50px;
+  }
+
+  .titulo-projeto {
+    font-size: 19px;
+  }
+
+  .info-card-titulo {
+    font-size: 13px;
+  }
+
+  .acoes-previstas h2,
+  .faixa {
+    font-size: 16px;
+  }
+
+  .card-orcamento--destaque {
+    padding: 22px 16px;
+  }
+
+  .orcamento-valor {
+    font-size: 22px;
+  }
+}

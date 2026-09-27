@@ -1,5 +1,5 @@
 
-
+@use '../../../styles.scss' as *;
 // ============================================================
 // VARIÁVEIS
 // ============================================================
@@ -66,25 +66,29 @@ li{
 
   margin-bottom: 30px;
 
-  color: $cinza-breadcrumb;
-
-  font-size: 0.62rem;
+  font-size: 0.7rem;
 
 
   a {
-    color: $azul-escuro;
-
     text-decoration: none;
+    color: $cor-azul-padrao;
 
-    font-size: 0.68rem;
+    
 
 
     &:hover {
-      opacity: 0.7;
+      
+      border-radius: 100%;
+      background-color: $cor-hover-padrao;
+      
     }
   }
-}
 
+span{
+    color: $cor-azul-padrao;
+    font-size: 0.8rem;
+  }
+}
 
 // ============================================================
 // TÍTULO
@@ -258,6 +262,9 @@ li{
   font-family: "Inter", Arial, sans-serif;
 
   background-color: $branco;
+  
+  //isso vai se repetir em praticamente toda pag da área pública, depois tem que ahcar um jeito de deixar numa estilização global. Solução temporária.
+  padding-top: var(--altura-header);
 }
 
 

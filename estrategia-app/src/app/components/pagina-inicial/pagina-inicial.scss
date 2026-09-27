@@ -3,8 +3,8 @@
 // ======================================================
 
 $azul-escuro: #071f48;
-$azul-card: #1762bd;
-$amarelo-card: #dfb700;
+$azul-card: #06236e;
+$amarelo-card: #edc618;
 
 $branco: #ffffff;
 $cinza-texto: #687386;
@@ -39,87 +39,6 @@ $cinza-texto: #687386;
 
 
 // ======================================================
-// HEADER
-// ======================================================
-
-.cabecalho {
-  width: 100%;
-  height: 72px;
-
-  padding: 0 32px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  background-color: $branco;
-
-  border-top: 4px solid #f2aaaa;
-  border-bottom: 1px solid #dddddd;
-}
-
-
-// ======================================================
-// LOGO
-// ======================================================
-
-.logo-area {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  width: 52px;
-  height: auto;
-
-  object-fit: contain;
-}
-
-
-// ======================================================
-// LINKS DO HEADER
-// ======================================================
-
-.links-topo {
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  a {
-    color: #536174;
-
-    text-decoration: none;
-
-    font-size: 0.75rem;
-
-    white-space: nowrap;
-
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: $azul-card;
-    }
-  }
-
-  span {
-    color: #b0b5bc;
-  }
-
-  button {
-    border: none;
-    background: transparent;
-
-    padding: 2px;
-
-    cursor: pointer;
-
-    font-size: 0.9rem;
-  }
-}
-
-
-// ======================================================
 // BANNER
 // ======================================================
 
@@ -127,7 +46,7 @@ $cinza-texto: #687386;
   position: relative;
 
   width: 100%;
-  min-height: 460px;
+  min-height: 100vh;
 
   overflow: hidden;
 
@@ -135,6 +54,7 @@ $cinza-texto: #687386;
   align-items: center;
 
   background-color: #071f48;
+  padding-top: var(--altura-header);
 }
 
 .banner-imagem {
@@ -184,6 +104,7 @@ $cinza-texto: #687386;
 
   margin: 0 auto;
 
+
   padding: 70px 40px;
 
   display: grid;
@@ -223,7 +144,7 @@ $cinza-texto: #687386;
 .banner-divisor {
   width: 1px;
 
-  height: 180px;
+  height: 230px;
 
   background-color: rgba(255, 255, 255, 0.55);
 }
@@ -243,7 +164,8 @@ $cinza-texto: #687386;
 .descricao p {
   margin: 0 0 18px;
 
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  text-align: justify;
 
   line-height: 1.45;
 
@@ -336,37 +258,33 @@ $cinza-texto: #687386;
     display: flex;
     
 }
-.botoes .botao-unidades{
-    
-    
-}
 
 
-.marca-ufac {
-  position: absolute;
+// .marca-ufac {
+//   position: absolute;
 
-  z-index: 4;
+//   z-index: 4;
 
-  right: 0;
-  bottom: 0;
+//   right: 0;
+//   bottom: 0;
 
-  width: 82px;
-  height: 58px;
+//   width: 82px;
+//   height: 58px;
 
-  background-color: #ffff;
+//   background-color: #ffff;
 
-  border-radius: 14px 0 0 0;
+//   border-radius: 14px 14px 0 0;
 
-  display: flex;
+//   display: flex;
 
-  flex-direction: column;
+//   flex-direction: column;
 
-  align-items: center;
+//   align-items: center;
 
-  justify-content: center;
+//   justify-content: center;
 
-  color: #245da4;
-}
+//   color: #245da4;
+// }
 
 .marca-ufac span {
   margin-top: 2px;
@@ -378,6 +296,12 @@ $cinza-texto: #687386;
 
 .logo-ufac{
     width: 42px;
+
+    &:hover{
+     transform: scale(1.1);
+     cursor: pointer;
+    }
+    
 }
 
 
@@ -388,7 +312,7 @@ $cinza-texto: #687386;
 .conteudo {
   width: 100%;
 
-  padding: 35px 0;
+  padding: 50px 0;
 }
 
 
@@ -398,17 +322,17 @@ $cinza-texto: #687386;
 
 .cards {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
 
   margin: 0 auto;
+  padding: 0 40px;
 
-  padding: 0 60px;
 
   display: grid;
 
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
 
-  gap: 48px;
+  gap: 20px;
 }
 
 
@@ -418,31 +342,46 @@ $cinza-texto: #687386;
 
 .card {
   position: relative;
-
-  height: 330px;
-
-  border-radius: 10px;
+  aspect-ratio: 4 / 3.3;
+  min-height: 440px;
+  
+  border-radius: 16px;
 
   overflow: hidden;
 
-  padding: 25px;
+  padding: 32px;  
 
   color: $branco;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+
+    opacity: 0;
+    transition: opacity 0.3s ease;
+
+    pointer-events: none; // garante que não atrapalha cliques no botão
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
 }
 
 
+
 // ======================================================
-// CARD AZUL
+// COR DOS CARDS
 // ======================================================
 
 .card-planejamento {
   background-color: $azul-card;
+
 }
-
-
-// ======================================================
-// CARD AMARELO
-// ======================================================
 
 .card-pdi {
   background-color: $amarelo-card;
@@ -459,7 +398,7 @@ $cinza-texto: #687386;
 
   margin: 0;
 
-  font-size: 1.65rem;
+  font-size: clamp(1.4rem, 1.8vw, 2rem);
 
   line-height: 1.15;
 
@@ -468,38 +407,34 @@ $cinza-texto: #687386;
 
 
 // ======================================================
-// LOGO PLANEJAMENTO
+// LOGO DOS CARDS
 // ======================================================
 
-.imagem-pe {
+.imagem-pe, .imagem-pdi {
+   width: clamp(140px, 35%, 190px);
   position: absolute;
 
-  width: 190px;
 
   left: 50%;
   top: 54%;
 
   transform: translate(-50%, -50%);
+  transition: transform 0.3s ease;
 
   object-fit: contain;
 }
 
+.imagem-pdi{
+  width: 300px;
+}
 
-// ======================================================
-// LOGO PDI
-// ======================================================
+.imagem-pe{
+  width: 220px;
+}
 
-.imagem-pdi {
-  position: absolute;
-
-  width: 240px;
-
-  left: 58%;
-  top: 55%;
-
-  transform: translate(-50%, -50%);
-
-  object-fit: contain;
+.card:hover .imagem-pe,
+.card:hover .imagem-pdi {
+  transform: translate(-50%, -50%) scale(1.04);
 }
 
 
@@ -529,7 +464,7 @@ $cinza-texto: #687386;
 
   color: #222;
 
-  font-size: 0.72rem;
+  font-size: 0.9rem;
   font-weight: 600;
 
   cursor: pointer;
@@ -601,12 +536,8 @@ $cinza-texto: #687386;
   .cards {
     padding: 0 40px;
 
-    gap: 25px;
   }
 
-  .card {
-    height: 290px;
-  }
 
   .rodape-conteudo {
     grid-template-columns: repeat(2, 1fr);
@@ -652,10 +583,6 @@ $cinza-texto: #687386;
     grid-template-columns: 1fr;
 
     padding: 0 25px;
-  }
-
-  .card {
-    height: 300px;
   }
 
   .rodape-conteudo {
