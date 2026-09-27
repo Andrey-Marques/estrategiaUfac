@@ -119,7 +119,7 @@
                   </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1" *ngIf="obterObjetivosProjeto(projeto)?.length; else semObjetivos">
-                  <span class="etiqueta" *ngFor="let objetivo of obterObjetivosProjeto(projeto)">
+                  <span class="etiqueta" *ngFor="let objetivo of obterObjetivosProjeto(projeto) | slice:0:2">
                     {{ objetivo.codigo }}
                   </span>
                 </div>

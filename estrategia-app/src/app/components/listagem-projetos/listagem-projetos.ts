@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ObjetivoEstrategico } from '../../model/objetivoEstrategico';
 import { ProjetoEstrategico } from '../../model/projetoEstrategico';
@@ -53,6 +53,7 @@ export class ListagemProjetos {
   revisaoEmAnalise = signal<RevisaoEdicao | null>(null);
 
   private datePipe = inject(DatePipe);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   constructor(
     private projetoService: ProjetoService,
@@ -359,6 +360,9 @@ export class ListagemProjetos {
         });
 
         this.etapaAtual = 1;
+        this.changeDetector.markForCheck();
+        const modal = document.getElementById('modalProjeto');
+        if (modal) (window as any).bootstrap?.Modal.getOrCreateInstance(modal).show();
       },
       error: (erro) => {
         console.error('Erro ao carregar projeto rejeitado:', erro);
@@ -488,6 +492,9 @@ export class ListagemProjetos {
         this.etapaAtual = 3;
 
         this.editarProjeto();
+        this.changeDetector.markForCheck();
+        const modal = document.getElementById('modalProjeto');
+        if (modal) (window as any).bootstrap?.Modal.getOrCreateInstance(modal).show();
       },
 
       error: (erro) => {
@@ -710,15 +717,7 @@ export class ListagemProjetos {
     const modal = document.getElementById('modalProjeto');
     if (!modal) return;
 
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    modal.style.display = 'none';
-
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) backdrop.remove();
-
-    document.body.classList.remove('modal-open');
-    document.body.style.removeProperty('padding-right');
+    (window as any).bootstrap?.Modal.getOrCreateInstance(modal).hide();
   }
 
   irParaEtapa(numeroEtapa: number): void {
@@ -904,6 +903,13 @@ export class ListagemProjetos {
       return;
     }
 
+    if (this.isAdmin() && this.formularioProjeto.invalid) {
+      this.formularioProjeto.markAllAsTouched();
+      window.alert('Preencha corretamente os campos obrigatórios.');
+      return;
+    }
+    const formulario = this.formularioProjeto.getRawValue();
+
     const evolucoesOrcamentarias: Array<{
       id?: number;
       valor: number;
@@ -917,6 +923,16 @@ export class ListagemProjetos {
     }));
 
     const dadosAtualizacao = {
+      ...(this.isAdmin() ? {
+        nome: formulario.tituloProjeto,
+        descricao: formulario.descricao,
+        tempo_estimado: formulario.tempoEstimado,
+        custo_estimado: Number(formulario.custoEstimado),
+        responsavel: formulario.liderProjeto || null,
+        unidade: formulario.unidadeResponsavel,
+        acoes_previstas: formulario.acoesPrevistas,
+        objetivos: formulario.objetivos ?? [],
+      } : {}),
       percentual_progresso: Number(this.formularioProjeto.get('percentualProgresso')?.value ?? 0),
 
       evolucoes: this.montarEvolucoes(),
@@ -942,9 +958,7 @@ export class ListagemProjetos {
       },
 
       error: (erro) => {
-        console.error('Erro ao atualizar projeto:', erro);
-
-        window.alert('Não foi possível salvar a atualização.');
+        window.alert('Não foi possível salvar a atualização. ' + JSON.stringify(erro.error ?? 'Tente novamente.'));
       },
     });
   }

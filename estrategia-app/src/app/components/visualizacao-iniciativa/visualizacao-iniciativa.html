@@ -1,186 +1,98 @@
 <app-header-publico></app-header-publico>
-
 <div class="pagina">
-
   <main class="conteudo-principal">
-
     <nav class="breadcrumb" aria-label="Navegação">
-      <a routerLink="/pagina-inicial">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V14H9V21H4C3.45 21 3 20.55 3 20V10.5Z" fill="currentColor" />
-          </svg>
+      <a routerLink="/pagina-inicial" aria-label="Página inicial">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V14H9V21H4C3.45 21 3 20.55 3 20V10.5Z" fill="currentColor" />
+        </svg>
       </a>
       <span>›</span>
-      <span routerLink="/painel-acesso">Painel de acesso</span>
+      <a routerLink="/painel-unidades">Painel de Unidades</a>
       <span class="separador">›</span>
-      <span routerLink="/prograd">PROGRAD</span>
-      <span class="separador">›</span>
-      <span class="atual">Implantação do observatório de dados da graduação – ODG</span>
+      <a routerLink="/acoes-estrategicas">Ações Estratégicas</a><span>›</span>
+      <span class="atual">{{ detalhe.registro()?.nome || 'Visualização' }}</span>
     </nav>
-
-    <h1 class="titulo-projeto">
-      Implantação do observatório de dados da graduação – ODG
-    </h1>
-
-
-
-
-
-
-    <section class="info-cards">
-          <article class="info-card info-card--unidade">
-        <div class="info-card-titulo">Unidade Responsável</div>
-        <div class="info-card-conteudo">
-          <p>Pró-Reitoria de Graduação</p>
-        </div>
-          </article>
-
-
-      <article class="info-card">
-        <div class="info-card-titulo">Responsável Pelo Preenchimento</div>
-        <div class="info-card-conteudo">
-          <p>Profa. Dra. Ednacel Abreu Damasceno</p>
-        </div>
-      </article>
-
-      <article class="info-card">
-        <div class="info-card-titulo">Data de Preenchimento</div>
-        <div class="info-card-conteudo">
-          <p>26/02/2026</p>
-        </div>
-      </article>
-
-    </section>
+    <p role="status" *ngIf="detalhe.carregando()">Carregando informações...</p>
+    <p role="alert" *ngIf="detalhe.erro()">{{ detalhe.erro() }}</p>
+    <ng-container *ngIf="detalhe.registro() as registro">
+      <h1 class="titulo-projeto">{{ registro.nome }}</h1>
+      <section class="info-cards">
+        <article class="info-card info-card--unidade">
+          <div class="info-card-titulo">Unidade Responsável</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.unidade_nome }}</p>
+          </div>
+        </article>
+        <article class="info-card">
+          <div class="info-card-titulo">Responsável Pelo Preenchimento</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.responsavel_nome || 'Não informado' }}</p>
+          </div>
+        </article>
+        <article class="info-card">
+          <div class="info-card-titulo">Data de Preenchimento</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.data_preenchimento | date: 'dd/MM/yyyy' }}</p>
+          </div>
+        </article>
+      </section>
       <h2 class="faixa">Ações realizadas</h2>
-    <section class="secao-faixa">
-
-
-
-      <div class="tabela-container">
-
-        <div class="tabela-acoes">
-
-          <div class="tabela-cabecalho">
-            <span>Ação</span>
-            <span>Prazo Início</span>
-            <span>Prazo Fim</span>
-            <span>Custo</span>
-            <span>Status</span>
+      <section class="secao-faixa">
+        <div class="tabela-container">
+          <div class="tabela-acoes">
+            <div class="tabela-cabecalho">
+              <span>Ação</span><span>Prazo Início</span><span>Prazo Fim</span><span>Custo</span
+              ><span>Status</span>
+            </div>
+            <div class="tabela-linha" *ngFor="let acao of registro.acoes_realizadas">
+              <span>{{ acao.nome }}</span
+              ><span>{{ acao.prazo_inicio | date: 'dd/MM/yyyy' }}</span
+              ><span>{{ acao.prazo_fim | date: 'dd/MM/yyyy' }}</span
+              ><span>{{ acao.custo | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</span
+              ><span class="status" [class.status--concluida]="acao.status === 'CONCLUIDA'">{{
+                statusAcao(acao.status)
+              }}</span>
+            </div>
+            <p *ngIf="!registro.acoes_realizadas.length">Nenhuma ação registrada.</p>
           </div>
-
-          <div class="tabela-linha">
-            <span>
-              Ação 1 - Instituição de governança do ODG (portaria: objetivos
-              e atribuições do gestor)
-            </span>
-            <span>09/09/2025</span>
-            <span>09/09/2025</span>
-            <span>-</span>
-            <span class="status status--concluida">Concluída</span>
-          </div>
-
-          <div class="tabela-linha">
-            <span>
-              Ação 1 - Instituição de governança do ODG (portaria: objetivos
-              e atribuições do gestor)
-            </span>
-            <span>09/09/2025</span>
-            <span>09/09/2025</span>
-            <span>-</span>
-            <span class="status status--concluida">Concluída</span>
-          </div>
-
-          <div class="tabela-linha">
-            <span>
-              Ação 1 - Instituição de governança do ODG (portaria: objetivos
-              e atribuições do gestor)
-            </span>
-            <span>09/09/2025</span>
-            <span>09/09/2025</span>
-            <span>-</span>
-            <span class="status status--concluida">Concluída</span>
-          </div>
-
-          <div class="tabela-linha">
-            <span>
-              Ação 1 - Instituição de governança do ODG (portaria: objetivos
-              e atribuições do gestor)
-            </span>
-            <span>09/09/2025</span>
-            <span>09/09/2025</span>
-            <span>-</span>
-            <span class="status status--concluida">Concluída</span>
-          </div>
-
         </div>
-
-      </div>
-
-    </section>
-
-
-    <h2 class="faixa">Observações Adicionais</h2>
-    <section class="observacoes-adicionais">
-
-      <article class="observacao-card">
-        <p>
-          3.1 Ação 1 - Implantação do Observatório de Dados da Graduação – ODG.
-          O Observatório de Dados da Graduação (ODG) é uma iniciativa da
-          Pró-Reitoria de Graduação (Prograd) da Universidade Federal do Acre
-          (Ufac), voltada a organizar, sistematizar e disponibilizar dados
-          acadêmicos e de gestão para embasar decisões e o acompanhamento
-          contínuo da graduação. A ação foi formalizada pela Portaria nº
-          1327/2025, publicada no Boletim de Serviço Eletrônico em
-          09/06/2025, consolidando o ODG como instrumento institucional de
-          transparência e qualificação da tomada de decisão, com foco em
-          elementos como: extensão, retenção, diplomação e ocupação de
-          vagas.
-          <br />
-          Link:
-          <a href="https://www.ufac.br/site/site/prograd/observatorio-de-dados-da-graduacao"
-             target="_blank" rel="noopener">
-            https://www.ufac.br/site/site/prograd/observatorio-de-dados-da-graduacao
-          </a>
-        </p>
-      </article>
-
-    </section>
-
-
-    <section class="rodape-projeto">
-
-      <article class="card-orcamento card-orcamento--destaque">
-
-        <h3>Evolução da iniciativa</h3>
-
-        <div class="progresso">
-          <div class="barra-progresso">
-            <div class="barra-progresso-preenchida" style="width: 50%"></div>
+      </section>
+      <h2 class="faixa">Observações Adicionais</h2>
+      <section class="observacoes-adicionais">
+        <article class="observacao-card">
+          <p class="texto-multilinha">
+            {{ registro.observacao || 'Nenhuma observação informada.' }}
+          </p>
+        </article>
+      </section>
+      <section class="rodape-projeto">
+        <article class="card-orcamento card-orcamento--destaque">
+          <h3>Evolução da iniciativa</h3>
+          <div class="progresso">
+            <div class="barra-progresso">
+              <div
+                class="barra-progresso-preenchida"
+                [style.width.%]="registro.percentual_evolucao"
+              ></div>
+            </div>
+            <span class="progresso-valor">{{ registro.percentual_evolucao }}%</span>
           </div>
-          <span class="progresso-valor">50%</span>
-        </div>
-
-        <span class="ultima-modificacao">
-          Última modificação: 26/02/2026
-        </span>
-
-      </article>
-
-      <article class="card-objetivos">
-        <h3>Esse projeto contribui para o(s) seguinte(s) objetivo(s):</h3>
-
-        <ul class="lista-objetivos">
-          <li>OE1 – Ampliar a qualidade e a eficiência do ensino de graduação</li>
-          <li>OE2 – Fortalecer a permanência e o êxito estudantil</li>
-          <li>OE3 – Integrar acompanhamento acadêmico e gestão institucional</li>
-        </ul>
-
-      </article>
-
-    </section>
-
+          <span class="ultima-modificacao"
+            >Última modificação: {{ registro.ultima_atualizacao | date: 'dd/MM/yyyy' }}</span
+          >
+        </article>
+        <article class="card-objetivos">
+          <h3>Essa iniciativa contribui para o(s) seguinte(s) objetivo(s):</h3>
+          <ul class="lista-objetivos">
+            <li *ngFor="let objetivo of registro.objetivos_detalhes">
+              {{ objetivo.codigo }} — {{ objetivo.descricao }}
+            </li>
+          </ul>
+          <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
+        </article>
+      </section>
+    </ng-container>
   </main>
-
 </div>
-
 <app-rodape></app-rodape>

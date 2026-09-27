@@ -36,7 +36,8 @@
       <button
         *ngFor="let aba of abas"
         class="aba"
-        [class.ativa]="aba.id === abaAtiva"
+        [class.ativa]="aba.id === abaAtiva()"
+        [attr.aria-pressed]="aba.id === abaAtiva()"
         (click)="selecionarAba(aba.id)"
       >
         {{ aba.label }}
@@ -66,7 +67,7 @@
 
           <i class="bi bi-arrow-counterclockwise"></i>
 
-          <span>  
+          <span>
             Limpar filtros
           </span>
 
@@ -81,46 +82,65 @@
 
         <!-- Pesquisa -->
         <div class="campo-filtro campo-pesquisa">
-          <label>Pesquisar por Título ou Código</label>
+          <label for="pesquisa-acoes">Pesquisar por Título ou Código</label>
           <div class="input-pesquisa">
             <i class="bi bi-search"></i>
-            <input type="text" placeholder="Ex: Graduação, TDG, OE1..." />
+            <input id="pesquisa-acoes" type="search" placeholder="Ex: Graduação, TDG, OE1..."
+              [ngModel]="pesquisa()" (ngModelChange)="pesquisa.set($event)" (keydown.enter)="filtrar()" />
           </div>
         </div>
 
         <!-- Unidade -->
         <div class="campo-filtro">
-          <label>Unidade Responsável</label>
-          <button class="select-filtro">
-            <span>Todas as unidades (2 selecionadas)</span>
-            <i class="bi bi-chevron-down"></i>
-          </button>
+          <label id="label-unidades">Unidade Responsável</label>
+          <details class="seletor-multiplo" #unidades (keydown.escape)="unidades.open = false">
+            <summary class="select-filtro" aria-labelledby="label-unidades resumo-unidades">
+              <span id="resumo-unidades">{{ unidadesSelecionadas().length ? unidadesSelecionadas().length + ' unidade(s) selecionada(s)' : 'Todas as unidades' }}</span>
+              <i class="bi bi-chevron-down"></i>
+            </summary>
+            <div class="opcoes-filtro">
+              <label *ngFor="let unidade of dados().unidades">
+                <input type="checkbox" [checked]="unidadesSelecionadas().includes(unidade.id)" (change)="alternarUnidade(unidade.id)" />
+                <span>{{ unidade.sigla }} — {{ unidade.nome }}</span>
+              </label>
+              <span *ngIf="!dados().unidades.length">Nenhuma unidade disponível.</span>
+            </div>
+          </details>
         </div>
 
         <!-- Objetivos -->
         <div class="campo-filtro">
-          <label>Objetivos Estratégicos</label>
-          <button class="select-filtro">
-            <span>Todos os objetivos (OE1, OE3...)</span>
-            <i class="bi bi-chevron-down"></i>
-          </button>
+          <label id="label-objetivos">Objetivos Estratégicos</label>
+          <details class="seletor-multiplo" #objetivos (keydown.escape)="objetivos.open = false">
+            <summary class="select-filtro" aria-labelledby="label-objetivos resumo-objetivos">
+              <span id="resumo-objetivos">{{ objetivosSelecionados().length ? objetivosSelecionados().length + ' objetivo(s) selecionado(s)' : 'Todos os objetivos' }}</span>
+              <i class="bi bi-chevron-down"></i>
+            </summary>
+            <div class="opcoes-filtro">
+              <label *ngFor="let objetivo of dados().objetivos">
+                <input type="checkbox" [checked]="objetivosSelecionados().includes(objetivo.id)" (change)="alternarObjetivo(objetivo.id)" />
+                <span>{{ objetivo.codigo }} — {{ objetivo.descricao }}</span>
+              </label>
+              <span *ngIf="!dados().objetivos.length">Nenhum objetivo disponível.</span>
+            </div>
+          </details>
         </div>
 
         <!-- Botão Filtrar -->
         <div class="campo-filtro campo-acao">
-          <button class="botao-filtrar" (click)="filtrar()">
+          <button class="botao-filtrar" (click)="filtrar(); unidades.open = false; objetivos.open = false">
             Filtrar
           </button>
         </div>
 
       </div>
 
-      <div class="filtros-ativos" *ngIf="filtrosAtivos.length > 0">
+      <div class="filtros-ativos" *ngIf="filtrosAtivos().length > 0">
         <span class="titulo-filtros">Filtros Ativos:</span>
 
-        <span class="tag-filtro" *ngFor="let filtro of filtrosAtivos">
+        <span class="tag-filtro" *ngFor="let filtro of filtrosAtivos()">
           {{ filtro.label }}
-          <button (click)="removerFiltro(filtro)">×</button>
+          <button (click)="removerFiltro(filtro)" [attr.aria-label]="'Remover ' + filtro.label">×</button>
         </span>
       </div>
 
@@ -132,28 +152,33 @@
          CONTAINER DAS LISTAGENS
          ===================================================== -->
 
-    <section class="container-listagem">
+    <section class="container-listagem" [attr.aria-busy]="carregando()">
+      <p class="estado-listagem" role="status" *ngIf="carregando()">Carregando ações estratégicas...</p>
+      <div class="estado-listagem" role="alert" *ngIf="erro()">
+        <p>{{ erro() }}</p>
+        <button class="botao-paginacao" (click)="carregar()">Tentar novamente</button>
+      </div>
+      <ng-container *ngIf="!carregando() && !erro()">
 
 
       <div class="barra-informacoes">
 
         <span>
-          Exibindo 5 registros
+          Exibindo {{ registrosPagina().length }} de {{ registrosFiltrados().length }} registros
         </span>
 
         <div class="ordenacao">
 
-          <span>
+          <label for="ordenacao-acoes">
             Ordenar Por:
-          </span>
+          </label>
 
-          <button class="select-ordenacao">
-
-            Título (A..Z)
-
-            <span>⌄</span>
-
-          </button>
+          <select id="ordenacao-acoes" class="select-ordenacao" [ngModel]="ordenacao()" (ngModelChange)="ordenar($event)">
+            <option value="titulo-az">Título (A..Z)</option>
+            <option value="titulo-za">Título (Z..A)</option>
+            <option value="data-recente">Data mais recente</option>
+            <option value="data-antiga">Data mais antiga</option>
+          </select>
 
         </div>
 
@@ -162,28 +187,29 @@
 
 
       <!-- ===================================================
-           LISTA DE INDICADORES
+           LISTA
            =================================================== -->
 
       <section class="lista-indicadores">
 
-        <article class="indicador" *ngFor="let indicador of indicadores">
+        <p class="estado-listagem" role="status" *ngIf="!registrosFiltrados().length">Nenhuma ação aprovada encontrada para esta seleção.</p>
+        <article class="indicador" *ngFor="let indicador of registrosPagina(); trackBy: identificarRegistro" role="link" tabindex="0" (click)="abrirRegistro(indicador)" (keydown.enter)="abrirRegistro(indicador)">
 
-          <div class="codigo">{{ indicador.codigo }}</div>
+          <div class="codigo">{{ codigos(indicador) }}</div>
 
           <div class="titulo-indicador">{{ indicador.titulo }}</div>
 
           <div class="responsavel">
-            <strong>{{ indicador.unidade }}</strong>
-            <span>{{ indicador.responsavel }}</span>
+            <strong>{{ indicador.unidade_sigla }}</strong>
+            <span>{{ indicador.responsavel || 'Responsável não informado' }}</span>
           </div>
 
           <div class="data">
-            <strong>{{ indicador.dataReferencia }}</strong>
-            <span>Última atualização: {{ indicador.dataAtualizacao }}</span>
+            <strong>{{ (dataRegistro(indicador) | date:'dd/MM/yyyy') || 'Data não informada' }}</strong>
+            <span *ngIf="dataRegistro(indicador)">{{ indicador.data_atualizacao ? 'Última atualização' : 'Data de cadastro' }}</span>
           </div>
 
-          <div class="acao">
+          <div class="acao" aria-hidden="true">
             <span>›</span>
           </div>
 
@@ -200,21 +226,19 @@
       <div class="rodape-listagem">
 
         <span class="informacao-paginacao">
-          Página 1 de 1 (Total de 5 itens)
+          Página {{ paginaAtual() }} de {{ totalPaginas() }} (Total de {{ registrosFiltrados().length }} itens)
         </span>
 
 
         <div class="paginacao">
 
-          <button class="botao-paginacao anterior" disabled>
+          <button class="botao-paginacao anterior" [disabled]="paginaAtual() === 1" (click)="mudarPagina(paginaAtual() - 1)">
             Anterior
           </button>
 
-          <button class="botao-paginacao pagina-atual">
-            1
-          </button>
+          <span class="botao-paginacao pagina-atual" aria-current="page">{{ paginaAtual() }}</span>
 
-          <button class="botao-paginacao">
+          <button class="botao-paginacao" [disabled]="paginaAtual() === totalPaginas()" (click)="mudarPagina(paginaAtual() + 1)">
             Próxima
           </button>
 
@@ -222,6 +246,7 @@
 
       </div>
 
+      </ng-container>
     </section>
 
   </main>

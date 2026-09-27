@@ -390,19 +390,19 @@
       </button>
 
       <button *ngIf="!isAdmin && projeto.status === 'APROVADO'" type="button" class="btn btn-atualizar-realizacoes"
-        data-bs-toggle="modal" data-bs-target="#modalProjeto" (click)="editarProjeto()">
+          (click)="editarProjeto()">
         <i class="bi bi-arrow-repeat"></i>
         Atualizar realizações
       </button>
 
       <!-- SERVIDOR: PROJETO REJEITADO -->
       <button *ngIf="!isAdmin && projeto.status === 'REJEITADO' && !revisaoPendente" type="button" class="btn btn-editar-rejeitado"
-        data-bs-toggle="modal" data-bs-target="#modalProjeto" (click)="editarProjeto()">
+          (click)="editarProjeto()">
         <i class="bi bi-pencil-square"></i>
         Editar projeto
       </button>
-      <button *ngIf="isAdmin && projeto.status !== 'EM_ESPERA' && !revisaoPendente" type="button" class="btn btn-editar-rejeitado" data-bs-toggle="modal"
-        data-bs-target="#modalProjeto" (click)="editarProjeto()">
+      <button *ngIf="isAdmin && projeto.status !== 'EM_ESPERA' && !revisaoPendente" type="button" class="btn btn-editar-rejeitado"
+         (click)="editarProjeto()">
         <i class="bi bi-pencil-square"></i>
         Editar projeto
       </button>
