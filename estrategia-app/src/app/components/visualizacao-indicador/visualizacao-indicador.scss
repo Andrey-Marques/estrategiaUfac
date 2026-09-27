@@ -1,0 +1,357 @@
+@use '../../../styles.scss' as *;
+
+// ============================================================
+// VARIÁVEIS
+// ============================================================
+
+$azul-principal: #08088b;
+$azul-escuro: #071f48;
+$azul-claro: #1762bd;
+$azul-faixa: #0b3fa0;    // azul da faixa de seção
+$branco: #ffffff;
+$cinza-texto: #444444;
+$cinza-claro: #777777;
+$cinza-borda: #dddddd;
+$cinza-fundo: #f5f7fa;
+$fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
+$azul-card-bg: #e8f0ff;
+
+.pagina {
+  width: 100%;
+  min-height: 100vh;
+  font-family: $fonte-principal;
+  background-color: $branco;
+  padding-top: var(--altura-header);
+}
+
+
+// ============================================================
+// BREADCRUMB
+// ============================================================
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 30px;
+  font-size: 0.7rem;
+
+  a {
+    text-decoration: none;
+    color: $azul-claro;
+
+    &:hover {
+      border-radius: 100%;
+      background-color: $cinza-fundo;
+      cursor: pointer;
+    }
+  }
+
+  span {
+    color: $azul-claro;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .atual {
+    color: $cinza-texto;
+    font-weight: 600;
+    cursor: default;
+  }
+}
+
+
+// ============================================================
+// CONTEÚDO
+// ============================================================
+
+.conteudo-principal {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 40px 80px;
+  box-sizing: border-box;
+}
+
+
+// ============================================================
+// TÍTULO
+// ============================================================
+.titulo-projeto {
+  margin: 0 0 24px;
+  color: $azul-principal;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+
+//CARDS
+.info-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.info-card {
+  border: 1px solid $cinza-borda;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.info-card--objetivo {
+  grid-column: 1 / -1;
+}
+
+.info-card-titulo {
+  padding: 10px 20px;
+  background-color: $azul-claro;
+  color: $branco;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.info-card-conteudo {
+  padding: 14px 20px;
+  background-color: $branco;
+
+  p {
+    margin: 0;
+    color: $cinza-texto;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+// ============================================================
+// SEÇÕES EM FAIXA
+// ============================================================
+
+.secao-faixa {
+  margin-bottom: 22px;
+}
+
+.faixa {
+  margin: 10px 0;
+  padding: 10px 20px;
+
+  background-color: $azul-claro;
+  color: $branco;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.faixa-conteudo {
+  padding: 12px 4px 0;
+
+  p {
+    margin: 0;
+    color: $cinza-texto;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+
+// ============================================================
+// MÉTODO DE CÁLCULO
+// ============================================================
+
+.metodo-calculo {
+  margin: 32px 0 26px;
+}
+
+.titulo-secao {
+  margin: 0 0 18px;
+  color: #222;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.formula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  margin: 0 0 20px;
+  padding: 18px 20px;
+
+  background-color: $cinza-fundo;
+  border-radius: 6px;
+
+  sub {
+    font-size: 11px;
+  }
+
+}
+
+
+.formula-explicacao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  p {
+    margin: 0;
+    color: $cinza-texto;
+    font-size: 1em;
+    line-height: 1.6;
+
+    sub {
+      font-size: 10px;
+    }
+  }
+  p:first-child {
+    font-size: 1.3em;
+    font-weight: 600;
+  }
+}
+
+
+// ============================================================
+// EVOLUÇÃO DO INDICADOR (TABELA)
+// ============================================================
+
+.evolucao-indicador {
+  margin-top: 10px;
+}
+
+.tabela-indicador {
+  border: 1px solid $cinza-borda;
+  border-radius: 6px;
+  overflow: hidden;
+
+  margin-top: 4px;
+}
+
+.tabela-cabecalho,
+.tabela-linha {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 10px;
+}
+
+.tabela-cabecalho {
+  padding: 10px 20px;
+  background-color: $cinza-fundo;
+
+  span {
+    color: #333;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+}
+
+.tabela-linha {
+  padding: 12px 20px;
+  border-top: 1px solid $cinza-borda;
+  background-color: $branco;
+
+  span {
+    color: $cinza-texto;
+    font-size: 13px;
+  }
+
+  .ano {
+    color: $azul-claro;
+    font-weight: 700;
+  }
+}
+
+.observacoes {
+  margin: 16px 4px 0 !important;
+  color: $cinza-claro !important;
+  font-size: 11.5px !important;
+  line-height: 1.6 !important;
+}
+
+
+// ============================================================
+// ÚLTIMA MODIFICAÇÃO
+// ============================================================
+
+.ultima-modificacao {
+  display: block;
+  margin-top: 24px;
+
+  color: $cinza-claro;
+  font-size: 11px;
+}
+
+
+.observacao-card {
+  padding: 14px 20px;
+
+  border: 1px solid $cinza-borda;
+  border-left: 4px solid $azul-claro;
+  border-radius: 8px;
+
+  background-color: $branco;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  color: $cinza-texto;
+  font-size: 13px;
+  line-height: 1.5;
+
+  cursor: default;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    transform: translateX(4px) scale(1.005);;
+    box-shadow: 0 4px 12px rgba(8, 8, 139, 0.12);
+  }
+}
+
+// ============================================================
+// RESPONSIVIDADE
+// ============================================================
+
+@media (max-width: 900px) {
+
+  .conteudo-principal {
+    padding: 18px 25px 60px;
+  }
+
+  .titulo-projeto {
+    font-size: 20px;
+  }
+
+  .tabela-cabecalho,
+  .tabela-linha {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .tabela-linha span:first-child {
+    font-weight: 700;
+  }
+}
+
+
+@media (max-width: 550px) {
+
+  .conteudo-principal {
+    padding: 16px 18px 50px;
+  }
+
+  .titulo-projeto {
+    font-size: 18px;
+  }
+
+  .faixa {
+    font-size: 14px;
+  }
+
+  .formula {
+    font-size: 14px;
+    flex-wrap: wrap;
+  }
+}

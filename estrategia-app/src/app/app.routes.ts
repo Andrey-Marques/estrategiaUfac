@@ -14,6 +14,9 @@ import { PainelUnidades } from './components/painel-unidades/painel-unidades';
 import { PaginaPdi } from './components/pagina-pdi/pagina-pdi';
 import { PaginaPe } from './components/pagina-pe/pagina-pe';
 import { AcoesEstrategicas } from './components/acoes-estrategicas/acoes-estrategicas';
+import { VisualizacaoPublica } from './components/visualizacao-publica/visualizacao-publica';
+import { VisualizacaoIndicador } from './components/visualizacao-indicador/visualizacao-indicador';
+import { VisualizacaoIniciativa } from './components/visualizacao-iniciativa/visualizacao-iniciativa';
 
 export const routes: Routes = [
   {
@@ -29,6 +32,10 @@ export const routes: Routes = [
   {path: "painel-unidades", component: PainelUnidades},
   {path: "pagina-pdi", component: PaginaPdi},
   {path: "pagina-pe", component: PaginaPe},
+  {path: "acoes-estrategicas", component: AcoesEstrategicas},
+  {path: "visualizacao-publica", component: VisualizacaoPublica},
+  {path: "visualizacao-indicador", component: VisualizacaoIndicador},
+  {path: "visualizacao-iniciativa", component: VisualizacaoIniciativa},
   //paginas/urls/rotas que precisam de login para ser acessadas
   {
     path: '',
@@ -59,9 +66,6 @@ export const routes: Routes = [
       },
       {
         path:"perfil-usuario", component: PerfilUsuario
-      },
-      {
-        path:"acoes-estrategicas", component: AcoesEstrategicas
       },
     ]
   }

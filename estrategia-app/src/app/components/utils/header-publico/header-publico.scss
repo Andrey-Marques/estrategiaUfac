@@ -1,9 +1,21 @@
+@use '../../../../styles.scss' as *;
 // ======================================================
 // HEADER
 // ======================================================
+:host {
+  display: block;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  z-index: 1000; // maior que o z-index do banner (que vai até 4)
+}
+
 
 .cabecalho {
-    height: 110px;
+    height: var(--altura-header);
   
     background-color: #ffffff;
   
@@ -24,11 +36,10 @@
   // PRIMEIRA LINHA
   // ======================================================
   
-  .linha-superior {
-    height: 56px;
+  .linha-superior { 
     width: 100%;
 
-  
+    margin: auto 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -39,6 +50,9 @@
     align-items: center;
   
     height: 100%;
+    &:hover{
+      cursor: pointer;
+    }
   }
   
   .logo {
@@ -58,10 +72,10 @@
   }
   
   .universidade {
-    color: #3f3f3f;
+    color: $cor-azul-padrao;
   
-    font-size: 13px;
-    font-weight: 400;
+    font-size: 15px;
+    font-weight: 400; 
   
     letter-spacing: 0.4px;
   
@@ -73,14 +87,16 @@
     display: flex;
     align-items: center;
   
-    gap: 26px;
+    gap: 16px;
   
     a {
-      color: #0754c7;
+      box-sizing: border-box;
+      color: $cor-azul-padrao;
+      padding: 5px;
   
       text-decoration: none;
   
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 400;
   
       white-space: nowrap;
@@ -88,8 +104,11 @@
       transition: color 0.2s ease;
   
       &:hover {
+
+        border-radius: 20px;
+        background-color: $cor-hover-padrao;
         color: #003d91;
-        text-decoration: underline;
+        transition: background-color 0.3s ease;
       }
     }
   }
@@ -104,15 +123,13 @@
   
   .botao-icone,
   .botao-contraste {
-    width: 24px;
-    height: 24px;
   
     padding: 0;
   
     border: none;
     background: transparent;
   
-    color: #0754c7;
+    color: $cor-azul-padrao;
   
     cursor: pointer;
   
@@ -126,7 +143,8 @@
   
     &:hover {
       transform: scale(1.1);
+      background-color: $cor-hover-padrao;
+      border-radius: 100%;
     }
   }
-  
   

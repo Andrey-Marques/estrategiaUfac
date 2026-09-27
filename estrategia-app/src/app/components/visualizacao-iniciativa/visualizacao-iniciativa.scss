@@ -1,0 +1,391 @@
+@use '../../../styles.scss' as *;
+
+// ============================================================
+// VARIÁVEIS
+// ============================================================
+
+$azul-principal: #08088b;
+$azul-escuro: #071f48;
+$azul-claro: #1762bd;
+$branco: #ffffff;
+$cinza-texto: #555555;
+$cinza-claro: #777777;
+$cinza-borda: #dddddd;
+$cinza-fundo: #f8f8f8;
+$azul-card-bg: #e8f0ff;
+$fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
+
+// tons amarelados (tirados da referência)
+$amarelo-faixa: rgb(250, 240, 178);
+$amarelo-borda: #fbe194;
+$amarelo-texto: #FEF7DD;// placeholder removido abaixo
+
+
+.pagina {
+  width: 100%;
+  min-height: 100vh;
+  font-family: $fonte-principal;
+  background-color: $branco;
+  padding-top: var(--altura-header);
+}
+
+
+// ============================================================
+// BREADCRUMB
+// ============================================================
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 30px;
+  font-size: 0.7rem;
+
+  a {
+    text-decoration: none;
+    color: $azul-claro;
+
+    &:hover {
+      border-radius: 100%;
+      background-color: $cinza-fundo;
+      cursor: pointer;
+    }
+  }
+
+  span {
+    color: $azul-claro;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .atual {
+    color: $cinza-texto;
+    font-weight: 600;
+    cursor: default;
+  }
+}
+
+
+// ============================================================
+// CONTEÚDO
+// ============================================================
+
+.conteudo-principal {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 40px 80px;
+  box-sizing: border-box;
+}
+
+
+// ============================================================
+// TÍTULO
+// ============================================================
+
+.titulo-projeto {
+  margin: 0 0 24px;
+  color: $azul-principal;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+
+// ============================================================
+// SEÇÕES EM FAIXA (amarelo)
+// ============================================================
+
+.secao-faixa {
+  margin-bottom: 24px;
+}
+
+.faixa {
+  margin: 10px 0;
+  padding: 10px 20px;
+
+  background-color: $amarelo-faixa;
+  color: $azul-escuro;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.faixa-conteudo {
+  padding: 12px 4px 0;
+
+  p {
+    margin: 0;
+    color: $cinza-texto;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+
+
+// ============================================================
+// INFO CARDS (Responsável / Data — lado a lado)
+// ============================================================
+
+.info-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.info-card {
+  border: 1px solid $amarelo-borda;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.info-card-titulo {
+  padding: 10px 20px;
+  background-color: $amarelo-faixa;
+  color: $azul-escuro;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.info-card-conteudo {
+  padding: 14px 20px;
+  background-color: $branco;
+
+  p {
+    margin: 0;
+    color: $cinza-texto;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+.info-card--unidade {
+  grid-column: 1 / -1;
+}
+
+
+// ============================================================
+// TABELA DE AÇÕES REALIZADAS
+// ============================================================
+
+.tabela-container {
+  border: 1px solid $cinza-borda;
+  border-radius: 6px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.tabela-acoes {
+  min-width: 700px;
+}
+
+.tabela-cabecalho,
+.tabela-linha {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 0.7fr 1fr;
+  gap: 14px;
+}
+
+.tabela-cabecalho {
+  padding: 10px 20px;
+  background-color: $amarelo-faixa;
+
+  span {
+    color: $azul-escuro;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+}
+
+.tabela-linha {
+  padding: 12px 20px;
+  border-top: 1px solid $cinza-borda;
+  background-color: $branco;
+
+  span {
+    color: $cinza-texto;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+}
+
+.status {
+  display: inline-block;
+  width: fit-content;
+
+  padding: 6px;
+  border-radius: 6px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+
+// ============================================================
+// OBSERVAÇÕES ADICIONAIS
+// ============================================================
+
+.observacoes-adicionais {
+  margin-bottom: 30px;
+}
+
+.observacao-card {
+  padding: 16px 20px;
+
+  border: 1px solid $cinza-borda;
+  border-left: 4px solid $amarelo-faixa;
+  border-radius: 8px;
+
+  background-color: $branco;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  color: $cinza-texto;
+  font-size: 12.5px;
+  line-height: 1.6;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    transform: translateX(4px) scale(1.003);
+    box-shadow: 0 4px 12px rgba(8, 8, 139, 0.1);
+  }
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: $azul-claro;
+    word-break: break-all;
+  }
+}
+.card-objetivos {
+  ul {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  li {
+    color: $cinza-texto;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+
+// ============================================================
+// RODAPÉ: EVOLUÇÃO DO PROJETO + OBJETIVOS
+// ============================================================
+
+.rodape-projeto {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.card-orcamento,
+.card-objetivos {
+         background: linear-gradient(180deg, $azul-card-bg 0%, $branco 60%);
+         box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
+         padding: 32px 28px;
+         border-radius: 8px;
+         border: 1px solid $azul-claro;
+
+  h3 {
+    margin: 0 0 12px;
+    color: $azul-escuro;
+    font-size: 14px;
+    font-weight: 700;
+        font-size: 18px;
+    margin-bottom: 20px;
+  }
+}
+
+.card-orcamento--destaque {
+  text-align: center;
+
+}
+.progresso {
+  margin: 0 auto 10px;
+  max-width: 420px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.barra-progresso {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background-color: $cinza-borda;
+  overflow: hidden;
+}
+
+.barra-progresso-preenchida {
+  height: 100%;
+  border-radius: 5px;
+  background-color: $azul-claro;
+  transition: width 0.3s ease;
+}
+
+.progresso-valor {
+  flex-shrink: 0;
+  color: $azul-escuro;
+  font-size: 14px;
+  font-weight: 800;
+}
+.ultima-modificacao {
+  display: block;
+  color: $cinza-claro;
+  font-size: 11px;
+}
+
+// ============================================================
+// RESPONSIVIDADE
+// ============================================================
+
+@media (max-width: 900px) {
+
+  .conteudo-principal {
+    padding: 18px 25px 60px;
+  }
+
+  .titulo-projeto {
+    font-size: 20px;
+  }
+
+  .info-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .rodape-projeto {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+@media (max-width: 550px) {
+
+  .conteudo-principal {
+    padding: 16px 18px 50px;
+  }
+
+  .titulo-projeto {
+    font-size: 18px;
+  }
+
+  .faixa {
+    font-size: 14px;
+  }
+}

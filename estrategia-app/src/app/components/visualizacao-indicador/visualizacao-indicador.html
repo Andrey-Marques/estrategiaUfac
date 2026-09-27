@@ -1,0 +1,179 @@
+<app-header-publico></app-header-publico>
+
+<div class="pagina">
+
+  <main class="conteudo-principal">
+
+    <nav class="breadcrumb" aria-label="Navegação">
+      <a routerLink="/pagina-inicial">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V14H9V21H4C3.45 21 3 20.55 3 20V10.5Z" fill="currentColor" />
+          </svg>
+      </a>
+      <span>›</span>
+      <span routerLink="/painel-acesso">Painel de acesso</span>
+      <span class="separador">›</span>
+      <span routerLink="/prograd">PROGRAD</span>
+      <span class="separador">›</span>
+      <span class="atual">Taxa de Diplomação da Graduação – TDG</span>
+    </nav>
+
+    <h1 class="titulo-projeto">
+      Taxa de Diplomação da Graduação – TDG
+    </h1>
+
+
+    <!-- =====================================================
+         SEÇÕES EM FAIXA
+         ===================================================== -->
+
+
+    <section class="info-cards">
+
+          <article class="info-card info-card--objetivo">
+        <div class="info-card-titulo">Finalidade</div>
+        <div class="info-card-conteudo">
+          <p>
+             Mensurar a Taxa de Diplomação relativa aos estudantes dos cursos de Graduação.
+          </p>
+        </div>
+      </article>
+ 
+                <article class="info-card">
+        <div class="info-card-titulo">Unidade Responsável</div>
+        <div class="info-card-conteudo">
+          <p>
+               Pró-Reitoria de Graduação
+          </p>
+        </div>
+      </article>
+
+
+     <article class="info-card ">
+        <div class="info-card-titulo">Responsável</div>
+        <div class="info-card-conteudo">
+          <p>
+            nome fictício
+          </p>
+        </div>
+      </article>
+
+     <article class="info-card ">
+        <div class="info-card-titulo">Unidade de Medida</div>
+        <div class="info-card-conteudo">
+          <p>
+             Percentual
+          </p>
+        </div>
+      </article>
+
+     <article class="info-card">
+        <div class="info-card-titulo">Polaridade</div>
+        <div class="info-card-conteudo">
+          <p>
+             Positiva (quanto maior, melhor).
+          </p>
+        </div>
+      </article>
+
+    </section>
+    <!-- =====================================================
+         MÉTODO DE CÁLCULO (título simples, sem faixa)
+         ===================================================== -->
+      <h2 class="faixa">Método de Cálculo</h2> 
+    <section class="metodo-calculo">
+      <div class="formula">
+
+      </div>
+
+      <div class="formula-explicacao">
+
+        <p>EM QUE,</p>
+
+        <p>
+          n = duração regular do curso (4, 5 ou 6 anos);<br />
+          t = ano corrente.
+        </p>
+
+        <p>
+          TDG<sub>ano t</sub> = Taxa de diplomação da graduação no ano t;
+        </p>
+
+        <p>
+          Concluintes<sub>ano t</sub> = Número total de estudantes que
+          completaram os créditos, mesmo não tendo colado grau, nos cursos
+          de graduação no ano t;
+        </p>
+
+        <p>
+          Ingressantes<sub>ano t−(n+1)</sub> = Número total de estudantes que
+          se matricularam nos cursos de graduação no ano t-(n+1).
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         EVOLUÇÃO DO INDICADOR (TABELA)
+         ===================================================== -->
+
+    <section class="secao-faixa evolucao-indicador">
+
+      <h2 class="faixa">Evolução do Indicador</h2>
+
+      <div class="faixa-conteudo">
+
+        <div class="tabela-indicador">
+
+          <div class="tabela-cabecalho">
+            <span>Ano / Período</span>
+            <span>Meta Prevista</span>
+            <span>Alcançada</span>
+          </div>
+
+          <div class="tabela-linha">
+            <span class="ano">2023</span>
+            <span>-</span>
+            <span>18,57%</span>
+          </div>
+
+          <div class="tabela-linha">
+            <span class="ano">2024</span>
+            <span>21%</span>
+            <span>17,74%</span>
+          </div>
+
+          <div class="tabela-linha">
+            <span class="ano">2025</span>
+            <span>23,5%</span>
+            <span>-</span>
+          </div>
+
+          <div class="tabela-linha">
+            <span class="ano">2026</span>
+            <span>26%</span>
+            <span>18,57%</span>
+          </div>
+
+        </div>
+
+        <p class="observacoes observacao-card">
+          <strong>Observações:</strong><br />
+          Aguardando o encerramento do semestre letivo 2026/2º.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <span class="ultima-modificacao">
+      Última modificação: 26/02/2026
+    </span>
+
+  </main>
+
+</div>
+<app-rodape></app-rodape>
