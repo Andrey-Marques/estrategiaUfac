@@ -1,0 +1,120 @@
+<app-header-publico></app-header-publico>
+<div class="pagina">
+  <main class="conteudo-principal">
+    <nav class="breadcrumb" aria-label="Navegação">
+      <a routerLink="/pagina-inicial" aria-label="Página inicial">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V14H9V21H4C3.45 21 3 20.55 3 20V10.5Z" fill="currentColor" />
+        </svg>
+      </a>
+      <span>›</span>
+      <a routerLink="/painel-unidades">Painel de Unidades</a>
+      <span class="separador">›</span>
+      <a routerLink="/acoes-estrategicas">Ações Estratégicas</a><span>›</span>
+      <span class="atual">{{ detalhe.registro()?.nome || 'Visualização' }}</span>
+    </nav>
+    <p role="status" *ngIf="detalhe.carregando()">Carregando informações...</p>
+    <p role="alert" *ngIf="detalhe.erro()">{{ detalhe.erro() }}</p>
+    <ng-container *ngIf="detalhe.registro() as registro">
+      <h1 class="titulo-projeto">{{ registro.nome }}</h1>
+      <section class="info-cards">
+        <article class="info-card info-card--objetivo">
+          <div class="info-card-titulo">Objetivo</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.descricao || 'Não informado' }}</p>
+          </div>
+        </article>
+        <article class="info-card">
+          <div class="info-card-titulo">Unidade Responsável</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.unidade_nome }}</p>
+          </div>
+        </article>
+        <article class="info-card">
+          <div class="info-card-titulo">Líder do Projeto</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.responsavel_nome || 'Não informado' }}</p>
+          </div>
+        </article>
+        <article class="info-card">
+          <div class="info-card-titulo">Tempo Estimado</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.tempo_estimado || 'Não informado' }}</p>
+          </div>
+        </article>
+        <article class="info-card">
+          <div class="info-card-titulo">Custo Estimado</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.custo_estimado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</p>
+          </div>
+        </article>
+      </section>
+      <h2 class="faixa">Ações Previstas no Projeto</h2>
+      <section class="acoes-previstas">
+        <ul *ngIf="registro.acoes_previstas; else semAcoesPrevistas">
+          <ng-container *ngFor="let acao of registro.acoes_previstas.split('\n')">
+            <li *ngIf="acao.trim()">{{ acao }}</li>
+          </ng-container>
+        </ul>
+        <ng-template #semAcoesPrevistas><p>Nenhuma ação prevista informada.</p></ng-template>
+      </section>
+      <section class="evolucao-projeto">
+        <h2 class="faixa">Evolução do Projeto</h2>
+        <div class="evolucao-container">
+          <div class="tabela-evolucao">
+            <div class="tabela-cabecalho">
+              <span>Principais Realizações</span><span>Próximos Passos</span>
+            </div>
+            <div class="tabela-linha" *ngFor="let item of evolucoes()">
+              <span>{{ item.realizada }}</span
+              ><span>{{ item.proximo }}</span>
+            </div>
+            <p *ngIf="!evolucoes().length">Nenhuma evolução registrada.</p>
+          </div>
+        </div>
+      </section>
+      <section class="rodape-projeto">
+        <article class="card-orcamento card-orcamento--destaque">
+          <h3>Evolução Orçamentária</h3>
+          <div class="orcamento-valores">
+            <div class="orcamento-valor-item">
+              <span class="orcamento-label">Custo estimado</span
+              ><span class="orcamento-valor">{{
+                registro.custo_estimado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+              }}</span>
+            </div>
+            <div class="orcamento-valor-item">
+              <span class="orcamento-label">Total investido</span
+              ><span class="orcamento-valor">{{
+                totalInvestido() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+              }}</span>
+            </div>
+          </div>
+          <div class="progresso">
+            <span class="progresso-titulo">Evolução do projeto</span>
+            <div class="barra-progresso">
+              <div
+                class="barra-progresso-preenchida"
+                [style.width.%]="registro.percentual_progresso"
+              ></div>
+            </div>
+            <span class="progresso-valor">{{ registro.percentual_progresso }}%</span>
+          </div>
+          <span class="ultima-modificacao"
+            >Última modificação: {{ registro.ultima_atualizacao | date: 'dd/MM/yyyy' }}</span
+          >
+        </article>
+        <article class="card-objetivos">
+          <h3>Esse projeto contribui para o(s) seguinte(s) objetivo(s):</h3>
+          <ul>
+            <li *ngFor="let objetivo of registro.objetivos_detalhes">
+              {{ objetivo.codigo }} — {{ objetivo.descricao }}
+            </li>
+          </ul>
+          <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
+        </article>
+      </section>
+    </ng-container>
+  </main>
+</div>
+<app-rodape></app-rodape>

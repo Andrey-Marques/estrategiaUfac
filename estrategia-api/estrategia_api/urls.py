@@ -2,8 +2,11 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import( TokenObtainPairView, TokenRefreshView,)
 from unidades.views import ResumoUnidadeView
+from .acoes_publicas import AcoesEstrategicasPublicasView, AcaoEstrategicaPublicaDetalheView
 
 urlpatterns = [
+    path('api/acoes-estrategicas/<str:tipo>/<int:pk>/', AcaoEstrategicaPublicaDetalheView.as_view(), name='acao-estrategica-publica'),
+    path('api/acoes-estrategicas/', AcoesEstrategicasPublicasView.as_view(), name='acoes-estrategicas-publicas'),
     path('admin/', admin.site.urls),
     path('api/', include('usuarios.urls')),
     path('api/', include('unidades.urls')),

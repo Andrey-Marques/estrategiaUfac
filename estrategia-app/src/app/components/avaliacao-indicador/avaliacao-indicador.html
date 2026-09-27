@@ -104,7 +104,13 @@
               <span>Polaridade</span>
 
               <strong>
-                {{ indicador.polaridade || 'Não informada' }}
+                {{
+                  indicador.polaridade === 'NEGATIVA'
+                    ? 'NEGATIVA (quanto menor, melhor)'
+                    : indicador.polaridade === 'POSITIVA'
+                      ? 'POSITIVA (quanto maior, melhor)'
+                      : 'Não informada'
+                }}
               </strong>
             </div>
           </div>

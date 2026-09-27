@@ -172,8 +172,8 @@ export class ListagemIndicadores {
     this.renderizarFormula();
     this.metas = (indicador.evolucao_indicador || []).map((meta) => ({
       ano: Number(meta.ano),
-      prevista: Number(meta.meta_prevista) || null,
-      alcancada: Number(meta.meta_alcancada) || null,
+      prevista: meta.meta_prevista === '' || meta.meta_prevista == null ? null : Number(meta.meta_prevista),
+      alcancada: meta.meta_alcancada === '' || meta.meta_alcancada == null ? null : Number(meta.meta_alcancada),
     }));
     if (this.ehGestor() && indicador.status === 'APROVADO') {
       this.formularioIndicador.disable();
@@ -541,7 +541,7 @@ export class ListagemIndicadores {
         this.fecharFormulario();
       },
       error: (erro) => {
-        console.error('Erro ao criar indicador:', erro);
+        window.alert('Não foi possível salvar o indicador. ' + JSON.stringify(erro.error ?? 'Tente novamente.'));
       },
     });
   }
@@ -623,18 +623,7 @@ export class ListagemIndicadores {
     if (!modal) {
       return;
     }
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    modal.style.display = 'none';
-
-    const backdrop = document.querySelector('.modal-backdrop');
-
-    if (backdrop) {
-      backdrop.remove();
-    }
-
-    document.body.classList.remove('modal-open');
-    document.body.style.removeProperty('padding-right');
+    (window as any).bootstrap?.Modal.getOrCreateInstance(modal).hide();
 
     // Limpa o formulário
     this.formularioIndicador.enable();
