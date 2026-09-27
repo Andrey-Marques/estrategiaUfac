@@ -24,6 +24,16 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
         usuario = self.request.user
 
         if usuario.papel == 'ADMIN':
+
+            responsavel = serializer.validated_data.get('responsavel')
+            unidade = serializer.validated_data.get('unidade')
+
+            if responsavel is not None and responsavel.unidade_id != unidade.id:
+                raise ValidationError({
+                    'responsavel':
+                    'O responsável deve pertencer à unidade selecionada.'
+                })
+
             serializer.save(status='APROVADO')
             return
 
@@ -50,6 +60,20 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
             return None
 
         indicador = self.get_object()
+
+        campos_enviados = set(request.data.keys())
+        if usuario.papel == 'GESTOR' and campos_enviados == {'responsavel'}:
+            responsavel_id = request.data.get('responsavel')
+            if not usuario.__class__.objects.filter(
+                id=responsavel_id,
+                unidade=usuario.unidade,
+                is_active=True,
+            ).exists():
+                return Response(
+                    {'detail': 'O responsável deve pertencer à sua unidade.'},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            return None
 
         if indicador.status == 'APROVADO':
             return Response(
@@ -126,6 +150,13 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
 
         if usuario.papel == 'ADMIN':
             serializer.save()
+            return
+
+        if (
+            usuario.papel == 'GESTOR'
+            and set(self.request.data.keys()) == {'responsavel'}
+        ):
+            serializer.save(unidade=usuario.unidade)
             return
 
         serializer.save(

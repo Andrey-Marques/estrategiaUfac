@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostBinding, Input } from '@angular/core';
+import { Component, HostBinding, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { UsuarioService } from '../../../service/usuario.service';
 
 @Component({
   selector: 'app-barra-lateral',
@@ -8,15 +9,23 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './barra-lateral.html',
   styleUrl: './barra-lateral.scss',
 })
-export class BarraLateral {
+export class BarraLateral implements OnInit {
 
   menuExpandido = false;
 
-    // INTEGRAR para substituir por valor vindo do serviço de autenticação
-  @Input() papelUsuario: string = 'ADMIN';
+  papelUsuario = signal<string | null>(null);
 
-  get ehAdministrador(): boolean {
-    return this.papelUsuario === 'ADMIN';
+  constructor(private usuarioService: UsuarioService) {}
+
+  ngOnInit(): void {
+    this.usuarioService.getAtual().subscribe({
+      next: usuario => this.papelUsuario.set(usuario.papel),
+      error: () => this.papelUsuario.set(null),
+    });
+  }
+
+  get podeGerenciarUsuarios(): boolean {
+    return this.papelUsuario() === 'ADMIN' || this.papelUsuario() === 'GESTOR';
   }
 
   @HostBinding('class.menu-expandido')

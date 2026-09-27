@@ -25,7 +25,7 @@ export class ProjetoService {
       return this.http.post<ProjetoEstrategico>(this.apiUrl, projeto);
     }
 
-    atualizarProjeto(id: number, projeto: Partial<CriarProjeto & { evolucoes?: Array<{ realizacao?: string; proximo_passo?: string }> }>): Observable<ProjetoEstrategico> {
+    atualizarProjeto(id: number, projeto: Partial<CriarProjeto & { responsavel?: number | null; evolucoes?: Array<{ realizacao?: string; proximo_passo?: string }> }>): Observable<ProjetoEstrategico> {
       return this.http.patch<ProjetoEstrategico>(`${this.apiUrl}${id}/`, projeto);
     }
 

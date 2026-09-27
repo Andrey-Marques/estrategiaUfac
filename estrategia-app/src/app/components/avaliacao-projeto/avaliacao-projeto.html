@@ -1,27 +1,17 @@
 <div class="modal-backdrop-avaliacao">
   <div class="modal-avaliacao">
-    <!-- CABEÇALHO -->
     <header class="modal-header">
       <div class="titulo-header">
-        <div class="icone-header">
-          <i class="bi bi-file-earmark-text"></i>
-        </div>
-
-        <div>
-          <h2>
-            {{ modoAvaliacao ? 'Análise de Projeto' : 'Detalhes do Projeto' }}
-          </h2>
-
-          <p>
-            {{
+        <h2>{{ modoAvaliacao ? 'Análise de Projeto' : 'Detalhes do Projeto' }}</h2>
+        <p>
+          {{
             revisao
-            ? 'Compare a versão publicada com a alteração enviada pelo servidor.'
-            : modoAvaliacao
-            ? 'Revise as informações do projeto e tome uma decisão.'
-            : 'Visualize as informações e o resultado da análise do projeto.'
-            }}
-          </p>
-        </div>
+              ? 'Compare a versão publicada com a alteração enviada pelo servidor.'
+              : modoAvaliacao
+              ? 'Revise as informações do projeto e tome uma decisão.'
+              : 'Visualize as informações e o resultado da análise do projeto.'
+          }}
+        </p>
       </div>
 
       <button type="button" class="btn-fechar" (click)="fechar()" aria-label="Fechar">
@@ -29,138 +19,95 @@
       </button>
     </header>
 
-    <!-- CONTEÚDO -->
     <div class="modal-conteudo">
-      <!-- TÍTULO DO PROJETO -->
       <section class="cabecalho-projeto">
-        <div>
-          <h3>{{ projeto.nome }}</h3>
+        <h3>{{ projeto.nome }}</h3>
 
-          <div class="status-linha">
-            <span class="badge-status" [ngClass]="obterClasseStatus()">
-              <i class="bi" [ngClass]="{
-                  'bi-check-circle': projeto.status === 'APROVADO',
-                  'bi-x-circle': projeto.status === 'REJEITADO',
-                  'bi-clock': projeto.status === 'EM_ESPERA',
-                  'bi-file-earmark': projeto.status === 'RASCUNHO',
-                }"></i>
+        <div class="status-linha">
+          <span class="badge-status" [ngClass]="obterClasseStatus()">
+            {{ obterRotuloStatus() }}
+          </span>
 
-              {{ obterRotuloStatus() }}
-            </span>
+          <span class="data-proposta">
+            Proposto em {{ projeto.ultima_atualizacao | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+      </section>
 
-            <span class="data-proposta">
-              Proposto em
-              {{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy' }}
-            </span>
+      <section class="secao-institucional">
+        <div class="titulo-secao-azul">Informações gerais</div>
+
+        <div class="grid-informacoes-gerais">
+          <div class="coluna-informacoes">
+            <div class="informacao-item">
+              <span>Proposto por</span>
+              <strong>{{ projeto.responsavel_nome || 'Não informado' }}</strong>
+            </div>
+
+            <div class="informacao-item">
+              <span>Unidade</span>
+              <strong>{{ projeto.unidade_sigla || 'Não informada' }}</strong>
+            </div>
+
+            <div class="informacao-item">
+              <span>Tempo estimado</span>
+              <strong>{{ projeto.tempo_estimado || 'Não informado' }}</strong>
+            </div>
+          </div>
+
+          <div class="coluna-informacoes">
+            <div class="informacao-item">
+              <span>Custo estimado</span>
+              <strong>{{ projeto.custo_estimado | currency:'BRL' }}</strong>
+            </div>
+
+            <div class="informacao-item">
+              <span>Status</span>
+              <strong>{{ obterRotuloStatus() }}</strong>
+            </div>
+
+            <div class="informacao-item">
+              <span>Última atualização</span>
+              <strong>{{ projeto.ultima_atualizacao | date:'dd/MM/yyyy' }}</strong>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- PROPONENTE / UNIDADE -->
-      <section class="dados-resumo">
-        <div class="resumo-item">
-          <div class="icone-resumo">
-            <i class="bi bi-person"></i>
-          </div>
-
-          <div>
-            <span>Proposto por</span>
-            <strong>
-              {{ projeto.responsavel_nome || 'Não informado' }}
-            </strong>
-          </div>
-        </div>
-
-        <div class="resumo-item">
-          <div class="icone-resumo">
-            <i class="bi bi-building"></i>
-          </div>
-
-          <div>
-            <span>Unidade</span>
-            <strong>
-              {{ projeto.unidade_sigla || 'Não informada' }}
-            </strong>
-          </div>
+      <section class="secao-institucional">
+        <div class="titulo-secao-azul">Descrição do projeto</div>
+        <div class="conteudo-secao">
+          <p class="descricao">{{ projeto.descricao || 'Nenhuma descrição informada.' }}</p>
         </div>
       </section>
 
-      <!-- DESCRIÇÃO -->
-      <section class="bloco">
-        <div class="titulo-bloco">
-          <i class="bi bi-file-text"></i>
-          <h4>Descrição do projeto</h4>
-        </div>
+      <div class="grid-duplo">
+        <section class="secao-institucional">
+          <div class="titulo-secao-azul">Objetivos estratégicos vinculados</div>
+          <div class="conteudo-secao">
+            <ul *ngIf="projeto.objetivos_detalhes?.length; else semObjetivos">
+              <li *ngFor="let objetivo of projeto.objetivos_detalhes">
+                <strong>{{ objetivo.codigo }}</strong> - {{ objetivo.descricao }}
+              </li>
+            </ul>
 
-        <p class="descricao">
-          {{ projeto.descricao || 'Nenhuma descrição informada.' }}
-        </p>
-      </section>
-
-      <!-- TEMPO / CUSTO -->
-      <div class="grid-informacoes">
-        <section class="info-card">
-          <div class="icone-info">
-            <i class="bi bi-clock"></i>
-          </div>
-
-          <div>
-            <span>Tempo estimado</span>
-            <strong>
-              {{ projeto.tempo_estimado || 'Não informado' }}
-            </strong>
+            <ng-template #semObjetivos>
+              <p class="texto-vazio">Nenhum objetivo estratégico vinculado.</p>
+            </ng-template>
           </div>
         </section>
 
-        <section class="info-card">
-          <div class="icone-info">
-            <i class="bi bi-cash-coin"></i>
+        <section class="secao-institucional">
+          <div class="titulo-secao-azul">Ações previstas</div>
+          <div class="conteudo-secao">
+            <p class="acoes-previstas" *ngIf="projeto.acoes_previstas; else semAcoes">
+              {{ projeto.acoes_previstas }}
+            </p>
+
+            <ng-template #semAcoes>
+              <p class="texto-vazio">Nenhuma ação prevista informada.</p>
+            </ng-template>
           </div>
-
-          <div>
-            <span>Custo estimado</span>
-            <strong>
-              {{ projeto.custo_estimado | currency: 'BRL' }}
-            </strong>
-          </div>
-        </section>
-      </div>
-
-      <!-- OBJETIVOS / AÇÕES -->
-      <div class="grid-detalhes">
-        <section class="bloco detalhe-card">
-          <div class="titulo-bloco">
-            <i class="bi bi-bullseye"></i>
-            <h4>Objetivos estratégicos vinculados</h4>
-          </div>
-
-          <ul *ngIf="projeto.objetivos_detalhes?.length; else semObjetivos">
-            <li *ngFor="let objetivo of projeto.objetivos_detalhes">
-              <strong>
-                {{ objetivo.codigo }}
-              </strong>
-              - {{ objetivo.descricao }}
-            </li>
-          </ul>
-
-          <ng-template #semObjetivos>
-            <p class="texto-vazio">Nenhum objetivo estratégico vinculado.</p>
-          </ng-template>
-        </section>
-
-        <section class="bloco detalhe-card">
-          <div class="titulo-bloco">
-            <i class="bi bi-list-check"></i>
-            <h4>Ações previstas</h4>
-          </div>
-
-          <p class="acoes-previstas" *ngIf="projeto.acoes_previstas; else semAcoes">
-            {{ projeto.acoes_previstas }}
-          </p>
-
-          <ng-template #semAcoes>
-            <p class="texto-vazio">Nenhuma ação prevista informada.</p>
-          </ng-template>
         </section>
       </div>
 

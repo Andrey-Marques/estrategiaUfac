@@ -32,7 +32,7 @@ class RelatedByIdOrNameField(serializers.PrimaryKeyRelatedField):
 
 class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
 
-    responsavel_nome = serializers.CharField(source='responsavel.nome_completo', read_only=True)
+    responsavel_nome = serializers.SerializerMethodField()
 
     unidade_sigla = serializers.CharField(source='unidade.sigla', read_only=True)
 
@@ -46,7 +46,7 @@ class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
 
     unidade = RelatedByIdOrNameField( queryset=Unidade.objects.all())
 
-    responsavel = RelatedByIdOrNameField(queryset=Usuario.objects.all())
+    responsavel = RelatedByIdOrNameField(queryset=Usuario.objects.all(),  required=False,  allow_null=True)
     class Meta:
         model = IniciativaEstrategica
         fields = [
@@ -84,6 +84,11 @@ class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
             for objetivo in obj.objetivos.all()
         ]
 
+    def get_responsavel_nome(self, obj):
+        if obj.responsavel is None:
+            return None
+
+        return obj.responsavel.nome_social or obj.responsavel.nome_completo
 
     def create(self, validated_data):
         acoes = validated_data.pop('acoes',[])

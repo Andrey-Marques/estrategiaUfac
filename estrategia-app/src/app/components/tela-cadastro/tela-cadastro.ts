@@ -1,169 +1,297 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { BarraLateral } from '../utils/barra-lateral/barra-lateral';
-import { InfoBar } from '../utils/info-bar/info-bar';
+import { Component, signal } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UsuarioService } from '../../service/usuario.service';
+import { Usuario } from '../../model/usuario';
+import { Unidade } from '../../model/unidade';
+import { UnidadeService } from '../../service/unidade.service';
 
-      //chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
-interface Usuario {
-  id: number;
-  username: string;
-  nome_completo: string;
-  nome_social?: string;
-  cpf: string
-  email: string;
-  papel: string;
-  unidade: string;
-  password?: string;
-  dataCadastro?: string;
-  status?: 'ATIVO' | 'INATIVO';
-}
+//chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
 @Component({
   selector: 'app-tela-cadastro',
-  imports: [CommonModule, BarraLateral, InfoBar, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './tela-cadastro.html',
   styleUrl: './tela-cadastro.scss',
+  providers: [DatePipe],
 })
 export class TelaCadastro {
+  constructor(
+    private usuarioService: UsuarioService,
+    private unidadeService: UnidadeService,
+  ) {}
+  ngOnInit(): void {
+    this.buscarUsuarioAtual();
+    this.buscarUsuarios();
+    this.buscarUnidade();
+  }
 
-  unidades_selecionadas: string[] = [];
+  usuarios = signal<Usuario[]>([]);
+  unidades = signal<Unidade[]>([]);
+  usuarioAtual = signal<Usuario | null>(null);
 
-  filtrarUnidade(unidade: string): void {
-     if (this.unidades_selecionadas.includes(unidade)){
-        this.unidades_selecionadas =
-        this.unidades_selecionadas.filter(
-          unidade_Selecionada => unidade_Selecionada !== unidade);
-     }else{
-        this.unidades_selecionadas.push(unidade)
+  ehProprioUsuario(usuario: Usuario): boolean {
+    return this.usuarioAtual()?.id === usuario.id;
+  }
+  termoPesquisa = signal('');
+  unidadesSelecionadas = signal<number[]>([]);
+  menuUnidadesAberto = signal(false);
 
-     }
+  buscarUsuarioAtual(): void {
+    this.usuarioService.getAtual().subscribe({
+      next: (usuario) => {
+        this.usuarioAtual.set(usuario);
+        this.aplicarFiltrosDeAcesso();
+      },
+      error: (erro) => console.error('Erro ao buscar usuário atual', erro),
+    });
+  }
 
+  buscarUsuarios() {
+    this.usuarioService.get().subscribe({
+      next: (usuario) => {
+        this.usuarios.set(usuario);
+        this.aplicarFiltrosDeAcesso();
+      },
+      error: (erro) => console.error('erro ao buscar projetos', erro),
+    });
+  }
+
+  private aplicarFiltrosDeAcesso(): void {
+    const atual = this.usuarioAtual();
+    if (!atual || atual.papel === 'ADMIN') {
+      return;
     }
 
-    filtroAberto = false;
-    alternarFiltro(): void{
-      this.filtroAberto = !this.filtroAberto;
+    const unidadeId = this.obterIdUnidade(atual);
+    this.usuarios.update((usuarios) =>
+      usuarios.filter((usuario) => this.obterIdUnidade(usuario) === unidadeId),
+    );
+  }
+
+  private obterIdUnidade(usuario: Usuario): number | null {
+    if (typeof usuario.unidade === 'number') {
+      return usuario.unidade;
+    }
+    return usuario.unidade?.id ?? null;
+  }
+
+  pesquisarUsuario(evento: Event): void {
+    const input = evento.target as HTMLInputElement;
+    this.termoPesquisa.set(input.value.trim().toLowerCase());
+  }
+
+  alternarUnidade(unidadeId: number): void {
+    const selecionadas = this.unidadesSelecionadas();
+    this.unidadesSelecionadas.set(
+      selecionadas.includes(unidadeId)
+        ? selecionadas.filter((id) => id !== unidadeId)
+        : [...selecionadas, unidadeId],
+    );
+  }
+
+  unidadeEstaSelecionada(unidadeId: number): boolean {
+    return this.unidadesSelecionadas().includes(unidadeId);
+  }
+
+  alternarMenuUnidades(): void {
+    this.menuUnidadesAberto.update((aberto) => !aberto);
+  }
+
+  limparFiltroUnidades(): void {
+    this.unidadesSelecionadas.set([]);
+  }
+
+  usuariosFiltrados(): Usuario[] {
+    const pesquisa = this.termoPesquisa();
+    const unidadesSelecionadas = this.unidadesSelecionadas();
+
+    return this.usuarios().filter((usuario) => {
+      const atendePesquisa = !pesquisa || usuario.nome_completo.toLowerCase().includes(pesquisa);
+      const atendeUnidade =
+        this.usuarioAtual()?.papel !== 'ADMIN' ||
+        unidadesSelecionadas.length === 0 ||
+        unidadesSelecionadas.includes(this.obterIdUnidade(usuario) ?? 0);
+
+      return atendePesquisa && atendeUnidade;
+    });
+  }
+
+  unidadesDisponiveis(): Unidade[] {
+    const atual = this.usuarioAtual();
+    if (!atual || atual.papel === 'ADMIN') {
+      return this.unidades();
     }
 
+    const unidadeId = this.obterIdUnidade(atual);
+    return this.unidades().filter((unidade) => unidade.id === unidadeId);
+  }
 
-      usuarios: Usuario[] = [
-        {
-          id: 1,
-          username: 'fulano.silva',
-          nome_completo: 'Fulano Sicrano Da Silva',
-          email: 'fulano@ufac.br',
-          papel: 'SERVIDOR',
-          unidade: 'PROGRAD',
-          dataCadastro: '2026-07-09',
-          status: 'ATIVO',
-          cpf: "00000000000"
-        }
-      ];
-    modalAberto = false;
-    modoVisualizacao = false;
- 
-    usuarioSelecionado: any = null;
+  podeCadastrarUsuarios(): boolean {
+    return this.usuarioAtual()?.papel === 'ADMIN' || this.usuarioAtual()?.papel === 'GESTOR';
+  }
 
-    get camposBloqueados(): boolean {
-      return this.modoVisualizacao; // em visualização, tudo (exceto e-mail) fica travado
+  buscarUnidade() {
+    this.unidadeService.get().subscribe({
+      next: (unidade) => this.unidades.set(unidade),
+      error: (erro) => console.error('Erro ao buscar unidade', erro),
+    });
+  }
+
+  obterUnidade(usuario: Usuario): Unidade | undefined {
+    return this.unidades().find((unidade) => unidade.id === usuario.unidade);
+  }
+
+  abrirModal(): void {
+    this.usuarioFormulario = {
+      id: 0,
+      username: '',
+      password: '',
+      nome_completo: '',
+      nome_social: '',
+      cpf: '',
+      email: '',
+      date_joined: '',
+      papel: '',
+      unidade: null,
+    };
+
+    const atual = this.usuarioAtual();
+    if (atual?.papel === 'GESTOR') {
+      this.usuarioFormulario.unidade = this.obterIdUnidade(atual);
     }
 
-    abrirModal():void {
-      //chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
-      this.usuarioSelecionado = {
-        id: 0, username: '', nome_completo: '', email: '',
-        papel: '', unidade: '', password: '',  nome_social: '', cpf:''
-      };
-      this.modalAberto = true;
-      this.modoVisualizacao = false;
+    this.modoVisualizacao = false;
+    this.modalAberto = true;
+  }
+
+  abrirVisualizacao(usuario: Usuario): void {
+    this.usuarioFormulario = { ...usuario };
+    this.modalAberto = true;
+    this.modoVisualizacao = true;
+  }
+
+  cadastrarUsuario(): void {
+    if(!this.usuarioFormulario){
+      return
     }
 
-    abrirVisualizacao(usuario: Usuario): void {
-        this.usuarioSelecionado = { ...usuario };
-        this.modalAberto = true;
-        this.modoVisualizacao = true;
-  
-     }
-
- 
-
-      cadastrarUsuario(): void {
-          if (!this.usuarioSelecionado?.nome_completo) return;
-
-              const novo: Usuario = {
-                ...this.usuarioSelecionado,
-                id: Date.now(), // provisório; o backend vai gerar o id
-                dataCadastro: new Date().toISOString().slice(0, 10),
-                status: 'ATIVO'
-          };
-
-          this.usuarios = [...this.usuarios, novo];
-          this.fecharModal();
-          // TODO integração: POST /usuarios
-        }
-
-      fecharModal(): void {
-          this.modalAberto = false;
-          this.modoVisualizacao = false;
-          this.usuarioSelecionado = null;
-
+    const dados = {
+      username: this.usuarioFormulario.username,
+      password: this.usuarioFormulario.password,
+      nome_completo: this.usuarioFormulario.nome_completo,
+      nome_social: this.usuarioFormulario.nome_social,
+      cpf: this.usuarioFormulario.cpf,
+      email: this.usuarioFormulario.email,
+      papel: this.usuarioFormulario.papel,
+      unidade: this.usuarioFormulario.unidade,
+    }
+    this.usuarioService.cadastrarUsuario(dados).subscribe({
+      next: () => {
+       alert('Usuario cadastrado com sucesso');
+       this.buscarUsuarios();
+       this.fecharModal();
+      },
+      error: (erro) => {
+        console.error(
+        'Erro ao cadastrar usuário:',
+        erro
+      );
       }
+    })
+  }
 
-      confirmarExclusaoAberto = false;
-      usuarioParaExcluir: Usuario | null = null;
+  fecharModal(): void {
+    this.modalAberto = false;
+    this.modoVisualizacao = false;
+    this.usuarioFormulario = null;
+  }
 
-      abrirConfirmacaoExclusao(usuario: Usuario): void {
-        this.usuarioParaExcluir = usuario;
-        this.confirmarExclusaoAberto = true;
-      }
+  confirmarExclusaoAberto = false;
+  usuarioParaExcluir: Usuario | null = null;
 
-      cancelarExclusao(): void {
-        this.confirmarExclusaoAberto = false;
-        this.usuarioParaExcluir = null;
-      }
+  abrirConfirmacaoExclusao(usuario: Usuario): void {
+    this.usuarioParaExcluir = usuario;
+    this.confirmarExclusaoAberto = true;
+  }
 
-      confirmarExclusao(): void {
-        if (!this.usuarioParaExcluir) return;
+  cancelarExclusao(): void {
+    this.confirmarExclusaoAberto = false;
+    this.usuarioParaExcluir = null;
+  }
 
-        const id = this.usuarioParaExcluir.id;
-        this.usuarios = this.usuarios.filter(u => u.id !== id);
+  confirmarExclusao(): void {
+    if (!this.usuarioParaExcluir) return;
 
+    const id = this.usuarioParaExcluir.id;
+
+    this.usuarioService.excluirUsuario(id).subscribe({
+
+      next: () => {
+        console.log('Usuario excluido com sucesso');
         this.cancelarExclusao();
-        // TODO integração: DELETE /usuarios/{id}
-        // e só remover da lista depois que a API responder com sucesso
-      }
+        this.buscarUsuarios();
+      },
+      error: (erro) => {
+        console.error('Erro ao excluir usuário', erro);
 
-
-      statusAberto = false;
-      usuarioParaStatus: Usuario | null = null;
-
-      // texto do modal: se está ativo, a ação é inativar (e vice-versa)
-      get acaoStatus(): 'Ativar' | 'Inativar' {
-        return this.usuarioParaStatus?.status === 'ATIVO' ? 'Inativar' : 'Ativar';
-      }
-
-      abrirConfirmacaoStatus(usuario: Usuario): void {
-        this.usuarioParaStatus = usuario;
-        this.statusAberto = true;
-      }
-
-      cancelarAlteracaoStatus(): void {
-        this.statusAberto = false;
-        this.usuarioParaStatus = null;
-      }
-
-      confirmarAlteracaoStatus(): void {
-        if (!this.usuarioParaStatus) return;
-
-        const id = this.usuarioParaStatus.id;
-        const novoStatus: 'ATIVO' | 'INATIVO' =
-          this.usuarioParaStatus.status === 'ATIVO' ? 'INATIVO' : 'ATIVO';
-
-        this.usuarios = this.usuarios.map(u =>
-          u.id === id ? { ...u, status: novoStatus } : u
+        alert(
+          erro.error?.detail ||
+          'Não foi possível excluir o usuário.'
         );
-
-        this.cancelarAlteracaoStatus();
       }
+    })
+  }
 
+  modalAberto = false;
+  modoVisualizacao = false;
+
+  usuarioFormulario: any = null;
+
+  get camposBloqueados(): boolean {
+    return this.modoVisualizacao; 
+  }
+
+  statusAberto = false;
+  usuarioParaStatus: Usuario | null = null;
+
+  
+
+  get acaoStatus(): 'Ativar' | 'Inativar' {
+
+    return this.usuarioParaStatus?.is_active
+      ? 'Inativar'
+      : 'Ativar';
+  }
+
+  abrirConfirmacaoStatus(usuario: Usuario): void {
+    this.usuarioParaStatus = usuario;
+    this.statusAberto = true;
+  }
+
+  cancelarAlteracaoStatus(): void {
+    this.statusAberto = false;
+    this.usuarioParaStatus = null;
+  }
+
+  confirmarAlteracaoStatus(): void {
+
+    if (!this.usuarioParaStatus) {
+      return;
+    }
+    const id = this.usuarioParaStatus.id;
+    const novoStatus = !this.usuarioParaStatus.is_active;
+
+    this.usuarioService.alterarStatus(id, novoStatus).subscribe({
+        next: () => {
+
+          alert('Status alterado');
+          this.cancelarAlteracaoStatus();
+          this.buscarUsuarios();
+        },
+        error: (erro) => {
+          console.error('Erro ao alterar status do usuário:', erro);
+        }
+
+      });
+  }
 }

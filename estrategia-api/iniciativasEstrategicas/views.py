@@ -8,6 +8,7 @@ from django.utils import timezone
 from rest_framework.response import Response
 from revisoes.serializers import SubmissaoRevisaoIniciativaSerializer, RevisaoEdicaoSerializer
 from revisoes.services import criar_revisao_iniciativa
+from usuarios.models import Usuario
 class IniciativaEstrategicaViewSet(ModelViewSet):
     queryset = IniciativaEstrategica.objects.all()
     serializer_class = IniciativaEstrategicaSerializer
@@ -26,9 +27,47 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
         usuario = self.request.user
 
         if usuario.papel == 'ADMIN':
+
+            responsavel = serializer.validated_data.get('responsavel')
+            unidade = serializer.validated_data.get('unidade')
+
+            if responsavel is not None and responsavel.unidade_id != unidade.id:
+                raise ValidationError({
+                    'responsavel':
+                    'O responsável deve pertencer à unidade selecionada.'
+                })
+
             serializer.save(status='APROVADO')
             return
+        if usuario.papel == 'GESTOR':
 
+            responsavel = serializer.validated_data.get('responsavel')
+
+            if responsavel is None:
+                raise ValidationError({
+                    'responsavel':
+                    'Selecione um responsável pela iniciativa.'
+                })
+
+            if responsavel.unidade_id != usuario.unidade_id:
+                raise ValidationError({
+                    'responsavel':
+                    'O responsável deve pertencer à sua unidade.'
+                })
+
+            status_solicitado = self.request.data.get('status')
+            status_iniciativa = (
+                'RASCUNHO'
+                if status_solicitado == 'RASCUNHO'
+                else 'EM_ESPERA'
+            )
+            serializer.save(
+                unidade=usuario.unidade,
+                responsavel=responsavel,
+                status=status_iniciativa,
+            )
+            return
+        
         responsavel = (serializer.validated_data.get( 'responsavel'))
 
         if responsavel is None:
@@ -51,6 +90,20 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
             return None
 
         iniciativa = self.get_object()
+
+        campos_enviados = set(request.data.keys())
+        if usuario.papel == 'GESTOR' and campos_enviados == {'responsavel'}:
+            responsavel_id = request.data.get('responsavel')
+            if not Usuario.objects.filter(
+                id=responsavel_id,
+                unidade=usuario.unidade,
+                is_active=True,
+            ).exists():
+                return Response(
+                    {'detail': 'O responsável deve pertencer à sua unidade.'},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            return None
 
         if iniciativa.status == 'APROVADO':
             return Response(
@@ -107,6 +160,14 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
         if usuario.papel == 'ADMIN':
             serializer.save()
             return
+        if usuario.papel == 'GESTOR':
+            responsavel = serializer.validated_data.get('responsavel')
+            if responsavel is not None:
+                serializer.save(
+                    unidade=usuario.unidade,
+                    responsavel=responsavel,
+                )
+                return
         serializer.save(status='EM_ESPERA', observacao_analise='', data_analise=None, analisado_por=None)
 
     @action(detail=True, methods=['post'], url_path='submeter-atualizacao')

@@ -1,4 +1,5 @@
 from rest_framework.viewsets import (ReadOnlyModelViewSet)
+from django.db.models import Q
 from .models import RevisaoEdicao
 from .serializers import (RevisaoEdicaoSerializer)
 from rest_framework.decorators import action
@@ -11,6 +12,9 @@ from .services import (
     aprovar_revisao_indicador,
     rejeitar_revisao
 )
+from projetosEstrategicos.models import ProjetoEstrategico
+from iniciativasEstrategicas.models import IniciativaEstrategica
+from indicadoresEstrategicos.models import IndicadorEstrategico
 
 
 class RevisaoEdicaoViewSet(
@@ -37,7 +41,25 @@ class RevisaoEdicaoViewSet(
             return queryset
 
         return queryset.filter(
-            criado_por=usuario
+            Q(criado_por=usuario)
+            | Q(
+                entidade='PROJETO',
+                entidade_id__in=ProjetoEstrategico.objects.filter(
+                    unidade_id=usuario.unidade_id
+                ).values('id')
+            )
+            | Q(
+                entidade='INICIATIVA',
+                entidade_id__in=IniciativaEstrategica.objects.filter(
+                    unidade_id=usuario.unidade_id
+                ).values('id')
+            )
+            | Q(
+                entidade='INDICADOR',
+                entidade_id__in=IndicadorEstrategico.objects.filter(
+                    unidade_id=usuario.unidade_id
+                ).values('id')
+            )
         )
     @action(
     detail=True,

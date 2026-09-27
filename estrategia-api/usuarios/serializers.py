@@ -7,7 +7,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = [
             'id', 'username', 'password', 'nome_completo',
-            'nome_social', 'cpf', 'papel', 'unidade', 'email'
+            'nome_social', 'cpf', 'papel', 'unidade', 'email', 'date_joined', 'is_active'
         ]
         extra_kwargs = {'password': {'write_only': True}}
 
@@ -41,7 +41,9 @@ class MeuPerfilSerializer(serializers.ModelSerializer):
             'unidade',
             'unidade_nome',
             'unidade_sigla',
-            'email'
+            'email',
+            'date_joined',
+            'is_active'
         ]
         read_only_fields = [
             'id',

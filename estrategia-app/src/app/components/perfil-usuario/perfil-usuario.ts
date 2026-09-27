@@ -42,7 +42,7 @@ export class PerfilUsuario implements OnInit {
   obterPapel(): string {
     const papeis: Record<string, string> = {
       ADMIN: 'Administrador',
-      UNIDADE: 'Unidade',
+      GESTOR: 'Gestor',
       SERVIDOR: 'Servidor'
     };
 

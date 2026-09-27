@@ -27,9 +27,16 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
         usuario = self.request.user
 
         if usuario.papel == 'ADMIN':
-            serializer.save(
-                status='APROVADO'
-            )
+
+            responsavel = serializer.validated_data.get('responsavel')
+            unidade = serializer.validated_data.get('unidade')
+            if responsavel is not None and responsavel.unidade_id != unidade.id:
+                raise ValidationError({
+                    'responsavel':
+                    'O responsável deve pertencer à unidade selecionada.'
+                })
+
+            serializer.save(status='APROVADO')
             return
 
         responsavel_selecionado = serializer.validated_data.get(
@@ -100,6 +107,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
         else:
 
             campos_permitidos = {
+                'responsavel',
                 'evolucoes',
                 'percentual_progresso',
                 'evolucoesOrcamentarias',
@@ -163,6 +171,20 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
             serializer.save()
             return
 
+        if usuario.papel == 'GESTOR':
+
+            responsavel = serializer.validated_data.get('responsavel',  projeto.responsavel)
+
+            if responsavel is None:
+                raise ValidationError({'responsavel': 'Selecione um responsável pelo projeto.'})
+
+            if responsavel.unidade_id != usuario.unidade_id:
+                raise ValidationError({'responsavel': 'O responsável deve pertencer à sua unidade.'})
+
+            serializer.save(unidade=usuario.unidade, responsavel=responsavel)
+
+            return
+        
         if projeto.status == 'APROVADO':
 
             raise ValidationError({
