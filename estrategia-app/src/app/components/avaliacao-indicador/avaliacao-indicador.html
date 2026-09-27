@@ -1,28 +1,21 @@
 <div class="modal-backdrop-avaliacao">
   <div class="modal-avaliacao">
-    <!-- ======================================= -->
-    <!-- CABEÇALHO -->
-    <!-- ======================================= -->
-
+    <!-- ========================================
+         CABEÇALHO
+         ======================================== -->
     <header class="modal-header">
       <div class="titulo-header">
-        <div class="icone-header">
-          <i class="bi bi-graph-up"></i>
-        </div>
+        <h2>
+          {{ modoAvaliacao ? 'Análise de Indicador' : 'Detalhes do Indicador' }}
+        </h2>
 
-        <div>
-          <h2>
-            {{ modoAvaliacao ? 'Análise de Indicador' : 'Detalhes do Indicador' }}
-          </h2>
-
-          <p>
-            {{
-              modoAvaliacao
-                ? 'Revise as informações do indicador e tome uma decisão.'
-                : 'Visualize as informações e o resultado da análise do indicador.'
-            }}
-          </p>
-        </div>
+        <p>
+          {{
+            modoAvaliacao
+              ? 'Revise as informações do indicador e tome uma decisão.'
+              : 'Visualize as informações e o resultado da análise do indicador.'
+          }}
+        </p>
       </div>
 
       <button type="button" class="btn-fechar" (click)="fechar()" aria-label="Fechar">
@@ -30,275 +23,252 @@
       </button>
     </header>
 
-    <!-- ======================================= -->
-    <!-- CONTEÚDO -->
-    <!-- ======================================= -->
-
+    <!-- ========================================
+         CONTEÚDO
+         ======================================== -->
     <div class="modal-conteudo">
-      <!-- INDICADOR / STATUS -->
+      <!-- NOME / STATUS -->
+      <section class="cabecalho-indicador">
+        <h3>{{ indicador.nome }}</h3>
 
-      <section class="cabecalho-projeto">
-        <div>
-          <h3>
-            {{ indicador.nome }}
-          </h3>
-
-          <div class="status-linha">
-            <span class="badge-status" [ngClass]="obterClasseStatus()">
-              <i
-                class="bi"
-                [ngClass]="{
-                  'bi-check-circle': indicador.status === 'APROVADO',
-
-                  'bi-x-circle': indicador.status === 'REJEITADO',
-
-                  'bi-clock': indicador.status === 'EM_ESPERA',
-
-                  'bi-file-earmark': indicador.status === 'RASCUNHO',
-                }"
-              ></i>
-
-              {{ obterRotuloStatus() }}
-            </span>
-          </div>
+        <div class="status-linha">
+          <span class="badge-status" [ngClass]="obterClasseStatus()">
+            {{ obterRotuloStatus() }}
+          </span>
         </div>
       </section>
 
-      <section class="bloco informacao-revisao" *ngIf="revisao" [ngClass]="'status-revisao-' + revisao.status.toLowerCase()">
-        <i class="bi bi-info-circle-fill"></i>
-        <div>
-          <strong>{{ obterRotuloRevisao(revisao.status) }}</strong>
-          <p>Enviada por {{ revisao.criado_por_nome }} em {{ revisao.criado_em | date:'dd/MM/yyyy HH:mm' }}<span *ngIf="revisao.analisado_em">. Analisada em {{ revisao.analisado_em | date:'dd/MM/yyyy HH:mm' }}.</span></p>
-          <p *ngIf="revisao.observacao"><strong>Observação:</strong> {{ revisao.observacao }}</p>
-        </div>
-      </section>
+      <!-- ========================================
+           REVISÃO
+           ======================================== -->
+      <section
+        class="informacao-revisao"
+        *ngIf="revisao"
+        [ngClass]="'status-revisao-' + revisao.status.toLowerCase()"
+      >
+        <strong>
+          {{ obterRotuloRevisao(revisao.status) }}
+        </strong>
 
-      <!-- ======================================= -->
-      <!-- RESPONSÁVEL / UNIDADE -->
-      <!-- ======================================= -->
+        <p>
+          Enviada por {{ revisao.criado_por_nome }} em
+          {{ revisao.criado_em | date: 'dd/MM/yyyy HH:mm' }}
 
-      <section class="dados-resumo">
-        <div class="resumo-item">
-          <div class="icone-resumo">
-            <i class="bi bi-person"></i>
-          </div>
+          <span *ngIf="revisao.analisado_em">
+            · Analisada em
+            {{ revisao.analisado_em | date: 'dd/MM/yyyy HH:mm' }}
+          </span>
+        </p>
 
-          <div>
-            <span> Responsável </span>
-
-            <strong>
-              {{ indicador.responsavel_nome || 'Não informado' }}
-            </strong>
-          </div>
-        </div>
-
-        <div class="resumo-item">
-          <div class="icone-resumo">
-            <i class="bi bi-building"></i>
-          </div>
-
-          <div>
-            <span> Unidade </span>
-
-            <strong>
-              {{ indicador.unidade_sigla || 'Não informada' }}
-            </strong>
-          </div>
-        </div>
-      </section>
-
-      <!-- ======================================= -->
-      <!-- FINALIDADE -->
-      <!-- ======================================= -->
-
-      <section class="bloco">
-        <div class="titulo-bloco">
-          <i class="bi bi-bullseye"></i>
-
-          <h4>Finalidade</h4>
-        </div>
-
-        <p class="descricao">
-          {{ indicador.finalidade || 'Nenhuma finalidade informada.' }}
+        <p class="observacao-revisao" *ngIf="revisao.observacao">
+          <strong>Observação:</strong>
+          {{ revisao.observacao }}
         </p>
       </section>
 
-      <!-- ======================================= -->
-      <!-- OBJETIVO -->
-      <!-- ======================================= -->
+      <!-- ========================================
+           INFORMAÇÕES GERAIS
+           ======================================== -->
+      <section class="secao-institucional">
+        <div class="titulo-secao-azul">Informações gerais</div>
 
-      <section class="bloco">
-        <div class="titulo-bloco">
-          <i class="bi bi-diagram-3"></i>
+        <div class="grid-informacoes-gerais">
+          <div class="coluna-informacoes">
+            <div class="informacao-item">
+              <span>Responsável</span>
 
-          <h4>Objetivo estratégico</h4>
-        </div>
+              <strong>
+                {{ indicador.responsavel_nome || 'Não informado' }}
+              </strong>
+            </div>
 
-        <div class="objetivo-indicador" *ngIf="indicador.objetivo_detalhes; else semObjetivo">
-          <strong>
-            {{ indicador.objetivo_detalhes.codigo }}
-          </strong>
+            <div class="informacao-item">
+              <span>Unidade</span>
 
-          <span>
-            {{ indicador.objetivo_detalhes.descricao }}
-          </span>
-        </div>
-
-        <ng-template #semObjetivo>
-          <p class="texto-vazio">Nenhum objetivo estratégico informado.</p>
-        </ng-template>
-      </section>
-
-      <!-- ======================================= -->
-      <!-- DADOS DE CÁLCULO -->
-      <!-- ======================================= -->
-
-      <div class="grid-informacoes">
-        <section class="info-card">
-          <div class="icone-info">
-            <i class="bi bi-rulers"></i>
+              <strong>
+                {{ indicador.unidade_sigla || 'Não informada' }}
+              </strong>
+            </div>
           </div>
 
-          <div>
-            <span> Unidade de medida </span>
+          <div class="coluna-informacoes">
+            <div class="informacao-item">
+              <span>Unidade de medida</span>
 
+              <strong>
+                {{ indicador.unidade_medida || 'Não informada' }}
+              </strong>
+            </div>
+
+            <div class="informacao-item">
+              <span>Polaridade</span>
+
+              <strong>
+                {{ indicador.polaridade || 'Não informada' }}
+              </strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           FINALIDADE
+           ======================================== -->
+      <section class="secao-institucional">
+        <div class="titulo-secao-azul">Finalidade</div>
+
+        <div class="conteudo-secao">
+          <p class="descricao">
+            {{ indicador.finalidade || 'Nenhuma finalidade informada.' }}
+          </p>
+        </div>
+      </section>
+
+      <!-- ========================================
+           OBJETIVO ESTRATÉGICO
+           ======================================== -->
+      <section class="secao-institucional">
+        <div class="titulo-secao-azul">Objetivo estratégico vinculado</div>
+
+        <div class="conteudo-secao">
+          <div class="objetivo-indicador" *ngIf="indicador.objetivo_detalhes; else semObjetivo">
             <strong>
-              {{ indicador.unidade_medida || 'Não informada' }}
+              {{ indicador.objetivo_detalhes.codigo }}
             </strong>
+
+            <span>
+              {{ indicador.objetivo_detalhes.descricao }}
+            </span>
+          </div>
+
+          <ng-template #semObjetivo>
+            <p class="texto-vazio">Nenhum objetivo estratégico informado.</p>
+          </ng-template>
+        </div>
+      </section>
+
+      <!-- ========================================
+           MÉTODO E FÓRMULA
+           ======================================== -->
+      <div class="grid-duplo">
+        <!-- MÉTODO -->
+        <section class="secao-institucional">
+          <div class="titulo-secao-azul">Método de cálculo</div>
+
+          <div class="conteudo-secao">
+            <p class="descricao">
+              {{ indicador.metodo_calculo || 'Nenhum método informado.' }}
+            </p>
           </div>
         </section>
 
-        <section class="info-card">
-          <div class="icone-info">
-            <i class="bi bi-arrow-up-down"></i>
-          </div>
+        <!-- FÓRMULA -->
+        <section class="secao-institucional" *ngIf="indicador.formula">
+          <div class="titulo-secao-azul">Fórmula</div>
 
-          <div>
-            <span> Polaridade </span>
-
-            <strong>
-              {{ indicador.polaridade || 'Não informada' }}
-            </strong>
+          <div class="conteudo-secao conteudo-formula">
+            <div class="formula-indicador" [innerHTML]="formulaRenderizada"></div>
           </div>
         </section>
       </div>
 
-      <!-- ======================================= -->
-      <!-- MÉTODO DE CÁLCULO -->
-      <!-- ======================================= -->
+      <!-- ========================================
+           MONITORAMENTO
+           ======================================== -->
+      <section class="bloco-monitoramento">
+        <div class="titulo-secao">
+          <h4>Monitoramento do indicador</h4>
 
-      <section class="bloco">
-        <div class="titulo-bloco">
-          <i class="bi bi-calculator"></i>
-
-          <h4>Método de cálculo</h4>
+          <p>Consulte as metas previstas e os resultados alcançados.</p>
         </div>
 
-        <p class="descricao">
-          {{ indicador.metodo_calculo || 'Nenhum método informado.' }}
-        </p>
-      </section>
+        <div class="conteudo-monitoramento">
+          <!-- METAS ATUAIS -->
+          <div class="tabela-metas" *ngIf="indicador.evolucao_indicador?.length; else semMetas">
+            <div class="cabecalho-meta">
+              <span>Ano</span>
+              <span>Meta prevista</span>
+              <span>Meta alcançada</span>
+            </div>
 
-      <!-- ======================================= -->
-      <!-- FÓRMULA -->
-      <!-- ======================================= -->
+            <div class="linha-meta" *ngFor="let meta of indicador.evolucao_indicador">
+              <strong>
+                {{ meta.ano }}
+              </strong>
 
-      <section class="bloco" *ngIf="indicador.formula">
-        <div class="titulo-bloco">
-          <i class="bi bi-braces"></i>
+              <span>
+                {{ meta.meta_prevista || '-' }}
+              </span>
 
-          <h4>Fórmula</h4>
-        </div>
-
-        <div class="formula-indicador" [innerHTML]="formulaRenderizada"></div>
-      </section>
-
-      <!-- ======================================= -->
-      <!-- METAS -->
-      <!-- ======================================= -->
-
-      <section class="bloco">
-        <div class="titulo-bloco">
-          <i class="bi bi-bar-chart-line"></i>
-
-          <h4>Metas de monitoramento</h4>
-        </div>
-
-        <div class="tabela-metas" *ngIf="indicador.evolucao_indicador?.length; else semMetas">
-          <div class="cabecalho-meta">
-            <span>Ano</span>
-
-            <span>Prevista</span>
-
-            <span>Alcançada</span>
+              <span>
+                {{ meta.meta_alcancada || '-' }}
+              </span>
+            </div>
           </div>
 
-          <div class="linha-meta" *ngFor="let meta of indicador.evolucao_indicador">
-            <strong>
-              {{ meta.ano }}
-            </strong>
+          <ng-template #semMetas>
+            <p class="sem-registros">Nenhuma meta de monitoramento registrada.</p>
+          </ng-template>
 
-            <span> {{ meta.meta_prevista }}</span>
+          <!-- METAS PENDENTES -->
+          <div class="metas-pendentes" *ngIf="revisaoPendente && metasPropostas.length">
+            <div class="rotulo-pendente">Metas propostas pendentes</div>
 
-            <span> {{ meta.meta_alcancada }}</span>
-          </div>
-        </div>
+            <div class="cabecalho-meta">
+              <span>Ano</span>
+              <span>Meta prevista</span>
+              <span>Meta alcançada</span>
+            </div>
 
-        <ng-template #semMetas>
-          <p class="texto-vazio">Nenhuma meta de monitoramento registrada.</p>
-        </ng-template>
+            <div class="linha-meta meta-proposta" *ngFor="let meta of metasPropostas">
+              <strong>
+                {{ meta.ano }}
+              </strong>
 
-        <div class="metas-pendentes" *ngIf="revisaoPendente && metasPropostas.length">
-          <div class="rotulo-pendente"><i class="bi bi-clock-history"></i> Metas propostas pendentes</div>
-          <div class="cabecalho-meta">
-            <span>Ano</span>
-            <span>Prevista</span>
-            <span>Alcançada</span>
-          </div>
-          <div class="linha-meta meta-proposta" *ngFor="let meta of metasPropostas">
-            <strong>{{ meta.ano }}</strong>
-            <span>{{ meta.meta_prevista }}</span>
-            <span>{{ meta.meta_alcancada }}</span>
+              <span>
+                {{ meta.meta_prevista || '-' }}
+              </span>
+
+              <span>
+                {{ meta.meta_alcancada || '-' }}
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- ======================================= -->
-      <!-- OBSERVAÇÕES DO INDICADOR -->
-      <!-- ======================================= -->
+      <!-- ========================================
+           OBSERVAÇÕES
+           ======================================== -->
+      <section
+        class="secao-institucional"
+        *ngIf="indicador.observacao || (revisaoPendente && observacaoProposta !== null)"
+      >
+        <div class="titulo-secao-azul">Observações</div>
 
-      <section class="bloco" *ngIf="indicador.observacao || (revisaoPendente && observacaoProposta !== null)">
-        <div class="titulo-bloco">
-          <i class="bi bi-chat-left-text"></i>
+        <div class="conteudo-secao">
+          <p class="descricao" *ngIf="indicador.observacao">
+            {{ indicador.observacao }}
+          </p>
 
-          <h4>Observações</h4>
-        </div>
-
-        <p class="descricao">
-          {{ indicador.observacao }}
-        </p>
-
-        <div class="observacao-pendente" *ngIf="revisaoPendente && observacaoProposta !== null">
-          <span><i class="bi bi-clock-history"></i> Observação proposta pendente</span>
-          <p>{{ observacaoProposta || 'Observação removida na proposta.' }}</p>
-        </div>
-      </section>
-
-      <!-- ======================================= -->
-      <!-- CAMPO DE AVALIAÇÃO -->
-      <!-- ======================================= -->
-
-      <section class="bloco-observacao" *ngIf="modoAvaliacao">
-        <div class="titulo-observacao">
-          <i class="bi bi-chat"></i>
-
-          <div>
-            <h4>Observação da análise</h4>
+          <div class="observacao-pendente" *ngIf="revisaoPendente && observacaoProposta !== null">
+            <strong> Observação proposta pendente </strong>
 
             <p>
-              Registre uma observação ou justificativa para a aprovação ou rejeição do indicador.
+              {{ observacaoProposta || 'Observação removida na proposta.' }}
             </p>
           </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           OBSERVAÇÃO DA ANÁLISE
+           ======================================== -->
+      <section class="bloco-observacao" *ngIf="modoAvaliacao">
+        <div class="titulo-observacao">
+          <h4>Observação da análise</h4>
+
+          <p>Registre uma observação ou justificativa para a aprovação ou rejeição do indicador.</p>
         </div>
 
         <textarea
@@ -312,25 +282,20 @@
         </p>
       </section>
 
-      <!-- ======================================= -->
-      <!-- RESULTADO APROVADO -->
-      <!-- ======================================= -->
-
+      <!-- ========================================
+           APROVADO
+           ======================================== -->
       <section
         class="resultado-avaliacao aprovado"
         *ngIf="modoVisualizacao && indicador.status === 'APROVADO'"
       >
-        <div class="resultado-icone">
-          <i class="bi bi-check-circle-fill"></i>
-        </div>
-
         <div class="resultado-conteudo">
           <h4>Indicador aprovado</h4>
 
           <p class="resultado-descricao">Este indicador foi aprovado pela administração.</p>
 
           <div class="mensagem-administracao" *ngIf="indicador.observacao_analise">
-            <span> Mensagem da avaliação </span>
+            <span>Mensagem da avaliação</span>
 
             <p>
               {{ indicador.observacao_analise }}
@@ -339,18 +304,13 @@
         </div>
       </section>
 
-      <!-- ======================================= -->
-      <!-- RESULTADO REJEITADO -->
-      <!-- ======================================= -->
-
+      <!-- ========================================
+           REJEITADO
+           ======================================== -->
       <section
         class="resultado-avaliacao rejeitado"
         *ngIf="modoVisualizacao && indicador.status === 'REJEITADO'"
       >
-        <div class="resultado-icone">
-          <i class="bi bi-x-circle-fill"></i>
-        </div>
-
         <div class="resultado-conteudo">
           <h4>Indicador necessita de ajustes</h4>
 
@@ -359,7 +319,7 @@
           </p>
 
           <div class="mensagem-administracao">
-            <span> Motivo da rejeição </span>
+            <span>Motivo da rejeição</span>
 
             <p>
               {{ indicador.observacao_analise || 'Nenhuma justificativa foi informada.' }}
@@ -369,36 +329,36 @@
       </section>
     </div>
 
-    <!-- ======================================= -->
-    <!-- RODAPÉ -->
-    <!-- ======================================= -->
-
+    <!-- ========================================
+         RODAPÉ
+         ======================================== -->
     <footer class="modal-footer">
       <button type="button" class="btn btn-cancelar" (click)="fechar()">
         {{ modoAvaliacao ? 'Cancelar' : 'Fechar' }}
       </button>
 
       <button *ngIf="modoAvaliacao" type="button" class="btn btn-rejeitar" (click)="rejeitar()">
-        <i class="bi bi-x-lg"></i>
-
         {{ revisao?.status === 'PENDENTE' ? 'Rejeitar alterações' : 'Rejeitar indicador' }}
       </button>
 
       <button *ngIf="modoAvaliacao" type="button" class="btn btn-aprovar" (click)="aprovar()">
-        <i class="bi bi-check-lg"></i>
-
         {{ revisao?.status === 'PENDENTE' ? 'Aprovar alterações' : 'Aprovar indicador' }}
       </button>
 
       <button
-        *ngIf="!modoAvaliacao && revisao?.status !== 'PENDENTE' && ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO')) || (isAdmin && indicador.status !== 'EM_ESPERA'))"
+        *ngIf="
+          !modoAvaliacao &&
+          revisao?.status !== 'PENDENTE' &&
+          ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO')) ||
+            (isAdmin && indicador.status !== 'EM_ESPERA'))
+        "
         type="button"
         class="btn btn-editar"
         (click)="editarIndicador()"
       >
+        <i class="bi bi-pencil-square"></i>
         Editar indicador
       </button>
     </footer>
   </div>
 </div>
-
