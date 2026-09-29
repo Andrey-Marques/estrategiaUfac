@@ -396,7 +396,7 @@
       </button>
 
       <!-- SERVIDOR: PROJETO REJEITADO -->
-      <button *ngIf="!isAdmin && projeto.status === 'REJEITADO' && !revisaoPendente" type="button" class="btn btn-editar-rejeitado"
+      <button *ngIf="!isAdmin && (projeto.status === 'REJEITADO' || projeto.status === 'RASCUNHO') && !revisaoPendente" type="button" class="btn btn-editar-rejeitado"
           (click)="editarProjeto()">
         <i class="bi bi-pencil-square"></i>
         Editar projeto

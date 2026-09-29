@@ -631,6 +631,7 @@
   </div>
   <app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado"
     [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
+    (aprovado)="aprovarProjeto($event)" (rejeitado)="rejeitarProjeto($event)"
     (editar)="abrirEdicaoPeloModal($event)" (revisaoAprovada)="aprovarRevisao($event)"
     (revisaoRejeitada)="rejeitarRevisao($event)">
   </app-avaliacao-projeto>

@@ -10,7 +10,7 @@ import { ProjetoService } from '../../service/projeto.service';
 import { UnidadeService } from '../../service/unidade.service';
 import { UsuarioService } from '../../service/usuario.service';
 import { EvolucaoOrcamentaria } from '../../model/projetoEstrategico';
-import { AvaliacaoProjeto } from '../avaliacao-projeto/avaliacao-projeto';
+import { AvaliacaoProjeto, DecisaoProjeto } from '../avaliacao-projeto/avaliacao-projeto';
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import { RevisaoService } from '../../service/revisao.service';
 
@@ -34,6 +34,7 @@ export class ListagemProjetos {
   visualizando = false;
   modoEdicaoEtapa3 = false;
   editandoProjetoRejeitado = false;
+  editandoRascunho = false;
   projetoSelecionadoId: number | null = null;
 
   filtroStatus = signal<string>('TODOS');
@@ -273,6 +274,26 @@ export class ListagemProjetos {
     this.revisaoEmAnalise.set(null);
   }
 
+  aprovarProjeto(decisao: DecisaoProjeto): void {
+    this.projetoService.aprovarProjeto(decisao.projeto.id, decisao.observacao).subscribe({
+      next: () => {
+        this.fecharAvaliacao();
+        this.buscarProjeto();
+      },
+      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível aprovar o projeto.'),
+    });
+  }
+
+  rejeitarProjeto(decisao: DecisaoProjeto): void {
+    this.projetoService.rejeitarProjeto(decisao.projeto.id, decisao.observacao).subscribe({
+      next: () => {
+        this.fecharAvaliacao();
+        this.buscarProjeto();
+      },
+      error: erro => window.alert(erro.error?.detail ?? 'Não foi possível rejeitar o projeto.'),
+    });
+  }
+
   obterRevisaoProjeto(projetoId: number): RevisaoEdicao | null {
     return (
       this.revisoes()
@@ -325,7 +346,8 @@ export class ListagemProjetos {
 
     this.visualizando = false;
 
-    this.editandoProjetoRejeitado = true;
+    this.editandoProjetoRejeitado = projeto.status === 'REJEITADO';
+    this.editandoRascunho = projeto.status === 'RASCUNHO';
 
     this.modoEdicaoEtapa3 = false;
 
@@ -408,12 +430,17 @@ export class ListagemProjetos {
 
       evolucoes: this.montarEvolucoes(),
 
+      evolucoesOrcamentarias: this.evolucoesOrcamentarias().map(evolucao => ({
+        id: evolucao.id,
+        valor: Number(evolucao.valor),
+        descricao: evolucao.descricao,
+        data_registro: evolucao.data_registro,
+      })),
+
       status: 'EM_ESPERA',
     };
 
-    const envio = this.isAdmin()
-      ? this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao)
-      : this.projetoService.submeterAtualizacao(this.projetoSelecionadoId, dadosAtualizacao);
+    const envio = this.projetoService.atualizarProjeto(this.projetoSelecionadoId, dadosAtualizacao);
 
     envio.subscribe({
       next: () => {
@@ -441,7 +468,7 @@ export class ListagemProjetos {
 
   cancelarEdicaoProjetoRejeitado(): void {
     this.editandoProjetoRejeitado = false;
-    this.editandoProjetoRejeitado = false;
+    this.editandoRascunho = false;
     this.projetoSelecionadoId = null;
     this.formularioProjeto.reset();
     this.formularioProjeto.enable();
@@ -454,7 +481,8 @@ export class ListagemProjetos {
 
     this.editandoProjetoRejeitado = false;
 
-    if (projeto.status === 'REJEITADO' && !this.isAdmin()) {
+    this.editandoRascunho = false;
+    if (projeto.status === 'RASCUNHO' || (projeto.status === 'REJEITADO' && !this.isAdmin())) {
       this.editarProjetoRejeitado(projeto);
       return;
     }
@@ -655,11 +683,15 @@ export class ListagemProjetos {
       evolucoes: this.montarEvolucoes(),
     };
 
-    this.projetoService.CriarProjeto(projeto).subscribe({
+    const operacao = this.editandoRascunho && this.projetoSelecionadoId !== null
+      ? this.projetoService.atualizarProjeto(this.projetoSelecionadoId, projeto)
+      : this.projetoService.CriarProjeto(projeto);
+    operacao.subscribe({
       next: (projetoCriado) => {
         console.log('Projeto criado:', projetoCriado);
         this.limparEvolucoesProjeto();
         this.projetoSelecionadoId = null;
+        this.editandoRascunho = false;
         this.dadosFormularioAntesDaEdicao = null;
         this.modoEdicaoEtapa3 = false;
         this.fecharModal();
@@ -669,12 +701,14 @@ export class ListagemProjetos {
       },
       error: (erro) => {
         console.error('erro ao criar projeto:', erro.error);
+        window.alert(erro.error?.detail ?? 'Não foi possível salvar o projeto. Verifique os campos e tente novamente.');
       },
     });
   }
 
   criarNovoProjeto(): void {
     this.editandoProjetoRejeitado = false;
+    this.editandoRascunho = false;
 
     this.visualizando = false;
     this.modoEdicaoEtapa3 = false;
@@ -687,6 +721,7 @@ export class ListagemProjetos {
       descricao: '',
       tempoEstimado: '',
       custoEstimado: 0,
+      percentualProgresso: 0,
       valorInvestido: null,
       descricaoOrcamentaria: '',
       dataOrcamentaria: '',
@@ -707,6 +742,7 @@ export class ListagemProjetos {
   }
 
   fecharFormulario(): void {
+    this.editandoRascunho = false;
     this.visualizando = false;
     this.modoEdicaoEtapa3 = false;
     this.projetoSelecionadoId = null;
