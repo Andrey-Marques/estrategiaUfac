@@ -378,7 +378,7 @@
               <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
               <div class="botoes-navegacao">
                 <button type="button" class="btn botao-submeter-analise"
-                  *ngIf="modoEdicao && usuarioAtual()?.papel === 'GESTOR' && etapaAtual === 1"
+                  *ngIf="modoEdicao && !editandoRascunho && !editandoIniciativaRejeitada && usuarioAtual()?.papel === 'GESTOR' && etapaAtual === 1"
                   (click)="salvarResponsavelIniciativa()">
                   Salvar responsável
                 </button>
@@ -391,6 +391,10 @@
 
                 <ng-container *ngIf="etapaAtual === 3">
                   <ng-container *ngIf="modoEdicao && etapaAtual === 3">
+                    <button *ngIf="editandoRascunho" type="button" class="btn botao-salvar-rascunho"
+                      (click)="salvarEdicaoIniciativa('RASCUNHO')">
+                      Salvar rascunho
+                    </button>
                     <button type="button" class="btn botao-submeter-analise" (click)="salvarEdicaoIniciativa()">
                       {{ isAdmin() ? 'Salvar alterações' : 'Enviar atualização para análise' }}
                     </button>

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HeaderPublico } from '../utils/header-publico/header-publico';
-import { RouterModule, Router } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Rodape } from '../utils/rodape/rodape';
 import {AcaoEstrategicaPublica, AcoesEstrategicasPublicas, AcoesEstrategicasService, TipoAcaoEstrategica,} from '../../service/acoes-estrategicas.service';
@@ -36,6 +36,8 @@ export class AcoesEstrategicas implements OnInit {
   private readonly service = inject(AcoesEstrategicasService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  readonly unidadeDoPainel = signal<number | null>(null);
 
   readonly abas: AbaEstrategica[] = [
     { id: 'projetos', label: 'Projetos Estratégicos' },
@@ -80,6 +82,7 @@ export class AcoesEstrategicas implements OnInit {
     const pesquisa = this.normalizar(filtros.pesquisa);
     const registros = this.dados().registros.filter(registro =>
       registro.tipo === this.abaAtiva()
+      && (this.unidadeDoPainel() === null || registro.unidade_id === this.unidadeDoPainel())
       && (!pesquisa || this.normalizar(
         `${registro.titulo} ${registro.objetivos.map(objetivo => objetivo.codigo).join(' ')}`
       ).includes(pesquisa))
@@ -112,6 +115,11 @@ export class AcoesEstrategicas implements OnInit {
   });
 
   ngOnInit(): void {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const unidade = Number(params.get('unidade'));
+      this.unidadeDoPainel.set(Number.isSafeInteger(unidade) && unidade > 0 ? unidade : null);
+      this.limparFiltros();
+    });
     this.carregar();
   }
 

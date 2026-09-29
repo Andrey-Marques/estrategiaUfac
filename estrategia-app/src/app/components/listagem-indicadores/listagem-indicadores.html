@@ -568,7 +568,7 @@
 
               <ng-container *ngIf="etapaAtual === 4">
                 <button
-                  *ngIf="!isAdmin()"
+                  *ngIf="!isAdmin() || statusIndicadorEmEdicao === 'RASCUNHO'"
                   type="button"
                   class="btn botao-salvar-rascunho"
                   (click)="salvarIndicador('RASCUNHO')"

@@ -23,9 +23,10 @@
 
       <span>›</span>
 
-      <span routerLink="/painel-unidades">Painel de Unidades</span>
-
-      <span class="separador">›</span>
+      <ng-container *ngIf="unidadeDoPainel() !== null">
+        <a routerLink="/painel-unidades">Painel de Unidades</a>
+        <span class="separador">›</span>
+      </ng-container>
 
       <span class="atual">Ações Estratégicas</span>
 
@@ -49,7 +50,7 @@
          FILTROS
          ===================================================== -->
 
-    <section class="filtros">
+    <section class="filtros" *ngIf="unidadeDoPainel() === null">
 
       <div class="cabecalho-filtros">
 

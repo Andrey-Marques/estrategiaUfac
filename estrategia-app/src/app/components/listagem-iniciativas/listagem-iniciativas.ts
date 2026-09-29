@@ -55,6 +55,7 @@ export class ListagemIniciativas {
   revisaoEmAnalise = signal<RevisaoEdicao | null>(null);
   modoEdicao = false;
   editandoIniciativaRejeitada = false;
+  editandoRascunho = false;
   iniciativaSelecionadaId: number | null = null;
   acaoEmEdicaoIndice: number | null = null;
   filtroStatus = signal<string>('TODOS');
@@ -203,6 +204,7 @@ export class ListagemIniciativas {
   }
 
   CriarNovaIniciativa(): void {
+    this.editandoRascunho = false;
     this.visualizando = false;
     this.modoEdicao = false;
     this.editandoIniciativaRejeitada = false;
@@ -230,6 +232,7 @@ export class ListagemIniciativas {
   }
 
   fecharFormulario(): void {
+    this.editandoRascunho = false;
     this.visualizando = false;
     this.modoEdicao = false;
     this.editandoIniciativaRejeitada = false;
@@ -642,6 +645,7 @@ export class ListagemIniciativas {
   abrirEdicaoPeloModal(iniciativa: IniciativaEstrategica): void {
     this.fecharAvaliacao();
     this.editandoIniciativaRejeitada = false;
+    this.editandoRascunho = iniciativa.status === 'RASCUNHO';
     this.iniciativaSelecionadaId = iniciativa.id;
 
     this.iniciativaService.getById(iniciativa.id).subscribe({
@@ -656,8 +660,8 @@ export class ListagemIniciativas {
           return;
         }
 
-        if (dados.status === 'REJEITADO') {
-          this.editandoIniciativaRejeitada = true;
+        if (dados.status === 'REJEITADO' || dados.status === 'RASCUNHO') {
+          this.editandoIniciativaRejeitada = dados.status === 'REJEITADO';
           this.modoEdicao = true;
           this.visualizando = false;
           this.formularioIniciativa.enable();
@@ -739,15 +743,18 @@ export class ListagemIniciativas {
     return mapa[status] ?? 'status-rascunho';
   }
 
-  salvarEdicaoIniciativa(): void {
+  salvarEdicaoIniciativa(statusSolicitado: 'RASCUNHO' | 'EM_ESPERA' | 'APROVADO' = this.isAdmin() ? 'APROVADO' : 'EM_ESPERA'): void {
     if (!this.iniciativaSelecionadaId) {
+      return;
+    }
+    if (statusSolicitado !== 'RASCUNHO' && !this.validarDadosObrigatorios()) {
       return;
     }
     const formulario = this.formularioIniciativa.getRawValue();
 
     let dados: any;
 
-    if (this.isAdmin() || this.editandoIniciativaRejeitada) {
+    if (this.isAdmin() || this.editandoIniciativaRejeitada || this.editandoRascunho) {
       dados = {
         nome: formulario.tituloIniciativa,
         responsavel: formulario.responsavelPreenchimento,
@@ -765,8 +772,10 @@ export class ListagemIniciativas {
       };
     }
 
+    if (this.editandoRascunho) dados.status = statusSolicitado;
+
     const operacao =
-      this.isAdmin() || this.editandoIniciativaRejeitada
+      this.isAdmin() || this.editandoIniciativaRejeitada || this.editandoRascunho
         ? this.iniciativaService.atualizarIniciativa(this.iniciativaSelecionadaId, dados)
         : this.iniciativaService.submeterAtualizacao(this.iniciativaSelecionadaId, dados);
 
@@ -776,9 +785,10 @@ export class ListagemIniciativas {
         this.buscarIniciativa();
         this.modoEdicao = false;
         this.editandoIniciativaRejeitada = false;
+        this.editandoRascunho = false;
         this.iniciativaSelecionadaId = null;
       },
-      error: (erro) => console.error('Erro ao atualizar iniciativa:', erro),
+      error: (erro) => window.alert(erro.error?.detail ?? 'Não foi possível salvar a iniciativa. Verifique os campos e tente novamente.'),
     });
   }
 

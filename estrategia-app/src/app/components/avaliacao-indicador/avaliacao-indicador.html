@@ -355,7 +355,7 @@
         *ngIf="
           !modoAvaliacao &&
           revisao?.status !== 'PENDENTE' &&
-          ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO')) ||
+          ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO' || indicador.status === 'RASCUNHO')) ||
             (isAdmin && indicador.status !== 'EM_ESPERA'))
         "
         type="button"

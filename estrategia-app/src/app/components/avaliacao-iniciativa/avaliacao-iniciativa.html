@@ -433,7 +433,7 @@
 
       <!-- REJEITADA -->
       <button
-        *ngIf="iniciativa.status === 'REJEITADO' && revisao?.status !== 'PENDENTE'"
+        *ngIf="(iniciativa.status === 'REJEITADO' || iniciativa.status === 'RASCUNHO') && revisao?.status !== 'PENDENTE'"
         type="button"
         class="btn btn-editar"
         data-bs-toggle="modal"
@@ -449,6 +449,7 @@
           isAdmin &&
           !modoAvaliacao &&
           iniciativa.status !== 'REJEITADO' &&
+          iniciativa.status !== 'RASCUNHO' &&
           revisao?.status !== 'PENDENTE'
         "
         type="button"
