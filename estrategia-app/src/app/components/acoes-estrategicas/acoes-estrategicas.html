@@ -194,20 +194,20 @@
       <section class="lista-indicadores">
 
         <p class="estado-listagem" role="status" *ngIf="!registrosFiltrados().length">Nenhuma ação aprovada encontrada para esta seleção.</p>
-        <article class="indicador" *ngFor="let indicador of registrosPagina(); trackBy: identificarRegistro" role="link" tabindex="0" (click)="abrirRegistro(indicador)" (keydown.enter)="abrirRegistro(indicador)">
+        <article class="indicador" *ngFor="let acao of registrosPagina(); trackBy: identificarRegistro" role="link" tabindex="0" (click)="abrirRegistro(acao)" (keydown.enter)="abrirRegistro(acao)">
 
-          <div class="codigo">{{ codigos(indicador) }}</div>
+          <div class="codigo">{{ codigos(acao) }}</div>
 
-          <div class="titulo-indicador">{{ indicador.titulo }}</div>
+          <div class="titulo-indicador">{{ acao.titulo }}</div>
 
           <div class="responsavel">
-            <strong>{{ indicador.unidade_sigla }}</strong>
-            <span>{{ indicador.responsavel || 'Responsável não informado' }}</span>
+            <strong>{{ acao.unidade_sigla }}</strong>
+            <span>{{ acao.responsavel || 'Responsável não informado' }}</span>
           </div>
 
           <div class="data">
-            <strong>{{ (dataRegistro(indicador) | date:'dd/MM/yyyy') || 'Data não informada' }}</strong>
-            <span *ngIf="dataRegistro(indicador)">{{ indicador.data_atualizacao ? 'Última atualização' : 'Data de cadastro' }}</span>
+            <strong>{{ (dataRegistro(acao) | date:'dd/MM/yyyy') || 'Data não informada' }}</strong>
+            <span *ngIf="dataRegistro(acao)">{{ acao.data_atualizacao ? 'Última atualização' : 'Data de cadastro' }}</span>
           </div>
 
           <div class="acao" aria-hidden="true">

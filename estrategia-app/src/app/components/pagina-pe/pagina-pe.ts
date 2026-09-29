@@ -16,7 +16,6 @@ export class PaginaPe {
   titulos: any = {
     apresentacao: 'O Planejamento Estratégico da Ufac',
     etapas: 'Etapas de Elaboração',
-    projetos: 'Projetos Estratégicos',
     planejamento: 'Planejamento e Gestão Estratégica 2024-2033',
     planos: 'Planos Anteriores',
     documentos: 'Documentos',
