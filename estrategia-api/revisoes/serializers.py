@@ -9,6 +9,9 @@ from indicadoresEstrategicos.serializers import EvolucaoIndicadorSerializer
 
 class SubmissaoRevisaoProjetoSerializer(serializers.Serializer):
 
+    evolucoes = EvolucaoProjetoSerializer(many=True, required=False)
+    evolucoesOrcamentarias = EvolucaoOrcamentariaSerializer(many=True, required=False)
+
     percentual_progresso = serializers.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -33,18 +36,6 @@ class SubmissaoRevisaoIniciativaSerializer(serializers.Serializer):
 class SubmissaoRevisaoIndicadorSerializer(serializers.Serializer):
     observacao = serializers.CharField(required=False, allow_blank=True)
     evolucao_indicador = EvolucaoIndicadorSerializer(many=True, required=False)
-
-    evolucoes = EvolucaoProjetoSerializer(
-        many=True,
-        required=False
-    )
-
-    evolucoesOrcamentarias = (
-        EvolucaoOrcamentariaSerializer(
-            many=True,
-            required=False
-        )
-    )
 
 class RevisaoEdicaoSerializer(serializers.ModelSerializer):
 
