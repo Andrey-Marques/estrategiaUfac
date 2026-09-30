@@ -1,8 +1,14 @@
 from rest_framework import serializers
 from decimal import Decimal
 from datetime import date, datetime
+
 from .models import RevisaoEdicao
-from projetosEstrategicos.serializers import (EvolucaoProjetoSerializer, EvolucaoOrcamentariaSerializer)
+
+from projetosEstrategicos.serializers import (
+    EvolucaoProjetoSerializer,
+    EvolucaoOrcamentariaSerializer
+)
+
 from iniciativasEstrategicas.serializers import AcaoRealizadaSerializer
 from indicadoresEstrategicos.serializers import EvolucaoIndicadorSerializer
 
@@ -17,8 +23,19 @@ class SubmissaoRevisaoProjetoSerializer(serializers.Serializer):
         required=False
     )
 
+    evolucoes = EvolucaoProjetoSerializer(
+        many=True,
+        required=False
+    )
+
+    evolucoesOrcamentarias = EvolucaoOrcamentariaSerializer(
+        many=True,
+        required=False
+    )
+
 
 class SubmissaoRevisaoIniciativaSerializer(serializers.Serializer):
+
     percentual_evolucao = serializers.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -26,26 +43,29 @@ class SubmissaoRevisaoIniciativaSerializer(serializers.Serializer):
         max_value=100,
         required=False
     )
-    observacao = serializers.CharField(required=False, allow_blank=True)
-    acoes = AcaoRealizadaSerializer(many=True, required=False)
 
+    observacao = serializers.CharField(
+        required=False,
+        allow_blank=True
+    )
 
-class SubmissaoRevisaoIndicadorSerializer(serializers.Serializer):
-    observacao = serializers.CharField(required=False, allow_blank=True)
-    evolucao_indicador = EvolucaoIndicadorSerializer(many=True, required=False)
-
-    evolucoes = EvolucaoProjetoSerializer(
+    acoes = AcaoRealizadaSerializer(
         many=True,
         required=False
     )
 
-    evolucoesOrcamentarias = (
-        EvolucaoOrcamentariaSerializer(
-            many=True,
-            required=False
-        )
+
+class SubmissaoRevisaoIndicadorSerializer(serializers.Serializer):
+
+    observacao = serializers.CharField(
+        required=False,
+        allow_blank=True
     )
 
+    evolucao_indicador = EvolucaoIndicadorSerializer(
+        many=True,
+        required=False
+    )
 class RevisaoEdicaoSerializer(serializers.ModelSerializer):
 
     criado_por_nome = serializers.SerializerMethodField()

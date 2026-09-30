@@ -3,11 +3,13 @@ from django.core.management.base import BaseCommand
 from unidades.models import Unidade
 from usuarios.models import Usuario
 from objetivosEstrategicos.models import ObjetivoEstrategico
+from projetosEstrategicos.models import ProjetoEstrategico
+from iniciativasEstrategicas.models import IniciativaEstrategica
+from indicadoresEstrategicos.models import IndicadorEstrategico, EvolucaoIndicador
 
 
 class Command(BaseCommand):
     help = 'Popula o banco com dados iniciais do Estratégia UFAC'
-
 
     def handle(self, *args, **options):
 
@@ -17,39 +19,47 @@ class Command(BaseCommand):
             )
         )
 
-
         # =====================================================
         # UNIDADES
         # =====================================================
 
-        proplan, _ = Unidade.objects.get_or_create(
-            sigla='PROPLAN',
-            defaults={
-                'nome': 'Pró-Reitoria de Planejamento'
-            }
-        )
+        unidades_dados = [
+            ('PROGRAD', 'Pró-Reitoria de Graduação'),
+            ('PROPEG', 'Pró-Reitoria de Pesquisa e Pós-Graduação'),
+            ('PROEX', 'Pró-Reitoria de Extensão e Cultura'),
+            ('PROAES', 'Pró-Reitoria de Assuntos Estudantis'),
+            ('PROINT', 'Pró-Reitoria de Inovação e Tecnologia'),
+            ('PROPLAN', 'Pró-Reitoria de Planejamento'),
+            ('PRAD', 'Pró-Reitoria de Administração'),
+            ('PRODGEP', 'Pró-Reitoria de Desenvolvimento e Gestão de Pessoas'),
+            ('ASCOM', 'Assessoria de Comunicação'),
+            ('ACI', 'Assessoria de Cooperação Interinstitucional'),
+            ('UEPMV', 'Unidade de Ensino e Pesquisa em Medicina Veterinária'),
+            ('UTAL', 'Unidade de Tecnologia de Alimentos'),
+            ('NIED', 'Núcleo de Interiorização e Educação a Distância'),
+            ('AC', 'Arquivo Central'),
+            ('EDUFAC', 'Editora Universitária'),
+            ('CAP', 'Colégio de Aplicação'),
+            ('BC', 'Biblioteca Central'),
+            ('PZ', 'Parque Zoobotânico'),
+            ('PREFCAM', 'Prefeitura do Campus'),
+        ]
 
-        proaes, _ = Unidade.objects.get_or_create(
-            sigla='PROAES',
-            defaults={
-                'nome': 'Pró-Reitoria de Assuntos Estudantis'
-            }
-        )
+        unidades = {}
 
-        proex, _ = Unidade.objects.get_or_create(
-            sigla='PROEX',
-            defaults={
-                'nome': 'Pró-Reitoria de Extensão e Cultura'
-            }
-        )
+        for sigla, nome in unidades_dados:
+            unidade, _ = Unidade.objects.update_or_create(
+                sigla=sigla,
+                defaults={
+                    'nome': nome
+                }
+            )
+            unidades[sigla] = unidade
 
-        prograd, _ = Unidade.objects.get_or_create(
-            sigla='PROGRAD',
-            defaults={
-                'nome': 'Pró-Reitoria de Graduação'
-            }
-        )
-
+        proplan = unidades['PROPLAN']
+        proaes = unidades['PROAES']
+        proex = unidades['PROEX']
+        prograd = unidades['PROGRAD']
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -57,163 +67,148 @@ class Command(BaseCommand):
             )
         )
 
-
         # =====================================================
-        # USUÁRIOS
+        # FUNÇÃO AUXILIAR PARA CRIAR USUÁRIOS
         # =====================================================
 
-        # -------------------------
-        # ADMIN - PROPLAN
-        # -------------------------
+        def criar_usuario(
+            username,
+            nome_completo,
+            cpf,
+            email,
+            papel,
+            unidade,
+            is_staff=False,
+            is_superuser=False
+        ):
+            usuario, criado = Usuario.objects.get_or_create(
+                username=username,
+                defaults={
+                    'nome_completo': nome_completo,
+                    'nome_social': '',
+                    'cpf': cpf,
+                    'email': email,
+                    'papel': papel,
+                    'unidade': unidade,
+                    'is_staff': is_staff,
+                    'is_superuser': is_superuser,
+                }
+            )
 
-        admin, criado = Usuario.objects.get_or_create(
-            username='admin',
-            defaults={
-                'nome_completo':
-                    'Administrador PROPLAN',
+            # Mantém os dados do seed atualizados mesmo se o usuário já existir.
+            campos_alterados = []
 
-                'nome_social':
-                    '',
-
-                'cpf':
-                    '000.000.000-01',
-
-                'email':
-                    'admin.proplan@ufac.br',
-
-                'papel':
-                    'ADMIN',
-
-                'unidade':
-                    proplan,
-
-                'is_staff':
-                    True,
-
-                'is_superuser':
-                    True
+            dados_atualizados = {
+                'nome_completo': nome_completo,
+                'nome_social': '',
+                'cpf': cpf,
+                'email': email,
+                'papel': papel,
+                'unidade': unidade,
+                'is_staff': is_staff,
+                'is_superuser': is_superuser,
             }
+
+            for campo, valor in dados_atualizados.items():
+                if getattr(usuario, campo) != valor:
+                    setattr(usuario, campo, valor)
+                    campos_alterados.append(campo)
+
+            if criado:
+                usuario.set_password('123456')
+                usuario.save()
+            elif campos_alterados:
+                usuario.save(update_fields=campos_alterados)
+
+            return usuario
+
+        # =====================================================
+        # USUÁRIOS JÁ EXISTENTES
+        # =====================================================
+
+        admin = criar_usuario(
+            username='admin',
+            nome_completo='Administrador PROPLAN',
+            cpf='000.000.000-01',
+            email='admin.proplan@ufac.br',
+            papel='ADMIN',
+            unidade=proplan,
+            is_staff=True,
+            is_superuser=True
         )
 
-        if criado:
-            admin.set_password('123456')
-            admin.save()
-
-
-        # -------------------------
-        # SERVIDOR - PROAES
-        # -------------------------
-
-        servidor_proaes, criado = (
-            Usuario.objects.get_or_create(
-                username='servidorproaes',
-                defaults={
-                    'nome_completo':
-                        'Raimundo Nonato',
-
-                    'nome_social':
-                        '',
-
-                    'cpf':
-                        '000.000.000-02',
-
-                    'email':
-                        'raimundo.proaes@ufac.br',
-
-                    'papel':
-                        'SERVIDOR',
-
-                    'unidade':
-                        proaes
-                }
-            )
+        servidor_proaes = criar_usuario(
+            username='servidorproaes',
+            nome_completo='Raimundo Nonato',
+            cpf='000.000.000-02',
+            email='raimundo.proaes@ufac.br',
+            papel='SERVIDOR',
+            unidade=proaes
         )
 
-        if criado:
-            servidor_proaes.set_password(
-                '123456'
-            )
-            servidor_proaes.save()
-
-
-        # -------------------------
-        # SERVIDOR - PROEX
-        # -------------------------
-
-        servidor_proex, criado = (
-            Usuario.objects.get_or_create(
-                username='servidorproex',
-                defaults={
-                    'nome_completo':
-                        'Maria da Silva',
-
-                    'nome_social':
-                        '',
-
-                    'cpf':
-                        '000.000.000-03',
-
-                    'email':
-                        'maria.proex@ufac.br',
-
-                    'papel':
-                        'SERVIDOR',
-
-                    'unidade':
-                        proex
-                }
-            )
+        servidor_proex = criar_usuario(
+            username='servidorproex',
+            nome_completo='Maria da Silva',
+            cpf='000.000.000-03',
+            email='maria.proex@ufac.br',
+            papel='SERVIDOR',
+            unidade=proex
         )
 
-        if criado:
-            servidor_proex.set_password(
-                '123456'
-            )
-            servidor_proex.save()
-
-
-        # -------------------------
-        # SERVIDOR - PROGRAD
-        # -------------------------
-
-        servidor_prograd, criado = (
-            Usuario.objects.get_or_create(
-                username='servidorprograd',
-                defaults={
-                    'nome_completo':
-                        'João da Costa',
-
-                    'nome_social':
-                        '',
-
-                    'cpf':
-                        '000.000.000-04',
-
-                    'email':
-                        'joao.prograd@ufac.br',
-
-                    'papel':
-                        'SERVIDOR',
-
-                    'unidade':
-                        prograd
-                }
-            )
+        servidor_prograd = criar_usuario(
+            username='servidorprograd',
+            nome_completo='João da Costa',
+            cpf='000.000.000-04',
+            email='joao.prograd@ufac.br',
+            papel='SERVIDOR',
+            unidade=prograd
         )
 
-        if criado:
-            servidor_prograd.set_password(
-                '123456'
-            )
-            servidor_prograd.save()
+        # =====================================================
+        # GESTORES DAS UNIDADES QUE JÁ POSSUEM USUÁRIOS
+        # =====================================================
 
+        gestor_proplan = criar_usuario(
+            username='gestorproplan',
+            nome_completo='Gestor PROPLAN',
+            cpf='000.000.000-05',
+            email='gestor.proplan@ufac.br',
+            papel='GESTOR',
+            unidade=proplan
+        )
+
+        gestor_proaes = criar_usuario(
+            username='gestorproaes',
+            nome_completo='Gestor PROAES',
+            cpf='000.000.000-06',
+            email='gestor.proaes@ufac.br',
+            papel='GESTOR',
+            unidade=proaes
+        )
+
+        gestor_proex = criar_usuario(
+            username='gestorproex',
+            nome_completo='Gestor PROEX',
+            cpf='000.000.000-07',
+            email='gestor.proex@ufac.br',
+            papel='GESTOR',
+            unidade=proex
+        )
+
+        gestor_prograd = criar_usuario(
+            username='gestorprograd',
+            nome_completo='Gestor PROGRAD',
+            cpf='000.000.000-08',
+            email='gestor.prograd@ufac.br',
+            papel='GESTOR',
+            unidade=prograd
+        )
 
         self.stdout.write(
             self.style.SUCCESS(
-                '✓ Usuários criados'
+                '✓ Usuários e gestores criados'
             )
         )
-
 
         # =====================================================
         # OBJETIVOS ESTRATÉGICOS
@@ -332,17 +327,18 @@ class Command(BaseCommand):
             },
         ]
 
-
         for dados in objetivos:
-
             ObjetivoEstrategico.objects.update_or_create(
                 codigo=dados['codigo'],
                 defaults={
-                    'descricao':
-                        dados['descricao']
+                    'descricao': dados['descricao']
                 }
             )
 
+        objetivo1 = ObjetivoEstrategico.objects.get(codigo='OE1')
+        objetivo3 = ObjetivoEstrategico.objects.get(codigo='OE3')
+        objetivo8 = ObjetivoEstrategico.objects.get(codigo='OE8')
+        objetivo12 = ObjetivoEstrategico.objects.get(codigo='OE12')
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -350,6 +346,307 @@ class Command(BaseCommand):
             )
         )
 
+        # =====================================================
+        # PROJETOS ESTRATÉGICOS
+        # 4 projetos para cada unidade que já possui servidor
+        # =====================================================
+
+        projetos_dados = {
+            'PROPLAN': [
+                (
+                    'Modernização da Gestão Institucional',
+                    'Modernização dos processos administrativos e de planejamento.',
+                    '24 meses', 150000.00, 45.00,
+                    'Digitalização de processos e revisão dos fluxos institucionais.',
+                    objetivo12
+                ),
+                (
+                    'Gestão Integrada do Planejamento',
+                    'Integração das informações de planejamento das unidades.',
+                    '18 meses', 90000.00, 35.00,
+                    'Implantar rotinas integradas de acompanhamento estratégico.',
+                    objetivo12
+                ),
+                (
+                    'Painel Estratégico Institucional',
+                    'Desenvolvimento de mecanismos para acompanhamento da estratégia.',
+                    '12 meses', 70000.00, 60.00,
+                    'Consolidar indicadores e informações em painéis de gestão.',
+                    objetivo12
+                ),
+                (
+                    'Aprimoramento da Governança',
+                    'Fortalecimento dos processos de governança institucional.',
+                    '20 meses', 110000.00, 25.00,
+                    'Revisar processos e estabelecer mecanismos de monitoramento.',
+                    objetivo12
+                ),
+            ],
+            'PROAES': [
+                (
+                    'Programa de Permanência Estudantil',
+                    'Fortalecimento das políticas de permanência dos estudantes.',
+                    '18 meses', 200000.00, 60.00,
+                    'Ampliar ações de assistência e acompanhamento estudantil.',
+                    objetivo8
+                ),
+                (
+                    'Acompanhamento Acadêmico Estudantil',
+                    'Acompanhamento dos estudantes atendidos pela assistência estudantil.',
+                    '12 meses', 80000.00, 40.00,
+                    'Criar rotinas de acompanhamento e atendimento aos estudantes.',
+                    objetivo8
+                ),
+                (
+                    'Inclusão e Acessibilidade Estudantil',
+                    'Ampliação das ações de inclusão e acessibilidade.',
+                    '24 meses', 130000.00, 30.00,
+                    'Desenvolver ações de inclusão e apoio acadêmico.',
+                    objetivo8
+                ),
+                (
+                    'Fortalecimento da Assistência Estudantil',
+                    'Melhoria dos serviços oferecidos aos estudantes.',
+                    '16 meses', 160000.00, 55.00,
+                    'Reestruturar serviços e ampliar ações de assistência.',
+                    objetivo8
+                ),
+            ],
+            'PROEX': [
+                (
+                    'UFAC e Comunidade',
+                    'Ampliação da integração entre universidade e comunidade.',
+                    '12 meses', 80000.00, 35.00,
+                    'Realizar oficinas e atividades abertas à comunidade.',
+                    objetivo3
+                ),
+                (
+                    'Extensão nos Municípios',
+                    'Ampliação das ações extensionistas nos municípios.',
+                    '18 meses', 120000.00, 50.00,
+                    'Promover atividades de extensão em diferentes municípios.',
+                    objetivo3
+                ),
+                (
+                    'Cultura e Universidade',
+                    'Fortalecimento das ações culturais promovidas pela UFAC.',
+                    '12 meses', 60000.00, 70.00,
+                    'Realizar eventos e atividades artístico-culturais.',
+                    objetivo3
+                ),
+                (
+                    'Programa de Integração Social',
+                    'Desenvolvimento de projetos de impacto social.',
+                    '20 meses', 100000.00, 25.00,
+                    'Executar projetos em parceria com comunidades locais.',
+                    objetivo3
+                ),
+            ],
+            'PROGRAD': [
+                (
+                    'Fortalecimento da Graduação',
+                    'Melhoria da qualidade dos cursos de graduação.',
+                    '24 meses', 120000.00, 50.00,
+                    'Acompanhar cursos e desenvolver ações de melhoria acadêmica.',
+                    objetivo1
+                ),
+                (
+                    'Programa de Formação Acadêmica',
+                    'Aprimoramento da formação dos estudantes de graduação.',
+                    '18 meses', 95000.00, 40.00,
+                    'Promover atividades complementares e apoio à formação.',
+                    objetivo1
+                ),
+                (
+                    'Modernização dos Cursos de Graduação',
+                    'Atualização de processos e práticas acadêmicas.',
+                    '24 meses', 180000.00, 30.00,
+                    'Revisar processos acadêmicos e apoiar atualização dos cursos.',
+                    objetivo1
+                ),
+                (
+                    'Programa de Sucesso Acadêmico',
+                    'Desenvolvimento de ações voltadas ao desempenho acadêmico.',
+                    '16 meses', 85000.00, 65.00,
+                    'Monitorar desempenho e implementar ações de apoio acadêmico.',
+                    objetivo1
+                ),
+            ],
+        }
+
+        responsaveis = {
+            'PROPLAN': gestor_proplan,
+            'PROAES': gestor_proaes,
+            'PROEX': gestor_proex,
+            'PROGRAD': gestor_prograd,
+        }
+
+        projetos_criados = {}
+
+        for sigla, dados_unidade in projetos_dados.items():
+            projetos_criados[sigla] = []
+
+            for (
+                nome,
+                descricao,
+                tempo_estimado,
+                custo_estimado,
+                percentual,
+                acoes,
+                objetivo
+            ) in dados_unidade:
+
+                projeto, _ = ProjetoEstrategico.objects.update_or_create(
+                    nome=nome,
+                    defaults={
+                        'descricao': descricao,
+                        'tempo_estimado': tempo_estimado,
+                        'custo_estimado': custo_estimado,
+                        'percentual_progresso': percentual,
+                        'status': 'APROVADO',
+                        'acoes_previstas': acoes,
+                        'unidade': unidades[sigla],
+                        'responsavel': responsaveis[sigla],
+                    }
+                )
+
+                projeto.objetivos.add(objetivo)
+                projetos_criados[sigla].append(projeto)
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                '✓ 16 projetos estratégicos criados'
+            )
+        )
+
+        # =====================================================
+        # INICIATIVAS ESTRATÉGICAS
+        # 4 iniciativas para cada unidade que já possui servidor
+        # =====================================================
+
+        iniciativas_dados = {
+            'PROPLAN': [
+                ('Digitalização dos Processos de Planejamento', 40, objetivo12),
+                ('Integração dos Planos Institucionais', 55, objetivo12),
+                ('Monitoramento da Estratégia', 65, objetivo12),
+                ('Revisão de Processos de Governança', 30, objetivo12),
+            ],
+            'PROAES': [
+                ('Acompanhamento da Permanência Estudantil', 55, objetivo8),
+                ('Programa de Apoio ao Estudante', 45, objetivo8),
+                ('Ações de Inclusão Acadêmica', 35, objetivo8),
+                ('Melhoria dos Serviços Estudantis', 60, objetivo8),
+            ],
+            'PROEX': [
+                ('Programa Universidade Aberta', 30, objetivo3),
+                ('Extensão Itinerante', 50, objetivo3),
+                ('Agenda Cultural UFAC', 70, objetivo3),
+                ('Ações Comunitárias Integradas', 40, objetivo3),
+            ],
+            'PROGRAD': [
+                ('Programa de Melhoria dos Cursos', 65, objetivo1),
+                ('Acompanhamento da Formação Acadêmica', 50, objetivo1),
+                ('Atualização das Práticas de Ensino', 35, objetivo1),
+                ('Apoio ao Desempenho Acadêmico', 60, objetivo1),
+            ],
+        }
+
+        for sigla, dados_unidade in iniciativas_dados.items():
+            for indice, (nome, percentual, objetivo) in enumerate(dados_unidade):
+                iniciativa, _ = IniciativaEstrategica.objects.update_or_create(
+                    nome=nome,
+                    defaults={
+                        'observacao':
+                            'Iniciativa criada para dados de teste do '
+                            'sistema Estratégia UFAC.',
+                        'percentual_evolucao': percentual,
+                        'status': 'APROVADO',
+                        'unidade': unidades[sigla],
+                        'responsavel': responsaveis[sigla],
+                        'projeto': projetos_criados[sigla][indice],
+                    }
+                )
+
+                iniciativa.objetivos.add(objetivo)
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                '✓ 16 iniciativas estratégicas criadas'
+            )
+        )
+
+        # =====================================================
+        # INDICADORES ESTRATÉGICOS
+        # 4 indicadores para cada unidade que já possui servidor
+        # =====================================================
+
+        indicadores_dados = {
+            'PROPLAN': [
+                ('Percentual de Processos Digitalizados', '%', objetivo12),
+                ('Índice de Execução do Planejamento', '%', objetivo12),
+                ('Índice de Acompanhamento Estratégico', '%', objetivo12),
+                ('Índice de Processos Revisados', '%', objetivo12),
+            ],
+            'PROAES': [
+                ('Taxa de Permanência Estudantil', '%', objetivo8),
+                ('Taxa de Atendimento Estudantil', '%', objetivo8),
+                ('Índice de Participação em Ações de Inclusão', '%', objetivo8),
+                ('Índice de Satisfação com a Assistência', '%', objetivo8),
+            ],
+            'PROEX': [
+                ('Participação em Ações de Extensão', 'Participantes', objetivo3),
+                ('Quantidade de Ações Extensionistas', 'Ações', objetivo3),
+                ('Participação em Atividades Culturais', 'Participantes', objetivo3),
+                ('Projetos com Participação Comunitária', 'Projetos', objetivo3),
+            ],
+            'PROGRAD': [
+                ('Taxa de Conclusão dos Cursos', '%', objetivo1),
+                ('Taxa de Sucesso Acadêmico', '%', objetivo1),
+                ('Índice de Cursos Acompanhados', '%', objetivo1),
+                ('Índice de Participação em Ações Acadêmicas', '%', objetivo1),
+            ],
+        }
+
+        for sigla, dados_unidade in indicadores_dados.items():
+            for indice, (nome, unidade_medida, objetivo) in enumerate(dados_unidade):
+
+                indicador, _ = IndicadorEstrategico.objects.update_or_create(
+                    nome=nome,
+                    defaults={
+                        'polaridade': 'POSITIVA',
+                        'finalidade':
+                            'Acompanhar o desempenho das ações estratégicas '
+                            'da unidade.',
+                        'status': 'APROVADO',
+                        'metodo_calculo':
+                            'Relação entre o resultado alcançado e a meta '
+                            'prevista no período.',
+                        'formula':
+                            r'\frac{Resultado\ Alcancado}{Meta\ Prevista}'
+                            r'\times 100',
+                        'unidade': unidades[sigla],
+                        'objetivo': objetivo,
+                        'responsavel': responsaveis[sigla],
+                        'observacao':
+                            'Indicador criado para dados de teste.',
+                        'unidade_medida': unidade_medida,
+                    }
+                )
+
+                EvolucaoIndicador.objects.update_or_create(
+                    indicador=indicador,
+                    ano='2026',
+                    defaults={
+                        'meta_prevista': str(70 + (indice * 5)),
+                        'meta_alcancada': str(50 + (indice * 5)),
+                    }
+                )
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                '✓ 16 indicadores estratégicos criados'
+            )
+        )
 
         # =====================================================
         # RESUMO
@@ -361,75 +658,41 @@ class Command(BaseCommand):
                 '======================================'
             )
         )
-
         self.stdout.write(
             self.style.SUCCESS(
                 'SEED EXECUTADO COM SUCESSO'
             )
         )
-
         self.stdout.write(
             self.style.SUCCESS(
                 '======================================'
             )
         )
-
         self.stdout.write('')
 
         self.stdout.write(
-            'Usuários disponíveis:'
+            'Senha padrão dos usuários criados: 123456'
         )
-
-        self.stdout.write(
-            'ADMIN PROPLAN'
-        )
-
-        self.stdout.write(
-            '  usuário: admin'
-        )
-
-        self.stdout.write(
-            '  senha:   123456'
-        )
-
         self.stdout.write('')
 
-        self.stdout.write(
-            'SERVIDOR PROAES'
-        )
-
-        self.stdout.write(
-            '  usuário: servidorproaes'
-        )
-
-        self.stdout.write(
-            '  senha:   123456'
-        )
+        self.stdout.write('ADMIN PROPLAN')
+        self.stdout.write('  usuário: admin')
 
         self.stdout.write('')
-
-        self.stdout.write(
-            'SERVIDOR PROEX'
-        )
-
-        self.stdout.write(
-            '  usuário: servidorproex'
-        )
-
-        self.stdout.write(
-            '  senha:   123456'
-        )
+        self.stdout.write('SERVIDOR PROAES')
+        self.stdout.write('  usuário: servidorproaes')
 
         self.stdout.write('')
+        self.stdout.write('SERVIDOR PROEX')
+        self.stdout.write('  usuário: servidorproex')
 
-        self.stdout.write(
-            'SERVIDOR PROGRAD'
-        )
+        self.stdout.write('')
+        self.stdout.write('SERVIDOR PROGRAD')
+        self.stdout.write('  usuário: servidorprograd')
 
-        self.stdout.write(
-            '  usuário: servidorprograd'
-        )
-
-        self.stdout.write(
-            '  senha:   123456'
-        )
+        self.stdout.write('')
+        self.stdout.write('GESTORES')
+        self.stdout.write('  gestorproplan')
+        self.stdout.write('  gestorproaes')
+        self.stdout.write('  gestorproex')
+        self.stdout.write('  gestorprograd')
