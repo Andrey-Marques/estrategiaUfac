@@ -1,10 +1,13 @@
+from datetime import date
+from decimal import Decimal
+
 from django.core.management.base import BaseCommand
 
 from unidades.models import Unidade
 from usuarios.models import Usuario
 from objetivosEstrategicos.models import ObjetivoEstrategico
-from projetosEstrategicos.models import ProjetoEstrategico
-from iniciativasEstrategicas.models import IniciativaEstrategica
+from projetosEstrategicos.models import ProjetoEstrategico, EvolucaoProjeto
+from iniciativasEstrategicas.models import IniciativaEstrategica, AcaoRealizada
 from indicadoresEstrategicos.models import IndicadorEstrategico, EvolucaoIndicador
 
 
@@ -633,7 +636,7 @@ class Command(BaseCommand):
                     }
                 )
 
-                EvolucaoIndicador.objects.update_or_create(
+                EvolucaoIndicador.objects.get_or_create(
                     indicador=indicador,
                     ano='2026',
                     defaults={
@@ -647,6 +650,100 @@ class Command(BaseCommand):
                 '✓ 16 indicadores estratégicos criados'
             )
         )
+
+        # =====================================================
+        # COMPLEMENTAR REGISTROS SEM HISTÓRICO
+        # Dados fictícios para demonstração. Preserva os históricos existentes.
+        # Também contempla registros que já estavam no banco antes deste seed.
+        # =====================================================
+
+        realizacoes_adicionadas = 0
+        proximos_passos_adicionados = 0
+        acoes_adicionadas = 0
+        evolucoes_adicionadas = 0
+
+        for projeto in ProjetoEstrategico.objects.all().iterator():
+            if not projeto.evolucoes.filter(tipo='REALIZACAO').exists():
+                for descricao in (
+                    f'Levantamento das necessidades e definição da equipe do projeto "{projeto.nome}" concluídos.',
+                    f'Plano de execução do projeto "{projeto.nome}" elaborado e primeira etapa iniciada.',
+                ):
+                    EvolucaoProjeto.objects.get_or_create(
+                        fk_projeto=projeto,
+                        tipo='REALIZACAO',
+                        descricao=descricao,
+                    )
+                    realizacoes_adicionadas += 1
+
+            if not projeto.evolucoes.filter(tipo='PROXIMO_PASSO').exists():
+                for descricao in (
+                    f'Executar a próxima etapa do projeto "{projeto.nome}" conforme o plano de trabalho.',
+                    f'Avaliar os resultados do projeto "{projeto.nome}" com a unidade responsável e atualizar o acompanhamento.',
+                ):
+                    EvolucaoProjeto.objects.get_or_create(
+                        fk_projeto=projeto,
+                        tipo='PROXIMO_PASSO',
+                        descricao=descricao,
+                    )
+                    proximos_passos_adicionados += 1
+
+        for iniciativa in IniciativaEstrategica.objects.all().iterator():
+            if iniciativa.acoes_realizadas.exists():
+                continue
+
+            acoes_exemplo = (
+                ('Levantamento de necessidades', date(2026, 2, 2), date(2026, 3, 31), Decimal('1500.00'), 'CONCLUIDA'),
+                ('Execução das atividades previstas', date(2026, 4, 1), date(2026, 10, 30), Decimal('5000.00'), 'ANDAMENTO'),
+                ('Avaliação dos resultados', date(2026, 11, 2), date(2026, 12, 18), Decimal('1000.00'), 'PLANEJAMENTO'),
+            )
+            for nome, inicio, fim, custo, status in acoes_exemplo:
+                AcaoRealizada.objects.get_or_create(
+                    fk_iniciativa=iniciativa,
+                    nome=nome,
+                    defaults={
+                        'prazo_inicio': inicio,
+                        'prazo_fim': fim,
+                        'custo': custo,
+                        'status': status,
+                    },
+                )
+                acoes_adicionadas += 1
+
+        for indicador in IndicadorEstrategico.objects.all().iterator():
+            if indicador.evolucao_indicador.exists():
+                continue
+
+            # Metas fictícias na unidade de medida do indicador.
+            # Percentuais ficam entre 0 e 100; contagens usam valores absolutos.
+            percentual = indicador.unidade_medida.strip().lower() in (
+                '%', 'percentual', 'porcentagem',
+            )
+            negativa = indicador.polaridade.strip().upper() == 'NEGATIVA'
+            if percentual:
+                historico = (('2025', '40', '45'), ('2026', '30', '35')) if negativa else (
+                    ('2025', '70', '55'), ('2026', '80', '65'),
+                )
+            else:
+                historico = (('2025', '100', '120'), ('2026', '80', '95')) if negativa else (
+                    ('2025', '100', '80'), ('2026', '120', '100'),
+                )
+
+            for ano, prevista, alcancada in historico:
+                EvolucaoIndicador.objects.get_or_create(
+                    indicador=indicador,
+                    ano=ano,
+                    defaults={
+                        'meta_prevista': prevista,
+                        'meta_alcancada': alcancada,
+                    },
+                )
+                evolucoes_adicionadas += 1
+
+        self.stdout.write(self.style.SUCCESS(
+            f'✓ Históricos complementados: {realizacoes_adicionadas} realizações, '
+            f'{proximos_passos_adicionados} próximos passos, '
+            f'{acoes_adicionadas} ações e {evolucoes_adicionadas} evoluções de indicadores'
+        ))
 
         # =====================================================
         # RESUMO
