@@ -36,7 +36,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                     'O responsável deve pertencer à unidade selecionada.'
                 })
 
-            serializer.save(status='APROVADO')
+            serializer.save(status='RASCUNHO' if self.request.data.get('status') == 'RASCUNHO' else 'APROVADO')
             return
 
         responsavel_selecionado = serializer.validated_data.get(
@@ -84,7 +84,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
         # PROJETO REJEITADO
         # O servidor pode corrigir o formulário completo
         # --------------------------------------------------
-        if projeto.status == 'REJEITADO':
+        if projeto.status in ('REJEITADO', 'RASCUNHO'):
 
             campos_permitidos = {
                 'nome',
@@ -98,6 +98,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                 'objetivos',
                 'evolucoes',
                 'evolucoesOrcamentarias',
+                'status',
             }
 
         # --------------------------------------------------
@@ -171,18 +172,12 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
             serializer.save()
             return
 
-        if usuario.papel == 'GESTOR':
+        responsavel = serializer.validated_data.get('responsavel', projeto.responsavel)
+        if responsavel is None or responsavel.unidade_id != usuario.unidade_id:
+            raise ValidationError({'responsavel': 'O responsável deve pertencer à sua unidade.'})
 
-            responsavel = serializer.validated_data.get('responsavel',  projeto.responsavel)
-
-            if responsavel is None:
-                raise ValidationError({'responsavel': 'Selecione um responsável pelo projeto.'})
-
-            if responsavel.unidade_id != usuario.unidade_id:
-                raise ValidationError({'responsavel': 'O responsável deve pertencer à sua unidade.'})
-
+        if usuario.papel == 'GESTOR' and set(self.request.data.keys()) == {'responsavel'}:
             serializer.save(unidade=usuario.unidade, responsavel=responsavel)
-
             return
         
         if projeto.status == 'APROVADO':
@@ -194,7 +189,13 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                     'de revisão.'
             })
 
-        serializer.save(status='EM_ESPERA', observacao_analise='', data_analise=None, analisado_por=None)
+        novo_status = 'EM_ESPERA'
+        if projeto.status == 'RASCUNHO' and self.request.data.get('status', 'RASCUNHO') == 'RASCUNHO':
+            novo_status = 'RASCUNHO'
+        serializer.save(
+            unidade=usuario.unidade, responsavel=responsavel, status=novo_status,
+            observacao_analise='', data_analise=None, analisado_por=None,
+        )
         
     
     @action(detail=True, methods=['post'])

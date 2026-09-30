@@ -34,7 +34,7 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
                     'O responsável deve pertencer à unidade selecionada.'
                 })
 
-            serializer.save(status='APROVADO')
+            serializer.save(status='RASCUNHO' if self.request.data.get('status') == 'RASCUNHO' else 'APROVADO')
             return
 
         responsavel = serializer.validated_data.get('responsavel')
@@ -81,7 +81,7 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if indicador.status == 'REJEITADO':
+        if indicador.status in ('REJEITADO', 'RASCUNHO'):
             campos_permitidos = {
                 'nome',
                 'responsavel',
@@ -159,9 +159,13 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
             serializer.save(unidade=usuario.unidade)
             return
 
+        indicador = self.get_object()
+        novo_status = 'EM_ESPERA'
+        if indicador.status == 'RASCUNHO' and self.request.data.get('status', 'RASCUNHO') == 'RASCUNHO':
+            novo_status = 'RASCUNHO'
         serializer.save(
             unidade=usuario.unidade,
-            status='EM_ESPERA',
+            status=novo_status,
             observacao_analise='',
         )
 

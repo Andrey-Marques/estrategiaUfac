@@ -53,6 +53,17 @@ class IndicadorEstrategicoSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'data_envio',
         ]
+        extra_kwargs = {'formula': {'required': False, 'allow_blank': True}}
+
+    def validate(self, attrs):
+        if attrs.get('status') == 'REJEITADO':
+            observacao = (attrs.get('observacao_analise') or '').strip()
+            if not observacao:
+                raise serializers.ValidationError({
+                    'observacao_analise': 'Informe o motivo da rejeição.'
+                })
+            attrs['observacao_analise'] = observacao
+        return attrs
 
     def get_responsavel_nome(self, obj):
         if obj.responsavel is None:
