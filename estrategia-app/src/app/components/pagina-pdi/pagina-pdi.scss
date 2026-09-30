@@ -73,14 +73,14 @@ li{
     text-decoration: none;
     color: $cor-azul-padrao;
 
-    
+
 
 
     &:hover {
-      
+
       border-radius: 100%;
       background-color: $cor-hover-padrao;
-      
+
     }
   }
 
@@ -144,7 +144,7 @@ span{
   padding-top: 5px;
 
   border-right: 1px solid #dddddd;
-  min-height: 165px;  
+  min-height: 165px;
 }
 
 
@@ -205,8 +205,13 @@ span{
 
 .pdi-conteudo {
   padding-left: 28px;
-
+  display: flex;
+  flex-direction: column;
   max-width: 820px;
+  img{
+    width: 50%;
+    align-self: center;
+  }
 }
 
 
@@ -262,7 +267,7 @@ span{
   font-family: "Inter", Arial, sans-serif;
 
   background-color: $branco;
-  
+
   //isso vai se repetir em praticamente toda pag da área pública, depois tem que ahcar um jeito de deixar numa estilização global. Solução temporária.
   padding-top: var(--altura-header);
 }
