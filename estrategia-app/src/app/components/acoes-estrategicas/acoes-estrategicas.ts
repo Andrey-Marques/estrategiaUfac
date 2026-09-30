@@ -5,7 +5,12 @@ import { HeaderPublico } from '../utils/header-publico/header-publico';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Rodape } from '../utils/rodape/rodape';
-import {AcaoEstrategicaPublica, AcoesEstrategicasPublicas, AcoesEstrategicasService, TipoAcaoEstrategica,} from '../../service/acoes-estrategicas.service';
+import {
+  AcaoEstrategicaPublica,
+  AcoesEstrategicasPublicas,
+  AcoesEstrategicasService,
+  TipoAcaoEstrategica,
+} from '../../service/acoes-estrategicas.service';
 
 interface AbaEstrategica {
   id: TipoAcaoEstrategica;
@@ -37,6 +42,7 @@ export class AcoesEstrategicas implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly chaveAba = 'estrategia-ufac:acoes:aba';
   readonly unidadeDoPainel = signal<number | null>(null);
 
   readonly abas: AbaEstrategica[] = [
@@ -46,7 +52,11 @@ export class AcoesEstrategicas implements OnInit {
   ];
 
   readonly abaAtiva = signal<TipoAcaoEstrategica>('indicadores');
-  readonly dados = signal<AcoesEstrategicasPublicas>({ registros: [], unidades: [], objetivos: [] });
+  readonly dados = signal<AcoesEstrategicasPublicas>({
+    registros: [],
+    unidades: [],
+    objetivos: [],
+  });
   readonly carregando = signal(true);
   readonly erro = signal('');
   readonly pesquisa = signal('');
@@ -80,21 +90,25 @@ export class AcoesEstrategicas implements OnInit {
   readonly registrosFiltrados = computed(() => {
     const filtros = this.filtrosAplicados();
     const pesquisa = this.normalizar(filtros.pesquisa);
-    const registros = this.dados().registros.filter(registro =>
-      registro.tipo === this.abaAtiva()
-      && (this.unidadeDoPainel() === null || registro.unidade_id === this.unidadeDoPainel())
-      && (!pesquisa || this.normalizar(
-        `${registro.titulo} ${registro.objetivos.map(objetivo => objetivo.codigo).join(' ')}`
-      ).includes(pesquisa))
-      && (!filtros.unidades.length || filtros.unidades.includes(registro.unidade_id))
-      && (!filtros.objetivos.length || registro.objetivos.some(
-        objetivo => filtros.objetivos.includes(objetivo.id)
-      ))
+    const registros = this.dados().registros.filter(
+      (registro) =>
+        registro.tipo === this.abaAtiva() &&
+        (this.unidadeDoPainel() === null || registro.unidade_id === this.unidadeDoPainel()) &&
+        (!pesquisa ||
+          this.normalizar(
+            `${registro.titulo} ${registro.objetivos.map((objetivo) => objetivo.codigo).join(' ')}`,
+          ).includes(pesquisa)) &&
+        (!filtros.unidades.length || filtros.unidades.includes(registro.unidade_id)) &&
+        (!filtros.objetivos.length ||
+          registro.objetivos.some((objetivo) => filtros.objetivos.includes(objetivo.id))),
     );
 
     const ordem = this.ordenacao();
     return registros.sort((a, b) => {
-      const titulo = a.titulo.localeCompare(b.titulo, 'pt-BR', { sensitivity: 'base', numeric: true });
+      const titulo = a.titulo.localeCompare(b.titulo, 'pt-BR', {
+        sensitivity: 'base',
+        numeric: true,
+      });
       if (ordem === 'titulo-az') return titulo || a.id - b.id;
       if (ordem === 'titulo-za') return -titulo || a.id - b.id;
       const dataA = this.dataRegistro(a);
@@ -106,19 +120,30 @@ export class AcoesEstrategicas implements OnInit {
     });
   });
 
-  readonly totalPaginas = computed(() => Math.max(
-    1, Math.ceil(this.registrosFiltrados().length / this.tamanhoPagina)
-  ));
+  readonly totalPaginas = computed(() =>
+    Math.max(1, Math.ceil(this.registrosFiltrados().length / this.tamanhoPagina)),
+  );
   readonly registrosPagina = computed(() => {
     const inicio = (this.paginaAtual() - 1) * this.tamanhoPagina;
     return this.registrosFiltrados().slice(inicio, inicio + this.tamanhoPagina);
   });
 
   ngOnInit(): void {
-    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const unidade = Number(params.get('unidade'));
-      this.unidadeDoPainel.set(Number.isSafeInteger(unidade) && unidade > 0 ? unidade : null);
-      this.limparFiltros();
+      const unidadeAtual = Number.isSafeInteger(unidade) && unidade > 0 ? unidade : null;
+      if (this.unidadeDoPainel() !== unidadeAtual) {
+        this.unidadeDoPainel.set(unidadeAtual);
+        this.limparFiltros();
+      }
+
+      const aba = params.get('aba');
+      const abaRestaurada = this.abaValida(aba) ? aba : this.lerAbaSalva();
+      if (this.abaAtiva() !== abaRestaurada) {
+        this.abaAtiva.set(abaRestaurada);
+        this.paginaAtual.set(1);
+      }
+      this.salvarAba(abaRestaurada);
     });
     this.carregar();
   }
@@ -126,30 +151,61 @@ export class AcoesEstrategicas implements OnInit {
   carregar(): void {
     this.carregando.set(true);
     this.erro.set('');
-    this.service.listar().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: dados => {
-        this.dados.set(dados);
-        this.paginaAtual.set(1);
-        this.carregando.set(false);
-      },
-      error: () => {
-        this.erro.set('Não foi possível carregar as ações estratégicas. Tente novamente.');
-        this.carregando.set(false);
-      },
-    });
+    this.service
+      .listar()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (dados) => {
+          this.dados.set(dados);
+          this.paginaAtual.set(1);
+          this.carregando.set(false);
+        },
+        error: () => {
+          this.erro.set('Não foi possível carregar as ações estratégicas. Tente novamente.');
+          this.carregando.set(false);
+        },
+      });
   }
 
   selecionarAba(id: TipoAcaoEstrategica): void {
     this.abaAtiva.set(id);
     this.paginaAtual.set(1);
+    this.salvarAba(id);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { aba: id },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  private abaValida(valor: string | null): valor is TipoAcaoEstrategica {
+    return this.abas.some((aba) => aba.id === valor);
+  }
+
+  private lerAbaSalva(): TipoAcaoEstrategica {
+    try {
+      const aba = sessionStorage.getItem(this.chaveAba);
+      return this.abaValida(aba) ? aba : 'indicadores';
+    } catch {
+      return 'indicadores';
+    }
+  }
+
+  private salvarAba(aba: TipoAcaoEstrategica): void {
+    try {
+      sessionStorage.setItem(this.chaveAba, aba);
+    } catch {
+      // A URL mantém a seleção mesmo quando o armazenamento está indisponível.
+    }
   }
 
   alternarUnidade(id: number): void {
-    this.unidadesSelecionadas.update(ids => this.alternarSelecao(ids, id));
+    this.unidadesSelecionadas.update((ids) => this.alternarSelecao(ids, id));
   }
 
   alternarObjetivo(id: number): void {
-    this.objetivosSelecionados.update(ids => this.alternarSelecao(ids, id));
+    this.objetivosSelecionados.update((ids) => this.alternarSelecao(ids, id));
   }
 
   filtrar(): void {
@@ -164,16 +220,18 @@ export class AcoesEstrategicas implements OnInit {
   removerFiltro(filtro: FiltroAtivo): void {
     if (filtro.tipo === 'pesquisa') {
       this.pesquisa.set('');
-      this.filtrosAplicados.update(atual => ({ ...atual, pesquisa: '' }));
+      this.filtrosAplicados.update((atual) => ({ ...atual, pesquisa: '' }));
     } else if (filtro.tipo === 'unidade') {
-      this.unidadesSelecionadas.update(ids => ids.filter(id => id !== filtro.id));
-      this.filtrosAplicados.update(atual => ({
-        ...atual, unidades: atual.unidades.filter(id => id !== filtro.id),
+      this.unidadesSelecionadas.update((ids) => ids.filter((id) => id !== filtro.id));
+      this.filtrosAplicados.update((atual) => ({
+        ...atual,
+        unidades: atual.unidades.filter((id) => id !== filtro.id),
       }));
     } else {
-      this.objetivosSelecionados.update(ids => ids.filter(id => id !== filtro.id));
-      this.filtrosAplicados.update(atual => ({
-        ...atual, objetivos: atual.objetivos.filter(id => id !== filtro.id),
+      this.objetivosSelecionados.update((ids) => ids.filter((id) => id !== filtro.id));
+      this.filtrosAplicados.update((atual) => ({
+        ...atual,
+        objetivos: atual.objetivos.filter((id) => id !== filtro.id),
       }));
     }
     this.paginaAtual.set(1);
@@ -196,7 +254,12 @@ export class AcoesEstrategicas implements OnInit {
   }
 
   codigos(registro: AcaoEstrategicaPublica): string {
-    return registro.objetivos.slice(0, 2).map(objetivo => objetivo.codigo).join(', ') || '—';
+    return (
+      registro.objetivos
+        .slice(0, 2)
+        .map((objetivo) => objetivo.codigo)
+        .join(', ') || '—'
+    );
   }
 
   dataRegistro(registro: AcaoEstrategicaPublica): string | null {
@@ -208,11 +271,14 @@ export class AcoesEstrategicas implements OnInit {
   }
 
   private alternarSelecao(ids: number[], id: number): number[] {
-    return ids.includes(id) ? ids.filter(valor => valor !== id) : [...ids, id];
+    return ids.includes(id) ? ids.filter((valor) => valor !== id) : [...ids, id];
   }
 
   private normalizar(texto: string): string {
-    return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR');
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('pt-BR');
   }
   abrirRegistro(registro: AcaoEstrategicaPublica): void {
     const rotas = {
@@ -220,6 +286,7 @@ export class AcoesEstrategicas implements OnInit {
       indicadores: '/visualizacao-indicador',
       iniciativas: '/visualizacao-iniciativa',
     };
+    this.salvarAba(this.abaAtiva());
     this.router.navigate([rotas[registro.tipo], registro.id]);
   }
 }
