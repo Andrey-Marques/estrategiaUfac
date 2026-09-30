@@ -23,7 +23,7 @@ export class PainelUnidades {
   }
 
   buscarUnidade(): void{
-    this.unidadeService.get().subscribe({
+    this.unidadeService.getPublicas().subscribe({
       next: (dados) => this.unidades.set(dados),
       error: (erro) => {console.log("erro ao buscar unidade", erro)}
     })
