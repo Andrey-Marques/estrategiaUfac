@@ -37,7 +37,7 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
                     'O responsável deve pertencer à unidade selecionada.'
                 })
 
-            serializer.save(status='APROVADO')
+            serializer.save(status='RASCUNHO' if self.request.data.get('status') == 'RASCUNHO' else 'APROVADO')
             return
         if usuario.papel == 'GESTOR':
 
@@ -111,7 +111,7 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if iniciativa.status == 'REJEITADO':
+        if iniciativa.status in ('REJEITADO', 'RASCUNHO'):
             campos_permitidos = {
                 'nome',
                 'responsavel',
@@ -120,7 +120,8 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
                 'projeto',
                 'acoes',
                 'percentual_evolucao',
-                'observacao'
+                'observacao',
+                'status',
             }
         else:
             campos_permitidos = {
@@ -160,15 +161,22 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
         if usuario.papel == 'ADMIN':
             serializer.save()
             return
-        if usuario.papel == 'GESTOR':
-            responsavel = serializer.validated_data.get('responsavel')
-            if responsavel is not None:
-                serializer.save(
-                    unidade=usuario.unidade,
-                    responsavel=responsavel,
-                )
-                return
-        serializer.save(status='EM_ESPERA', observacao_analise='', data_analise=None, analisado_por=None)
+        iniciativa = self.get_object()
+        responsavel = serializer.validated_data.get('responsavel', iniciativa.responsavel)
+        if responsavel is None or responsavel.unidade_id != usuario.unidade_id:
+            raise ValidationError({'responsavel': 'O responsável deve pertencer à sua unidade.'})
+
+        if usuario.papel == 'GESTOR' and set(self.request.data.keys()) == {'responsavel'}:
+            serializer.save(unidade=usuario.unidade, responsavel=responsavel)
+            return
+
+        novo_status = 'EM_ESPERA'
+        if iniciativa.status == 'RASCUNHO' and self.request.data.get('status', 'RASCUNHO') == 'RASCUNHO':
+            novo_status = 'RASCUNHO'
+        serializer.save(
+            unidade=usuario.unidade, responsavel=responsavel, status=novo_status,
+            observacao_analise='', data_analise=None, analisado_por=None,
+        )
 
     @action(detail=True, methods=['post'], url_path='submeter-atualizacao')
     def submeter_atualizacao(self, request, pk=None):

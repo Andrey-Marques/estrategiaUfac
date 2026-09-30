@@ -14,5 +14,9 @@ export class UnidadeService {
         return this.http.get<Unidade[]>(this.apiUrl);
     }
 
+    getPublicas(){
+        return this.http.get<Unidade[]>('http://localhost:8000/api/unidades-publicas/');
+    }
+
     
 }

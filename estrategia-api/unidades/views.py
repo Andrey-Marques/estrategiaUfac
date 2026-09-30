@@ -4,7 +4,7 @@ from .serializers import UnidadeSerializer
 from django.db.models import Count
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from iniciativasEstrategicas.models import IniciativaEstrategica
 from projetosEstrategicos.models import ProjetoEstrategico
@@ -13,6 +13,14 @@ from indicadoresEstrategicos.models import IndicadorEstrategico
 class UnidadeViewSet(viewsets.ModelViewSet):
      queryset = Unidade.objects.all()
      serializer_class = UnidadeSerializer
+
+class UnidadesPublicasView(APIView):
+     permission_classes = [AllowAny]
+     authentication_classes = []
+
+     def get(self, request):
+          unidades = Unidade.objects.order_by('sigla', 'id').values('id', 'nome', 'sigla')
+          return Response(list(unidades))
      
 class ResumoUnidadeView(APIView):
      permission_classes = [IsAuthenticated]
