@@ -18,7 +18,7 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   font-family: "Inter", Arial, sans-serif;
 
   background-color: $branco;
-  
+
   //isso vai se repetir em praticamente toda pag da área pública, depois tem que ahcar um jeito de deixar numa estilização global. Solução temporária.
   padding-top: var(--altura-header);
 }
@@ -43,15 +43,14 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
     text-decoration: none;
     color: $cor-azul-padrao;
 
-    
+
 
 
     &:hover {
-      
+
       border-radius: 100%;
-      background-color: $cor-hover-padrao;
       cursor: pointer;
-      
+
     }
   }
 
@@ -277,7 +276,7 @@ h1 {
 }
 
 .botao-filtrar {
-  
+
   height: 80%;
   border: none;
   border-radius: 5px;
