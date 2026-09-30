@@ -1,8 +1,14 @@
 from rest_framework import serializers
 from decimal import Decimal
 from datetime import date, datetime
+
 from .models import RevisaoEdicao
-from projetosEstrategicos.serializers import (EvolucaoProjetoSerializer, EvolucaoOrcamentariaSerializer)
+
+from projetosEstrategicos.serializers import (
+    EvolucaoProjetoSerializer,
+    EvolucaoOrcamentariaSerializer
+)
+
 from iniciativasEstrategicas.serializers import AcaoRealizadaSerializer
 from indicadoresEstrategicos.serializers import EvolucaoIndicadorSerializer
 
@@ -20,8 +26,19 @@ class SubmissaoRevisaoProjetoSerializer(serializers.Serializer):
         required=False
     )
 
+    evolucoes = EvolucaoProjetoSerializer(
+        many=True,
+        required=False
+    )
+
+    evolucoesOrcamentarias = EvolucaoOrcamentariaSerializer(
+        many=True,
+        required=False
+    )
+
 
 class SubmissaoRevisaoIniciativaSerializer(serializers.Serializer):
+
     percentual_evolucao = serializers.DecimalField(
         max_digits=5,
         decimal_places=2,
