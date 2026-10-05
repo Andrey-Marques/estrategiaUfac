@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ProjetoEstrategico } from '../../model/projetoEstrategico';
+import { AcaoProjeto, ProjetoEstrategico } from '../../model/projetoEstrategico';
 import { DiferencaRevisao, RevisaoEdicao } from '../../model/revisaoEdicao';
 
 type ProjetoAvaliacao = ProjetoEstrategico & {
@@ -75,8 +75,13 @@ export class AvaliacaoProjeto {
     return this.revisao?.diferencas['evolucoes'] ?? null;
   }
 
-  get diferencaOrcamento(): DiferencaRevisao | null {
-    return this.revisao?.diferencas['evolucoesOrcamentarias'] ?? null;
+  get diferencaAcoes(): DiferencaRevisao | null {
+    return this.revisao?.diferencas['acoes'] ?? null;
+  }
+
+  get acoesPropostas(): AcaoProjeto[] {
+    const acoes = this.diferencaAcoes?.proposto;
+    return Array.isArray(acoes) ? acoes : [];
   }
 
   get diferencaProgresso(): DiferencaRevisao | null {
@@ -132,35 +137,6 @@ export class AvaliacaoProjeto {
         item?.tipo === 'PROXIMO_PASSO' &&
         !propostos.some(
           (proposto) => proposto?.tipo === item.tipo && proposto?.descricao === item.descricao,
-        ),
-    );
-  }
-
-  get orcamentosPropostos(): Array<{
-    valor?: string | number;
-    descricao?: string;
-    data_registro?: string;
-  }> {
-    const orcamentos = this.diferencaOrcamento?.proposto;
-    return Array.isArray(orcamentos) ? orcamentos : [];
-  }
-
-  get orcamentosRemovidos(): Array<{
-    valor?: string | number;
-    descricao?: string;
-    data_registro?: string;
-  }> {
-    const anteriores = this.diferencaOrcamento?.anterior;
-    const propostos = this.diferencaOrcamento?.proposto;
-    if (!Array.isArray(anteriores) || !Array.isArray(propostos)) return [];
-
-    return anteriores.filter(
-      (item) =>
-        !propostos.some(
-          (proposto) =>
-            String(proposto?.valor) === String(item?.valor) &&
-            proposto?.descricao === item?.descricao &&
-            proposto?.data_registro === item?.data_registro,
         ),
     );
   }
@@ -226,5 +202,13 @@ export class AvaliacaoProjeto {
     };
 
     return classes[this.projeto.status] ?? 'status-rascunho';
+  }
+  get acoesAnteriores(): AcaoProjeto[] {
+    const acoes = this.diferencaAcoes?.anterior;
+    return Array.isArray(acoes) ? acoes : [];
+  }
+  rotuloStatusAcao(status: string): string {
+    return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída',
+      CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;
   }
 }

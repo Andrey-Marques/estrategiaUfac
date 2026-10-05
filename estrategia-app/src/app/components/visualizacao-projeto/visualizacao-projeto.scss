@@ -254,8 +254,8 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
 
 
 // ============================================================
-// RODAPÉ: ORÇAMENTO + OBJETIVOS CONTRIBUÍDOS
-// (4) Card de orçamento maior, destacado e centralizado.
+// RODAPÉ: CUSTOS + OBJETIVOS CONTRIBUÍDOS
+// (4) Card de custos maior, destacado e centralizado.
 // ============================================================
 
 .rodape-projeto {
@@ -265,30 +265,29 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   align-items: start;
 }
 
-.card-orcamento,
+.card-custos,
 .card-objetivos {
-         background: linear-gradient(180deg, $azul-card-bg 0%, $branco 60%);
-         box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
-         padding: 32px 28px;
-         border-radius: 8px;
-         border: 1px solid $azul-claro;
+  background: linear-gradient(180deg, $azul-card-bg 0%, $branco 60%);
+  box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
+  padding: 32px 28px;
+  border-radius: 8px;
+  border: 1px solid $azul-claro;
 
   h3 {
     margin: 0 0 12px;
     color: $azul-escuro;
-    font-size: 14px;
     font-weight: 700;
-        font-size: 18px;
+    font-size: 18px;
     margin-bottom: 20px;
   }
 }
 
-.card-orcamento--destaque {
+.card-custos--destaque {
   text-align: center;
 
 }
 
-.orcamento-valores {
+.custos-valores {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -297,19 +296,19 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   margin-bottom: 24px;
 }
 
-.orcamento-valor-item {
+.custos-valor-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
 }
 
-.orcamento-label {
+.custos-label {
   color: $cinza-claro;
   font-size: 12px;
 }
 
-.orcamento-valor {
+.custos-valor {
   color: $azul-principal;
   font-size: 26px;
   font-weight: 800;
@@ -412,7 +411,7 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
     grid-template-columns: 1fr;
   }
 
-  .orcamento-valores {
+  .custos-valores {
     gap: 20px;
   }
 }
@@ -437,12 +436,15 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
     font-size: 16px;
   }
 
-  .card-orcamento--destaque {
+  .card-custos--destaque {
     padding: 22px 16px;
   }
 
-  .orcamento-valor {
+  .custos-valor {
     font-size: 22px;
   }
 }
 .texto-multilinha { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.acao-projeto { padding: 16px; margin-bottom: 12px; border: 1px solid #dce3ef; border-radius: 6px; }
+.acao-projeto h3 { font-size: 16px; color: #08088b; }

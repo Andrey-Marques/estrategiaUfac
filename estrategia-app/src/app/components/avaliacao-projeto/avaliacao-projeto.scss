@@ -508,78 +508,12 @@
 
 
 /* =========================
-   ORÇAMENTO
+   ACOMPANHAMENTO
    ========================= */
 
-.acompanhamento-orcamento {
-  margin-top: 14px;
-}
 
-.registro-orcamentario {
-  padding: 13px 12px;
 
-  border-bottom: 1px solid var(--borda);
-}
 
-.orcamento-cabecalho {
-  display: flex;
-  justify-content: space-between;
-
-  gap: 15px;
-}
-
-.orcamento-label,
-.orcamento-data {
-  color: var(--secundario);
-  font-size: 12px;
-}
-
-.orcamento-label {
-  display: block;
-  margin-bottom: 4px;
-}
-
-.orcamento-data {
-  white-space: nowrap;
-
-  i {
-    display: none;
-  }
-}
-
-.orcamento-valor {
-  color: #1e293b;
-
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.orcamento-descricao {
-  margin-top: 10px;
-  padding-top: 10px;
-
-  border-top: 1px solid #edf0f3;
-
-  span {
-    display: block;
-
-    margin-bottom: 5px;
-
-    color: var(--secundario);
-
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  p {
-    margin: 0;
-
-    color: #475569;
-
-    font-size: 13px;
-    line-height: 1.5;
-  }
-}
 
 
 /* =========================
@@ -948,10 +882,7 @@
   }
 
   .status-linha,
-  .orcamento-cabecalho {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+
 
   .data-proposta {
     padding-left: 0;
@@ -1025,138 +956,27 @@
   }
 }
 /* =========================
-   EVOLUÇÃO ORÇAMENTÁRIA
+   AÇÕES DO PROJETO
    Compacta
    ========================= */
 
-.acompanhamento-orcamento {
-  margin-top: 12px;
-
-  .subtitulo-interno {
-    margin: 0 0 7px;
-    padding: 8px 11px;
-
-    background: #eef1f5;
-    color: #334155;
-
-    font-size: 13px;
-    font-weight: 700;
-  }
-}
 
 /* Lista */
-.lista-orcamentaria {
-  display: grid;
-  gap: 6px;
-}
+
 
 /* Cada lançamento */
-.registro-orcamentario {
-  padding: 8px 10px;
 
-  background: #fff;
-
-  border: 1px solid #cbd5e1;
-  border-left: 3px solid var(--azul);
-  border-radius: 2px;
-
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-
-  &:hover {
-    border-color: #94a3b8;
-    border-left-color: var(--azul);
-  }
-}
 
 /* Valor + data */
-.orcamento-cabecalho {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 
-  gap: 10px;
-}
-
-.orcamento-label {
-  display: block;
-
-  margin-bottom: 1px;
-
-  color: #64748b;
-
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.orcamento-valor {
-  color: #163a63;
-
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.2;
-}
 
 /* Data */
-.orcamento-data {
-  flex-shrink: 0;
 
-  padding: 2px 6px;
-
-  background: #f1f5f9;
-  color: #64748b;
-
-  border: 1px solid #e2e8f0;
-  border-radius: 2px;
-
-  font-size: 10px;
-
-  i {
-    display: none;
-  }
-}
 
 /* Descrição */
-.orcamento-descricao {
-  display: flex;
-  align-items: baseline;
 
-  gap: 6px;
-
-  margin-top: 5px;
-  padding-top: 5px;
-
-  border-top: 1px solid #edf0f3;
-
-  span {
-    flex-shrink: 0;
-
-    color: #64748b;
-
-    font-size: 10px;
-    font-weight: 700;
-  }
-
-  p {
-    margin: 0;
-
-    color: #475569;
-
-    font-size: 11px;
-    line-height: 1.3;
-
-    overflow-wrap: anywhere;
-  }
-}
 
 /* Sem registros */
-.acompanhamento-orcamento .sem-registros {
-  padding: 8px 10px;
 
-  border: 1px solid #e2e8f0;
-  border-left: 3px solid #cbd5e1;
 
-  background: #f8fafc;
-  color: #64748b;
-
-  font-size: 11px;
-}
+.acompanhamento-acoes { margin-top: 20px; }

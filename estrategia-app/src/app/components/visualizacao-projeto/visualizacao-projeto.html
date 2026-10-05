@@ -58,6 +58,17 @@
         </ul>
         <ng-template #semAcoesPrevistas><p>Nenhuma ação prevista informada.</p></ng-template>
       </section>
+      <h2 class="faixa">Ações do Projeto</h2>
+      <section class="acoes-projeto">
+        <article class="acao-projeto" *ngFor="let acao of registro.acoes">
+          <h3>{{ acao.nome }}</h3>
+          <p>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</p>
+          <p>Custo estimado: {{ acao.custo_estimado | currency:'BRL' }} · Custo realizado: {{ acao.custo_realizado | currency:'BRL' }}</p>
+          <p>Início efetivo: {{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }} · Fim efetivo: {{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</p>
+          <p>Status: {{ rotuloStatusAcao(acao.status) }}</p>
+        </article>
+        <p *ngIf="!registro.acoes?.length">Nenhuma ação cadastrada.</p>
+      </section>
       <section class="evolucao-projeto">
         <h2 class="faixa">Evolução do Projeto</h2>
         <div class="evolucao-container">
@@ -74,19 +85,19 @@
         </div>
       </section>
       <section class="rodape-projeto">
-        <article class="card-orcamento card-orcamento--destaque">
-          <h3>Evolução Orçamentária</h3>
-          <div class="orcamento-valores">
-            <div class="orcamento-valor-item">
-              <span class="orcamento-label">Custo estimado</span
-              ><span class="orcamento-valor">{{
+        <article class="card-custos card-custos--destaque">
+          <h3>Custos do projeto</h3>
+          <div class="custos-valores">
+            <div class="custos-valor-item">
+              <span class="custos-label">Custo estimado</span
+              ><span class="custos-valor">{{
                 registro.custo_estimado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
               }}</span>
             </div>
-            <div class="orcamento-valor-item">
-              <span class="orcamento-label">Total investido</span
-              ><span class="orcamento-valor">{{
-                totalInvestido() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+            <div class="custos-valor-item">
+              <span class="custos-label">Custo total realizado</span
+              ><span class="custos-valor">{{
+                registro.custo_realizado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
               }}</span>
             </div>
           </div>

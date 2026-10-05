@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 .env
 db.sqlite3
+*.sqlite3.backup
 
 # Node
 node_modules/

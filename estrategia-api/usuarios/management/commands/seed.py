@@ -1,12 +1,13 @@
 from datetime import date
 from decimal import Decimal
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
+from django.db import connection, transaction
 
 from unidades.models import Unidade
 from usuarios.models import Usuario
 from objetivosEstrategicos.models import ObjetivoEstrategico
-from projetosEstrategicos.models import ProjetoEstrategico, EvolucaoProjeto
+from projetosEstrategicos.models import AcaoProjeto, ProjetoEstrategico, EvolucaoProjeto
 from iniciativasEstrategicas.models import IniciativaEstrategica, AcaoRealizada
 from indicadoresEstrategicos.models import IndicadorEstrategico, EvolucaoIndicador
 
@@ -14,7 +15,52 @@ from indicadoresEstrategicos.models import IndicadorEstrategico, EvolucaoIndicad
 class Command(BaseCommand):
     help = 'Popula o banco com dados iniciais do Estratégia UFAC'
 
+    @staticmethod
+    def criar_acoes_projeto(projeto, orcamento):
+        """Preenche projetos sem ações; novas execuções preservam o acompanhamento existente."""
+        if projeto.acoes.exists():
+            projeto.atualizar_custo_estimado()
+            return
+
+        total = Decimal(str(orcamento)).quantize(Decimal('0.01'))
+        planejamento = (total * Decimal('0.20')).quantize(Decimal('0.01'))
+        execucao = (total * Decimal('0.65')).quantize(Decimal('0.01'))
+        avaliacao = total - planejamento - execucao
+        exemplos = [
+            {
+                'nome': 'Levantamento de necessidades e planejamento',
+                'prazo_inicio': date(2026, 2, 2), 'prazo_fim': date(2026, 3, 31),
+                'custo_estimado': planejamento, 'custo_realizado': planejamento,
+                'data_inicio_efetivo': date(2026, 2, 5),
+                'data_fim_efetivo': date(2026, 3, 27), 'status': 'CONCLUIDA',
+            },
+            {
+                'nome': (projeto.acoes_previstas or 'Execução das atividades previstas')[:255],
+                'prazo_inicio': date(2026, 4, 1), 'prazo_fim': date(2026, 10, 30),
+                'custo_estimado': execucao,
+                'custo_realizado': (execucao * Decimal('0.50')).quantize(Decimal('0.01')),
+                'data_inicio_efetivo': date(2026, 4, 6),
+                'data_fim_efetivo': None, 'status': 'ANDAMENTO',
+            },
+            {
+                'nome': 'Avaliação dos resultados e encerramento',
+                'prazo_inicio': date(2026, 11, 2), 'prazo_fim': date(2026, 12, 18),
+                'custo_estimado': avaliacao, 'custo_realizado': Decimal('0.00'),
+                'data_inicio_efetivo': None, 'data_fim_efetivo': None,
+                'status': 'PLANEJAMENTO',
+            },
+        ]
+        for dados in exemplos:
+            AcaoProjeto.objects.create(fk_projeto=projeto, **dados)
+        projeto.atualizar_custo_estimado()
+
+    @transaction.atomic
     def handle(self, *args, **options):
+        if AcaoProjeto._meta.db_table not in connection.introspection.table_names():
+            raise CommandError(
+                'A tabela de ações dos projetos ainda não existe. '
+                'Execute "python manage.py migrate projetosEstrategicos" antes do seed.'
+            )
 
         self.stdout.write(
             self.style.WARNING(
@@ -504,15 +550,15 @@ class Command(BaseCommand):
                     defaults={
                         'descricao': descricao,
                         'tempo_estimado': tempo_estimado,
-                        'custo_estimado': custo_estimado,
+                        'acoes_previstas': acoes,
                         'percentual_progresso': percentual,
                         'status': 'APROVADO',
-                        'acoes_previstas': acoes,
                         'unidade': unidades[sigla],
                         'responsavel': responsaveis[sigla],
                     }
                 )
 
+                self.criar_acoes_projeto(projeto, custo_estimado)
                 projeto.objetivos.add(objetivo)
                 projetos_criados[sigla].append(projeto)
 
