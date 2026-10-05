@@ -15,11 +15,12 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
     
     def get_queryset(self):
         usuario = self.request.user
+        queryset = ProjetoEstrategico.objects.prefetch_related('acoes', 'evolucoes', 'objetivos')
         
         if usuario.papel == 'ADMIN':
-            return ProjetoEstrategico.objects.all()
+            return queryset
         
-        return ProjetoEstrategico.objects.filter(
+        return queryset.filter(
             unidade = usuario.unidade
         )
     
@@ -90,14 +91,13 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                 'nome',
                 'descricao',
                 'tempo_estimado',
-                'custo_estimado',
                 'percentual_progresso',
-                'acoes_previstas',
+                'acoes',
                 'responsavel',
                 'unidade',
                 'objetivos',
                 'evolucoes',
-                'evolucoesOrcamentarias',
+                'acoes',
                 'status',
             }
 
@@ -111,7 +111,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                 'responsavel',
                 'evolucoes',
                 'percentual_progresso',
-                'evolucoesOrcamentarias',
+                'acoes',
             }
 
         campos_enviados = set(

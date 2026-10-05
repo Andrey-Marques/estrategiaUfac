@@ -98,15 +98,30 @@
         </section>
 
         <section class="secao-institucional">
-          <div class="titulo-secao-azul">Ações previstas</div>
+          <div class="titulo-secao-azul">Ações do projeto</div>
           <div class="conteudo-secao">
-            <p class="acoes-previstas" *ngIf="projeto.acoes_previstas; else semAcoes">
-              {{ projeto.acoes_previstas }}
-            </p>
+            <div class="acoes-avaliacao" *ngIf="projeto.acoes?.length; else semAcoes">
+              <article class="acao-avaliacao" *ngFor="let acao of projeto.acoes">
+                <strong>{{ acao.nome }}</strong>
+                <span>Previsto: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</span>
+                <span>Estimado: {{ acao.custo_estimado | currency:'BRL' }} · Realizado: {{ acao.custo_realizado | currency:'BRL' }}</span>
+                <span>Efetivo: {{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }} – {{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</span>
+              </article>
+            </div>
 
             <ng-template #semAcoes>
-              <p class="texto-vazio">Nenhuma ação prevista informada.</p>
+              <p class="texto-vazio">Nenhuma ação cadastrada.</p>
             </ng-template>
+
+            <div class="acoes-propostas" *ngIf="revisaoPendente && diferencaAcoes">
+              <h4>Ações propostas para atualização</h4>
+              <article class="acao-avaliacao acao-avaliacao-pendente" *ngFor="let acao of acoesPropostas">
+                <strong>{{ acao.nome }}</strong>
+                <span>Previsto: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</span>
+                <span>Estimado: {{ acao.custo_estimado | currency:'BRL' }} · Realizado: {{ acao.custo_realizado | currency:'BRL' }}</span>
+                <span>Efetivo: {{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }} – {{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</span>
+              </article>
+            </div>
           </div>
         </section>
       </div>
@@ -126,7 +141,7 @@
 
           <div>
             <h4>Acompanhamento do projeto</h4>
-            <p>Consulte as realizações, próximos passos e a evolução orçamentária registrada.</p>
+            <p>Consulte as realizações e os próximos passos registrados.</p>
           </div>
         </div>
         <div class="grid-acompanhamento">
@@ -189,106 +204,6 @@
           </div>
         </div>
 
-        <div class="acompanhamento-card acompanhamento-orcamento">
-
-          <div class="acompanhamento-card-titulo">
-            <i class="bi bi-cash-stack"></i>
-            <span>Evolução orçamentária</span>
-          </div>
-
-          <ng-container *ngIf="
-              projeto.evolucoesOrcamentarias &&
-              projeto.evolucoesOrcamentarias.length > 0;
-              else semOrcamento
-            ">
-
-            <div class="registro-orcamentario" *ngFor="
-                let orcamento
-                of projeto.evolucoesOrcamentarias
-              ">
-
-              <div class="orcamento-cabecalho">
-
-                <div>
-                  <span class="orcamento-label">
-                    Valor investido
-                  </span>
-
-                  <strong class="orcamento-valor">
-                    R$
-                    {{
-                    orcamento.valor
-                    | number:'1.2-2'
-                    }}
-                  </strong>
-                </div>
-
-                <span class="orcamento-data" *ngIf="orcamento.data_registro">
-                  <i class="bi bi-calendar3"></i>
-
-                  {{
-                  orcamento.data_registro
-                  | date:'dd/MM/yyyy'
-                  }}
-                </span>
-
-              </div>
-
-
-              <div class="orcamento-descricao" *ngIf="orcamento.descricao">
-                <span>Descrição</span>
-
-                <p>
-                  {{ orcamento.descricao }}
-                </p>
-              </div>
-
-            </div>
-
-          </ng-container>
-
-
-          <ng-template #semOrcamento>
-            <p class="sem-registros">
-              Nenhuma evolução orçamentária registrada.
-            </p>
-          </ng-template>
-
-          <div class="registro-orcamentario registro-pendente" *ngFor="let orcamento of revisaoPendente ? orcamentosPropostos : []">
-            <span class="rotulo-pendente"><i class="bi bi-clock-history"></i> Alteração pendente</span>
-            <div class="orcamento-cabecalho">
-              <div>
-                <span class="orcamento-label">Valor proposto</span>
-                <strong class="orcamento-valor">{{ orcamento.valor | currency:'BRL' }}</strong>
-              </div>
-              <span class="orcamento-data" *ngIf="orcamento.data_registro">
-                <i class="bi bi-calendar3"></i> {{ orcamento.data_registro | date:'dd/MM/yyyy' }}
-              </span>
-            </div>
-            <div class="orcamento-descricao" *ngIf="orcamento.descricao">
-              <span>Descrição proposta</span>
-              <p>{{ orcamento.descricao }}</p>
-            </div>
-          </div>
-
-          <div class="registro-orcamentario registro-removido" *ngFor="let orcamento of revisaoPendente ? orcamentosRemovidos : []">
-            <span class="rotulo-removido"><i class="bi bi-trash3"></i> Item removido</span>
-            <div class="orcamento-cabecalho">
-              <div>
-                <span class="orcamento-label">Valor removido</span>
-                <strong class="orcamento-valor">{{ orcamento.valor | currency:'BRL' }}</strong>
-              </div>
-              <span class="orcamento-data" *ngIf="orcamento.data_registro">
-                <i class="bi bi-calendar3"></i> {{ orcamento.data_registro | date:'dd/MM/yyyy' }}
-              </span>
-            </div>
-            <div class="orcamento-descricao" *ngIf="orcamento.descricao">
-              <span>Descrição removida</span>
-              <p>{{ orcamento.descricao }}</p>
-            </div>
-          </div>
-
-        </div>
       </section>
 
       <section class="progresso-projeto">

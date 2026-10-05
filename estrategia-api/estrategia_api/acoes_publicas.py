@@ -104,10 +104,13 @@ class AcaoEstrategicaPublicaDetalheView(APIView):
         }
         if tipo == 'projetos':
             campos = ('descricao', 'tempo_estimado', 'custo_estimado', 'ultima_atualizacao',
-                      'percentual_progresso', 'acoes_previstas')
+                      'percentual_progresso')
             dados['evolucoes'] = list(registro.evolucoes.order_by('id').values('id', 'descricao', 'tipo'))
-            dados['evolucoesOrcamentarias'] = list(registro.evolucoesOrcamentarias.order_by('data_registro', 'id').values(
-                'id', 'valor', 'descricao', 'data_registro'))
+            dados['acoes'] = list(registro.acoes.order_by('id').values(
+                'id', 'nome', 'prazo_inicio', 'prazo_fim', 'custo_estimado', 'custo_realizado',
+                'data_inicio_efetivo', 'data_fim_efetivo', 'status'
+            ))
+            dados['custo_realizado'] = registro.custo_realizado_total
         elif tipo == 'indicadores':
             campos = ('finalidade', 'polaridade', 'unidade_medida', 'metodo_calculo', 'formula',
                       'observacao', 'data_envio')

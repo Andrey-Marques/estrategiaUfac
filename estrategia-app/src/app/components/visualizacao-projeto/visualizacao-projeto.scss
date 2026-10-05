@@ -149,6 +149,49 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   }
 }
 
+.acoes-projeto-publicas {
+  display: grid;
+  gap: 10px;
+}
+
+.acao-projeto-publica {
+  padding: 14px 16px;
+  border: 1px solid $cinza-borda;
+  border-left: 4px solid $azul-claro;
+  border-radius: 6px;
+  background: $branco;
+}
+
+.acao-projeto-publica-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    color: $azul-escuro;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  span {
+    flex-shrink: 0;
+    color: $azul-claro;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.acao-projeto-publica-detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 10px;
+  color: $cinza-texto;
+  font-size: 12px;
+}
+
 //talvez utilizar posteriormente
 
 // .lista-acoes {
@@ -254,8 +297,7 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
 
 
 // ============================================================
-// RODAPÉ: ORÇAMENTO + OBJETIVOS CONTRIBUÍDOS
-// (4) Card de orçamento maior, destacado e centralizado.
+// RODAPÉ: INFORMAÇÕES DO PROJETO + OBJETIVOS CONTRIBUÍDOS
 // ============================================================
 
 .rodape-projeto {
@@ -265,51 +307,48 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   align-items: start;
 }
 
-.card-orcamento,
+.card-informacoes-projeto,
 .card-objetivos {
-         background: linear-gradient(180deg, $azul-card-bg 0%, $branco 60%);
-         box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
-         padding: 32px 28px;
-         border-radius: 8px;
-         border: 1px solid $azul-claro;
+  background: linear-gradient(180deg, $azul-card-bg 0%, $branco 60%);
+  box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
+  padding: 32px 28px;
+  border-radius: 8px;
+  border: 1px solid $azul-claro;
 
   h3 {
     margin: 0 0 12px;
     color: $azul-escuro;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 700;
-        font-size: 18px;
     margin-bottom: 20px;
   }
 }
 
-.card-orcamento--destaque {
+.card-informacoes-projeto {
   text-align: center;
-
 }
 
-.orcamento-valores {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 32px;
-
-  margin-bottom: 24px;
-}
-
-.orcamento-valor-item {
+.custo-estimado {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
 }
 
-.orcamento-label {
+.custos-projeto {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.custo-estimado-label {
   color: $cinza-claro;
   font-size: 12px;
 }
 
-.orcamento-valor {
+.custo-estimado-valor {
   color: $azul-principal;
   font-size: 26px;
   font-weight: 800;
@@ -412,9 +451,6 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
     grid-template-columns: 1fr;
   }
 
-  .orcamento-valores {
-    gap: 20px;
-  }
 }
 
 
@@ -437,11 +473,15 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
     font-size: 16px;
   }
 
-  .card-orcamento--destaque {
+  .card-informacoes-projeto {
     padding: 22px 16px;
   }
 
-  .orcamento-valor {
+  .custos-projeto {
+    gap: 20px;
+  }
+
+  .custo-estimado-valor {
     font-size: 22px;
   }
 }

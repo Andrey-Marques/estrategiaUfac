@@ -10,12 +10,16 @@ export interface EvolucaoProjeto {
   fk_projeto: number;
 }
 
-export interface EvolucaoOrcamentaria {
-  id: number;
-  valor: number;
-  descricao: string;
-  data_registro: string;
-  fk_projeto: number;
+export interface AcaoProjeto {
+  id?: number;
+  nome: string;
+  prazo_inicio: string;
+  prazo_fim: string;
+  custo_estimado: number | string;
+  custo_realizado: number | string;
+  data_inicio_efetivo: string | null;
+  data_fim_efetivo: string | null;
+  status: 'PLANEJAMENTO' | 'ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA';
 }
 
 export interface EvolucaoPayload {
@@ -37,13 +41,13 @@ export interface ProjetoEstrategico{
     ultima_atualizacao: string;
     percentual_progresso: number;
     status: string;
-    acoes_previstas: string;
+    custo_realizado: number | string;
+    acoes: AcaoProjeto[];
     unidade: number;
     responsavel: number;
     objetivos: number[];
     objetivos_detalhes?: ObjetivoProjetoDetalhe[];
     evolucoes: EvolucaoProjeto[];
-    evolucoesOrcamentarias: EvolucaoOrcamentaria[];
     observacao_analise?: string;
     data_analise?: string | null;
     analisado_por?: number | null;
@@ -55,11 +59,9 @@ export interface CriarProjeto {
   nome: string;
   descricao: string;
   tempo_estimado: string;
-  custo_estimado: number;
   percentual_progresso: number;
   status: string;
-  acoes_previstas: string;
+  acoes: Omit<AcaoProjeto, 'id'>[];
   objetivos: number[];
   evolucoes?: EvolucaoPayload[];
-  evolucoesOrcamentarias?: {valor: number; descricao: string;}[];
 }
