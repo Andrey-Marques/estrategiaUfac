@@ -62,6 +62,11 @@
             </div>
 
             <div class="informacao-item">
+              <span>Custo total realizado</span>
+              <strong>{{ projeto.custo_realizado | currency:'BRL' }}</strong>
+            </div>
+
+            <div class="informacao-item">
               <span>Status</span>
               <strong>{{ obterRotuloStatus() }}</strong>
             </div>
@@ -126,7 +131,7 @@
 
           <div>
             <h4>Acompanhamento do projeto</h4>
-            <p>Consulte as realizações, próximos passos e a evolução orçamentária registrada.</p>
+            <p>Consulte as realizações, próximos passos e os custos das ações.</p>
           </div>
         </div>
         <div class="grid-acompanhamento">
@@ -189,105 +194,24 @@
           </div>
         </div>
 
-        <div class="acompanhamento-card acompanhamento-orcamento">
-
-          <div class="acompanhamento-card-titulo">
-            <i class="bi bi-cash-stack"></i>
-            <span>Evolução orçamentária</span>
+        <div class="acompanhamento-card acompanhamento-acoes">
+          <div class="acompanhamento-card-titulo"><i class="bi bi-list-task"></i><span>Ações do projeto</span></div>
+          <div class="registro-acompanhamento" *ngFor="let acao of projeto.acoes">
+            <strong>{{ acao.nome }}</strong>
+            <p>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }} · {{ rotuloStatusAcao(acao.status) }}</p>
+            <p>Custo estimado: {{ acao.custo_estimado | currency:'BRL' }} · Custo realizado: {{ acao.custo_realizado | currency:'BRL' }}</p>
+            <p>Início efetivo: {{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }} · Fim efetivo: {{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</p>
           </div>
-
-          <ng-container *ngIf="
-              projeto.evolucoesOrcamentarias &&
-              projeto.evolucoesOrcamentarias.length > 0;
-              else semOrcamento
-            ">
-
-            <div class="registro-orcamentario" *ngFor="
-                let orcamento
-                of projeto.evolucoesOrcamentarias
-              ">
-
-              <div class="orcamento-cabecalho">
-
-                <div>
-                  <span class="orcamento-label">
-                    Valor investido
-                  </span>
-
-                  <strong class="orcamento-valor">
-                    R$
-                    {{
-                    orcamento.valor
-                    | number:'1.2-2'
-                    }}
-                  </strong>
-                </div>
-
-                <span class="orcamento-data" *ngIf="orcamento.data_registro">
-                  <i class="bi bi-calendar3"></i>
-
-                  {{
-                  orcamento.data_registro
-                  | date:'dd/MM/yyyy'
-                  }}
-                </span>
-
-              </div>
-
-
-              <div class="orcamento-descricao" *ngIf="orcamento.descricao">
-                <span>Descrição</span>
-
-                <p>
-                  {{ orcamento.descricao }}
-                </p>
-              </div>
-
+          <p class="sem-registros" *ngIf="!projeto.acoes?.length">Nenhuma ação cadastrada.</p>
+          <ng-container *ngIf="revisaoPendente && diferencaAcoes">
+            <div class="registro-removido"><span class="rotulo-removido">Ações anteriores</span>
+              <div *ngFor="let acao of acoesAnteriores"><strong>{{ acao.nome }}</strong><p>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }} · {{ rotuloStatusAcao(acao.status) }}</p><p>Estimado: {{ acao.custo_estimado | currency:'BRL' }} · Realizado: {{ acao.custo_realizado | currency:'BRL' }}</p><p>Início efetivo: {{ acao.data_inicio_efetivo || '—' }} · Fim efetivo: {{ acao.data_fim_efetivo || '—' }}</p></div>
             </div>
-
+            <div class="registro-pendente"><span class="rotulo-pendente">Ações propostas</span>
+              <div *ngFor="let acao of acoesPropostas"><strong>{{ acao.nome }}</strong><p>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }} · {{ rotuloStatusAcao(acao.status) }}</p><p>Estimado: {{ acao.custo_estimado | currency:'BRL' }} · Realizado: {{ acao.custo_realizado | currency:'BRL' }}</p><p>Início efetivo: {{ acao.data_inicio_efetivo || '—' }} · Fim efetivo: {{ acao.data_fim_efetivo || '—' }}</p></div>
+              <p *ngIf="!acoesPropostas.length">Todas as ações serão removidas.</p>
+            </div>
           </ng-container>
-
-
-          <ng-template #semOrcamento>
-            <p class="sem-registros">
-              Nenhuma evolução orçamentária registrada.
-            </p>
-          </ng-template>
-
-          <div class="registro-orcamentario registro-pendente" *ngFor="let orcamento of revisaoPendente ? orcamentosPropostos : []">
-            <span class="rotulo-pendente"><i class="bi bi-clock-history"></i> Alteração pendente</span>
-            <div class="orcamento-cabecalho">
-              <div>
-                <span class="orcamento-label">Valor proposto</span>
-                <strong class="orcamento-valor">{{ orcamento.valor | currency:'BRL' }}</strong>
-              </div>
-              <span class="orcamento-data" *ngIf="orcamento.data_registro">
-                <i class="bi bi-calendar3"></i> {{ orcamento.data_registro | date:'dd/MM/yyyy' }}
-              </span>
-            </div>
-            <div class="orcamento-descricao" *ngIf="orcamento.descricao">
-              <span>Descrição proposta</span>
-              <p>{{ orcamento.descricao }}</p>
-            </div>
-          </div>
-
-          <div class="registro-orcamentario registro-removido" *ngFor="let orcamento of revisaoPendente ? orcamentosRemovidos : []">
-            <span class="rotulo-removido"><i class="bi bi-trash3"></i> Item removido</span>
-            <div class="orcamento-cabecalho">
-              <div>
-                <span class="orcamento-label">Valor removido</span>
-                <strong class="orcamento-valor">{{ orcamento.valor | currency:'BRL' }}</strong>
-              </div>
-              <span class="orcamento-data" *ngIf="orcamento.data_registro">
-                <i class="bi bi-calendar3"></i> {{ orcamento.data_registro | date:'dd/MM/yyyy' }}
-              </span>
-            </div>
-            <div class="orcamento-descricao" *ngIf="orcamento.descricao">
-              <span>Descrição removida</span>
-              <p>{{ orcamento.descricao }}</p>
-            </div>
-          </div>
-
         </div>
       </section>
 

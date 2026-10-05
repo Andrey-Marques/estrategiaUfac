@@ -9,20 +9,25 @@ import { ObjetivoService } from '../../service/objetivo.service';
 import { ProjetoService } from '../../service/projeto.service';
 import { UnidadeService } from '../../service/unidade.service';
 import { UsuarioService } from '../../service/usuario.service';
-import { EvolucaoOrcamentaria } from '../../model/projetoEstrategico';
+import { AcaoProjeto } from '../../model/projetoEstrategico';
 import { AvaliacaoProjeto, DecisaoProjeto } from '../avaliacao-projeto/avaliacao-projeto';
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import { RevisaoService } from '../../service/revisao.service';
+import { MascaraReais } from '../../directives/mascara-reais';
 
 @Component({
   selector: 'app-listagem-projetos',
-  imports: [CommonModule, ReactiveFormsModule, AvaliacaoProjeto],
+  imports: [CommonModule, ReactiveFormsModule, AvaliacaoProjeto, MascaraReais],
   templateUrl: './listagem-projetos.html',
   styleUrl: './listagem-projetos.scss',
   providers: [DatePipe],
 })
 export class ListagemProjetos {
-  evolucoesOrcamentarias = signal<EvolucaoOrcamentaria[]>([]);
+  acoesProjeto = signal<AcaoProjeto[]>([]);
+  acoesAntesDaEdicao: AcaoProjeto[] = [];
+  formularioAcaoInterno: FormGroup;
+  submodalAcaoAberto = false;
+  acaoEmEdicaoIndice: number | null = null;
   projetos = signal<ProjetoEstrategico[]>([]);
   usuarios = signal<Usuario[]>([]);
   unidades = signal<Unidade[]>([]);
@@ -64,18 +69,24 @@ export class ListagemProjetos {
     private objetivoService: ObjetivoService,
     private revisaoService: RevisaoService,
   ) {
+    this.formularioAcaoInterno = this.construtorFormulario.group({
+      descricaoAcao: ['', [Validators.required, Validators.maxLength(255)]],
+      prazoInicio: ['', Validators.required],
+      prazoFim: ['', Validators.required],
+      custoEstimado: [0, [Validators.required, Validators.min(0)]],
+      custoRealizado: [0, [Validators.required, Validators.min(0)]],
+      inicioEfetivo: [''],
+      fimEfetivo: [''],
+      statusAtual: ['PLANEJAMENTO', Validators.required],
+    });
     this.formularioProjeto = this.construtorFormulario.group({
       tituloProjeto: ['', Validators.required],
       liderProjeto: ['', Validators.required],
       unidadeResponsavel: ['', Validators.required],
       descricao: [''],
       tempoEstimado: ['', Validators.required],
-      custoEstimado: [0, Validators.required],
 
       percentualProgresso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
-      valorInvestido: [null],
-      descricaoOrcamentaria: [''],
-      dataOrcamentaria: [''],
       acoesPrevistas: [''],
       objetivos: [[], Validators.required],
     });
@@ -215,19 +226,15 @@ export class ListagemProjetos {
       next: (projetoDetalhado) => {
         this.carregarEvolucoesProjeto(projetoDetalhado);
 
-        this.evolucoesOrcamentarias.set(projetoDetalhado.evolucoesOrcamentarias ?? []);
         this.formularioProjeto.patchValue({
           tituloProjeto: projetoDetalhado.nome,
           liderProjeto: projetoDetalhado.responsavel,
           unidadeResponsavel: projetoDetalhado.unidade,
           descricao: projetoDetalhado.descricao,
           tempoEstimado: projetoDetalhado.tempo_estimado,
-          custoEstimado: projetoDetalhado.custo_estimado,
 
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
-          valorInvestido: null,
-          descricaoOrcamentaria: '',
 
           acoesPrevistas: projetoDetalhado.acoes_previstas,
 
@@ -246,7 +253,6 @@ export class ListagemProjetos {
           descricao: projeto.descricao,
           tempoEstimado: projeto.tempo_estimado,
           percentualProgresso: projeto.percentual_progresso,
-          custoEstimado: projeto.custo_estimado,
           acoesPrevistas: projeto.acoes_previstas,
           objetivos: this.normalizarIds(projeto.objetivos ?? []),
         });
@@ -354,7 +360,6 @@ export class ListagemProjetos {
     this.projetoService.getById(projeto.id).subscribe({
       next: (projetoDetalhado) => {
         this.carregarEvolucoesProjeto(projetoDetalhado);
-        this.evolucoesOrcamentarias.set(projetoDetalhado.evolucoesOrcamentarias ?? []);
         this.formularioProjeto.enable();
 
         this.formularioProjeto.patchValue({
@@ -368,13 +373,10 @@ export class ListagemProjetos {
 
           tempoEstimado: projetoDetalhado.tempo_estimado,
 
-          custoEstimado: projetoDetalhado.custo_estimado,
 
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
-          valorInvestido: null,
 
-          descricaoOrcamentaria: '',
 
           acoesPrevistas: projetoDetalhado.acoes_previstas,
 
@@ -416,7 +418,6 @@ export class ListagemProjetos {
 
       tempo_estimado: formulario.tempoEstimado,
 
-      custo_estimado: Number(formulario.custoEstimado),
 
       percentual_progresso: Number(formulario.percentualProgresso ?? 0),
 
@@ -430,12 +431,7 @@ export class ListagemProjetos {
 
       evolucoes: this.montarEvolucoes(),
 
-      evolucoesOrcamentarias: this.evolucoesOrcamentarias().map(evolucao => ({
-        id: evolucao.id,
-        valor: Number(evolucao.valor),
-        descricao: evolucao.descricao,
-        data_registro: evolucao.data_registro,
-      })),
+      acoes: this.montarAcoesProjeto(),
 
       status: 'EM_ESPERA',
     };
@@ -504,7 +500,6 @@ export class ListagemProjetos {
 
           tempoEstimado: projetoDetalhado.tempo_estimado,
 
-          custoEstimado: projetoDetalhado.custo_estimado,
 
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
@@ -515,7 +510,6 @@ export class ListagemProjetos {
 
         this.carregarEvolucoesProjeto(projetoDetalhado);
 
-        this.evolucoesOrcamentarias.set(projetoDetalhado.evolucoesOrcamentarias ?? []);
 
         this.etapaAtual = 3;
 
@@ -532,6 +526,7 @@ export class ListagemProjetos {
   }
 
   editarProjeto(): void {
+    this.acoesAntesDaEdicao = this.acoesProjeto().map(acao => ({ ...acao }));
     this.realizacoesAntesDaEdicao = [...this.realizacoesConcluidas()];
 
     this.proximosPassosAntesDaEdicao = [...this.proximosPassos()];
@@ -554,11 +549,8 @@ export class ListagemProjetos {
       // relacionados à atualização do projeto
       this.formularioProjeto.get('percentualProgresso')?.enable();
 
-      this.formularioProjeto.get('valorInvestido')?.enable();
 
-      this.formularioProjeto.get('descricaoOrcamentaria')?.enable();
 
-      this.formularioProjeto.get('dataOrcamentaria')?.enable();
 
       if (papel === 'GESTOR') {
         this.formularioProjeto.get('liderProjeto')?.enable();
@@ -610,6 +602,7 @@ export class ListagemProjetos {
   }
 
   private carregarEvolucoesProjeto(projeto: ProjetoEstrategico): void {
+    this.acoesProjeto.set((projeto.acoes ?? []).map(acao => ({ ...acao })));
     const realizacoes = (projeto.evolucoes ?? [])
       .filter((evolucao) => evolucao.tipo === 'REALIZACAO')
       .map((evolucao) => evolucao.descricao.trim());
@@ -629,11 +622,7 @@ export class ListagemProjetos {
 
     const formulario = this.formularioProjeto.getRawValue();
 
-    const evolucoesOrcamentarias = this.evolucoesOrcamentarias().map((evolucao) => ({
-      valor: Number(evolucao.valor),
-      descricao: evolucao.descricao,
-      data_registro: evolucao.data_registro,
-    }));
+
 
     if (formulario.liderProjeto) {
 
@@ -672,9 +661,8 @@ export class ListagemProjetos {
       nome: formulario.tituloProjeto,
       descricao: formulario.descricao,
       tempo_estimado: formulario.tempoEstimado,
-      custo_estimado: Number(formulario.custoEstimado),
       percentual_progresso: Number(formulario.percentualProgresso ?? 0),
-      evolucoesOrcamentarias: evolucoesOrcamentarias,
+      acoes: this.montarAcoesProjeto(),
       status: status,
       responsavel: formulario.liderProjeto || null,
       unidade: formulario.unidadeResponsavel,
@@ -720,11 +708,7 @@ export class ListagemProjetos {
       unidadeResponsavel: '',
       descricao: '',
       tempoEstimado: '',
-      custoEstimado: 0,
       percentualProgresso: 0,
-      valorInvestido: null,
-      descricaoOrcamentaria: '',
-      dataOrcamentaria: '',
       acoesPrevistas: '',
       objetivos: [],
     });
@@ -738,10 +722,13 @@ export class ListagemProjetos {
     this.proximosPassos.set([]);
     this.realizacoesAntesDaEdicao = [];
     this.proximosPassosAntesDaEdicao = [];
-    this.evolucoesOrcamentarias.set([]);
+    this.acoesProjeto.set([]);
+    this.acoesAntesDaEdicao = [];
+    this.fecharSubmodalAcao();
   }
 
   fecharFormulario(): void {
+    this.fecharSubmodalAcao();
     this.editandoRascunho = false;
     this.visualizando = false;
     this.modoEdicaoEtapa3 = false;
@@ -758,7 +745,7 @@ export class ListagemProjetos {
 
   irParaEtapa(numeroEtapa: number): void {
     if (numeroEtapa === this.etapaAtual) return;
-    if (numeroEtapa < 1 || numeroEtapa > 3) return;
+    if (numeroEtapa < 1 || numeroEtapa > 4) return;
 
     if (!this.visualizando && this.etapaAtual === 1 && numeroEtapa > 1) {
       this.validarEtapaUm();
@@ -768,7 +755,7 @@ export class ListagemProjetos {
   }
 
   avancar(): void {
-    if (this.etapaAtual >= 3) return;
+    if (this.etapaAtual >= 4) return;
 
     if (!this.visualizando && this.etapaAtual === 1) {
       this.validarEtapaUm();
@@ -910,6 +897,8 @@ export class ListagemProjetos {
   }
 
   cancelarEdicaoEtapa3(): void {
+    this.acoesProjeto.set(this.acoesAntesDaEdicao.map(acao => ({ ...acao })));
+    this.fecharSubmodalAcao();
     this.realizacoesConcluidas.set([...this.realizacoesAntesDaEdicao]);
     this.proximosPassos.set([...this.proximosPassosAntesDaEdicao]);
 
@@ -946,24 +935,11 @@ export class ListagemProjetos {
     }
     const formulario = this.formularioProjeto.getRawValue();
 
-    const evolucoesOrcamentarias: Array<{
-      id?: number;
-      valor: number;
-      descricao: string;
-      data_registro: string;
-    }> = this.evolucoesOrcamentarias().map((evolucao) => ({
-      id: evolucao.id || undefined,
-      valor: Number(evolucao.valor),
-      descricao: evolucao.descricao,
-      data_registro: evolucao.data_registro,
-    }));
-
     const dadosAtualizacao = {
       ...(this.isAdmin() ? {
         nome: formulario.tituloProjeto,
         descricao: formulario.descricao,
         tempo_estimado: formulario.tempoEstimado,
-        custo_estimado: Number(formulario.custoEstimado),
         responsavel: formulario.liderProjeto || null,
         unidade: formulario.unidadeResponsavel,
         acoes_previstas: formulario.acoesPrevistas,
@@ -973,7 +949,7 @@ export class ListagemProjetos {
 
       evolucoes: this.montarEvolucoes(),
 
-      evolucoesOrcamentarias: evolucoesOrcamentarias,
+      acoes: this.montarAcoesProjeto(),
     };
 
     const envio = this.isAdmin()
@@ -1019,54 +995,6 @@ export class ListagemProjetos {
     };
 
     return rotulos[status] ?? status;
-  }
-
-  adicionarEvolucaoOrcamentaria(): void {
-    const campoData = this.formularioProjeto.get('dataOrcamentaria');
-    const campoValor = this.formularioProjeto.get('valorInvestido');
-    const campoDescricao = this.formularioProjeto.get('descricaoOrcamentaria');
-
-    const data = campoData?.value;
-
-    const valor = Number(campoValor?.value ?? 0);
-
-    const descricao = (campoDescricao?.value ?? '').trim();
-
-    if (!data) {
-      window.alert('Informe a data da evolução orçamentária.');
-      campoData?.markAsTouched();
-      return;
-    }
-
-    if (valor <= 0) {
-      window.alert('Informe um valor investido maior que zero.');
-      campoValor?.markAsTouched();
-      return;
-    }
-
-    if (!descricao) {
-      window.alert('Informe uma descrição para a evolução orçamentária.');
-      campoDescricao?.markAsTouched();
-      return;
-    }
-
-    const novaEvolucao: EvolucaoOrcamentaria = {
-      id: 0,
-      valor: valor,
-      descricao: descricao,
-      data_registro: data,
-      fk_projeto: this.projetoSelecionadoId ?? 0,
-    };
-
-    this.evolucoesOrcamentarias.update((lista) => [...lista, novaEvolucao]);
-
-    campoData?.reset('');
-    campoValor?.reset(null);
-    campoDescricao?.reset('');
-
-    campoData?.markAsUntouched();
-    campoValor?.markAsUntouched();
-    campoDescricao?.markAsUntouched();
   }
 
   obterUnidadeProjeto(projeto: ProjetoEstrategico): Unidade | undefined {
@@ -1195,52 +1123,74 @@ export class ListagemProjetos {
     );
   }
 
-  editarEvolucaoOrcamentaria(indice: number): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) {
-      return;
-    }
 
-    const evolucao = this.evolucoesOrcamentarias()[indice];
-
-    if (!evolucao) {
-      return;
-    }
-    const valorInformado = window.prompt('Informe o novo valor investido:', String(evolucao.valor));
-
-    if (valorInformado === null) {
-      return;
-    }
-
-    const valor = Number(valorInformado.replace(',', '.'));
-
-    if (Number.isNaN(valor) || valor < 0) {
-      window.alert('Informe um valor válido, maior ou igual a zero.');
-      return;
-    }
-
-    const descricao = window.prompt('Informe a descrição:', evolucao.descricao ?? '');
-
-    if (descricao === null) {
-      return;
-    }
-
-    this.evolucoesOrcamentarias.update((lista) =>
-      lista.map((item, i) =>
-        i === indice ? { ...item, valor: valor, descricao: descricao.trim() } : item,
-      ),
-    );
+  totalCustoEstimado(): number {
+    return this.acoesProjeto().reduce((total, acao) => total + Number(acao.custo_estimado), 0);
   }
-  excluirEvolucaoOrcamentaria(indice: number): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) {
+
+  totalCustoRealizado(): number {
+    return this.acoesProjeto().reduce((total, acao) => total + Number(acao.custo_realizado), 0);
+  }
+
+  abrirSubmodalAcao(): void {
+    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+    this.acaoEmEdicaoIndice = null;
+    this.formularioAcaoInterno.reset({ descricaoAcao: '', prazoInicio: '', prazoFim: '',
+      custoEstimado: 0, custoRealizado: 0, inicioEfetivo: '', fimEfetivo: '', statusAtual: 'PLANEJAMENTO' });
+    this.submodalAcaoAberto = true;
+  }
+
+  fecharSubmodalAcao(): void {
+    this.submodalAcaoAberto = false;
+    this.acaoEmEdicaoIndice = null;
+  }
+
+  editarAcaoProjeto(acao: AcaoProjeto, indice: number): void {
+    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+    this.acaoEmEdicaoIndice = indice;
+    this.formularioAcaoInterno.reset({ descricaoAcao: acao.nome, prazoInicio: acao.prazo_inicio,
+      prazoFim: acao.prazo_fim, custoEstimado: acao.custo_estimado, custoRealizado: acao.custo_realizado,
+      inicioEfetivo: acao.data_inicio_efetivo ?? '', fimEfetivo: acao.data_fim_efetivo ?? '', statusAtual: acao.status });
+    this.submodalAcaoAberto = true;
+  }
+
+  adicionarAcaoProjeto(): void {
+    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+    if (this.formularioAcaoInterno.invalid) {
+      this.formularioAcaoInterno.markAllAsTouched();
       return;
     }
-
-    const confirmou = window.confirm('Tem certeza que deseja excluir esta evolução orçamentária?');
-
-    if (!confirmou) {
+    const dados = this.formularioAcaoInterno.getRawValue();
+    if (!dados.descricaoAcao.trim()) {
+      window.alert('Informe a descrição da ação.');
       return;
     }
+    if (dados.prazoFim < dados.prazoInicio ||
+        (dados.inicioEfetivo && dados.fimEfetivo && dados.fimEfetivo < dados.inicioEfetivo)) {
+      window.alert('A data de fim não pode ser anterior à data de início.');
+      return;
+    }
+    const acao: AcaoProjeto = { nome: dados.descricaoAcao.trim(), prazo_inicio: dados.prazoInicio,
+      prazo_fim: dados.prazoFim, custo_estimado: Number(dados.custoEstimado),
+      custo_realizado: Number(dados.custoRealizado), data_inicio_efetivo: dados.inicioEfetivo || null,
+      data_fim_efetivo: dados.fimEfetivo || null, status: dados.statusAtual };
+    this.acoesProjeto.update(lista => this.acaoEmEdicaoIndice === null ? [...lista, acao] :
+      lista.map((item, indice) => indice === this.acaoEmEdicaoIndice ? { ...acao, id: item.id } : item));
+    this.fecharSubmodalAcao();
+  }
 
-    this.evolucoesOrcamentarias.update((lista) => lista.filter((_, i) => i !== indice));
+  removerAcaoProjeto(indice: number): void {
+    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+    this.acoesProjeto.update(lista => lista.filter((_, i) => i !== indice));
+  }
+
+  private montarAcoesProjeto(): Omit<AcaoProjeto, 'id'>[] {
+    return this.acoesProjeto().map(({ id, ...acao }) => ({ ...acao,
+      custo_estimado: Number(acao.custo_estimado), custo_realizado: Number(acao.custo_realizado) }));
+  }
+
+  rotuloStatusAcao(status: string): string {
+    return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída',
+      CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;
   }
 }
