@@ -1176,7 +1176,7 @@ textarea.objetivo-projeto{
 
   transition: width 0.3s ease;
 }
-.secao-acompanhamento {
+.secao-evolucao-orcamento {
   margin: 16px 12px;
   padding: 14px 16px;
 
@@ -1185,7 +1185,7 @@ textarea.objetivo-projeto{
   border-radius: 10px;
 }
 
-.titulo-acompanhamento {
+.titulo-evolucao-orcamento {
   margin: 0 0 12px;
   padding-bottom: 8px;
 
@@ -1196,14 +1196,14 @@ textarea.objetivo-projeto{
   border-bottom: 1px solid #e5e7eb;
 }
 
-.cards-acompanhamento {
+.cards-evolucao-orcamento {
   display: grid;
-  grid-template-columns: 1fr;
-  align-items: start;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(320px, 1.2fr);
+  align-items: start; // impede que os cards fiquem com a mesma altura
   gap: 14px;
 }
 
-.card-acompanhamento {
+.card-monitoramento {
   padding: 12px;
 
   background-color: #f5f6f8;
@@ -1211,7 +1211,7 @@ textarea.objetivo-projeto{
   border-radius: 9px;
 }
 
-.card-acompanhamento-texto {
+.card-monitoramento-texto {
   margin-bottom: 8px;
 
   h3 {
@@ -1291,147 +1291,204 @@ textarea.objetivo-projeto{
 
   transition: width 0.25s ease;
 }
-
-.resumo-custos-acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin: 16px 0;
-
-  > div {
-    display: flex;
-    flex: 1 1 220px;
-    flex-direction: column;
-    gap: 4px;
-    padding: 14px 16px;
-    border: 1px solid #dfe3e8;
-    border-radius: 8px;
-    background: #f8fafc;
-  }
-
-  span {
-    color: #667085;
-    font-size: 12px;
-  }
-
-  strong {
-    color: $cor-primaria-texto-destaque;
-    font-size: 20px;
-  }
+.historico-orcamentario {
+  max-height: 150px;
+  overflow-y: auto;
 }
-
-.cabecalho-acoes-projeto {
+.registro-orcamentario {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin: 20px 0 10px;
+  gap: 8px;
 
-  h3 {
-    margin: 0;
-    font-size: 17px;
+  min-height: 38px;
+  padding: 5px 7px;
+  margin-bottom: 5px;
+
+  background-color: #ffffff;
+  border: 1px solid #dfe7f3;
+  border-left: 3px solid #0e58b8;
+  border-radius: 5px;
+
+  box-shadow: none;
+}
+
+.dados-registro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  min-width: 0;
+  flex: 1;
+}
+
+.registro-data {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+
+  color: #667085;
+  font-size: 14px;
+  white-space: nowrap;
+
+  i {
+    color: #0e58b8;
+    font-size: 10px;
   }
 }
 
-.botao-adicionar-acao-projeto {
-  color: #fff;
-  background: $cor-primaria-botao-hover;
-}
+.registro-valor {
+  padding: 2px 5px;
 
-.lista-acoes-projeto {
-  overflow-x: auto;
-  border: 1px solid #e5e7eb;
+  color: #087333;
+  background-color: #eaf8ef;
   border-radius: 8px;
+
+  font-size: 14px;
+  white-space: nowrap;
 }
 
-.linha-acao-projeto {
-  display: grid;
-  grid-template-columns: minmax(150px, 1.5fr) repeat(4, minmax(120px, 1fr)) minmax(100px, 0.8fr) 74px;
+.registro-descricao {
+  min-width: 0;
+  overflow: hidden;
+
+  color: #475467;
+  font-size: 14px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acoes-registro-orcamentario {
+  display: flex;
+  flex-shrink: 0;
+  gap: 3px;
+
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.botao-registro {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-width: 980px;
-  padding: 11px 12px;
-  border-bottom: 1px solid #e5e7eb;
+  justify-content: center;
+
+  width: 25px;
+  height: 25px;
+  padding: 0;
+
+  background-color: transparent;
+  border: 1px solid;
+  border-radius: 4px;
+
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  i {
+    font-size: 14px;
+  }
+}
+
+.botao-editar-registro {
+  color: #0e58b8;
+  border-color: #aecffa;
+  background-color: #f4f8ff;
+
+  &:hover {
+    color: #ffffff;
+    background-color: #0e58b8;
+  }
+}
+
+.botao-excluir-registro {
+  color: #b42318;
+  border-color: #f3bbb7;
+  background-color: #fff6f5;
+
+  &:hover {
+    color: #ffffff;
+    background-color: #b42318;
+  }
+}
+.registrar {
+  margin: 8px 0 6px;
+
   color: #344054;
   font-size: 12px;
-
-  &:last-child {
-    border-bottom: 0;
-  }
 }
 
-.linha-acao-projeto-cabecalho {
-  background: #f1f5f9;
-  color: #475467;
-  font-weight: 700;
-  text-transform: uppercase;
-}
+.campo-orcamento {
+  margin-top: 7px;
 
-.acao-projeto-nome {
-  font-weight: 600;
-}
+  label {
+    display: block;
+    margin-bottom: 3px;
 
-.lista-acoes-vazia {
-  padding: 18px;
-  color: #667085;
-  text-align: center;
-}
-
-.acoes-linha-projeto {
-  display: flex;
-  gap: 6px;
-
-  button {
-    border: 0;
-    background: transparent;
-    color: $cor-primaria-texto-destaque;
-    cursor: pointer;
+    color: #667085;
+    font-size: 9px;
+    font-weight: 600;
   }
 
-  .btn-remover-acao-projeto {
-    color: #b42318;
+  input {
+    height: 30px;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  textarea {
+    min-height: 46px;
+    padding: 6px 8px;
+
+    font-size: 10px;
+    resize: vertical;
   }
 }
-
-.formulario-acao-projeto {
-  margin-top: 16px;
-  padding: 16px;
-  border: 1px solid #dfe3e8;
-  border-radius: 8px;
-  background: #f8fafc;
-
-  h3 {
-    margin: 0 0 12px;
-    font-size: 16px;
-  }
-}
-
-.campos-acao-projeto {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.botoes-formulario-acao {
+.acoes-novo-lancamento {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 14px;
+  margin-top: 7px;
 }
 
-@media (max-width: 850px) {
-  .campos-acao-projeto {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.botao-adicionar-orcamento {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  height: 29px;
+  padding: 3px 10px;
+
+  color: #ffffff;
+  background-color: #0e58b8;
+  border: 1px solid #0e58b8;
+  border-radius: 5px;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  &:hover {
+    background-color: #08458f;
+    border-color: #08458f;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  i {
+    font-size: 11px;
   }
 }
 
-@media (max-width: 520px) {
-  .campos-acao-projeto {
+@media (max-width: 800px) {
+  .cards-evolucao-orcamento {
     grid-template-columns: 1fr;
-  }
-
-  .cabecalho-acoes-projeto {
-    align-items: flex-start;
-    flex-direction: column;
+    gap: 20px;
   }
 }
+

@@ -14,6 +14,7 @@ import { carregarDetalhePublico } from '../../service/detalhe-publico';
 export class VisualizacaoProjeto {
   readonly detalhe = carregarDetalhePublico('projetos');
 
+  readonly totalInvestido = computed(() => (this.detalhe.registro()?.evolucoesOrcamentarias ?? []).reduce((total, item) => total + Number(item.valor), 0));
   readonly evolucoes = computed(() => {
     const itens = this.detalhe.registro()?.evolucoes ?? [];
     const realizadas = itens.filter(item => item.tipo === 'REALIZACAO');
@@ -22,14 +23,4 @@ export class VisualizacaoProjeto {
       realizada: realizadas[i]?.descricao ?? '—', proximo: proximos[i]?.descricao ?? '—',
     }));
   });
-
-  rotuloStatusAcao(status: string): string {
-    const rotulos: Record<string, string> = {
-      PLANEJAMENTO: 'Planejamento',
-      ANDAMENTO: 'Em andamento',
-      CONCLUIDA: 'Concluída',
-      CANCELADA: 'Cancelada',
-    };
-    return rotulos[status] ?? status;
-  }
 }

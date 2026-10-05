@@ -5,7 +5,7 @@ from .models import RevisaoEdicao
 from django.db import transaction
 from django.utils import timezone
 
-from projetosEstrategicos.models import AcaoProjeto, ProjetoEstrategico, EvolucaoProjeto
+from projetosEstrategicos.models import (ProjetoEstrategico, EvolucaoProjeto,  EvolucaoOrcamentaria)
 from iniciativasEstrategicas.models import IniciativaEstrategica, AcaoRealizada
 from indicadoresEstrategicos.models import IndicadorEstrategico, EvolucaoIndicador
 
@@ -70,7 +70,6 @@ def snapshot_projeto(projeto):
         'percentual_progresso': str(
             projeto.percentual_progresso
         ),
-        'custo_estimado': str(projeto.custo_estimado),
 
         'evolucoes': [
             {
@@ -85,24 +84,21 @@ def snapshot_projeto(projeto):
             in projeto.evolucoes.all()
         ],
 
-        'acoes': [
+        'evolucoesOrcamentarias': [
             {
-                'nome': acao.nome,
-                'prazo_inicio': acao.prazo_inicio.isoformat() if acao.prazo_inicio else None,
-                'prazo_fim': acao.prazo_fim.isoformat() if acao.prazo_fim else None,
-                'custo_estimado': str(acao.custo_estimado),
-                'custo_realizado': str(acao.custo_realizado),
-                'data_inicio_efetivo': (
-                    acao.data_inicio_efetivo.isoformat() if acao.data_inicio_efetivo else None
-                ),
-                'data_fim_efetivo': (
-                    acao.data_fim_efetivo.isoformat() if acao.data_fim_efetivo else None
-                ),
-                'status': acao.status,
-            }
-            for acao in projeto.acoes.all()
-        ],
+                'valor':
+                    str(evolucao.valor),
 
+                'descricao':
+                    evolucao.descricao,
+
+                'data_registro':
+                    evolucao.data_registro.isoformat()
+            }
+
+            for evolucao
+            in projeto.evolucoesOrcamentarias.all()
+        ]
     }
     
 def montar_proposta_projeto(
@@ -135,29 +131,30 @@ def montar_proposta_projeto(
             in dados['evolucoes']
         ]
 
-    if 'acoes' in dados:
-        proposta['acoes'] = [
+    if 'evolucoesOrcamentarias' in dados:
+
+        proposta['evolucoesOrcamentarias'] = [
             {
-                'nome': acao['nome'],
-                'prazo_inicio': acao['prazo_inicio'].isoformat(),
-                'prazo_fim': acao['prazo_fim'].isoformat(),
-                'custo_estimado': str(acao['custo_estimado']),
-                'custo_realizado': str(acao.get('custo_realizado', Decimal('0.00'))),
-                'data_inicio_efetivo': (
-                    acao['data_inicio_efetivo'].isoformat()
-                    if acao.get('data_inicio_efetivo') else None
-                ),
-                'data_fim_efetivo': (
-                    acao['data_fim_efetivo'].isoformat()
-                    if acao.get('data_fim_efetivo') else None
-                ),
-                'status': acao['status'],
+                'valor':
+                    str(evolucao['valor']),
+
+                'descricao':
+                    evolucao.get(
+                        'descricao',
+                        ''
+                    ),
+
+                'data_registro':
+                    evolucao[
+                        'data_registro'
+                    ].isoformat()
             }
-            for acao in dados['acoes']
+
+            for evolucao
+            in dados[
+                'evolucoesOrcamentarias'
+            ]
         ]
-        proposta['custo_estimado'] = str(
-            sum((acao['custo_estimado'] for acao in dados['acoes']), Decimal('0.00'))
-        )
 
     return proposta
 
@@ -428,11 +425,31 @@ def aprovar_revisao_projeto(
             tipo=evolucao['tipo']
         )
 
-    if 'acoes' in dados:
-        projeto.acoes.all().delete()
-        for acao in dados['acoes']:
-            AcaoProjeto.objects.create(fk_projeto=projeto, **acao)
-        projeto.atualizar_custo_estimado()
+    # --------------------------------
+    # EVOLUÇÃO ORÇAMENTÁRIA
+    # --------------------------------
+
+    projeto.evolucoesOrcamentarias.all().delete()
+
+    for evolucao in dados.get(
+        'evolucoesOrcamentarias',
+        []
+    ):
+
+        EvolucaoOrcamentaria.objects.create(
+            fk_projeto=projeto,
+
+            valor=evolucao['valor'],
+
+            descricao=evolucao.get(
+                'descricao',
+                ''
+            ),
+
+            data_registro=evolucao[
+                'data_registro'
+            ]
+        )
 
     # --------------------------------
     # REVISÃO APROVADA

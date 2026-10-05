@@ -49,24 +49,14 @@
           </div>
         </article>
       </section>
-      <h2 class="faixa">Ações do Projeto</h2>
+      <h2 class="faixa">Ações Previstas no Projeto</h2>
       <section class="acoes-previstas">
-        <div class="acoes-projeto-publicas" *ngIf="registro.acoes?.length; else semAcoesProjeto">
-          <article class="acao-projeto-publica" *ngFor="let acao of registro.acoes">
-            <div class="acao-projeto-publica-cabecalho">
-              <h3>{{ acao.nome }}</h3>
-              <span>{{ rotuloStatusAcao(acao.status) }}</span>
-            </div>
-            <div class="acao-projeto-publica-detalhes">
-              <span>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</span>
-              <span>Custo estimado: {{ acao.custo_estimado | currency:'BRL' }}</span>
-              <span>Custo realizado: {{ acao.custo_realizado | currency:'BRL' }}</span>
-              <span>Início efetivo: {{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</span>
-              <span>Fim efetivo: {{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</span>
-            </div>
-          </article>
-        </div>
-        <ng-template #semAcoesProjeto><p>Nenhuma ação cadastrada.</p></ng-template>
+        <ul *ngIf="registro.acoes_previstas; else semAcoesPrevistas">
+          <ng-container *ngFor="let acao of registro.acoes_previstas.split('\n')">
+            <li *ngIf="acao.trim()">{{ acao }}</li>
+          </ng-container>
+        </ul>
+        <ng-template #semAcoesPrevistas><p>Nenhuma ação prevista informada.</p></ng-template>
       </section>
       <section class="evolucao-projeto">
         <h2 class="faixa">Evolução do Projeto</h2>
@@ -84,20 +74,20 @@
         </div>
       </section>
       <section class="rodape-projeto">
-        <article class="card-informacoes-projeto">
+        <article class="card-orcamento card-orcamento--destaque">
           <h3>Evolução Orçamentária</h3>
-          <div class="custos-projeto">
-            <div class="custo-estimado">
-              <span class="custo-estimado-label">Custo estimado</span>
-              <strong class="custo-estimado-valor">{{
+          <div class="orcamento-valores">
+            <div class="orcamento-valor-item">
+              <span class="orcamento-label">Custo estimado</span
+              ><span class="orcamento-valor">{{
                 registro.custo_estimado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
-              }}</strong>
+              }}</span>
             </div>
-            <div class="custo-estimado">
-              <span class="custo-estimado-label">Total investido</span>
-              <strong class="custo-estimado-valor">{{
-                registro.custo_realizado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
-              }}</strong>
+            <div class="orcamento-valor-item">
+              <span class="orcamento-label">Total investido</span
+              ><span class="orcamento-valor">{{
+                totalInvestido() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+              }}</span>
             </div>
           </div>
           <div class="progresso">

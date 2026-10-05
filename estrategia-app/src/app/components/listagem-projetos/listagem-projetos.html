@@ -297,6 +297,10 @@
                     formControlName="tempoEstimado" />
                 </div>
 
+                <div class="campo-formulario campo-custo">
+                  <label for="custoEstimado">CUSTO ESTIMADO</label>
+                  <input id="custoEstimado" type="number" class="form-control" formControlName="custoEstimado" />
+                </div>
               </div>
 
               <div class="campo-formulario">
@@ -329,108 +333,13 @@
 
             <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 2">
               <div class="titulo-secao">
-                <h2>Passo 2: Ações do projeto</h2>
-                <p>Cadastre prazos, custos previstos e realizados, datas efetivas e situação das ações.</p>
+                <h2>Passo 2: Ações Previstas do projeto</h2>
+                <p>Adicione e edite os principais compromissos e ações previstas.</p>
                 <hr />
               </div>
-              <div class="resumo-custos-acoes">
-                <div>
-                  <span>Custo estimado</span>
-                  <strong>{{ custoEstimadoTotal() | currency:'BRL' }}</strong>
-                </div>
-                <div>
-                  <span>Custo total realizado</span>
-                  <strong>{{ custoRealizadoTotal() | currency:'BRL' }}</strong>
-                </div>
-              </div>
-
-              <div class="cabecalho-acoes-projeto">
-                <h3>Lista de ações</h3>
-                <button *ngIf="!visualizando || modoEdicaoEtapa3" type="button" class="btn botao-adicionar-acao-projeto"
-                  (click)="abrirFormularioAcao()">+ Adicionar ação</button>
-              </div>
-
-              <div class="lista-acoes-projeto">
-                <div class="linha-acao-projeto linha-acao-projeto-cabecalho">
-                  <span>Ação</span>
-                  <span>Prazo previsto</span>
-                  <span>Estimado</span>
-                  <span>Realizado</span>
-                  <span>Período efetivo</span>
-                  <span>Status</span>
-                  <span *ngIf="!visualizando || modoEdicaoEtapa3">Opções</span>
-                </div>
-                <div *ngIf="acoesProjeto().length === 0" class="lista-acoes-vazia">
-                  Nenhuma ação cadastrada.
-                </div>
-                <div class="linha-acao-projeto" *ngFor="let acao of acoesProjeto(); let indice = index">
-                  <span class="acao-projeto-nome">{{ acao.nome }}</span>
-                  <span>{{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</span>
-                  <strong>{{ acao.custo_estimado | currency:'BRL' }}</strong>
-                  <strong>{{ acao.custo_realizado | currency:'BRL' }}</strong>
-                  <span>
-                    {{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}
-                    –
-                    {{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}
-                  </span>
-                  <span>{{ rotuloStatusAcao(acao.status) }}</span>
-                  <span class="acoes-linha-projeto" *ngIf="!visualizando || modoEdicaoEtapa3">
-                    <button type="button" class="btn-editar-acao-projeto" title="Editar ação"
-                      (click)="editarAcaoProjeto(indice)"><i class="bi bi-pencil-square"></i></button>
-                    <button type="button" class="btn-remover-acao-projeto" title="Remover ação"
-                      (click)="removerAcaoProjeto(indice)"><i class="bi bi-trash"></i></button>
-                  </span>
-                </div>
-              </div>
-
-              <div class="formulario-acao-projeto" *ngIf="!visualizando || modoEdicaoEtapa3"
-                [formGroup]="formularioAcao">
-                <h3>{{ acaoEmEdicaoIndice === null ? 'Adicionar ação' : 'Editar ação' }}</h3>
-                <div class="campos-acao-projeto">
-                  <label class="campo-formulario">
-                    DESCRIÇÃO DA AÇÃO <span class="campo-obrigatorio">*</span>
-                    <input type="text" class="form-control" formControlName="nome" />
-                  </label>
-                  <label class="campo-formulario">
-                    INÍCIO PREVISTO <span class="campo-obrigatorio">*</span>
-                    <input type="date" class="form-control" formControlName="prazo_inicio" />
-                  </label>
-                  <label class="campo-formulario">
-                    FIM PREVISTO <span class="campo-obrigatorio">*</span>
-                    <input type="date" class="form-control" formControlName="prazo_fim" />
-                  </label>
-                  <label class="campo-formulario">
-                    CUSTO ESTIMADO (R$) <span class="campo-obrigatorio">*</span>
-                    <input type="number" min="0" step="0.01" class="form-control" formControlName="custo_estimado" />
-                  </label>
-                  <label class="campo-formulario">
-                    CUSTO REALIZADO (R$)
-                    <input type="number" min="0" step="0.01" class="form-control" formControlName="custo_realizado" />
-                  </label>
-                  <label class="campo-formulario">
-                    INÍCIO EFETIVO
-                    <input type="date" class="form-control" formControlName="data_inicio_efetivo" />
-                  </label>
-                  <label class="campo-formulario">
-                    FIM EFETIVO
-                    <input type="date" class="form-control" formControlName="data_fim_efetivo" />
-                  </label>
-                  <label class="campo-formulario">
-                    STATUS <span class="campo-obrigatorio">*</span>
-                    <select class="form-control" formControlName="status">
-                      <option value="PLANEJAMENTO">Planejamento</option>
-                      <option value="ANDAMENTO">Em andamento</option>
-                      <option value="CONCLUIDA">Concluída</option>
-                      <option value="CANCELADA">Cancelada</option>
-                    </select>
-                  </label>
-                </div>
-                <div class="botoes-formulario-acao">
-                  <button type="button" class="btn btn-secondary" (click)="abrirFormularioAcao()">Limpar</button>
-                  <button type="button" class="btn botao-adicionar-acao-projeto" (click)="salvarAcaoProjeto()">
-                    {{ acaoEmEdicaoIndice === null ? 'Adicionar ação' : 'Salvar ação' }}
-                  </button>
-                </div>
+              <div class="campo-formulario campo-observacao">
+                <textarea class="form-control caixa-texto-observacao" rows="12"
+                  placeholder="Insira as ações previstas aqui" formControlName="acoesPrevistas"></textarea>
               </div>
               <br />
               <hr />
@@ -528,12 +437,12 @@
               <hr />
             </div>
             <hr />
-            <section class="secao-acompanhamento" [class.sumir]="etapaAtual !== 3">
-              <h2 class="titulo-acompanhamento">Acompanhamento do projeto</h2>
-              <div class="cards-acompanhamento">
+            <section class="secao-evolucao-orcamento" [class.sumir]="etapaAtual !== 3">
+              <h2 class="titulo-evolucao-orcamento">Evolução & Orçamento</h2>
+              <div class="cards-evolucao-orcamento">
                 <!-- EVOLUÇÃO DO PROJETO -->
-                <div class="card-acompanhamento">
-                  <div class="card-acompanhamento-texto">
+                <div class="card-monitoramento">
+                  <div class="card-monitoramento-texto">
                     <h3>Evolução do projeto</h3>
                     <p>
                       Insira manualmente o percentual de evolução exatocorrespondente a este
@@ -555,6 +464,95 @@
                     <div class="trilho-progresso">
                       <div class="preenchimento-progresso"
                         [style.width.%]="formularioProjeto.get('percentualProgresso')?.value || 0"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- EVOLUÇÃO ORÇAMENTÁRIA -->
+
+                <div class="card-monitoramento">
+                  <div class="card-monitoramento-texto">
+                    <h3>Evolução orçamentária</h3>
+
+                    <p>
+                      Consulte os registros anteriores e, quando necessário, adicione uma nova
+                      evolução orçamentária.
+                    </p>
+                  </div>
+
+                  <!-- HISTÓRICO -->
+
+                  <div class="historico-orcamentario">
+                    <div class="registro-orcamentario" *ngFor="
+    let evolucao of evolucoesOrcamentarias();
+    let indice = index
+  ">
+                      <div class="dados-registro">
+                        <span class="registro-data">
+                          <i class="bi bi-calendar3"></i>
+                          {{ evolucao.data_registro | date: 'dd/MM/yyyy' }}
+                        </span>
+
+                        <strong class="registro-valor">
+                          {{ evolucao.valor | currency: 'BRL' }}
+                        </strong>
+
+                        <span class="registro-descricao">
+                          {{ evolucao.descricao || 'Sem descrição' }}
+                        </span>
+                      </div>
+
+                      <div class="acoes-registro-orcamentario" *ngIf="!visualizando || modoEdicaoEtapa3">
+                        <button type="button" class="botao-registro botao-editar-registro" title="Editar"
+                          (click)="editarEvolucaoOrcamentaria(indice)">
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <button type="button" class="botao-registro botao-excluir-registro" title="Excluir"
+                          (click)="excluirEvolucaoOrcamentaria(indice)">
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="sem-registros" *ngIf="evolucoesOrcamentarias().length === 0">
+                      Nenhuma evolução orçamentária registrada.
+                    </div>
+                  </div>
+
+                  <!-- NOVO LANÇAMENTO -->
+
+                  <div class="novo-lancamento" *ngIf="!visualizando || modoEdicaoEtapa3">
+
+                    <p class="registrar">
+                      <b>Registrar nova evolução</b>
+                    </p>
+
+                    <div class="campo-orcamento">
+                      <label> DATA </label>
+
+                      <input type="date" class="form-control" formControlName="dataOrcamentaria" />
+                    </div>
+
+                    <div class="campo-orcamento">
+                      <label> VALOR INVESTIDO (R$) </label>
+
+                      <input type="number" min="0" step="0.01" class="form-control" formControlName="valorInvestido"
+                        placeholder="Ex.: 12345,67" />
+                    </div>
+
+                    <div class="campo-orcamento">
+                      <label> DESCRIÇÃO </label>
+
+                      <textarea class="form-control" rows="2" formControlName="descricaoOrcamentaria"
+                        placeholder="Ex.: Aquisição de equipamentos"></textarea>
+                    </div>
+
+                    <div class="acoes-novo-lancamento">
+                      <button type="button" class="botao-adicionar-orcamento" (click)="adicionarEvolucaoOrcamentaria()">
+                        <i class="bi bi-plus-lg"></i>
+                        Adicionar
+                      </button>
                     </div>
                   </div>
                 </div>
