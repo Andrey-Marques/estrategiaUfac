@@ -91,7 +91,6 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                 'nome',
                 'descricao',
                 'tempo_estimado',
-                'acoes_previstas',
                 'percentual_progresso',
                 'responsavel',
                 'unidade',

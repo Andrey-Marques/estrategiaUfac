@@ -34,7 +34,7 @@
 
                 <div class="menu-opcoes">
 
-                    <a routerLink="/home" routerLinkActive="menu-item-ativo" class="menu-item">
+                    <a routerLink="/home" routerLinkActive="menu-item-ativo" class="menu-item" title="Início">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M4 10.5L12 4L20 10.5"
@@ -59,7 +59,7 @@
                     </a>
 
 
-                    <a  routerLink="/listagem-projetos" routerLinkActive="menu-item-ativo" class="menu-item">
+                    <a  routerLink="/listagem-projetos" routerLinkActive="menu-item-ativo" class="menu-item" title="Lista de projetos">
                         
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -89,7 +89,7 @@
                     </a>
 
     
-                    <a routerLink="/listagem-indicadores" routerLinkActive="menu-item-ativo"  class="menu-item">
+                    <a routerLink="/listagem-indicadores" routerLinkActive="menu-item-ativo"  class="menu-item" title="Lista de indicadores">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M4 4V19C4 19.5523 4.44772 20 5 20H20"
@@ -113,7 +113,7 @@
                         <span>Indicadores Estratégicos</span>
                     </a>
 
-                    <a routerLink="/listagem-iniciativas" routerLinkActive="menu-item-ativo"  class="menu-item">
+                    <a routerLink="/listagem-iniciativas" routerLinkActive="menu-item-ativo"  class="menu-item" title="Lista de iniciativas">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M9 18H15"
@@ -139,7 +139,7 @@
                     <a *ngIf="podeGerenciarUsuarios"
                     routerLink="/tela-cadastro"
                     routerLinkActive="menu-item-ativo"
-                    class="menu-item">
+                    class="menu-item" title="Lista de usuários">
                         <svg
                             width="20"
                             height="20"
@@ -170,6 +170,16 @@
                                 stroke-linecap="round"/>
                         </svg>
                         <span>Cadastro de Usuários</span>
+                    </a>
+
+                    <a *ngIf="papelUsuario() === 'ADMIN'" routerLink="/listagem-unidades"
+                       routerLinkActive="menu-item-ativo" class="menu-item"
+                       title="Gerenciamento de Unidades" aria-label="Gerenciamento de Unidades">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M4 21V3H16V21M16 9H20V21M2 21H22M8 7H12M8 11H12M8 15H12M9 21V18H11V21"
+                                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>Unidades</span>
                     </a>
 
 

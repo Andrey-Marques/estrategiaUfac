@@ -37,7 +37,7 @@ export class ListagemProjetos {
   formularioProjeto: FormGroup;
   etapaAtual = 1;
   visualizando = false;
-  modoEdicaoEtapa3 = false;
+  modoEdicaoProjeto = false;
   editandoProjetoRejeitado = false;
   editandoRascunho = false;
   projetoSelecionadoId: number | null = null;
@@ -87,7 +87,6 @@ export class ListagemProjetos {
       tempoEstimado: ['', Validators.required],
 
       percentualProgresso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
-      acoesPrevistas: [''],
       objetivos: [[], Validators.required],
     });
   }
@@ -218,7 +217,7 @@ export class ListagemProjetos {
 
   visualizarProjeto(projeto: ProjetoEstrategico): void {
     this.visualizando = true;
-    this.modoEdicaoEtapa3 = false;
+    this.modoEdicaoProjeto = false;
     this.projetoSelecionadoId = projeto.id;
     this.formularioProjeto.enable();
 
@@ -236,7 +235,6 @@ export class ListagemProjetos {
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
 
-          acoesPrevistas: projetoDetalhado.acoes_previstas,
 
           objetivos: this.normalizarIds(projetoDetalhado.objetivos ?? []),
         });
@@ -253,7 +251,6 @@ export class ListagemProjetos {
           descricao: projeto.descricao,
           tempoEstimado: projeto.tempo_estimado,
           percentualProgresso: projeto.percentual_progresso,
-          acoesPrevistas: projeto.acoes_previstas,
           objetivos: this.normalizarIds(projeto.objetivos ?? []),
         });
         this.formularioProjeto.disable();
@@ -355,7 +352,7 @@ export class ListagemProjetos {
     this.editandoProjetoRejeitado = projeto.status === 'REJEITADO';
     this.editandoRascunho = projeto.status === 'RASCUNHO';
 
-    this.modoEdicaoEtapa3 = false;
+    this.modoEdicaoProjeto = false;
 
     this.projetoService.getById(projeto.id).subscribe({
       next: (projetoDetalhado) => {
@@ -378,7 +375,6 @@ export class ListagemProjetos {
 
 
 
-          acoesPrevistas: projetoDetalhado.acoes_previstas,
 
           objetivos: this.normalizarIds(projetoDetalhado.objetivos ?? []),
         });
@@ -425,7 +421,6 @@ export class ListagemProjetos {
 
       unidade: formulario.unidadeResponsavel,
 
-      acoes_previstas: formulario.acoesPrevistas,
 
       objetivos: formulario.objetivos ?? [],
 
@@ -503,7 +498,6 @@ export class ListagemProjetos {
 
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
-          acoesPrevistas: projetoDetalhado.acoes_previstas,
 
           objetivos: this.normalizarIds(projetoDetalhado.objetivos ?? []),
         });
@@ -511,7 +505,7 @@ export class ListagemProjetos {
         this.carregarEvolucoesProjeto(projetoDetalhado);
 
 
-        this.etapaAtual = 3;
+        this.etapaAtual = 2;
 
         this.editarProjeto();
         this.changeDetector.markForCheck();
@@ -533,7 +527,7 @@ export class ListagemProjetos {
 
     this.dadosFormularioAntesDaEdicao = this.formularioProjeto.getRawValue();
 
-    this.modoEdicaoEtapa3 = true;
+    this.modoEdicaoProjeto = true;
 
     const papel = this.usuarioAtual()?.papel;
 
@@ -556,7 +550,7 @@ export class ListagemProjetos {
         this.formularioProjeto.get('liderProjeto')?.enable();
         this.etapaAtual = 1;
       } else {
-        this.etapaAtual = 3;
+        this.etapaAtual = 2;
       }
     }
   }
@@ -666,7 +660,6 @@ export class ListagemProjetos {
       status: status,
       responsavel: formulario.liderProjeto || null,
       unidade: formulario.unidadeResponsavel,
-      acoes_previstas: formulario.acoesPrevistas,
       objetivos: formulario.objetivos ?? [],
       evolucoes: this.montarEvolucoes(),
     };
@@ -681,7 +674,7 @@ export class ListagemProjetos {
         this.projetoSelecionadoId = null;
         this.editandoRascunho = false;
         this.dadosFormularioAntesDaEdicao = null;
-        this.modoEdicaoEtapa3 = false;
+        this.modoEdicaoProjeto = false;
         this.fecharModal();
         this.buscarProjeto();
         this.formularioProjeto.reset();
@@ -699,7 +692,7 @@ export class ListagemProjetos {
     this.editandoRascunho = false;
 
     this.visualizando = false;
-    this.modoEdicaoEtapa3 = false;
+    this.modoEdicaoProjeto = false;
     this.projetoSelecionadoId = null;
     this.formularioProjeto.enable();
     this.formularioProjeto.reset({
@@ -709,7 +702,6 @@ export class ListagemProjetos {
       descricao: '',
       tempoEstimado: '',
       percentualProgresso: 0,
-      acoesPrevistas: '',
       objetivos: [],
     });
     this.limparEvolucoesProjeto();
@@ -731,7 +723,7 @@ export class ListagemProjetos {
     this.fecharSubmodalAcao();
     this.editandoRascunho = false;
     this.visualizando = false;
-    this.modoEdicaoEtapa3 = false;
+    this.modoEdicaoProjeto = false;
     this.projetoSelecionadoId = null;
     this.formularioProjeto.enable();
   }
@@ -745,7 +737,7 @@ export class ListagemProjetos {
 
   irParaEtapa(numeroEtapa: number): void {
     if (numeroEtapa === this.etapaAtual) return;
-    if (numeroEtapa < 1 || numeroEtapa > 4) return;
+    if (numeroEtapa < 1 || numeroEtapa > 3) return;
 
     if (!this.visualizando && this.etapaAtual === 1 && numeroEtapa > 1) {
       this.validarEtapaUm();
@@ -755,7 +747,7 @@ export class ListagemProjetos {
   }
 
   avancar(): void {
-    if (this.etapaAtual >= 4) return;
+    if (this.etapaAtual >= 3) return;
 
     if (!this.visualizando && this.etapaAtual === 1) {
       this.validarEtapaUm();
@@ -810,7 +802,7 @@ export class ListagemProjetos {
   }
 
   selecionarObjetivo(objetivo: ObjetivoEstrategico, evento: Event): void {
-    if (this.visualizando && (!this.modoEdicaoEtapa3 || !this.isAdmin())) {
+    if (this.visualizando && (!this.modoEdicaoProjeto || !this.isAdmin())) {
       return;
     }
 
@@ -831,7 +823,7 @@ export class ListagemProjetos {
   }
 
   adicionarRealizacaoDireta(): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) {
+    if (this.visualizando && !this.modoEdicaoProjeto) {
       return;
     }
     const texto = window.prompt('Digite a realização concluída:');
@@ -843,7 +835,7 @@ export class ListagemProjetos {
   }
 
   adicionarProximoPasso(): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) {
+    if (this.visualizando && !this.modoEdicaoProjeto) {
       return;
     }
     const texto = window.prompt('Digite um proximo passo:');
@@ -855,7 +847,7 @@ export class ListagemProjetos {
   }
 
   concluirProximoPasso(indice: number): void {
-    if (!this.modoEdicaoEtapa3) {
+    if (!this.modoEdicaoProjeto) {
       return;
     }
     const passo = this.proximosPassos()[indice];
@@ -868,14 +860,14 @@ export class ListagemProjetos {
   }
 
   removerRealizacao(indice: number): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) {
+    if (this.visualizando && !this.modoEdicaoProjeto) {
       return;
     }
     this.realizacoesConcluidas.update((lista) => lista.filter((_, i) => i !== indice));
   }
 
   removerProximoPasso(indice: number): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) {
+    if (this.visualizando && !this.modoEdicaoProjeto) {
       return;
     }
 
@@ -883,7 +875,7 @@ export class ListagemProjetos {
   }
 
   voltarRealizacaoParaProximoPasso(indice: number): void {
-    if (!this.modoEdicaoEtapa3) {
+    if (!this.modoEdicaoProjeto) {
       return;
     }
     const realizacao = this.realizacoesConcluidas()[indice];
@@ -896,7 +888,7 @@ export class ListagemProjetos {
     this.proximosPassos.update((lista) => [...lista, realizacao]);
   }
 
-  cancelarEdicaoEtapa3(): void {
+  cancelarEdicaoProjeto(): void {
     this.acoesProjeto.set(this.acoesAntesDaEdicao.map(acao => ({ ...acao })));
     this.fecharSubmodalAcao();
     this.realizacoesConcluidas.set([...this.realizacoesAntesDaEdicao]);
@@ -907,7 +899,7 @@ export class ListagemProjetos {
     }
 
     this.formularioProjeto.disable();
-    this.modoEdicaoEtapa3 = false;
+    this.modoEdicaoProjeto = false;
     this.dadosFormularioAntesDaEdicao = null;
   }
 
@@ -923,7 +915,7 @@ export class ListagemProjetos {
     return [...realizacoes, ...proximos];
   }
 
-  confirmarEdicaoEtapa3(): void {
+  confirmarEdicaoProjeto(): void {
     if (!this.projetoSelecionadoId) {
       return;
     }
@@ -942,7 +934,6 @@ export class ListagemProjetos {
         tempo_estimado: formulario.tempoEstimado,
         responsavel: formulario.liderProjeto || null,
         unidade: formulario.unidadeResponsavel,
-        acoes_previstas: formulario.acoesPrevistas,
         objetivos: formulario.objetivos ?? [],
       } : {}),
       percentual_progresso: Number(this.formularioProjeto.get('percentualProgresso')?.value ?? 0),
@@ -964,7 +955,7 @@ export class ListagemProjetos {
           window.alert('Atualizações enviadas para análise com sucesso.');
         }
 
-        this.modoEdicaoEtapa3 = false;
+        this.modoEdicaoProjeto = false;
         this.fecharModal();
         this.buscarProjeto();
       },
@@ -1133,7 +1124,7 @@ export class ListagemProjetos {
   }
 
   abrirSubmodalAcao(): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+    if (this.visualizando && !this.modoEdicaoProjeto) return;
     this.acaoEmEdicaoIndice = null;
     this.formularioAcaoInterno.reset({ descricaoAcao: '', prazoInicio: '', prazoFim: '',
       custoEstimado: 0, custoRealizado: 0, inicioEfetivo: '', fimEfetivo: '', statusAtual: 'PLANEJAMENTO' });
@@ -1146,7 +1137,7 @@ export class ListagemProjetos {
   }
 
   editarAcaoProjeto(acao: AcaoProjeto, indice: number): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+    if (this.visualizando && !this.modoEdicaoProjeto) return;
     this.acaoEmEdicaoIndice = indice;
     this.formularioAcaoInterno.reset({ descricaoAcao: acao.nome, prazoInicio: acao.prazo_inicio,
       prazoFim: acao.prazo_fim, custoEstimado: acao.custo_estimado, custoRealizado: acao.custo_realizado,
@@ -1155,7 +1146,7 @@ export class ListagemProjetos {
   }
 
   adicionarAcaoProjeto(): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+    if (this.visualizando && !this.modoEdicaoProjeto) return;
     if (this.formularioAcaoInterno.invalid) {
       this.formularioAcaoInterno.markAllAsTouched();
       return;
@@ -1180,7 +1171,7 @@ export class ListagemProjetos {
   }
 
   removerAcaoProjeto(indice: number): void {
-    if (this.visualizando && !this.modoEdicaoEtapa3) return;
+    if (this.visualizando && !this.modoEdicaoProjeto) return;
     this.acoesProjeto.update(lista => lista.filter((_, i) => i !== indice));
   }
 

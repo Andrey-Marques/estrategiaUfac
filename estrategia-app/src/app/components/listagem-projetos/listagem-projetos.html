@@ -212,13 +212,10 @@
               <span>1. Apresentação</span>
             </div>
             <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 2" (click)="irParaEtapa(2)">
-              <span>2. Ações previstas</span>
+              <span>2. Realizações</span>
             </div>
             <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 3" (click)="irParaEtapa(3)">
-              <span>3. Realizações</span>
-            </div>
-            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 4" (click)="irParaEtapa(4)">
-              <span>4. Ações do projeto</span>
+              <span>3. Ações do projeto</span>
             </div>
           </div>
 
@@ -323,7 +320,7 @@
                     <div class="cabecalho-card-objetivo">
                       <input class="form-check-input selecao-objetivo" type="checkbox"
                         [checked]="objetivoEstaSelecionado(objetivo)"
-                        [disabled]="visualizando && (!modoEdicaoEtapa3 || !isAdmin())"
+                        [disabled]="visualizando && (!modoEdicaoProjeto || !isAdmin())"
                         (change)="selecionarObjetivo(objetivo, $event)" />
                       <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
                     </div>
@@ -334,30 +331,16 @@
               <hr />
             </div>
 
-            <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 2">
-              <div class="titulo-secao">
-                <h2>Passo 2: Ações Previstas do projeto</h2>
-                <p>Adicione e edite os principais compromissos e ações previstas.</p>
-                <hr />
-              </div>
-              <div class="campo-formulario campo-observacao">
-                <textarea class="form-control caixa-texto-observacao" rows="12"
-                  placeholder="Insira as ações previstas aqui" formControlName="acoesPrevistas"></textarea>
-              </div>
-              <br />
-              <hr />
-            </div>
-
-            <div class="conteudo-formulario realizacoes-container" [class.sumir]="etapaAtual !== 3">
+            <div class="conteudo-formulario realizacoes-container" [class.sumir]="etapaAtual !== 2">
               <div class="realizacoes-header">
                 <div class="titulo-realizacao">
-                  <h2>Passo 3: Realizações do Projeto</h2>
+                  <h2>Passo 2: Realizações do Projeto</h2>
                   <p>
                     Gerencie as realizações concluídas e os próximos passos previstos do projeto.
                   </p>
                 </div>
 
-                <div class="botoes-realizacao" *ngIf="!visualizando || modoEdicaoEtapa3">
+                <div class="botoes-realizacao" *ngIf="!visualizando || modoEdicaoProjeto">
                   <button type="button" class="btn botao-realizacao" (click)="adicionarRealizacaoDireta()">
                     + Realização Direta
                   </button>
@@ -381,7 +364,7 @@
                     <div class="cartao-realizacao"
                       *ngFor="let realizacao of realizacoesConcluidas(); let indice = index">
                       <span class="texto-cartao">{{ realizacao }}</span>
-                      <div class="acoes-cartao" *ngIf="!visualizando || modoEdicaoEtapa3">
+                      <div class="acoes-cartao" *ngIf="!visualizando || modoEdicaoProjeto">
                         <button type="button" class="btn-acao" title="Voltar para próximo passo"
                           aria-label="Voltar realização para próximo passo"
                           (click)="voltarRealizacaoParaProximoPasso(indice)">
@@ -411,7 +394,7 @@
                     <div class="cartao-realizacao cartao-proximo-passo"
                       *ngFor="let passo of proximosPassos(); let indice = index">
                       <span class="texto-cartao">{{ passo }}</span>
-                      <div class="acoes-cartao" *ngIf="!visualizando || modoEdicaoEtapa3">
+                      <div class="acoes-cartao" *ngIf="!visualizando || modoEdicaoProjeto">
                         <button type="button" class="btn-acao btn-concluir" title="Marcar como realização"
                           aria-label="Marcar próximo passo como realização" (click)="concluirProximoPasso(indice)">
                           <i class="bi bi-check-lg"></i>
@@ -439,26 +422,22 @@
               <br />
               <hr />
             </div>
-            <hr />
-            <section class="secao-progresso" [class.sumir]="etapaAtual !== 3">
+            
+            <section class="secao-progresso" [class.sumir]="etapaAtual !== 2">
               <h2 class="titulo-progresso">Evolução do projeto</h2>
               <div class="cards-progresso">
                 <!-- EVOLUÇÃO DO PROJETO -->
                 <div class="card-monitoramento">
                   <div class="card-monitoramento-texto">
-                    <h3>Evolução do projeto</h3>
-                    <p>
-                      Insira manualmente o percentual de evolução exatocorrespondente a este
-                      monitoramento oficial.
-                    </p>
+                    <p>Informe o percentual de conclusão do projeto para atualizar o acompanhamento.</p>
                   </div>
 
                   <div class="widget-progresso-projeto">
                     <div class="widget-progresso-cabecalho">
-                      <strong>Evolução do projeto</strong>
+                      <label for="percentualProgressoProjeto">Percentual de conclusão</label>
 
                       <div class="campo-porcentagem">
-                        <input type="number" min="0" max="100" formControlName="percentualProgresso"
+                        <input id="percentualProgressoProjeto" type="number" min="0" max="100" formControlName="percentualProgresso"
                           (input)="validarPercentualProgresso($event)" />
                         <span>%</span>
                       </div>
@@ -474,13 +453,13 @@
               </div>
             </section>
 
-            <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 4">
+            <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 3">
               <div class="cabecalho-secao-acao">
                 <div class="titulo-secao">
-                  <h2>Passo 4: Ações do Projeto</h2>
+                  <h2>Passo 3: Ações do Projeto</h2>
                   <p>Adicione e edite prazos, custos e progressos das ações.</p>
                 </div>
-                <button *ngIf="!visualizando || modoEdicaoEtapa3" type="button" class="btn btn-adicionar-acao"
+                <button *ngIf="!visualizando || modoEdicaoProjeto" type="button" class="btn btn-adicionar-acao"
                   (click)="abrirSubmodalAcao()">
                   + Adicionar Ação
                 </button>
@@ -517,11 +496,11 @@
                       }}</span>
                   </div>
                   <div class="coluna col-acoes">
-                    <button *ngIf="!visualizando || modoEdicaoEtapa3" type="button" class="btn-editar-acao"
+                    <button *ngIf="!visualizando || modoEdicaoProjeto" type="button" class="btn-editar-acao"
                       (click)="editarAcaoProjeto(acao, indice)" title="Editar ação">
                       <i class="bi bi-pencil-square"></i>
                     </button>
-                    <button *ngIf="!visualizando || modoEdicaoEtapa3" type="button" class="btn-excluir-acao"
+                    <button *ngIf="!visualizando || modoEdicaoProjeto" type="button" class="btn-excluir-acao"
                       (click)="removerAcaoProjeto(indice)" title="Excluir ação">
                       <i class="bi bi-trash"></i>
                     </button>
@@ -541,35 +520,35 @@
                 <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1">
                   <i class="bi bi-chevron-left"></i>Anterior
                 </button>
-                <button *ngIf="etapaAtual < 4" type="button" class="btn botao-proximo" (click)="avancar()">
+                <button *ngIf="etapaAtual < 3" type="button" class="btn botao-proximo" (click)="avancar()">
                   Próximo
                   <i class="bi bi-chevron-compact-right"></i>
                 </button>
 
-                <button *ngIf="visualizando && !modoEdicaoEtapa3" type="button" class="btn btn-editar-projeto"
+                <button *ngIf="visualizando && !modoEdicaoProjeto" type="button" class="btn btn-editar-projeto"
                   (click)="editarProjeto()">
                   <i class="bi bi-pen"></i>
                   Editar
                 </button>
 
-                <ng-container *ngIf="visualizando && modoEdicaoEtapa3">
+                <ng-container *ngIf="visualizando && modoEdicaoProjeto">
                   <button type="button" class="btn botao-submeter-analise"
                     *ngIf="usuarioAtual()?.papel === 'GESTOR' && etapaAtual === 1"
                     (click)="salvarResponsavelProjeto()">
                     Salvar responsável
                   </button>
-                  <button type="button" class="btn btn-secondary" (click)="cancelarEdicaoEtapa3()">
+                  <button type="button" class="btn btn-secondary" (click)="cancelarEdicaoProjeto()">
                     Cancelar edição
                   </button>
 
-                  <button type="button" class="btn botao-submeter-analise" (click)="confirmarEdicaoEtapa3()">
+                  <button type="button" class="btn botao-submeter-analise" (click)="confirmarEdicaoProjeto()">
                     <i class="bi bi-send"></i>
                     {{ isAdmin() ? 'Salvar atualização' : 'Enviar atualização para análise' }}
                   </button>
                 </ng-container>
 
                 <!-- CRIAÇÃO DE NOVO PROJETO -->
-                <ng-container *ngIf="!visualizando && !editandoProjetoRejeitado && etapaAtual === 4">
+                <ng-container *ngIf="!visualizando && !editandoProjetoRejeitado && etapaAtual === 3">
                   <button type="button" class="btn botao-salvar-rascunho" (click)="salvarProjeto('RASCUNHO')">
                     Salvar rascunho
                   </button>
@@ -586,7 +565,7 @@
                 </ng-container>
 
                 <!-- REENVIO DE PROJETO REJEITADO -->
-                <ng-container *ngIf="editandoProjetoRejeitado && etapaAtual === 4">
+                <ng-container *ngIf="editandoProjetoRejeitado && etapaAtual === 3">
                   <button type="button" class="btn btn-secondary" (click)="cancelarEdicaoProjetoRejeitado()">
                     Cancelar edição
                   </button>
@@ -599,13 +578,18 @@
               </div>
             </div>
           </form>
-          <div class="sobreposicao-submodal-interno" [class.exibir-submodal]="submodalAcaoAberto">
-            <div class="caixa-submodal-acao" [formGroup]="formularioAcaoInterno">
+
+        </div>
+      </div>
+    </div>
+  </div>
+          <div *ngIf="submodalAcaoAberto" class="sobreposicao-submodal-interno exibir-submodal">
+            <div role="dialog" aria-modal="true" aria-labelledby="tituloAcaoProjeto" class="caixa-submodal-acao" [formGroup]="formularioAcaoInterno">
               <div class="cabecalho-modal-acao">
-                <h1 class="titulo-modal-acao">
+                <h1 id="tituloAcaoProjeto" class="titulo-modal-acao">
                   {{ acaoEmEdicaoIndice !== null ? 'Editar ação' : 'Adicionar nova ação' }}
                 </h1>
-                <button type="button" class="btn-close" (click)="fecharSubmodalAcao()"></button>
+                <button type="button" class="btn-close" aria-label="Fechar cadastro de ação" (click)="fecharSubmodalAcao()"></button>
               </div>
               <div class="corpo-modal-acao">
                 <div class="campo-formulario">
@@ -652,7 +636,7 @@
                   </select>
                 </div>
                 <p class="text-danger" *ngIf="formularioAcaoInterno.invalid && formularioAcaoInterno.touched">Preencha a descrição, os prazos e os custos com valores válidos.</p>
-                <hr />
+              </div>
                 <div class="rodape-modal-acao">
                   <button type="button" class="btn botao-cancelar-acao" (click)="fecharSubmodalAcao()">
                     Cancelar
@@ -661,13 +645,8 @@
                     {{ acaoEmEdicaoIndice !== null ? 'Salvar alterações' : 'Adicionar ação' }}
                   </button>
                 </div>
-              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
   <app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado"
     [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
     (aprovado)="aprovarProjeto($event)" (rejeitado)="rejeitarProjeto($event)"

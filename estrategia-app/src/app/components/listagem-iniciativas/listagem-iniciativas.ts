@@ -33,6 +33,11 @@ export interface AcaoIniciativa {
   providers: [DatePipe],
 })
 export class ListagemIniciativas {
+  obterPercentual(iniciativa: IniciativaEstrategica): number {
+    const percentual = Number(iniciativa.percentual_evolucao) || 0;
+    return Math.min(Math.max(percentual, 0), 100);
+  }
+
   iniciativas = signal<IniciativaEstrategica[]>([]);
   isAdmin = signal(false);
   usuarioAtual = signal<Usuario | null>(null);

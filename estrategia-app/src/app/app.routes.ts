@@ -1,6 +1,5 @@
 import { AvaliacaoProjeto } from './components/avaliacao-projeto/avaliacao-projeto';
 import { Routes } from '@angular/router';
-import { FormularioIniciativas } from './components/formularios/formulario-iniciativas/formulario-iniciativas';
 import { ListagemIniciativas } from './components/listagem-iniciativas/listagem-iniciativas';
 import { Home } from './components/home/home';
 import { TelaLogin } from './components/tela-login/tela-login';
@@ -9,6 +8,8 @@ import { ListagemProjetos } from './components/listagem-projetos/listagem-projet
 import { ListagemIndicadores } from './components/listagem-indicadores/listagem-indicadores';
 import { authGuard } from './guards/auth.guard';
 import { usuariosGuard } from './guards/usuarios.guard';
+import { adminGuard } from './guards/admin.guard';
+import { ListagemUnidades } from './components/listagem-unidades/listagem-unidades';
 import { PerfilUsuario } from './components/perfil-usuario/perfil-usuario';
 import { PaginaInicial } from './components/pagina-inicial/pagina-inicial';
 import { PainelUnidades } from './components/painel-unidades/painel-unidades';
@@ -42,6 +43,11 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     children:[
+      {
+        path: 'listagem-unidades',
+        canActivate: [adminGuard],
+        component: ListagemUnidades,
+      },
       {
         path: 'home',
         component: Home

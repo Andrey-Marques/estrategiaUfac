@@ -58,7 +58,6 @@ class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
             'unidade_sigla',
             'responsavel',
             'responsavel_nome',
-            'projeto',
             'objetivos',
             'objetivos_detalhes',
             'acoes_realizadas',

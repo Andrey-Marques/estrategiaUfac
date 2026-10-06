@@ -74,6 +74,7 @@
             <tr class="linha-cabecalho-tabela">
               <th scope="col" class="ps-4">INICIATIVA</th>
               <th scope="col" class="text-center" *ngIf="isAdmin()">UNIDADE</th>
+              <th scope="col" class="text-center">PROGRESSO</th>
               <th scope="col" class="text-center">DATA DE ENVIO</th>
               <th scope="col" class="text-center">STATUS</th>
               <th scope="col" class="text-center pe-4">AÇÕES</th>
@@ -107,6 +108,17 @@
                 </ng-container>
               </td>
               <td class="text-center">
+                <div class="progresso-projeto">
+                  <div class="progresso-info">
+                    <span>Progresso</span>
+                    <strong>{{ obterPercentual(iniciativas) }}%</strong>
+                  </div>
+                  <div class="barra-progresso">
+                    <div class="barra-progresso-preenchimento" [style.width.%]="obterPercentual(iniciativas)"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-center">
                 <strong class="d-block texto-data">{{
                   iniciativas.data_preenchimento | date: 'dd/MM/yyyy'
                   }}</strong>
@@ -127,7 +139,7 @@
               </td>
             </tr>
             <tr *ngIf="iniciativasFiltradas().length === 0">
-              <td [attr.colspan]="isAdmin() ? 5 : 4" class="text-center py-5">
+              <td [attr.colspan]="isAdmin() ? 6 : 5" class="text-center py-5">
                 <i class="bi bi-search fs-4"></i>
                 <p class="mt-2 mb-0">Nenhuma iniciativa encontrada com os filtros selecionados.</p>
               </td>

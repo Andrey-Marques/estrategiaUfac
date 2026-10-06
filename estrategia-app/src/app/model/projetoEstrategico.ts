@@ -43,7 +43,6 @@ export interface ProjetoEstrategico{
     status: string;
     custo_realizado: number | string;
     acoes: AcaoProjeto[];
-    acoes_previstas: string;
     unidade: number;
     responsavel: number;
     objetivos: number[];
@@ -63,7 +62,6 @@ export interface CriarProjeto {
   percentual_progresso: number;
   status: string;
   acoes: Omit<AcaoProjeto, 'id'>[];
-  acoes_previstas: string;
   objetivos: number[];
   evolucoes?: EvolucaoPayload[];
 }

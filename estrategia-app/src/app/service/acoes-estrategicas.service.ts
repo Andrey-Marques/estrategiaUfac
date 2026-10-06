@@ -14,7 +14,7 @@ interface DetalhePublico {
 }
 
 export interface DetalhesPublicos {
-  projetos: DetalhePublico & Pick<ProjetoEstrategico, 'descricao' | 'tempo_estimado' | 'custo_estimado' | 'ultima_atualizacao' | 'percentual_progresso' | 'custo_realizado' | 'acoes' | 'acoes_previstas' | 'evolucoes'>;
+  projetos: DetalhePublico & Pick<ProjetoEstrategico, 'descricao' | 'tempo_estimado' | 'custo_estimado' | 'ultima_atualizacao' | 'percentual_progresso' | 'custo_realizado' | 'acoes' | 'evolucoes'>;
   indicadores: DetalhePublico & Pick<IndicadorEstrategico, 'finalidade' | 'polaridade' | 'unidade_medida' | 'metodo_calculo' | 'formula' | 'observacao' | 'data_envio' | 'evolucao_indicador'>;
   iniciativas: DetalhePublico & Pick<IniciativaEstrategica, 'data_preenchimento' | 'ultima_atualizacao' | 'observacao' | 'percentual_evolucao' | 'acoes_realizadas'>;
 }

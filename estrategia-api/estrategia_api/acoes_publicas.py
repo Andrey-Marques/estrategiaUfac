@@ -104,7 +104,7 @@ class AcaoEstrategicaPublicaDetalheView(APIView):
         }
         if tipo == 'projetos':
             campos = ('descricao', 'tempo_estimado', 'custo_estimado', 'ultima_atualizacao',
-                      'percentual_progresso', 'acoes_previstas')
+                      'percentual_progresso')
             dados['evolucoes'] = list(registro.evolucoes.order_by('id').values('id', 'descricao', 'tipo'))
             dados['acoes'] = list(registro.acoes.order_by('id').values(
                 'id', 'nome', 'prazo_inicio', 'prazo_fim', 'custo_estimado', 'custo_realizado',

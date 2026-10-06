@@ -49,24 +49,37 @@
           </div>
         </article>
       </section>
-      <h2 class="faixa">Ações Previstas no Projeto</h2>
-      <section class="acoes-previstas">
-        <ul *ngIf="registro.acoes_previstas; else semAcoesPrevistas">
-          <ng-container *ngFor="let acao of registro.acoes_previstas.split('\n')">
-            <li *ngIf="acao.trim()">{{ acao }}</li>
-          </ng-container>
-        </ul>
-        <ng-template #semAcoesPrevistas><p>Nenhuma ação prevista informada.</p></ng-template>
-      </section>
       <h2 class="faixa">Ações do Projeto</h2>
       <section class="acoes-projeto">
-        <article class="acao-projeto" *ngFor="let acao of registro.acoes">
-          <h3>{{ acao.nome }}</h3>
-          <p>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</p>
-          <p>Custo estimado: {{ acao.custo_estimado | currency:'BRL' }} · Custo realizado: {{ acao.custo_realizado | currency:'BRL' }}</p>
-          <p>Início efetivo: {{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }} · Fim efetivo: {{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</p>
-          <p>Status: {{ rotuloStatusAcao(acao.status) }}</p>
-        </article>
+            <article class="acao-projeto" *ngFor="let acao of registro.acoes">
+              <header class="acao-publica-cabecalho">
+                <h3>{{ acao.nome }}</h3>
+                <span class="acao-publica-status" [ngClass]="'acao-publica-status-' + acao.status">{{ rotuloStatusAcao(acao.status) }}</span>
+              </header>
+              <div class="acao-publica-grupos">
+                <section class="acao-publica-grupo">
+                  <h4><i class="bi bi-calendar3" aria-hidden="true"></i> Prazo previsto</h4>
+                  <dl>
+                    <div><dt>Início</dt><dd>{{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+                    <div><dt>Fim</dt><dd>{{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+                  </dl>
+                </section>
+                <section class="acao-publica-grupo">
+                  <h4><i class="bi bi-cash-stack" aria-hidden="true"></i> Custos</h4>
+                  <dl>
+                    <div><dt>Estimado</dt><dd>{{ acao.custo_estimado | currency:'BRL' }}</dd></div>
+                    <div><dt>Realizado</dt><dd>{{ acao.custo_realizado | currency:'BRL' }}</dd></div>
+                  </dl>
+                </section>
+                <section class="acao-publica-grupo">
+                  <h4><i class="bi bi-clock-history" aria-hidden="true"></i> Execução efetiva</h4>
+                  <dl>
+                    <div><dt>Início</dt><dd>{{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : 'Não informado' }}</dd></div>
+                    <div><dt>Fim</dt><dd>{{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : 'Não informado' }}</dd></div>
+                  </dl>
+                </section>
+              </div>
+            </article>
         <p *ngIf="!registro.acoes?.length">Nenhuma ação cadastrada.</p>
       </section>
       <section class="evolucao-projeto">

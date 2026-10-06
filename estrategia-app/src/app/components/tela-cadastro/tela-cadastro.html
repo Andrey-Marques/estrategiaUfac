@@ -66,7 +66,7 @@
 
             <tbody>
 
-                <tr *ngFor="let usuario of usuariosFiltrados()">
+                <tr *ngFor="let usuario of usuariosPaginados()">
                     <td>{{ usuario.nome_completo }}</td>
                     <td>
                         <ng-container *ngIf="obterUnidade(usuario) as unidade">
@@ -158,49 +158,8 @@
 
         </table>
 
-        <div class="rodape-tabela">
-
-            <span class="quantidade-resultados">
-                Mostrando {{usuariosFiltrados().length}} resultados
-            </span>
-
-            <!-- <nav class="paginacao" aria-label="Paginação">
-
-                    <button
-                        type="button"
-                        aria-label="Página anterior"
-                    >
-                        &lt;
-                    </button>
-
-                    <button
-                        type="button"
-                        class="pagina-atual"
-                        aria-current="page"
-                    >
-                        1
-                    </button>
-
-                    <button type="button">
-                        2
-                    </button>
-
-                    <button type="button">
-                        3
-                    </button>
-
-                    <span>...</span>
-
-                    <button
-                        type="button"
-                        aria-label="Próxima página"
-                    >
-                        &gt;
-                    </button>
-
-                </nav> -->
-
-        </div>
+        <app-paginacao [total]="usuariosFiltrados().length" [pagina]="paginaAtual()" [porPagina]="itensPorPagina()"
+            (paginaAlterada)="paginaSelecionada.set($event)" (tamanhoAlterado)="alterarItensPorPagina($event)"></app-paginacao>
 
     </section>
     <!-- =========================================

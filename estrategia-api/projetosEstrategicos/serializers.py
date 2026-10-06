@@ -82,7 +82,6 @@ class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'descricao': {'required': False, 'allow_blank': True},
-            'acoes_previstas': {'required': False, 'allow_blank': True},
         }
         
     def get_objetivos_detalhes(self, obj):

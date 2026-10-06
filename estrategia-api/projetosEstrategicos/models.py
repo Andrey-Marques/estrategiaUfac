@@ -19,7 +19,6 @@ class ProjetoEstrategico(models.Model):
     ultima_atualizacao = models.DateTimeField(auto_now=True)
     percentual_progresso = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     status = models.CharField(max_length=20)
-    acoes_previstas = models.TextField(blank=True, default='')
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='projetos_estrategicos')
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos', null=True, blank=True)
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoProjeto',related_name='projetos')
