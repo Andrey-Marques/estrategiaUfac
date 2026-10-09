@@ -1,0 +1,81 @@
+<div class="container-unidades">
+  <header class="header-unidades">
+    <h1 class="titulo-pagina">Unidades Cadastradas</h1>
+    <button type="button" class="btn-principal" (click)="abrirModal()">+ Nova Unidade</button>
+  </header>
+  <hr class="linha-divisor">
+  <div class="mensagem sucesso" role="status" *ngIf="sucesso()">{{ sucesso() }}</div>
+  <div class="mensagem erro" role="alert" *ngIf="erro()">
+    {{ erro() }} <button type="button" (click)="carregar()">Tentar novamente</button>
+  </div>
+  <section class="area-filtros" aria-label="Pesquisar unidades">
+    <div class="campo-pesquisa">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <input type="search" aria-label="Pesquisar por nome ou sigla" placeholder="Pesquisar pelo nome ou sigla da unidade..." (input)="pesquisar($event)">
+    </div>
+  </section>
+  <section class="area-tabela" aria-label="Unidades cadastradas" [attr.aria-busy]="carregando()">
+    <div class="rolagem-tabela">
+      <table class="tabela-unidades">
+        <thead><tr><th scope="col">Nome</th><th scope="col">Sigla</th><th scope="col">Ações</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let unidade of unidadesPaginadas()">
+            <td>{{ unidade.nome }}</td><td>{{ unidade.sigla }}</td>
+            <td class="acoes">
+              <button type="button" class="btn-acao" [attr.aria-label]="'Editar ' + unidade.sigla" title="Editar unidade" (click)="abrirModal(unidade)"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
+              <button type="button" class="btn-acao" [attr.aria-label]="'Excluir ' + unidade.sigla" title="Excluir unidade" (click)="confirmarExclusao(unidade)"><i class="bi bi-trash" aria-hidden="true"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="carregando()"><td colspan="3" class="estado-tabela">Carregando unidades...</td></tr>
+          <tr *ngIf="!carregando() && !erro() && !unidadesFiltradas().length"><td colspan="3" class="estado-tabela">{{ pesquisa() ? 'Nenhuma unidade encontrada para esta pesquisa.' : 'Nenhuma unidade cadastrada.' }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <app-paginacao [total]="unidadesFiltradas().length" [pagina]="paginaAtual()" [porPagina]="itensPorPagina()"
+      (paginaAlterada)="paginaSelecionada.set($event)" (tamanhoAlterado)="alterarItensPorPagina($event)"></app-paginacao>
+  </section>
+
+  <div class="modal-overlay" *ngIf="modalAberto()" (click)="fecharModal()">
+    <form class="modal-unidade" role="dialog" aria-modal="true" aria-labelledby="tituloUnidade" [formGroup]="formulario" (ngSubmit)="salvar()" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h2 id="tituloUnidade">{{ unidadeEmEdicao() ? 'Editar unidade' : 'Cadastro de unidade' }}</h2>
+        <button type="button" class="btn-fechar" aria-label="Fechar modal" [disabled]="salvando()" (click)="fecharModal()">×</button>
+      </header>
+      <div class="modal-conteudo">
+        <p class="orientacao">Preencha o nome e a sigla da unidade.</p>
+        <div class="mensagem erro" role="alert" *ngIf="erroModal()">{{ erroModal() }}</div>
+        <div class="campo-modal">
+          <label for="nomeUnidade">NOME DA UNIDADE <span>*</span></label>
+          <input id="nomeUnidade" type="text" formControlName="nome" maxlength="255" autocomplete="organization" [readOnly]="salvando()">
+          <small class="erro-campo" *ngIf="formulario.controls.nome.touched && formulario.controls.nome.invalid">Informe o nome da unidade (até 255 caracteres).</small>
+        </div>
+        <div class="campo-modal">
+          <label for="siglaUnidade">SIGLA <span>*</span></label>
+          <input id="siglaUnidade" class="sigla" type="text" formControlName="sigla" maxlength="10" [readOnly]="salvando()">
+          <small class="erro-campo" *ngIf="formulario.controls.sigla.touched && formulario.controls.sigla.invalid">Informe a sigla (até 10 caracteres).</small>
+        </div>
+      </div>
+      <footer class="modal-footer">
+        <button type="button" class="btn-secundario" [disabled]="salvando()" (click)="fecharModal()">Cancelar</button>
+        <button type="submit" class="btn-principal" [disabled]="salvando()">{{ salvando() ? 'Salvando...' : 'Salvar unidade' }}</button>
+      </footer>
+    </form>
+  </div>
+
+  <div class="modal-overlay" *ngIf="unidadeParaExcluir() as unidade" (click)="fecharModal()">
+    <div class="modal-unidade" role="dialog" aria-modal="true" aria-labelledby="tituloExcluirUnidade" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h2 id="tituloExcluirUnidade">Excluir unidade</h2>
+        <button type="button" class="btn-fechar" aria-label="Fechar confirmação" [disabled]="salvando()" (click)="fecharModal()">×</button>
+      </header>
+      <div class="modal-conteudo">
+        <p>Deseja excluir a unidade <strong>{{ unidade.sigla }} — {{ unidade.nome }}</strong>?</p>
+        <div class="mensagem erro" role="alert" *ngIf="erroModal()">{{ erroModal() }}</div>
+      </div>
+      <footer class="modal-footer">
+        <button type="button" class="btn-secundario" [disabled]="salvando()" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="btn-excluir" [disabled]="salvando()" (click)="excluir()">{{ salvando() ? 'Excluindo...' : 'Excluir unidade' }}</button>
+      </footer>
+    </div>
+  </div>
+</div>

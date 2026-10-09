@@ -5,12 +5,14 @@ from datetime import date, datetime
 from .models import RevisaoEdicao
 
 from projetosEstrategicos.serializers import AcaoProjetoSerializer, EvolucaoProjetoSerializer
+from projetosEstrategicos.models import ProjetoEstrategico
 
 from iniciativasEstrategicas.serializers import AcaoRealizadaSerializer
 from indicadoresEstrategicos.serializers import EvolucaoIndicadorSerializer
 
 
 class SubmissaoRevisaoProjetoSerializer(serializers.Serializer):
+    status_execucao = serializers.ChoiceField(choices=ProjetoEstrategico.STATUS_EXECUCAO_CHOICES, required=False)
 
     percentual_progresso = serializers.DecimalField(
         max_digits=5,

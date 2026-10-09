@@ -390,3 +390,47 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
   }
 }
 .texto-multilinha { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.acoes-projeto { display: grid; gap: 12px; margin-bottom: 28px; }
+
+.acao-projeto {
+  padding: 20px;
+  border: 1px solid $cinza-borda;
+  border-left: 4px solid $azul-claro;
+  border-radius: 6px;
+  background: $branco;
+}
+.acao-publica-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+
+  h3 { margin: 0; color: $azul-escuro; font-size: 16px; line-height: 1.5; font-weight: 700; overflow-wrap: anywhere; }
+}
+.acao-publica-status {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: $azul-card-bg;
+  color: $azul-escuro;
+  font-size: 12px;
+  font-weight: 600;
+}
+.acao-publica-grupos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.acao-publica-grupo {
+  min-width: 0;
+  & + & { padding-left: 24px; border-left: 1px solid $cinza-borda; }
+  h4 { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; color: $azul-escuro; font-size: 13px; font-weight: 600; }
+  dl { display: grid; gap: 8px; margin: 0; }
+  dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+  dt { color: $cinza-texto; font-size: 12px; font-weight: 400; }
+  dd { margin: 0; color: $azul-escuro; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+}
+@media (max-width: 700px) {
+  .acao-projeto { padding: 16px; }
+  .acao-publica-cabecalho { flex-wrap: wrap; gap: 8px; }
+  .acao-publica-grupos { grid-template-columns: 1fr; gap: 16px; }
+  .acao-publica-grupo + .acao-publica-grupo { padding: 14px 0 0; border-left: 0; border-top: 1px solid $cinza-borda; }
+}

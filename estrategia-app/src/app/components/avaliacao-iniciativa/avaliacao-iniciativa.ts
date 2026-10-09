@@ -1,7 +1,8 @@
+import { compararAcoes } from '../../model/comparacao-acoes';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IniciativaEstrategica } from '../../model/iniciativaEstrategica';
+import { IniciativaEstrategica, AcaoReslizada } from '../../model/iniciativaEstrategica';
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 
 export interface DecisaoIniciativa {
@@ -62,15 +63,20 @@ export class AvaliacaoIniciativa {
     return this.revisao?.status === 'PENDENTE';
   }
 
-  get acoesPropostas(): Array<{
-    nome?: string;
-    prazo_inicio?: string;
-    prazo_fim?: string;
-    custo?: string | number;
-    status?: string;
-  }> {
-    const acoes = this.revisao?.diferencas['acoes']?.proposto;
-    return Array.isArray(acoes) ? acoes : [];
+  get comparacaoAcoes(): { anteriores: Partial<AcaoReslizada>[]; propostas: Partial<AcaoReslizada>[] } {
+    const diferenca = this.revisao?.diferencas['acoes'];
+    return compararAcoes<Partial<AcaoReslizada>>(
+      Array.isArray(diferenca?.anterior) ? diferenca.anterior : [],
+      Array.isArray(diferenca?.proposto) ? diferenca.proposto : [],
+    );
+  }
+
+  get acoesPropostas(): Partial<AcaoReslizada>[] {
+    return this.comparacaoAcoes.propostas;
+  }
+
+  get acoesAnteriores(): Partial<AcaoReslizada>[] {
+    return this.comparacaoAcoes.anteriores;
   }
 
   get observacaoProposta(): string | null {
@@ -81,6 +87,10 @@ export class AvaliacaoIniciativa {
   get percentualProposto(): string | number | null {
     const percentual = this.revisao?.diferencas['percentual_evolucao']?.proposto;
     return percentual === null || percentual === undefined ? null : percentual;
+  }
+
+  statusAcao(status: string): string {
+    return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída', CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;
   }
 
   fechar(): void {

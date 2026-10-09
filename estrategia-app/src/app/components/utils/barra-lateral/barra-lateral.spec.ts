@@ -35,6 +35,15 @@ describe('BarraLateral', () => {
 
       const link = fixture.nativeElement.querySelector('a[href="/tela-cadastro"]');
       expect(!!link).toBe(papel !== 'SERVIDOR');
+      const unidades = fixture.nativeElement.querySelector('a[href="/listagem-unidades"]');
+      expect(!!unidades).toBe(papel === 'ADMIN');
+      if (papel === 'ADMIN') {
+        expect(unidades.querySelector('svg path')).not.toBeNull();
+        expect(unidades.getAttribute('aria-label')).toBe('Gerenciamento de Unidades');
+        fixture.componentInstance.alternarMenu();
+        await fixture.whenStable();
+        expect(fixture.nativeElement.querySelector('a[href="/listagem-unidades"] svg')).not.toBeNull();
+      }
     });
   }
 

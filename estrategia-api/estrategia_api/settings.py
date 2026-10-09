@@ -146,6 +146,8 @@ REST_FRAMEWORK = {
     
 }
 SIMPLE_JWT = {
+    'CHECK_REVOKE_TOKEN': True,
+    'TOKEN_REFRESH_SERIALIZER': 'usuarios.tokens.TokenRefreshSeguroSerializer',
 
     'ACCESS_TOKEN_LIFETIME':
         timedelta(minutes=15),

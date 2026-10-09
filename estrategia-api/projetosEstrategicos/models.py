@@ -5,6 +5,11 @@ from objetivosEstrategicos.models import ObjetivoEstrategico
 from django.conf import settings
 
 class ProjetoEstrategico(models.Model):
+    STATUS_EXECUCAO_CHOICES = [
+        ('ANDAMENTO', 'Em andamento'),
+        ('DESCONTINUADO', 'Descontinuado'),
+        ('CONCLUIDO', 'Concluído'),
+    ]
     STATUS_CHOICES = [
         ('APROVADO', 'Aprovado/Público'),
         ('REJEITADO', 'Rejeitado'),
@@ -19,7 +24,7 @@ class ProjetoEstrategico(models.Model):
     ultima_atualizacao = models.DateTimeField(auto_now=True)
     percentual_progresso = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     status = models.CharField(max_length=20)
-    acoes_previstas = models.TextField(blank=True, default='')
+    status_execucao = models.CharField(max_length=20, choices=STATUS_EXECUCAO_CHOICES, default='ANDAMENTO')
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='projetos_estrategicos')
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos', null=True, blank=True)
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoProjeto',related_name='projetos')

@@ -18,5 +18,17 @@ export class UnidadeService {
         return this.http.get<Unidade[]>('http://localhost:8000/api/unidades-publicas/');
     }
 
+    criar(dados: Pick<Unidade, 'nome' | 'sigla'>) {
+        return this.http.post<Unidade>(this.apiUrl, dados);
+    }
+
+    editar(id: number, dados: Pick<Unidade, 'nome' | 'sigla'>) {
+        return this.http.patch<Unidade>(`${this.apiUrl}${id}/`, dados);
+    }
+
+    excluir(id: number) {
+        return this.http.delete<void>(`${this.apiUrl}${id}/`);
+    }
+
     
 }

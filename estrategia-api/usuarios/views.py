@@ -5,8 +5,15 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from django.db.models.deletion import ProtectedError
 from .models import Usuario
-from .serializers import UsuarioSerializer, MeuPerfilSerializer
+from .serializers import UsuarioSerializer, MeuPerfilSerializer, AlterarSenhaSerializer
+from rest_framework.throttling import UserRateThrottle
+from django.db import transaction
 
+
+
+class AlterarSenhaThrottle(UserRateThrottle):
+    rate = '5/min'
+    scope = 'alterar_senha'
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
@@ -119,6 +126,16 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         
     
 
+
+    @action(detail=False, methods=['post'], url_path='alterar-senha', throttle_classes=[AlterarSenhaThrottle])
+    def alterar_senha(self, request):
+        with transaction.atomic():
+            request.user = Usuario.objects.select_for_update().get(pk=request.user.pk)
+            serializer = AlterarSenhaSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            request.user.set_password(serializer.validated_data['nova_senha'])
+            request.user.save(update_fields=['password'])
+        return Response({'detail': 'Senha alterada com sucesso. Entre novamente com sua nova senha.'})
 
     @action(detail=False, methods=['get', 'patch'], url_path='me')
     def me(self, request):

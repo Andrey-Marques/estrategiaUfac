@@ -1104,3 +1104,105 @@
     }
   }
 }
+
+.lista-acoes-detalhes {
+  display: grid;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.acao-detalhe {
+  padding: 12px 14px;
+  border: 1px solid var(--borda);
+  border-left: 3px solid var(--azul);
+  border-radius: 3px;
+  background: #fff;
+}
+
+.acao-detalhe-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+
+  h5 {
+    margin: 0;
+    color: var(--azul-escuro);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+}
+
+.acao-status {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border: 1px solid var(--borda);
+  border-radius: 3px;
+  background: var(--fundo);
+  color: var(--secundario);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  &.acao-status-ANDAMENTO { color: #745900; background: #fff8e1; border-color: #f0d98a; }
+  &.acao-status-CONCLUIDA { color: #17632d; background: #eefaf2; border-color: #a9e5b7; }
+}
+
+.acao-detalhe-grupos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.acao-detalhe-grupo {
+  min-width: 0;
+
+  & + & {
+    padding-left: 14px;
+    border-left: 1px solid var(--borda);
+  }
+
+  h6 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 8px;
+    color: var(--texto);
+    font-size: 12px;
+    font-weight: 600;
+
+    i { color: var(--secundario); }
+  }
+
+  dl { display: grid; gap: 5px; margin: 0; }
+  dl > div { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  dt { color: var(--secundario); font-size: 12px; font-weight: 400; }
+  dd { margin: 0; color: var(--azul-escuro); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+}
+
+.acompanhamento-acoes {
+  .registro-pendente .acao-detalhe,
+  .registro-removido .acao-detalhe { margin-top: 12px; }
+}
+
+@media (max-width: 700px) {
+  .acao-detalhe { padding: 14px; }
+  .acao-detalhe-cabecalho { flex-wrap: wrap; gap: 8px; }
+  .acao-detalhe-grupos { grid-template-columns: 1fr; gap: 16px; }
+  .acao-detalhe-grupo + .acao-detalhe-grupo {
+    padding: 14px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--borda);
+  }
+}
+
+:host { --azul: #4da3ff; }
+
+.comparacao-acoes-anteriores {
+  padding: 12px; border: 1px solid #efb9b9; border-left: 3px solid #c62828; background: #fff6f6;
+  .rotulo-removido { color: #b42318; font-size: 12px; font-weight: 600; }
+  .acao-detalhe { margin-top: 10px; }
+}

@@ -193,113 +193,51 @@
           <p>Consulte as ações realizadas ou previstas para esta iniciativa.</p>
         </div>
 
-        <div class="conteudo-acoes">
-          <!-- AÇÕES ATUAIS -->
-          <ng-container
-            *ngIf="
-              iniciativa.acoes_realizadas && iniciativa.acoes_realizadas.length > 0;
-              else semAcoes
-            "
-          >
-            <div class="acao-card" *ngFor="let acao of iniciativa.acoes_realizadas">
-              <div class="acao-topo">
-                <div class="acao-titulo">
-                  <span class="acao-label"> Ação </span>
-
-                  <strong class="acao-nome">
-                    {{ acao.nome }}
-                  </strong>
-                </div>
-
-                <span
-                  class="badge-acao"
-                  [ngClass]="{
-                    'acao-concluida': acao.status === 'CONCLUIDA',
-                    'acao-andamento': acao.status === 'EM_ANDAMENTO',
-                    'acao-pendente': acao.status === 'PENDENTE',
-                  }"
-                >
-                  {{ acao.status }}
-                </span>
+          <ng-template #detalhesAcao let-acao>
+            <article class="acao-detalhe">
+              <header class="acao-detalhe-cabecalho">
+                <h5>{{ acao.nome }}</h5>
+                <span class="acao-status" [ngClass]="'acao-status-' + acao.status">{{ statusAcao(acao.status) }}</span>
+              </header>
+              <div class="acao-detalhe-grupos">
+                <section class="acao-detalhe-grupo">
+                  <h6><i class="bi bi-calendar3" aria-hidden="true"></i> Prazo previsto</h6>
+                  <dl>
+                    <div><dt>Início</dt><dd>{{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+                    <div><dt>Fim</dt><dd>{{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+                  </dl>
+                </section>
+                <section class="acao-detalhe-grupo">
+                  <h6><i class="bi bi-cash-stack" aria-hidden="true"></i> Custos</h6>
+                  <dl>
+                    <div><dt>Estimado</dt><dd>{{ acao.custo | currency:'BRL' }}</dd></div>
+                    <div><dt>Realizado</dt><dd>{{ acao.custo_realizado | currency:'BRL' }}</dd></div>
+                  </dl>
+                </section>
+                <section class="acao-detalhe-grupo">
+                  <h6><i class="bi bi-clock-history" aria-hidden="true"></i> Execução efetiva</h6>
+                  <dl>
+                    <div><dt>Início</dt><dd>{{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : 'Não informado' }}</dd></div>
+                    <div><dt>Fim</dt><dd>{{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : 'Não informado' }}</dd></div>
+                  </dl>
+                </section>
               </div>
-
-              <div class="acao-grid">
-                <div class="acao-info">
-                  <span>Início</span>
-
-                  <strong>
-                    {{ acao.prazo_inicio | date: 'dd/MM/yyyy' }}
-                  </strong>
-                </div>
-
-                <div class="acao-info">
-                  <span>Fim</span>
-
-                  <strong>
-                    {{ acao.prazo_fim | date: 'dd/MM/yyyy' }}
-                  </strong>
-                </div>
-
-                <div class="acao-info">
-                  <span>Custo</span>
-
-                  <strong> R$ {{ acao.custo | number: '1.2-2' }} </strong>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-
-          <!-- SEM AÇÕES -->
-          <ng-template #semAcoes>
-            <div class="estado-vazio">
-              <p>Nenhuma ação registrada.</p>
-            </div>
+            </article>
           </ng-template>
-
-          <!-- AÇÕES PROPOSTAS -->
-          <div
-            class="acao-card acao-proposta"
-            *ngFor="let acao of revisaoPendente ? acoesPropostas : []"
-          >
-            <div class="acao-topo">
-              <div class="acao-titulo">
-                <span class="acao-label rotulo-pendente"> Ação proposta pendente </span>
-
-                <strong class="acao-nome">
-                  {{ acao.nome || 'Ação sem nome' }}
-                </strong>
-              </div>
-
-              <span class="badge-acao">
-                {{ acao.status || 'Sem status' }}
-              </span>
-            </div>
-
-            <div class="acao-grid">
-              <div class="acao-info">
-                <span>Início</span>
-
-                <strong>
-                  {{ acao.prazo_inicio | date: 'dd/MM/yyyy' }}
-                </strong>
-              </div>
-
-              <div class="acao-info">
-                <span>Fim</span>
-
-                <strong>
-                  {{ acao.prazo_fim | date: 'dd/MM/yyyy' }}
-                </strong>
-              </div>
-
-              <div class="acao-info">
-                <span>Custo</span>
-
-                <strong>
-                  {{ acao.custo | currency: 'BRL' }}
-                </strong>
-              </div>
-            </div>
+        <div class="lista-acoes-detalhes">
+          <ng-container *ngFor="let acao of iniciativa.acoes_realizadas">
+            <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
+          </ng-container>
+          <p *ngIf="!iniciativa.acoes_realizadas?.length" class="texto-vazio">Nenhuma ação registrada.</p>
+          <div class="comparacao-acoes-anteriores" *ngIf="revisaoPendente && acoesAnteriores.length">
+            <span class="rotulo-removido">Ações anteriores alteradas ou removidas</span>
+            <ng-container *ngFor="let acao of acoesAnteriores">
+              <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
+            </ng-container>
+          </div>
+          <div class="acao-proposta" *ngFor="let acao of revisaoPendente ? acoesPropostas : []">
+            <span class="rotulo-pendente">Ação proposta pendente</span>
+            <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
           </div>
         </div>
       </section>

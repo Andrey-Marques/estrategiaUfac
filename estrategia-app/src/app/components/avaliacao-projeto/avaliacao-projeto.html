@@ -24,6 +24,7 @@
         <h3>{{ projeto.nome }}</h3>
 
         <div class="status-linha">
+          <app-status-projeto [status]="projeto.status_execucao"></app-status-projeto>
           <span class="badge-status" [ngClass]="obterClasseStatus()">
             {{ obterRotuloStatus() }}
           </span>
@@ -67,8 +68,18 @@
             </div>
 
             <div class="informacao-item">
-              <span>Status</span>
+              <span>Status de aprovação</span>
               <strong>{{ obterRotuloStatus() }}</strong>
+            </div>
+
+            <div class="informacao-item">
+              <span>Status de execução</span>
+              <app-status-projeto [status]="projeto.status_execucao"></app-status-projeto>
+              <div class="informacao-revisao" *ngIf="revisao?.diferencas?.['status_execucao'] as diferenca">
+                <strong>{{ obterRotuloStatusRevisao(revisao!.status) }}</strong>
+                <p>Anterior: <app-status-projeto [status]="diferenca.anterior"></app-status-projeto></p>
+                <p>Proposto: <app-status-projeto [status]="diferenca.proposto"></app-status-projeto></p>
+              </div>
             </div>
 
             <div class="informacao-item">
@@ -86,7 +97,7 @@
         </div>
       </section>
 
-      <div class="grid-duplo">
+      <div>
         <section class="secao-institucional">
           <div class="titulo-secao-azul">Objetivos estratégicos vinculados</div>
           <div class="conteudo-secao">
@@ -102,18 +113,7 @@
           </div>
         </section>
 
-        <section class="secao-institucional">
-          <div class="titulo-secao-azul">Ações previstas</div>
-          <div class="conteudo-secao">
-            <p class="acoes-previstas" *ngIf="projeto.acoes_previstas; else semAcoes">
-              {{ projeto.acoes_previstas }}
-            </p>
 
-            <ng-template #semAcoes>
-              <p class="texto-vazio">Nenhuma ação prevista informada.</p>
-            </ng-template>
-          </div>
-        </section>
       </div>
 
       <section class="bloco informacao-revisao" *ngIf="revisao" [ngClass]="'status-revisao-' + revisao.status.toLowerCase()">
@@ -196,20 +196,53 @@
 
         <div class="acompanhamento-card acompanhamento-acoes">
           <div class="acompanhamento-card-titulo"><i class="bi bi-list-task"></i><span>Ações do projeto</span></div>
-          <div class="registro-acompanhamento" *ngFor="let acao of projeto.acoes">
-            <strong>{{ acao.nome }}</strong>
-            <p>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }} · {{ rotuloStatusAcao(acao.status) }}</p>
-            <p>Custo estimado: {{ acao.custo_estimado | currency:'BRL' }} · Custo realizado: {{ acao.custo_realizado | currency:'BRL' }}</p>
-            <p>Início efetivo: {{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }} · Fim efetivo: {{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</p>
+          <ng-template #detalhesAcao let-acao>
+            <article class="acao-detalhe">
+              <header class="acao-detalhe-cabecalho">
+                <h5>{{ acao.nome }}</h5>
+                <span class="acao-status" [ngClass]="'acao-status-' + acao.status">{{ rotuloStatusAcao(acao.status) }}</span>
+              </header>
+              <div class="acao-detalhe-grupos">
+                <section class="acao-detalhe-grupo">
+                  <h6><i class="bi bi-calendar3" aria-hidden="true"></i> Prazo previsto</h6>
+                  <dl>
+                    <div><dt>Início</dt><dd>{{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+                    <div><dt>Fim</dt><dd>{{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+                  </dl>
+                </section>
+                <section class="acao-detalhe-grupo">
+                  <h6><i class="bi bi-cash-stack" aria-hidden="true"></i> Custos</h6>
+                  <dl>
+                    <div><dt>Estimado</dt><dd>{{ acao.custo_estimado | currency:'BRL' }}</dd></div>
+                    <div><dt>Realizado</dt><dd>{{ acao.custo_realizado | currency:'BRL' }}</dd></div>
+                  </dl>
+                </section>
+                <section class="acao-detalhe-grupo">
+                  <h6><i class="bi bi-clock-history" aria-hidden="true"></i> Execução efetiva</h6>
+                  <dl>
+                    <div><dt>Início</dt><dd>{{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : 'Não informado' }}</dd></div>
+                    <div><dt>Fim</dt><dd>{{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : 'Não informado' }}</dd></div>
+                  </dl>
+                </section>
+              </div>
+            </article>
+          </ng-template>
+          <div class="lista-acoes-detalhes">
+            <ng-container *ngFor="let acao of projeto.acoes">
+              <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
+            </ng-container>
           </div>
           <p class="sem-registros" *ngIf="!projeto.acoes?.length">Nenhuma ação cadastrada.</p>
           <ng-container *ngIf="revisaoPendente && diferencaAcoes">
-            <div class="registro-removido"><span class="rotulo-removido">Ações anteriores</span>
-              <div *ngFor="let acao of acoesAnteriores"><strong>{{ acao.nome }}</strong><p>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }} · {{ rotuloStatusAcao(acao.status) }}</p><p>Estimado: {{ acao.custo_estimado | currency:'BRL' }} · Realizado: {{ acao.custo_realizado | currency:'BRL' }}</p><p>Início efetivo: {{ acao.data_inicio_efetivo || '—' }} · Fim efetivo: {{ acao.data_fim_efetivo || '—' }}</p></div>
+            <div class="registro-removido" *ngIf="acoesAnteriores.length"><span class="rotulo-removido">Ações anteriores alteradas ou removidas</span>
+              <ng-container *ngFor="let acao of acoesAnteriores">
+                <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
+              </ng-container>
             </div>
-            <div class="registro-pendente"><span class="rotulo-pendente">Ações propostas</span>
-              <div *ngFor="let acao of acoesPropostas"><strong>{{ acao.nome }}</strong><p>Prazo: {{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} – {{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }} · {{ rotuloStatusAcao(acao.status) }}</p><p>Estimado: {{ acao.custo_estimado | currency:'BRL' }} · Realizado: {{ acao.custo_realizado | currency:'BRL' }}</p><p>Início efetivo: {{ acao.data_inicio_efetivo || '—' }} · Fim efetivo: {{ acao.data_fim_efetivo || '—' }}</p></div>
-              <p *ngIf="!acoesPropostas.length">Todas as ações serão removidas.</p>
+            <div class="registro-pendente" *ngIf="acoesPropostas.length"><span class="rotulo-pendente">Ações propostas alteradas ou adicionadas</span>
+              <ng-container *ngFor="let acao of acoesPropostas">
+                <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
+              </ng-container>
             </div>
           </ng-container>
         </div>

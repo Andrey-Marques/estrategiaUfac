@@ -2,6 +2,8 @@ export type TipoEvolucao =
   'REALIZACAO' |
   'PROXIMO_PASSO';
 
+export type StatusExecucaoProjeto = 'ANDAMENTO' | 'DESCONTINUADO' | 'CONCLUIDO';
+
 
 export interface EvolucaoProjeto {
   id: number;
@@ -33,6 +35,7 @@ export interface ObjetivoProjetoDetalhe {
 }
 
 export interface ProjetoEstrategico{
+    status_execucao?: StatusExecucaoProjeto;
     id: number;
     nome: string;
     descricao: string;
@@ -43,7 +46,6 @@ export interface ProjetoEstrategico{
     status: string;
     custo_realizado: number | string;
     acoes: AcaoProjeto[];
-    acoes_previstas: string;
     unidade: number;
     responsavel: number;
     objetivos: number[];
@@ -57,13 +59,13 @@ export interface ProjetoEstrategico{
 }
 
 export interface CriarProjeto {
+  status_execucao: StatusExecucaoProjeto;
   nome: string;
   descricao: string;
   tempo_estimado: string;
   percentual_progresso: number;
   status: string;
   acoes: Omit<AcaoProjeto, 'id'>[];
-  acoes_previstas: string;
   objetivos: number[];
   evolucoes?: EvolucaoPayload[];
 }

@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Popula o banco com dados iniciais do Estratégia UFAC'
 
     @staticmethod
-    def criar_acoes_projeto(projeto, orcamento):
+    def criar_acoes_projeto(projeto, orcamento, atividade=None):
         """Preenche projetos sem ações; novas execuções preservam o acompanhamento existente."""
         if projeto.acoes.exists():
             projeto.atualizar_custo_estimado()
@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 'data_fim_efetivo': date(2026, 3, 27), 'status': 'CONCLUIDA',
             },
             {
-                'nome': (projeto.acoes_previstas or 'Execução das atividades previstas')[:255],
+                'nome': (atividade or 'Execução das atividades previstas')[:255],
                 'prazo_inicio': date(2026, 4, 1), 'prazo_fim': date(2026, 10, 30),
                 'custo_estimado': execucao,
                 'custo_realizado': (execucao * Decimal('0.50')).quantize(Decimal('0.01')),
@@ -550,7 +550,6 @@ class Command(BaseCommand):
                     defaults={
                         'descricao': descricao,
                         'tempo_estimado': tempo_estimado,
-                        'acoes_previstas': acoes,
                         'percentual_progresso': percentual,
                         'status': 'APROVADO',
                         'unidade': unidades[sigla],
@@ -558,7 +557,7 @@ class Command(BaseCommand):
                     }
                 )
 
-                self.criar_acoes_projeto(projeto, custo_estimado)
+                self.criar_acoes_projeto(projeto, custo_estimado, acoes)
                 projeto.objetivos.add(objetivo)
                 projetos_criados[sigla].append(projeto)
 
