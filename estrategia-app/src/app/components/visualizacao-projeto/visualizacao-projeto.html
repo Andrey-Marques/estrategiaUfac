@@ -17,6 +17,7 @@
     <p role="alert" *ngIf="detalhe.erro()">{{ detalhe.erro() }}</p>
     <ng-container *ngIf="detalhe.registro() as registro">
       <h1 class="titulo-projeto">{{ registro.nome }}</h1>
+      <div class="status-execucao-projeto"><app-status-projeto [status]="registro.status_execucao"></app-status-projeto></div>
       <section class="info-cards">
         <article class="info-card info-card--objetivo">
           <div class="info-card-titulo">Objetivo</div>

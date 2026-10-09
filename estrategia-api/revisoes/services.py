@@ -66,6 +66,7 @@ def calcular_diferencas(
 def snapshot_projeto(projeto):
 
     return {
+        'status_execucao': projeto.status_execucao,
 
         'percentual_progresso': str(
             projeto.percentual_progresso
@@ -113,6 +114,8 @@ def montar_proposta_projeto(
     proposta = snapshot_projeto(
         projeto
     )
+    if 'status_execucao' in dados:
+        proposta['status_execucao'] = dados['status_execucao']
 
     if 'percentual_progresso' in dados:
 
@@ -162,6 +165,25 @@ def montar_proposta_projeto(
     return proposta
 
 
+def validar_acoes_acompanhamento(registro, dados, usuario, iniciativa=False):
+    if usuario.papel == 'ADMIN' or registro.status != 'APROVADO' or 'acoes' not in dados:
+        return
+    from collections import Counter
+    custo = 'custo' if iniciativa else 'custo_estimado'
+    existentes = registro.acoes_realizadas.all() if iniciativa else registro.acoes.all()
+
+    def identificacao(acao):
+        return (acao['nome'], str(acao['prazo_inicio']), str(acao['prazo_fim']), Decimal(str(acao[custo])))
+
+    atuais = Counter(identificacao({
+        'nome': acao.nome, 'prazo_inicio': acao.prazo_inicio,
+        'prazo_fim': acao.prazo_fim, custo: getattr(acao, custo),
+    }) for acao in existentes)
+    propostas = Counter(identificacao(acao) for acao in dados['acoes'])
+    if atuais - propostas:
+        raise ValidationError({'acoes': 'Após a aprovação, servidores e gestores só podem alterar início e fim efetivo, custo realizado e status das ações. É permitido adicionar novas ações, mas não excluir ações aprovadas ou modificar sua descrição, prazos previstos e custo estimado.'})
+
+
 def snapshot_iniciativa(iniciativa):
     return {
         'percentual_evolucao': str(iniciativa.percentual_evolucao),
@@ -172,6 +194,9 @@ def snapshot_iniciativa(iniciativa):
                 'prazo_inicio': acao.prazo_inicio.isoformat(),
                 'prazo_fim': acao.prazo_fim.isoformat(),
                 'custo': str(acao.custo),
+                'custo_realizado': str(acao.custo_realizado),
+                'data_inicio_efetivo': acao.data_inicio_efetivo.isoformat() if acao.data_inicio_efetivo else None,
+                'data_fim_efetivo': acao.data_fim_efetivo.isoformat() if acao.data_fim_efetivo else None,
                 'status': acao.status,
             }
             for acao in iniciativa.acoes_realizadas.all()
@@ -188,6 +213,7 @@ def criar_revisao_iniciativa(iniciativa, dados, usuario):
     ).exists():
         raise ValidationError({'detail': 'Esta iniciativa já possui uma alteração aguardando análise.'})
 
+    validar_acoes_acompanhamento(iniciativa, dados, usuario, iniciativa=True)
     anteriores = snapshot_iniciativa(iniciativa)
     propostos = dict(anteriores)
 
@@ -202,6 +228,9 @@ def criar_revisao_iniciativa(iniciativa, dados, usuario):
                 'prazo_inicio': acao['prazo_inicio'].isoformat(),
                 'prazo_fim': acao['prazo_fim'].isoformat(),
                 'custo': str(acao['custo']),
+                'custo_realizado': str(acao.get('custo_realizado', Decimal('0.00'))),
+                'data_inicio_efetivo': acao['data_inicio_efetivo'].isoformat() if acao.get('data_inicio_efetivo') else None,
+                'data_fim_efetivo': acao['data_fim_efetivo'].isoformat() if acao.get('data_fim_efetivo') else None,
                 'status': acao['status'],
             }
             for acao in dados['acoes']
@@ -338,6 +367,7 @@ def criar_revisao_projeto(
                 'alteração aguardando análise.'
         })
 
+    validar_acoes_acompanhamento(projeto, dados, usuario)
     anteriores = snapshot_projeto(
         projeto
     )
@@ -404,6 +434,7 @@ def aprovar_revisao_projeto(
     projeto.percentual_progresso = (
         dados['percentual_progresso']
     )
+    projeto.status_execucao = dados.get('status_execucao', projeto.status_execucao)
 
     projeto.save()
 

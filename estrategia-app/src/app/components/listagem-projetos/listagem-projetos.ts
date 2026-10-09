@@ -1,3 +1,4 @@
+import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,13 +18,14 @@ import { MascaraReais } from '../../directives/mascara-reais';
 
 @Component({
   selector: 'app-listagem-projetos',
-  imports: [CommonModule, ReactiveFormsModule, AvaliacaoProjeto, MascaraReais],
+  imports: [StatusProjeto, CommonModule, ReactiveFormsModule, AvaliacaoProjeto, MascaraReais],
   templateUrl: './listagem-projetos.html',
   styleUrl: './listagem-projetos.scss',
   providers: [DatePipe],
 })
 export class ListagemProjetos {
   acoesProjeto = signal<AcaoProjeto[]>([]);
+  statusRegistroEditado = '';
   acoesAntesDaEdicao: AcaoProjeto[] = [];
   formularioAcaoInterno: FormGroup;
   submodalAcaoAberto = false;
@@ -86,6 +88,7 @@ export class ListagemProjetos {
       descricao: [''],
       tempoEstimado: ['', Validators.required],
 
+      statusExecucao: ['ANDAMENTO', Validators.required],
       percentualProgresso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
       objetivos: [[], Validators.required],
     });
@@ -232,6 +235,7 @@ export class ListagemProjetos {
           descricao: projetoDetalhado.descricao,
           tempoEstimado: projetoDetalhado.tempo_estimado,
 
+          statusExecucao: projetoDetalhado.status_execucao ?? 'ANDAMENTO',
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
 
@@ -250,6 +254,7 @@ export class ListagemProjetos {
           unidadeResponsavel: projeto.unidade,
           descricao: projeto.descricao,
           tempoEstimado: projeto.tempo_estimado,
+          statusExecucao: projeto.status_execucao ?? 'ANDAMENTO',
           percentualProgresso: projeto.percentual_progresso,
           objetivos: this.normalizarIds(projeto.objetivos ?? []),
         });
@@ -371,6 +376,7 @@ export class ListagemProjetos {
           tempoEstimado: projetoDetalhado.tempo_estimado,
 
 
+          statusExecucao: projetoDetalhado.status_execucao ?? 'ANDAMENTO',
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
 
@@ -415,6 +421,7 @@ export class ListagemProjetos {
       tempo_estimado: formulario.tempoEstimado,
 
 
+      status_execucao: formulario.statusExecucao,
       percentual_progresso: Number(formulario.percentualProgresso ?? 0),
 
       responsavel: formulario.liderProjeto || null,
@@ -496,6 +503,7 @@ export class ListagemProjetos {
           tempoEstimado: projetoDetalhado.tempo_estimado,
 
 
+          statusExecucao: projetoDetalhado.status_execucao ?? 'ANDAMENTO',
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
 
@@ -542,6 +550,7 @@ export class ListagemProjetos {
       // Depois libera somente os campos
       // relacionados à atualização do projeto
       this.formularioProjeto.get('percentualProgresso')?.enable();
+      this.formularioProjeto.get('statusExecucao')?.enable();
 
 
 
@@ -596,6 +605,7 @@ export class ListagemProjetos {
   }
 
   private carregarEvolucoesProjeto(projeto: ProjetoEstrategico): void {
+    this.statusRegistroEditado = projeto.status;
     this.acoesProjeto.set((projeto.acoes ?? []).map(acao => ({ ...acao })));
     const realizacoes = (projeto.evolucoes ?? [])
       .filter((evolucao) => evolucao.tipo === 'REALIZACAO')
@@ -655,6 +665,7 @@ export class ListagemProjetos {
       nome: formulario.tituloProjeto,
       descricao: formulario.descricao,
       tempo_estimado: formulario.tempoEstimado,
+      status_execucao: formulario.statusExecucao,
       percentual_progresso: Number(formulario.percentualProgresso ?? 0),
       acoes: this.montarAcoesProjeto(),
       status: status,
@@ -701,6 +712,7 @@ export class ListagemProjetos {
       unidadeResponsavel: '',
       descricao: '',
       tempoEstimado: '',
+      statusExecucao: 'ANDAMENTO',
       percentualProgresso: 0,
       objetivos: [],
     });
@@ -936,6 +948,7 @@ export class ListagemProjetos {
         unidade: formulario.unidadeResponsavel,
         objetivos: formulario.objetivos ?? [],
       } : {}),
+      status_execucao: formulario.statusExecucao,
       percentual_progresso: Number(this.formularioProjeto.get('percentualProgresso')?.value ?? 0),
 
       evolucoes: this.montarEvolucoes(),
@@ -1123,11 +1136,30 @@ export class ListagemProjetos {
     return this.acoesProjeto().reduce((total, acao) => total + Number(acao.custo_realizado), 0);
   }
 
+  somenteExecucaoAcao(): boolean {
+    return !this.isAdmin() && this.projetoSelecionadoId !== null && this.statusRegistroEditado === 'APROVADO';
+  }
+
+  acaoExistenteAprovada(): boolean {
+    return this.somenteExecucaoAcao() && this.acaoEmEdicaoIndice !== null &&
+      this.acoesProjeto()[this.acaoEmEdicaoIndice]?.id !== undefined;
+  }
+
+  configurarCamposAcao(): void {
+    this.formularioAcaoInterno.enable();
+    if (this.acaoExistenteAprovada()) {
+      for (const campo of ['descricaoAcao', 'prazoInicio', 'prazoFim', 'custoEstimado']) {
+        this.formularioAcaoInterno.get(campo)?.disable();
+      }
+    }
+  }
+
   abrirSubmodalAcao(): void {
     if (this.visualizando && !this.modoEdicaoProjeto) return;
     this.acaoEmEdicaoIndice = null;
     this.formularioAcaoInterno.reset({ descricaoAcao: '', prazoInicio: '', prazoFim: '',
       custoEstimado: 0, custoRealizado: 0, inicioEfetivo: '', fimEfetivo: '', statusAtual: 'PLANEJAMENTO' });
+    this.configurarCamposAcao();
     this.submodalAcaoAberto = true;
   }
 
@@ -1142,6 +1174,7 @@ export class ListagemProjetos {
     this.formularioAcaoInterno.reset({ descricaoAcao: acao.nome, prazoInicio: acao.prazo_inicio,
       prazoFim: acao.prazo_fim, custoEstimado: acao.custo_estimado, custoRealizado: acao.custo_realizado,
       inicioEfetivo: acao.data_inicio_efetivo ?? '', fimEfetivo: acao.data_fim_efetivo ?? '', statusAtual: acao.status });
+    this.configurarCamposAcao();
     this.submodalAcaoAberto = true;
   }
 
@@ -1166,11 +1199,15 @@ export class ListagemProjetos {
       custo_realizado: Number(dados.custoRealizado), data_inicio_efetivo: dados.inicioEfetivo || null,
       data_fim_efetivo: dados.fimEfetivo || null, status: dados.statusAtual };
     this.acoesProjeto.update(lista => this.acaoEmEdicaoIndice === null ? [...lista, acao] :
-      lista.map((item, indice) => indice === this.acaoEmEdicaoIndice ? { ...acao, id: item.id } : item));
+      lista.map((item, indice) => indice === this.acaoEmEdicaoIndice ? (this.acaoExistenteAprovada()
+        ? { ...item, custo_realizado: acao.custo_realizado, data_inicio_efetivo: acao.data_inicio_efetivo,
+            data_fim_efetivo: acao.data_fim_efetivo, status: acao.status }
+        : { ...acao, id: item.id }) : item));
     this.fecharSubmodalAcao();
   }
 
   removerAcaoProjeto(indice: number): void {
+    if (this.somenteExecucaoAcao() && this.acoesProjeto()[indice]?.id !== undefined) return;
     if (this.visualizando && !this.modoEdicaoProjeto) return;
     this.acoesProjeto.update(lista => lista.filter((_, i) => i !== indice));
   }

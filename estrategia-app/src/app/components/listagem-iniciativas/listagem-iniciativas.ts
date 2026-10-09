@@ -1,3 +1,4 @@
+import { MascaraReais } from '../../directives/mascara-reais';
 import { Component, inject, signal } from '@angular/core';
 import { IniciativaEstrategica } from '../../model/iniciativaEstrategica';
 import { IniciativaService } from '../../service/iniciativa.service';
@@ -18,16 +19,20 @@ import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import { RevisaoService } from '../../service/revisao.service';
 
 export interface AcaoIniciativa {
+  id?: number;
   descricaoAcao: string;
   prazoInicio: string;
   prazoFim: string;
-  custoEstimado: string;
+  custoEstimado: number | string;
+  custoRealizado: number | string;
+  inicioEfetivo: string;
+  fimEfetivo: string;
   statusAtual: string;
 }
 
 @Component({
   selector: 'app-listagem-iniciativas',
-  imports: [NgForOf, DatePipe, CommonModule, ReactiveFormsModule, AvaliacaoIniciativa],
+  imports: [NgForOf, DatePipe, CommonModule, ReactiveFormsModule, AvaliacaoIniciativa, MascaraReais],
   templateUrl: './listagem-iniciativas.html',
   styleUrl: './listagem-iniciativas.scss',
   providers: [DatePipe],
@@ -62,6 +67,7 @@ export class ListagemIniciativas {
   editandoIniciativaRejeitada = false;
   editandoRascunho = false;
   iniciativaSelecionadaId: number | null = null;
+  statusRegistroEditado = '';
   acaoEmEdicaoIndice: number | null = null;
   filtroStatus = signal<string>('TODOS');
   termoPesquisa = signal<string>('');
@@ -89,7 +95,10 @@ export class ListagemIniciativas {
       descricaoAcao: ['', Validators.required],
       prazoInicio: ['', Validators.required],
       prazoFim: ['', Validators.required],
-      custoEstimado: ['', Validators.required],
+      custoEstimado: [0, [Validators.required, Validators.min(0)]],
+      custoRealizado: [0, [Validators.required, Validators.min(0)]],
+      inicioEfetivo: [''],
+      fimEfetivo: [''],
       statusAtual: ['nao-iniciada', Validators.required],
     });
   }
@@ -302,6 +311,9 @@ export class ListagemIniciativas {
         prazo_inicio: this.converterDataParaApi(acao.prazoInicio),
         prazo_fim: this.converterDataParaApi(acao.prazoFim),
         custo: acao.custoEstimado,
+        custo_realizado: acao.custoRealizado,
+        data_inicio_efetivo: acao.inicioEfetivo || null,
+        data_fim_efetivo: acao.fimEfetivo || null,
         status: this.converterStatusParaApi(acao.statusAtual),
       })),
     };
@@ -338,15 +350,34 @@ export class ListagemIniciativas {
     );
   }
 
+  somenteExecucaoAcao(): boolean {
+    return !this.isAdmin() && this.iniciativaSelecionadaId !== null && this.statusRegistroEditado === 'APROVADO';
+  }
+
+  acaoExistenteAprovada(): boolean {
+    return this.somenteExecucaoAcao() && this.acaoEmEdicaoIndice !== null &&
+      this.acoesIniciativa()[this.acaoEmEdicaoIndice]?.id !== undefined;
+  }
+
+  configurarCamposAcao(): void {
+    this.formularioAcaoInterno.enable();
+    if (this.acaoExistenteAprovada()) {
+      for (const campo of ['descricaoAcao', 'prazoInicio', 'prazoFim', 'custoEstimado']) {
+        this.formularioAcaoInterno.get(campo)?.disable();
+      }
+    }
+  }
+
   abrirSubmodalAcao(): void {
     this.acaoEmEdicaoIndice = null;
     this.formularioAcaoInterno.reset({
       descricaoAcao: '',
       prazoInicio: '',
       prazoFim: '',
-      custoEstimado: '',
+      custoEstimado: 0, custoRealizado: 0, inicioEfetivo: '', fimEfetivo: '',
       statusAtual: 'nao-iniciada',
     });
+    this.configurarCamposAcao();
     this.submodalAcaoAberto = true;
   }
   fecharSubmodalAcao(): void {
@@ -356,7 +387,7 @@ export class ListagemIniciativas {
       descricaoAcao: '',
       prazoInicio: '',
       prazoFim: '',
-      custoEstimado: '',
+      custoEstimado: 0, custoRealizado: 0, inicioEfetivo: '', fimEfetivo: '',
       statusAtual: 'nao-iniciada',
     });
   }
@@ -369,11 +400,19 @@ export class ListagemIniciativas {
     }
 
     const dadosAcao = this.formularioAcaoInterno.getRawValue();
+    if (dadosAcao.prazoFim < dadosAcao.prazoInicio || (dadosAcao.inicioEfetivo && dadosAcao.fimEfetivo && dadosAcao.fimEfetivo < dadosAcao.inicioEfetivo)) {
+      window.alert('As datas de fim devem ser iguais ou posteriores às respectivas datas de início.');
+      return;
+    }
 
     if (this.acaoEmEdicaoIndice !== null) {
       this.acoesIniciativa.update((lista) => {
         const novaLista = [...lista];
-        novaLista[this.acaoEmEdicaoIndice!] = dadosAcao;
+        const anterior = novaLista[this.acaoEmEdicaoIndice!];
+        novaLista[this.acaoEmEdicaoIndice!] = this.acaoExistenteAprovada()
+          ? { ...anterior, custoRealizado: dadosAcao.custoRealizado, inicioEfetivo: dadosAcao.inicioEfetivo,
+              fimEfetivo: dadosAcao.fimEfetivo, statusAtual: dadosAcao.statusAtual }
+          : { ...dadosAcao, id: anterior.id };
         return novaLista;
       });
     } else {
@@ -384,6 +423,7 @@ export class ListagemIniciativas {
   }
 
   removerAcaoIniciativa(indiceAcao: number): void {
+    if (this.somenteExecucaoAcao() && this.acoesIniciativa()[indiceAcao]?.id !== undefined) return;
     this.acoesIniciativa.update((lista) => lista.filter((_, i) => i !== indiceAcao));
   }
 
@@ -625,6 +665,7 @@ export class ListagemIniciativas {
   }
 
   carregarIniciativaFormulario(dados: IniciativaEstrategica): void {
+    this.statusRegistroEditado = dados.status;
     this.formularioIniciativa.enable();
 
     this.formularioIniciativa.patchValue({
@@ -638,10 +679,14 @@ export class ListagemIniciativas {
 
     this.acoesIniciativa.set(
       (dados.acoes_realizadas || []).map((acao) => ({
+        id: acao.id,
         descricaoAcao: acao.nome,
         prazoInicio: acao.prazo_inicio,
         prazoFim: acao.prazo_fim,
         custoEstimado: String(acao.custo),
+        custoRealizado: acao.custo_realizado ?? 0,
+        inicioEfetivo: acao.data_inicio_efetivo ?? '',
+        fimEfetivo: acao.data_fim_efetivo ?? '',
         statusAtual: this.converterStatusParaFormulario(acao.status),
       })),
     );
@@ -725,6 +770,9 @@ export class ListagemIniciativas {
       prazo_inicio: this.converterDataParaApi(acao.prazoInicio),
       prazo_fim: this.converterDataParaApi(acao.prazoFim),
       custo: acao.custoEstimado,
+      custo_realizado: acao.custoRealizado,
+      data_inicio_efetivo: acao.inicioEfetivo || null,
+      data_fim_efetivo: acao.fimEfetivo || null,
       status: this.converterStatusParaApi(acao.statusAtual),
     }));
   }
@@ -816,8 +864,12 @@ export class ListagemIniciativas {
       prazoInicio: acao.prazoInicio,
       prazoFim: acao.prazoFim,
       custoEstimado: acao.custoEstimado,
+      custoRealizado: acao.custoRealizado,
+      inicioEfetivo: acao.inicioEfetivo,
+      fimEfetivo: acao.fimEfetivo,
       statusAtual: acao.statusAtual,
     });
+    this.configurarCamposAcao();
     this.submodalAcaoAberto = true;
   }
 }

@@ -91,6 +91,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                 'nome',
                 'descricao',
                 'tempo_estimado',
+                'status_execucao',
                 'percentual_progresso',
                 'responsavel',
                 'unidade',
@@ -111,6 +112,7 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                 'evolucoes',
                 'percentual_progresso',
                 'acoes',
+                'status_execucao',
             }
 
         campos_enviados = set(

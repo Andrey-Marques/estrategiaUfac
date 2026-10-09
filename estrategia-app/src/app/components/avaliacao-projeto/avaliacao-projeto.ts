@@ -1,3 +1,5 @@
+import { compararAcoes } from '../../model/comparacao-acoes';
+import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +19,7 @@ export interface DecisaoProjeto {
 @Component({
   selector: 'app-avaliacao-projeto',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [StatusProjeto, CommonModule, FormsModule],
   templateUrl: './avaliacao-projeto.html',
   styleUrl: './avaliacao-projeto.scss',
 })
@@ -79,9 +81,16 @@ export class AvaliacaoProjeto {
     return this.revisao?.diferencas['acoes'] ?? null;
   }
 
+  get comparacaoAcoes(): { anteriores: AcaoProjeto[]; propostas: AcaoProjeto[] } {
+    const diferenca = this.diferencaAcoes;
+    return compararAcoes<AcaoProjeto>(
+      Array.isArray(diferenca?.anterior) ? diferenca.anterior : [],
+      Array.isArray(diferenca?.proposto) ? diferenca.proposto : [],
+    );
+  }
+
   get acoesPropostas(): AcaoProjeto[] {
-    const acoes = this.diferencaAcoes?.proposto;
-    return Array.isArray(acoes) ? acoes : [];
+    return this.comparacaoAcoes.propostas;
   }
 
   get diferencaProgresso(): DiferencaRevisao | null {
@@ -204,8 +213,7 @@ export class AvaliacaoProjeto {
     return classes[this.projeto.status] ?? 'status-rascunho';
   }
   get acoesAnteriores(): AcaoProjeto[] {
-    const acoes = this.diferencaAcoes?.anterior;
-    return Array.isArray(acoes) ? acoes : [];
+    return this.comparacaoAcoes.anteriores;
   }
   rotuloStatusAcao(status: string): string {
     return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída',

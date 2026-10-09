@@ -1566,6 +1566,20 @@ textarea.objetivo-projeto{
   }
 }
 .cards-progresso { grid-template-columns: 1fr; }
+ .status-execucao-formulario {
+  width: 260px;
+  width: 100%;
+  justify-self: end;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid $cor-borda-secundaria;
+  border-radius: 6px;
+  background: #f8fafc;
+  .campo-formulario { margin: 0; gap: 6px; }
+  .form-select { width: 100%; min-height: 36px; font-size: 14px; border-color: $cor-borda-principal; border-radius: 6px; }
+  .form-select:focus { border-color: $cor-foco-formulario; box-shadow: 0 0 0 3px rgba(13, 110, 253, .08); }
+  .form-select:disabled { background-color: #eef1f5; }
+}
 .resumo-custos-acoes {
   display: flex;
   justify-content: flex-end;

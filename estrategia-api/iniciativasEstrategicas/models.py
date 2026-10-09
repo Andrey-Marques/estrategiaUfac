@@ -40,6 +40,9 @@ class AcaoRealizada(models.Model):
     prazo_inicio = models.DateField()
     prazo_fim = models.DateField()
     custo = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    custo_realizado = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    data_inicio_efetivo = models.DateField(null=True, blank=True)
+    data_fim_efetivo = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default= 'PLANEJAMENTO') 
     fk_iniciativa = models.ForeignKey(IniciativaEstrategica, on_delete=models.CASCADE, related_name='acoes_realizadas')
     

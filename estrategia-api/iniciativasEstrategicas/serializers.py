@@ -8,10 +8,20 @@ from .models import (IniciativaEstrategica, AcaoRealizada)
 
 
 class AcaoRealizadaSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        from decimal import Decimal
+        if attrs.get('custo', Decimal('0')) < 0 or attrs.get('custo_realizado', Decimal('0')) < 0:
+            raise serializers.ValidationError('Os custos não podem ser negativos.')
+        if attrs.get('prazo_inicio') and attrs.get('prazo_fim') and attrs['prazo_fim'] < attrs['prazo_inicio']:
+            raise serializers.ValidationError('O prazo de fim deve ser igual ou posterior ao início.')
+        if attrs.get('data_inicio_efetivo') and attrs.get('data_fim_efetivo') and attrs['data_fim_efetivo'] < attrs['data_inicio_efetivo']:
+            raise serializers.ValidationError('O fim efetivo deve ser igual ou posterior ao início efetivo.')
+        return attrs
+
     class Meta:
         model = AcaoRealizada
 
-        fields = ['id','nome','prazo_inicio','prazo_fim','custo','status']
+        fields = ['id','nome','prazo_inicio','prazo_fim','custo','custo_realizado','data_inicio_efetivo','data_fim_efetivo','status']
 
 
 class RelatedByIdOrNameField(serializers.PrimaryKeyRelatedField):

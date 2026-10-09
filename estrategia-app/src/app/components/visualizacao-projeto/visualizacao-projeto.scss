@@ -437,6 +437,7 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
 .texto-multilinha { white-space: pre-wrap; overflow-wrap: anywhere; }
 
 .acoes-projeto { display: grid; gap: 12px; margin-bottom: 28px; }
+.status-execucao-projeto { margin: -12px 0 24px; }
 .acao-projeto {
   padding: 20px;
   border: 1px solid $cinza-borda;

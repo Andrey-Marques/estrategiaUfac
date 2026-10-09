@@ -30,6 +30,10 @@ export class UsuarioService {
     );
   }
 
+  alterarSenha(dados: { senha_atual: string; nova_senha: string; confirmar_senha: string }) {
+    return this.http.post<{ detail: string }>(`${this.url}alterar-senha/`, dados);
+  }
+
   salvarMeuPerfil(dados: Partial<Usuario>) {
     return this.http.patch<Usuario>(`${this.url}me/`, dados);
   }

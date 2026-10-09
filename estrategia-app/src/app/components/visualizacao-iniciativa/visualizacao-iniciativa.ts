@@ -15,6 +15,6 @@ export class VisualizacaoIniciativa {
   readonly detalhe = carregarDetalhePublico('iniciativas');
 
   statusAcao(status: string): string {
-    return ({ PLANEJAMENTO: 'Planejamento', ANDAMENTO: 'Em andamento', CONCLUIDA: 'Concluída', CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;
+    return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída', CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;
   }
 }

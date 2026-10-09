@@ -481,3 +481,23 @@
   }
 
 }
+
+.botao-alterar-senha { align-self: flex-start; margin-top: 10px; padding: 8px 14px; font-size: 13px; }
+.sobreposicao-senha { position: fixed; inset: 0; z-index: 2200; background: rgba(0, 0, 0, .5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal-senha { width: 100%; max-width: 480px; max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 12px 36px rgba(0,0,0,.2); }
+.cabecalho-modal-senha { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #172b84; color: #fff; flex-shrink: 0;
+  h2 { margin: 0; font-size: 18px; font-weight: 600; }
+}
+.fechar-senha { background: transparent; border: 0; color: #fff; font-size: 28px; line-height: 1; cursor: pointer; }
+.modal-senha form { display: flex; flex-direction: column; min-height: 0; }
+.corpo-modal-senha { padding: 20px; display: grid; gap: 18px; overflow-y: auto;
+  p { margin: 0; font-size: 13px; color: #667085; }
+  label { font-size: 12px; font-weight: 600; }
+  input { background: #fff; }
+  small { margin-top: 6px; font-size: 12px; color: #667085; }
+}
+.rodape-modal-senha { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid #e5e7eb; flex-shrink: 0;
+  button { font-size: 13px; }
+}
+.modal-senha .erro-senha { color: #b42318; font-size: 12px; margin-top: 6px; }
+.modal-senha button:disabled { opacity: .6; cursor: default; }

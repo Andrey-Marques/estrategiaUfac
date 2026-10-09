@@ -161,6 +161,7 @@
                 <span class="badge" [ngClass]="obterClasseStatus(projeto.status)">
                   {{ obterRotuloStatus(projeto.status) }}
                 </span>
+                <div class="mt-2"><app-status-projeto [status]="projeto.status_execucao"></app-status-projeto></div>
               </td>
               <td class="text-center pe-4">
                 <button type="button" class="btn botao-visualizar" (click)="abrirAvaliacao(projeto)">
@@ -427,6 +428,16 @@
               <h2 class="titulo-progresso">Evolução do projeto</h2>
               <div class="cards-progresso">
                 <!-- EVOLUÇÃO DO PROJETO -->
+                <div class="status-execucao-formulario" [class.sumir]="etapaAtual !== 2">
+                  <div class="campo-formulario">
+                    <label for="statusExecucaoProjeto">STATUS DE EXECUÇÃO <span class="campo-obrigatorio">*</span></label>
+                    <select id="statusExecucaoProjeto" class="form-select" formControlName="statusExecucao">
+                      <option value="ANDAMENTO">Em andamento</option>
+                      <option value="DESCONTINUADO">Descontinuado</option>
+                      <option value="CONCLUIDO">Concluído</option>
+                    </select>
+                  </div>
+                </div>
                 <div class="card-monitoramento">
                   <div class="card-monitoramento-texto">
                     <p>Informe o percentual de conclusão do projeto para atualizar o acompanhamento.</p>
@@ -459,7 +470,7 @@
                   <h2>Passo 3: Ações do Projeto</h2>
                   <p>Adicione e edite prazos, custos e progressos das ações.</p>
                 </div>
-                <button *ngIf="!visualizando || modoEdicaoProjeto" type="button" class="btn btn-adicionar-acao"
+                <button *ngIf="(!visualizando || modoEdicaoProjeto) " type="button" class="btn btn-adicionar-acao"
                   (click)="abrirSubmodalAcao()">
                   + Adicionar Ação
                 </button>
@@ -500,7 +511,7 @@
                       (click)="editarAcaoProjeto(acao, indice)" title="Editar ação">
                       <i class="bi bi-pencil-square"></i>
                     </button>
-                    <button *ngIf="!visualizando || modoEdicaoProjeto" type="button" class="btn-excluir-acao"
+                    <button *ngIf="(!visualizando || modoEdicaoProjeto) && (!somenteExecucaoAcao() || acao.id === undefined)" type="button" class="btn-excluir-acao"
                       (click)="removerAcaoProjeto(indice)" title="Excluir ação">
                       <i class="bi bi-trash"></i>
                     </button>
@@ -582,8 +593,7 @@
         </div>
       </div>
     </div>
-  </div>
-          <div *ngIf="submodalAcaoAberto" class="sobreposicao-submodal-interno exibir-submodal">
+            <div *ngIf="submodalAcaoAberto" class="sobreposicao-submodal-interno exibir-submodal">
             <div role="dialog" aria-modal="true" aria-labelledby="tituloAcaoProjeto" class="caixa-submodal-acao" [formGroup]="formularioAcaoInterno">
               <div class="cabecalho-modal-acao">
                 <h1 id="tituloAcaoProjeto" class="titulo-modal-acao">
@@ -592,6 +602,7 @@
                 <button type="button" class="btn-close" aria-label="Fechar cadastro de ação" (click)="fecharSubmodalAcao()"></button>
               </div>
               <div class="corpo-modal-acao">
+                <p *ngIf="acaoExistenteAprovada()" class="text-muted">Após a aprovação, você pode atualizar apenas as datas efetivas, o custo realizado e o status da ação.</p>
                 <div class="campo-formulario">
                   <label for="descricaoAcaoInterna">DESCRIÇÃO DA AÇÃO <span class="campo-obrigatorio">*</span></label>
                   <input type="text" id="descricaoAcaoInterna" class="form-control"
@@ -647,6 +658,8 @@
                 </div>
             </div>
           </div>
+</div>
+
   <app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado"
     [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
     (aprovado)="aprovarProjeto($event)" (rejeitado)="rejeitarProjeto($event)"

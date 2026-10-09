@@ -1,3 +1,4 @@
+import { MascaraCpf } from '../../directives/mascara-cpf';
 import { Component, computed, signal } from '@angular/core';
 import { Paginacao } from '../utils/paginacao/paginacao';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -10,7 +11,7 @@ import { UnidadeService } from '../../service/unidade.service';
 //chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
 @Component({
   selector: 'app-tela-cadastro',
-  imports: [CommonModule, FormsModule, Paginacao],
+  imports: [CommonModule, FormsModule, Paginacao, MascaraCpf],
   templateUrl: './tela-cadastro.html',
   styleUrl: './tela-cadastro.scss',
   providers: [DatePipe],

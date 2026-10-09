@@ -300,7 +300,7 @@
                   <h2>Passo 2: Ações Relacionadas à Iniciativa</h2>
                   <p>Adicione e edite prazos, custos e progressos das ações.</p>
                 </div>
-                <button *ngIf="!visualizando" type="button" class="btn btn-adicionar-acao"
+                <button *ngIf="!visualizando " type="button" class="btn btn-adicionar-acao"
                   (click)="abrirSubmodalAcao()">
                   + Adicionar Ação
                 </button>
@@ -311,7 +311,10 @@
                   <div class="coluna col-acao">AÇÃO</div>
                   <div class="coluna col-prazo">PRAZO INÍCIO</div>
                   <div class="coluna col-prazo">PRAZO FIM</div>
-                  <div class="coluna col-custo">CUSTO</div>
+                  <div class="coluna col-custo">CUSTO ESTIMADO</div>
+                  <div class="coluna col-custo">CUSTO REALIZADO</div>
+                  <div class="coluna col-prazo">INÍCIO EFETIVO</div>
+                  <div class="coluna col-prazo">FIM EFETIVO</div>
                   <div class="coluna col-status">STATUS</div>
                   <div class="coluna col-acoes">OPÇÕES</div>
                 </div>
@@ -322,9 +325,12 @@
 
                 <div *ngFor="let acao of acoesIniciativa(); let indice = index" class="linha-tabela-acao">
                   <div class="coluna col-acao">{{ acao.descricaoAcao }}</div>
-                  <div class="coluna col-prazo">{{ acao.prazoInicio }}</div>
-                  <div class="coluna col-prazo">{{ acao.prazoFim }}</div>
-                  <div class="coluna col-custo">R$ {{ acao.custoEstimado }}</div>
+                  <div class="coluna col-prazo">{{ acao.prazoInicio | date:'dd/MM/yyyy':'UTC' }}</div>
+                  <div class="coluna col-prazo">{{ acao.prazoFim | date:'dd/MM/yyyy':'UTC' }}</div>
+                  <div class="coluna col-custo">{{ acao.custoEstimado | currency:'BRL' }}</div>
+                  <div class="coluna col-custo">{{ acao.custoRealizado | currency:'BRL' }}</div>
+                  <div class="coluna col-prazo">{{ acao.inicioEfetivo ? (acao.inicioEfetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</div>
+                  <div class="coluna col-prazo">{{ acao.fimEfetivo ? (acao.fimEfetivo | date:'dd/MM/yyyy':'UTC') : '—' }}</div>
                   <div class="coluna col-status">
                     <span class="badge-status" [ngClass]="acao.statusAtual">{{
                       obterRotuloStatus(acao.statusAtual)
@@ -335,7 +341,7 @@
                       (click)="editarAcaoIniciativa(acao, indice)" title="Editar ação">
                       <i class="bi bi-pencil-square"></i>
                     </button>
-                    <button *ngIf="!visualizando" type="button" class="btn-excluir-acao"
+                    <button *ngIf="!visualizando && (!somenteExecucaoAcao() || acao.id === undefined)" type="button" class="btn-excluir-acao"
                       (click)="removerAcaoIniciativa(indice)" title="Excluir ação">
                       <i class="bi bi-trash"></i>
                     </button>
@@ -434,15 +440,20 @@
           </form>
 
           <!-- SUBMODAL -->
-          <div class="sobreposicao-submodal-interno" [class.exibir-submodal]="submodalAcaoAberto">
-            <div class="caixa-submodal-acao" [formGroup]="formularioAcaoInterno">
+
+        </div>
+      </div>
+    </div>
+            <div *ngIf="submodalAcaoAberto" class="sobreposicao-submodal-interno exibir-submodal">
+            <div class="caixa-submodal-acao" role="dialog" aria-modal="true" aria-labelledby="tituloAcaoIniciativa" [formGroup]="formularioAcaoInterno">
               <div class="cabecalho-modal-acao">
-                <h1 class="titulo-modal-acao">
+                <h1 id="tituloAcaoIniciativa" class="titulo-modal-acao">
                   {{ acaoEmEdicaoIndice !== null ? 'Editar ação' : 'Adicionar nova ação' }}
                 </h1>
-                <button type="button" class="btn-close" (click)="fecharSubmodalAcao()"></button>
+                <button type="button" class="btn-close" aria-label="Fechar cadastro de ação" (click)="fecharSubmodalAcao()"></button>
               </div>
               <div class="corpo-modal-acao">
+                <p *ngIf="acaoExistenteAprovada()" class="text-muted">Após a aprovação, você pode atualizar apenas as datas efetivas, o custo realizado e o status da ação.</p>
                 <div class="campo-formulario">
                   <label for="descricaoAcaoInterna">DESCRIÇÃO DA AÇÃO <span class="campo-obrigatorio">*</span></label>
                   <input type="text" id="descricaoAcaoInterna" class="form-control"
@@ -451,31 +462,43 @@
                 <div class="linha-informacoes">
                   <div class="campo-formulario">
                     <label for="prazoInicioInterno">PRAZO DE INÍCIO <span class="campo-obrigatorio">*</span></label>
-                    <input type="text" id="prazoInicioInterno" class="form-control" placeholder="DD/MM/AAAA"
+                    <input type="date" id="prazoInicioInterno" class="form-control" placeholder="DD/MM/AAAA"
                       formControlName="prazoInicio" />
                   </div>
                   <div class="campo-formulario">
                     <label for="prazoFimInterno">PRAZO DE FIM <span class="campo-obrigatorio">*</span></label>
-                    <input type="text" id="prazoFimInterno" class="form-control" placeholder="DD/MM/AAAA ou contínua"
+                    <input type="date" id="prazoFimInterno" class="form-control" placeholder="DD/MM/AAAA ou contínua"
                       formControlName="prazoFim" />
                   </div>
                 </div>
                 <div class="linha-informacoes">
                   <div class="campo-formulario">
                     <label for="custoEstimadoInterno">CUSTO ESTIMADO <span class="campo-obrigatorio">*</span></label>
-                    <input type="text" id="custoEstimadoInterno" class="form-control" placeholder="0.00"
+                    <input type="text" inputmode="numeric" appMascaraReais id="custoEstimadoInterno" class="form-control" placeholder="R$ 0,00"
                       formControlName="custoEstimado" />
                   </div>
                   <div class="campo-formulario">
-                    <label for="statusAtualInterno">STATUS ATUAL <span class="campo-obrigatorio">*</span></label>
-                    <select id="statusAtualInterno" class="form-select selecao-status" formControlName="statusAtual">
-                      <option value="nao-iniciada">Não iniciada</option>
-                      <option value="em-execucao">Em execução</option>
-                      <option value="concluida">Concluída</option>
-                    </select>
+                    <label for="custoRealizadoInterno">CUSTO REALIZADO <span class="campo-obrigatorio">*</span></label>
+                    <input id="custoRealizadoInterno" type="text" inputmode="numeric" appMascaraReais class="form-control" placeholder="R$ 0,00"
+                      formControlName="custoRealizado" />
                   </div>
                 </div>
-                <hr />
+                <div class="linha-informacoes">
+                  <div class="campo-formulario"><label for="inicioEfetivoInterno">INÍCIO EFETIVO</label>
+                    <input id="inicioEfetivoInterno" type="date" class="form-control" formControlName="inicioEfetivo" /></div>
+                  <div class="campo-formulario"><label for="fimEfetivoInterno">FIM EFETIVO</label>
+                    <input id="fimEfetivoInterno" type="date" class="form-control" formControlName="fimEfetivo" /></div>
+                </div>
+                <div class="campo-formulario">
+                  <label for="statusAtualInterno">STATUS ATUAL <span class="campo-obrigatorio">*</span></label>
+                  <select id="statusAtualInterno" class="form-select selecao-status" formControlName="statusAtual">
+                    <option value="nao-iniciada">Não iniciada</option>
+                    <option value="em-execucao">Em execução</option>
+                    <option value="concluida">Concluída</option>
+                  </select>
+                </div>
+                <p class="text-danger" *ngIf="formularioAcaoInterno.invalid && formularioAcaoInterno.touched">Preencha a descrição, os prazos e os custos com valores válidos.</p>
+              </div>
                 <div class="rodape-modal-acao">
                   <button type="button" class="btn botao-cancelar-acao" (click)="fecharSubmodalAcao()">
                     Cancelar
@@ -484,14 +507,11 @@
                     {{ acaoEmEdicaoIndice !== null ? 'Salvar alterações' : 'Adicionar ação' }}
                   </button>
                 </div>
-              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
+</div>
+
 <app-avaliacao-iniciativa *ngIf="iniciativaEmAnalise() as iniciativaSelecionada" [iniciativa]="iniciativaSelecionada"
   [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
   (aprovado)="aprovarIniciativa($event)" (rejeitado)="rejeitarIniciativa($event)"

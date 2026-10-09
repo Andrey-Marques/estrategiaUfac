@@ -1,3 +1,4 @@
+import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule } from '@angular/common';
 import { Component, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -7,7 +8,7 @@ import { carregarDetalhePublico } from '../../service/detalhe-publico';
 
 @Component({
   selector: 'app-visualizacao-projeto',
-  imports: [CommonModule, RouterLink, HeaderPublico, Rodape],
+  imports: [StatusProjeto, CommonModule, RouterLink, HeaderPublico, Rodape],
   templateUrl: './visualizacao-projeto.html',
   styleUrl: './visualizacao-projeto.scss',
 })

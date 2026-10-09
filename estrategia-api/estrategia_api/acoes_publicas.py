@@ -104,7 +104,7 @@ class AcaoEstrategicaPublicaDetalheView(APIView):
         }
         if tipo == 'projetos':
             campos = ('descricao', 'tempo_estimado', 'custo_estimado', 'ultima_atualizacao',
-                      'percentual_progresso')
+                      'percentual_progresso', 'status_execucao')
             dados['evolucoes'] = list(registro.evolucoes.order_by('id').values('id', 'descricao', 'tipo'))
             dados['acoes'] = list(registro.acoes.order_by('id').values(
                 'id', 'nome', 'prazo_inicio', 'prazo_fim', 'custo_estimado', 'custo_realizado',
@@ -119,6 +119,6 @@ class AcaoEstrategicaPublicaDetalheView(APIView):
         else:
             campos = ('data_preenchimento', 'ultima_atualizacao', 'observacao', 'percentual_evolucao')
             dados['acoes_realizadas'] = list(registro.acoes_realizadas.order_by('prazo_inicio', 'id').values(
-                'id', 'nome', 'prazo_inicio', 'prazo_fim', 'custo', 'status'))
+                'id', 'nome', 'prazo_inicio', 'prazo_fim', 'custo', 'custo_realizado', 'data_inicio_efetivo', 'data_fim_efetivo', 'status'))
         dados.update({campo: getattr(registro, campo) for campo in campos})
         return Response(dados)
