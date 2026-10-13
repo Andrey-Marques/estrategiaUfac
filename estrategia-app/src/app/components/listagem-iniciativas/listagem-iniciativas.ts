@@ -1,3 +1,5 @@
+import { AtrasosService } from '../../service/atrasos.service';
+import { AvisoAtrasos } from '../utils/aviso-atrasos/aviso-atrasos';
 import { MascaraReais } from '../../directives/mascara-reais';
 import { Component, inject, signal } from '@angular/core';
 import { IniciativaEstrategica } from '../../model/iniciativaEstrategica';
@@ -32,12 +34,13 @@ export interface AcaoIniciativa {
 
 @Component({
   selector: 'app-listagem-iniciativas',
-  imports: [NgForOf, DatePipe, CommonModule, ReactiveFormsModule, AvaliacaoIniciativa, MascaraReais],
+  imports: [AvisoAtrasos, NgForOf, DatePipe, CommonModule, ReactiveFormsModule, AvaliacaoIniciativa, MascaraReais],
   templateUrl: './listagem-iniciativas.html',
   styleUrl: './listagem-iniciativas.scss',
   providers: [DatePipe],
 })
 export class ListagemIniciativas {
+  atrasos = inject(AtrasosService);
   obterPercentual(iniciativa: IniciativaEstrategica): number {
     const percentual = Number(iniciativa.percentual_evolucao) || 0;
     return Math.min(Math.max(percentual, 0), 100);
@@ -158,6 +161,7 @@ export class ListagemIniciativas {
     this.iniciativaService.get().subscribe({
       next: (iniciativa) => {
         this.iniciativas.set(iniciativa);
+        this.atrasos.atualizar();
         console.log(iniciativa);
       },
       error: (erro) => {

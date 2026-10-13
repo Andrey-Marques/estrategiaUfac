@@ -51,8 +51,8 @@ class ResumoUnidadeView(APIView):
                return Response({'iniciativas': 0, 'projetos': 0, 'indicadores': 0})
           
           return Response({
-               'iniciativas': IniciativaEstrategica.objects.filter(unidade_id=unidade_id).count(),
-               'projetos': ProjetoEstrategico.objects.filter(unidade_id = unidade_id).count(),
-               'indicadores': IndicadorEstrategico.objects.filter(unidade_id=unidade_id).count()
+               'iniciativas': IniciativaEstrategica.objects.filter(unidade_id=unidade_id).exclude(status='EXCLUIDO').count(),
+               'projetos': ProjetoEstrategico.objects.filter(unidade_id = unidade_id).exclude(status='EXCLUIDO').count(),
+               'indicadores': IndicadorEstrategico.objects.filter(unidade_id=unidade_id).exclude(status='EXCLUIDO').count()
                
                })

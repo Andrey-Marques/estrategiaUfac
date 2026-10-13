@@ -1073,3 +1073,8 @@
     border-top: 1px solid var(--borda);
   }
 }
+.justificativa-descontinuacao {
+  padding: 14px 16px; margin: 0 0 18px; border: 1px solid #d5deeb; border-left: 3px solid #4d9fff; border-radius: 4px; background: #f8fafc;
+  strong { color: #233c60; font-size: 14px; }
+  p { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+}

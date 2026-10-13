@@ -1,3 +1,5 @@
+import { AtrasosService } from '../../service/atrasos.service';
+import { AvisoAtrasos } from '../utils/aviso-atrasos/aviso-atrasos';
 import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
@@ -18,12 +20,13 @@ import { MascaraReais } from '../../directives/mascara-reais';
 
 @Component({
   selector: 'app-listagem-projetos',
-  imports: [StatusProjeto, CommonModule, ReactiveFormsModule, AvaliacaoProjeto, MascaraReais],
+  imports: [AvisoAtrasos, StatusProjeto, CommonModule, ReactiveFormsModule, AvaliacaoProjeto, MascaraReais],
   templateUrl: './listagem-projetos.html',
   styleUrl: './listagem-projetos.scss',
   providers: [DatePipe],
 })
 export class ListagemProjetos {
+  atrasos = inject(AtrasosService);
   acoesProjeto = signal<AcaoProjeto[]>([]);
   statusRegistroEditado = '';
   acoesAntesDaEdicao: AcaoProjeto[] = [];
@@ -45,6 +48,7 @@ export class ListagemProjetos {
   projetoSelecionadoId: number | null = null;
 
   filtroStatus = signal<string>('TODOS');
+  filtroExecucao = signal<string>('TODOS');
   termoPesquisa = signal<string>('');
   unidadeSelecionadas = signal<number[]>([]);
   menuUnidadesAberto = signal(false);
@@ -89,9 +93,24 @@ export class ListagemProjetos {
       tempoEstimado: ['', Validators.required],
 
       statusExecucao: ['ANDAMENTO', Validators.required],
+      justificativaDescontinuacao: ['', Validators.maxLength(2000)],
       percentualProgresso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
       objetivos: [[], Validators.required],
     });
+    this.formularioProjeto.get('statusExecucao')?.valueChanges.subscribe(() => this.atualizarValidacaoJustificativa());
+  }
+
+  atualizarValidacaoJustificativa(): void {
+    const campo = this.formularioProjeto.get('justificativaDescontinuacao');
+    const descontinuado = this.formularioProjeto.get('statusExecucao')?.value === 'DESCONTINUADO';
+    campo?.setValidators(descontinuado
+      ? [Validators.required, Validators.pattern(/\S/), Validators.maxLength(2000)]
+      : [Validators.maxLength(2000)]);
+    campo?.updateValueAndValidity({emitEvent: false});
+  }
+
+  alterarFiltroExecucao(evento: Event): void {
+    this.filtroExecucao.set((evento.target as HTMLSelectElement).value);
   }
 
   ngOnInit(): void {
@@ -104,7 +123,7 @@ export class ListagemProjetos {
 
   buscarProjeto(): void {
     this.projetoService.get().subscribe({
-      next: (projeto) => this.projetos.set(projeto),
+      next: (projeto) => { this.projetos.set(projeto); this.atrasos.atualizar(); },
       error: (erro) => console.error('erro ao buscar projetos', erro),
     });
   }
@@ -214,7 +233,8 @@ export class ListagemProjetos {
       const atendeUnidade =
         unidadeSelecionadas.length === 0 || unidadeSelecionadas.includes(Number(projeto.unidade));
 
-      return atendeStatus && atendePesquisa && atendeUnidade;
+      const atendeExecucao = this.filtroExecucao() === 'TODOS' || (projeto.status_execucao ?? 'ANDAMENTO') === this.filtroExecucao();
+      return atendeStatus && atendeExecucao && atendePesquisa && atendeUnidade;
     });
   }
 
@@ -236,6 +256,7 @@ export class ListagemProjetos {
           tempoEstimado: projetoDetalhado.tempo_estimado,
 
           statusExecucao: projetoDetalhado.status_execucao ?? 'ANDAMENTO',
+          justificativaDescontinuacao: projetoDetalhado.justificativa_descontinuacao ?? '',
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
 
@@ -255,6 +276,7 @@ export class ListagemProjetos {
           descricao: projeto.descricao,
           tempoEstimado: projeto.tempo_estimado,
           statusExecucao: projeto.status_execucao ?? 'ANDAMENTO',
+          justificativaDescontinuacao: projeto.justificativa_descontinuacao ?? '',
           percentualProgresso: projeto.percentual_progresso,
           objetivos: this.normalizarIds(projeto.objetivos ?? []),
         });
@@ -377,6 +399,7 @@ export class ListagemProjetos {
 
 
           statusExecucao: projetoDetalhado.status_execucao ?? 'ANDAMENTO',
+          justificativaDescontinuacao: projetoDetalhado.justificativa_descontinuacao ?? '',
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
 
@@ -422,6 +445,7 @@ export class ListagemProjetos {
 
 
       status_execucao: formulario.statusExecucao,
+      justificativa_descontinuacao: formulario.statusExecucao === 'DESCONTINUADO' ? String(formulario.justificativaDescontinuacao ?? '').trim() : '',
       percentual_progresso: Number(formulario.percentualProgresso ?? 0),
 
       responsavel: formulario.liderProjeto || null,
@@ -504,6 +528,7 @@ export class ListagemProjetos {
 
 
           statusExecucao: projetoDetalhado.status_execucao ?? 'ANDAMENTO',
+          justificativaDescontinuacao: projetoDetalhado.justificativa_descontinuacao ?? '',
           percentualProgresso: projetoDetalhado.percentual_progresso,
 
 
@@ -551,6 +576,7 @@ export class ListagemProjetos {
       // relacionados à atualização do projeto
       this.formularioProjeto.get('percentualProgresso')?.enable();
       this.formularioProjeto.get('statusExecucao')?.enable();
+      this.formularioProjeto.get('justificativaDescontinuacao')?.enable();
 
 
 
@@ -666,6 +692,7 @@ export class ListagemProjetos {
       descricao: formulario.descricao,
       tempo_estimado: formulario.tempoEstimado,
       status_execucao: formulario.statusExecucao,
+      justificativa_descontinuacao: formulario.statusExecucao === 'DESCONTINUADO' ? String(formulario.justificativaDescontinuacao ?? '').trim() : '',
       percentual_progresso: Number(formulario.percentualProgresso ?? 0),
       acoes: this.montarAcoesProjeto(),
       status: status,
@@ -713,6 +740,7 @@ export class ListagemProjetos {
       descricao: '',
       tempoEstimado: '',
       statusExecucao: 'ANDAMENTO',
+      justificativaDescontinuacao: '',
       percentualProgresso: 0,
       objetivos: [],
     });
@@ -932,7 +960,7 @@ export class ListagemProjetos {
       return;
     }
 
-    if (this.isAdmin() && this.formularioProjeto.invalid) {
+    if (this.formularioProjeto.invalid) {
       this.formularioProjeto.markAllAsTouched();
       window.alert('Preencha corretamente os campos obrigatórios.');
       return;
@@ -949,6 +977,7 @@ export class ListagemProjetos {
         objetivos: formulario.objetivos ?? [],
       } : {}),
       status_execucao: formulario.statusExecucao,
+      justificativa_descontinuacao: formulario.statusExecucao === 'DESCONTINUADO' ? String(formulario.justificativaDescontinuacao ?? '').trim() : '',
       percentual_progresso: Number(this.formularioProjeto.get('percentualProgresso')?.value ?? 0),
 
       evolucoes: this.montarEvolucoes(),

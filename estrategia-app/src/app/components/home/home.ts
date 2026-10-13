@@ -1,4 +1,6 @@
-import { Component, Signal, signal } from '@angular/core';
+import { AtrasosService } from '../../service/atrasos.service';
+import { AvisoAtrasos } from '../utils/aviso-atrasos/aviso-atrasos';
+import { Component, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProjetoEstrategico } from '../../model/projetoEstrategico';
 import { ProjetoService } from '../../service/projeto.service';
@@ -20,11 +22,12 @@ import { RevisaoService } from '../../service/revisao.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, AvaliacaoProjeto, AvaliacaoIniciativa, AvaliacaoIndicador, InfoBar],
+  imports: [AvisoAtrasos, CommonModule, AvaliacaoProjeto, AvaliacaoIniciativa, AvaliacaoIndicador, InfoBar],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home {
+  atrasos = inject(AtrasosService);
   listaProjetos = signal<ProjetoEstrategico[]>([]);
   isAdmin = signal(false);
   projetoEmAnalise = signal<

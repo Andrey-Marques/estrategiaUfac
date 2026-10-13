@@ -479,3 +479,8 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   .acao-publica-grupos { grid-template-columns: 1fr; gap: 16px; }
   .acao-publica-grupo + .acao-publica-grupo { padding: 14px 0 0; border-left: 0; border-top: 1px solid $cinza-borda; }
 }
+.justificativa-descontinuacao {
+  padding: 16px; margin: 0 0 20px; border: 1px solid #d5deeb; border-left: 3px solid #4d9fff; border-radius: 4px; background: #f8fafc;
+  strong { color: #003f80; }
+  p { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+}

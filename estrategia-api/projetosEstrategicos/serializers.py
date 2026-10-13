@@ -3,6 +3,15 @@ from rest_framework import serializers
 from objetivosEstrategicos.models import ObjetivoEstrategico
 from .models import AcaoProjeto, ProjetoEstrategico, EvolucaoProjeto
 
+
+def validar_justificativa_descontinuacao(status, motivo):
+    motivo = (motivo or '').strip()
+    if status == 'DESCONTINUADO' and not motivo:
+        raise serializers.ValidationError({'justificativa_descontinuacao': 'Informe a justificativa para descontinuar o projeto.'})
+    if len(motivo) > 2000:
+        raise serializers.ValidationError({'justificativa_descontinuacao': 'A justificativa deve ter no máximo 2000 caracteres.'})
+    return motivo if status == 'DESCONTINUADO' else ''
+
 class EvolucaoProjetoSerializer(serializers.ModelSerializer):
     class Meta:
         model = EvolucaoProjeto
@@ -55,7 +64,18 @@ class AcaoProjetoSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class ProjetoEstrategicoSerializer(serializers.ModelSerializer):
+from revisoes.exclusao import ExclusaoSerializerMixin
+
+class ProjetoEstrategicoSerializer(ExclusaoSerializerMixin, serializers.ModelSerializer):
+    justificativa_descontinuacao = serializers.CharField(required=False, allow_blank=True, max_length=2000)
+
+    def validate(self, dados):
+        if self.instance is None or {'status_execucao', 'justificativa_descontinuacao'} & dados.keys():
+            status = dados.get('status_execucao', getattr(self.instance, 'status_execucao', 'ANDAMENTO'))
+            motivo = dados.get('justificativa_descontinuacao', getattr(self.instance, 'justificativa_descontinuacao', ''))
+            dados['justificativa_descontinuacao'] = validar_justificativa_descontinuacao(status, motivo)
+        return dados
+
     responsavel_nome = serializers.SerializerMethodField()
     custo_estimado = serializers.DecimalField(max_digits=20, decimal_places=2, read_only=True)
     custo_realizado = serializers.DecimalField(

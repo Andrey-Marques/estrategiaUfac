@@ -53,6 +53,7 @@
 }
 
 .area-filtros {
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -63,6 +64,18 @@
   padding: 16px 24px;
 
   border-bottom: 1px solid #e5e7eb;
+}
+
+.filtro-execucao {
+  display: flex; align-items: center; gap: 8px;
+  label { font-size: 14px; color: $cor-texto-rotulo; white-space: nowrap; }
+  select { width: 175px; font-size: 14px; }
+}
+.justificativa-descontinuacao-formulario {
+  margin-bottom: 16px; padding: 14px; border: 1px solid $cor-borda-secundaria; border-radius: 6px; background: #f8fafc;
+  label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+  textarea { resize: vertical; }
+  small { display: block; margin-top: 6px; color: $cor-texto-rotulo; }
 }
 
 
@@ -430,15 +443,6 @@ table {
   vertical-align: middle;
 }
 
-.notificacao-revisao.revisao-aprovada {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.notificacao-revisao.revisao-rejeitada {
-  background: #fee2e2;
-  color: #b91c1c;
-}
 .linha-tabela:hover {
     background: #ffffff;
     border-color: #cbd5e1;

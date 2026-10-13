@@ -12,6 +12,7 @@ from indicadoresEstrategicos.serializers import EvolucaoIndicadorSerializer
 
 
 class SubmissaoRevisaoProjetoSerializer(serializers.Serializer):
+    justificativa_descontinuacao = serializers.CharField(required=False, allow_blank=True, max_length=2000)
     status_execucao = serializers.ChoiceField(choices=ProjetoEstrategico.STATUS_EXECUCAO_CHOICES, required=False)
 
     percentual_progresso = serializers.DecimalField(

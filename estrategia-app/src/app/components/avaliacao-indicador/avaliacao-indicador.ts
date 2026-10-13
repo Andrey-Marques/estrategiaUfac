@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { ExcluirRegistro } from '../utils/excluir-registro/excluir-registro';
 import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -25,12 +26,13 @@ export interface DecisaoIndicador {
 @Component({
   selector: 'app-avaliacao-indicador',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ExcluirRegistro, CommonModule, FormsModule],
 
   templateUrl: './avaliacao-indicador.html',
   styleUrl: './avaliacao-indicador.scss',
 })
 export class AvaliacaoIndicador implements OnChanges {
+  @Output() excluido = new EventEmitter<void>();
   @Input({ required: true })
   indicador!: IndicadorAvaliacao;
 

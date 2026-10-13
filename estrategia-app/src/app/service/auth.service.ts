@@ -44,4 +44,12 @@ export class AuthService{
     localStorage.removeItem('refresh');
   }
 
+  solicitarRecuperacaoSenha(email: string): Observable<{detail: string}> {
+    return this.http.post<{detail: string}>(`${this.url}/recuperar-senha/`, { email });
+  }
+
+  redefinirSenha(dados: {uid: string; token: string; nova_senha: string; confirmar_senha: string}): Observable<{detail: string}> {
+    return this.http.post<{detail: string}>(`${this.url}/redefinir-senha/`, dados);
+  }
+
 }

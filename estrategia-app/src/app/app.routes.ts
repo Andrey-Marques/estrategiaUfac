@@ -1,5 +1,6 @@
 import { AvaliacaoProjeto } from './components/avaliacao-projeto/avaliacao-projeto';
 import { Routes } from '@angular/router';
+import { RedefinirSenha } from './components/redefinir-senha/redefinir-senha';
 import { ListagemIniciativas } from './components/listagem-iniciativas/listagem-iniciativas';
 import { Home } from './components/home/home';
 import { TelaLogin } from './components/tela-login/tela-login';
@@ -21,6 +22,7 @@ import { VisualizacaoIndicador } from './components/visualizacao-indicador/visua
 import { VisualizacaoIniciativa } from './components/visualizacao-iniciativa/visualizacao-iniciativa';
 
 export const routes: Routes = [
+  { path: 'redefinir-senha/:uid/:token', component: RedefinirSenha },
   {
     path: '',
     redirectTo: 'pagina-inicial',

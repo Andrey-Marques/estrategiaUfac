@@ -1,8 +1,50 @@
 from rest_framework import serializers
 from .models import Usuario
+from .models import cpf_sem_mascara
+from django.db import IntegrityError, transaction
+from django.db.models.functions import Lower, Trim
+import re
 
 
-class UsuarioSerializer(serializers.ModelSerializer):
+class IdentificacaoUnicaMixin:
+    def usuarios_outros(self):
+        usuarios = Usuario.objects.all()
+        if self.instance is not None:
+            usuarios = usuarios.exclude(pk=self.instance.pk)
+        return usuarios
+
+    def validate_email(self, value):
+        value = value.strip().lower()
+        if value and self.usuarios_outros().annotate(email_normalizado=Lower(Trim('email'))).filter(email_normalizado=value).exists():
+            raise serializers.ValidationError('Já existe um usuário com este e-mail.')
+        return value
+
+    def validate_cpf(self, value):
+        if not value.strip():
+            return ''
+        if re.search(r'[^0-9.\-\s]', value):
+            raise serializers.ValidationError('Informe o CPF com 11 dígitos.')
+        digitos = re.sub(r'\D', '', value)
+        if len(digitos) != 11:
+            raise serializers.ValidationError('Informe o CPF com 11 dígitos.')
+        if self.usuarios_outros().annotate(cpf_normalizado=cpf_sem_mascara()).filter(cpf_normalizado=digitos).exists():
+            raise serializers.ValidationError('Já existe um usuário com este CPF.')
+        return f'{digitos[:3]}.{digitos[3:6]}.{digitos[6:9]}-{digitos[9:]}'
+
+    def save(self, **kwargs):
+        try:
+            with transaction.atomic():
+                return super().save(**kwargs)
+        except IntegrityError as erro:
+            mensagem = str(erro)
+            if 'usuario_email_unico' in mensagem:
+                raise serializers.ValidationError({'email': 'Já existe um usuário com este e-mail.'}) from erro
+            if 'usuario_cpf_unico' in mensagem:
+                raise serializers.ValidationError({'cpf': 'Já existe um usuário com este CPF.'}) from erro
+            raise
+
+
+class UsuarioSerializer(IdentificacaoUnicaMixin, serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = [
@@ -24,7 +66,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         )
 
 
-class MeuPerfilSerializer(serializers.ModelSerializer):
+class MeuPerfilSerializer(IdentificacaoUnicaMixin, serializers.ModelSerializer):
     unidade_nome = serializers.CharField(
         source='unidade.nome',
         read_only=True
@@ -59,6 +101,22 @@ class MeuPerfilSerializer(serializers.ModelSerializer):
             'unidade_sigla',
             'unidade_nome'
         ]
+
+class SolicitarRecuperacaoSenhaSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=254)
+
+
+class ConfirmarRecuperacaoSenhaSerializer(serializers.Serializer):
+    uid = serializers.CharField(max_length=200)
+    token = serializers.CharField(max_length=200)
+    nova_senha = serializers.CharField(write_only=True, trim_whitespace=False, max_length=1024)
+    confirmar_senha = serializers.CharField(write_only=True, trim_whitespace=False, max_length=1024)
+
+    def validate(self, dados):
+        if dados['nova_senha'] != dados['confirmar_senha']:
+            raise serializers.ValidationError({'confirmar_senha': 'As senhas não coincidem.'})
+        return dados
+
 
 class AlterarSenhaSerializer(serializers.Serializer):
     senha_atual = serializers.CharField(write_only=True, trim_whitespace=False, max_length=1024)

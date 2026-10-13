@@ -35,6 +35,11 @@
         </div>
       </section>
 
+      <section class="justificativa-descontinuacao" *ngIf="projeto.status_execucao === 'DESCONTINUADO'">
+        <strong>Justificativa da descontinuação</strong>
+        <p>{{ projeto.justificativa_descontinuacao || 'Justificativa não informada.' }}</p>
+      </section>
+
       <section class="secao-institucional">
         <div class="titulo-secao-azul">Informações gerais</div>
 
@@ -79,6 +84,11 @@
                 <strong>{{ obterRotuloStatusRevisao(revisao!.status) }}</strong>
                 <p>Anterior: <app-status-projeto [status]="diferenca.anterior"></app-status-projeto></p>
                 <p>Proposto: <app-status-projeto [status]="diferenca.proposto"></app-status-projeto></p>
+              </div>
+              <div class="informacao-revisao" *ngIf="revisao?.diferencas?.['justificativa_descontinuacao'] as diferenca">
+                <strong>Justificativa da descontinuação — {{ obterRotuloStatusRevisao(revisao!.status) }}</strong>
+                <p>Anterior: {{ diferenca.anterior || 'Não informada' }}</p>
+                <p>Proposta: {{ diferenca.proposto || 'Não se aplica' }}</p>
               </div>
             </div>
 
@@ -342,6 +352,7 @@
 
     <!-- RODAPÉ -->
     <footer class="modal-footer">
+      <app-excluir-registro *ngIf="projeto.pode_excluir" tipo="projetos" [registro]="projeto" (excluido)="excluido.emit()"></app-excluir-registro>
       <button type="button" class="btn btn-cancelar" (click)="fechar()">
         {{ modoAvaliacao ? 'Cancelar' : 'Fechar' }}
       </button>

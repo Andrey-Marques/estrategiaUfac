@@ -13,7 +13,9 @@ class EvolucaoIndicadorSerializer(serializers.ModelSerializer):
         ]
 
 
-class IndicadorEstrategicoSerializer(serializers.ModelSerializer):
+from revisoes.exclusao import ExclusaoSerializerMixin
+
+class IndicadorEstrategicoSerializer(ExclusaoSerializerMixin, serializers.ModelSerializer):
 
     evolucao_indicador = EvolucaoIndicadorSerializer(
         many=True,
@@ -32,6 +34,7 @@ class IndicadorEstrategicoSerializer(serializers.ModelSerializer):
         model = IndicadorEstrategico
         fields = [
             'id',
+            'pode_excluir',
             'nome',
             'polaridade',
             'finalidade',

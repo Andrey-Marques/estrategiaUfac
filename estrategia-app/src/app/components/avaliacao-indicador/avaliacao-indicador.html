@@ -339,6 +339,7 @@
          RODAPÉ
          ======================================== -->
     <footer class="modal-footer">
+      <app-excluir-registro *ngIf="indicador.pode_excluir" tipo="indicadores" [registro]="indicador" (excluido)="excluido.emit()"></app-excluir-registro>
       <button type="button" class="btn btn-cancelar" (click)="fechar()">
         {{ modoAvaliacao ? 'Cancelar' : 'Fechar' }}
       </button>

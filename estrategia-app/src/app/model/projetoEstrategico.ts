@@ -35,6 +35,8 @@ export interface ObjetivoProjetoDetalhe {
 }
 
 export interface ProjetoEstrategico{
+    justificativa_descontinuacao?: string;
+    pode_excluir?: boolean;
     status_execucao?: StatusExecucaoProjeto;
     id: number;
     nome: string;
@@ -59,6 +61,7 @@ export interface ProjetoEstrategico{
 }
 
 export interface CriarProjeto {
+  justificativa_descontinuacao?: string;
   status_execucao: StatusExecucaoProjeto;
   nome: string;
   descricao: string;

@@ -1,4 +1,5 @@
 import { compararAcoes } from '../../model/comparacao-acoes';
+import { ExcluirRegistro } from '../utils/excluir-registro/excluir-registro';
 import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -19,11 +20,12 @@ export interface DecisaoProjeto {
 @Component({
   selector: 'app-avaliacao-projeto',
   standalone: true,
-  imports: [StatusProjeto, CommonModule, FormsModule],
+  imports: [ExcluirRegistro, StatusProjeto, CommonModule, FormsModule],
   templateUrl: './avaliacao-projeto.html',
   styleUrl: './avaliacao-projeto.scss',
 })
 export class AvaliacaoProjeto {
+  @Output() excluido = new EventEmitter<void>();
   @Input({ required: true })
   projeto!: ProjetoAvaliacao;
 

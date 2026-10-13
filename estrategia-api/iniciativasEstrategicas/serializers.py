@@ -40,7 +40,9 @@ class RelatedByIdOrNameField(serializers.PrimaryKeyRelatedField):
 
         return super().to_internal_value(data)
 
-class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
+from revisoes.exclusao import ExclusaoSerializerMixin
+
+class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.ModelSerializer):
 
     responsavel_nome = serializers.SerializerMethodField()
 
@@ -61,6 +63,7 @@ class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
         model = IniciativaEstrategica
         fields = [
             'id',
+            'pode_excluir',
             'nome',
             'data_preenchimento',
             'ultima_atualizacao',

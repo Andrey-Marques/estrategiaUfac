@@ -209,10 +209,11 @@ export class TelaCadastro {
        this.fecharModal();
       },
       error: (erro) => {
-        console.error(
-        'Erro ao cadastrar usuário:',
-        erro
-      );
+        const mensagens = Object.values(erro.error ?? {})
+          .flatMap((valor) => Array.isArray(valor) ? valor : [String(valor)]);
+        alert(erro.status === 400 && mensagens.length
+          ? mensagens.join('\n')
+          : 'Não foi possível cadastrar o usuário. Tente novamente.');
       }
     })
   }

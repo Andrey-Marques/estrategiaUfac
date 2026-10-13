@@ -7,6 +7,8 @@
         +Nova Iniciativa
       </button>
     </div>
+    <app-aviso-atrasos [acoes]="atrasos.iniciativas()"></app-aviso-atrasos>
+
     <div class="card container-conteudo">
       <!-- Filtro -->
       <ul class="nav filtro px-4 pt-3 border-bottom">
@@ -85,12 +87,9 @@
               <td class="ps-4">
                 <div class="titulo-iniciativa">
                   {{ iniciativas.nome }}
+                  <span *ngIf="atrasos.temAtraso('iniciativas', iniciativas.id)" class="notificacao-revisao"><i class="bi bi-clock-history" aria-hidden="true"></i> Ação em atraso</span>
                   <ng-container *ngIf="obterRevisao(iniciativas.id) as revisao">
-                    <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
-                      <i class="bi"
-                        [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
-                      {{ obterRotuloRevisao(revisao.status) }}
-                    </span>
+                    <span *ngIf="revisao.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
                   </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1">
@@ -513,7 +512,7 @@
 </div>
 
 <app-avaliacao-iniciativa *ngIf="iniciativaEmAnalise() as iniciativaSelecionada" [iniciativa]="iniciativaSelecionada"
-  [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
+  [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()" (excluido)="fecharAvaliacao(); buscarIniciativa()"
   (aprovado)="aprovarIniciativa($event)" (rejeitado)="rejeitarIniciativa($event)"
   (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)"
   (editar)="abrirEdicaoPeloModal($event)">

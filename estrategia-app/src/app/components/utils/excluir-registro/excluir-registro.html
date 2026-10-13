@@ -1,0 +1,12 @@
+<ng-container *ngIf="registro.pode_excluir">
+  <button type="button" class="botao-excluir" [disabled]="excluindo" (click)="abrir()"><i class="bi bi-trash" aria-hidden="true"></i> Excluir</button>
+  <dialog #dialogoExclusao class="modal-confirmacao-final" [attr.aria-labelledby]="'titulo-exclusao-' + tipo + registro.id" (cancel)="fecharConfirmacaoFinal($event)">
+    <header><h3 [id]="'titulo-exclusao-' + tipo + registro.id">Confirmar exclusão</h3><button type="button" class="fechar-modal" aria-label="Fechar confirmação" [disabled]="excluindo" (click)="fecharConfirmacaoFinal()">×</button></header>
+    <div class="conteudo-confirmacao">
+      <p>Deseja realmente excluir <strong>{{ registro.nome }}</strong>?</p>
+      <p>O registro deixará de aparecer nas listagens e na área pública. Os dados e o histórico serão preservados.</p>
+      <p *ngIf="erro" class="erro-exclusao" role="alert">{{ erro }}</p>
+    </div>
+    <footer class="acoes-confirmacao"><button type="button" class="botao-cancelar" autofocus [disabled]="excluindo" (click)="fecharConfirmacaoFinal()">Cancelar</button><button type="button" class="botao-excluir" [disabled]="excluindo" (click)="excluirConfirmado()">{{ excluindo ? 'Excluindo…' : 'Sim, excluir' }}</button></footer>
+  </dialog>
+</ng-container>

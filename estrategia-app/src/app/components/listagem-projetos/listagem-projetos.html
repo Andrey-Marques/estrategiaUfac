@@ -12,6 +12,8 @@
       </button>
     </div>
 
+    <app-aviso-atrasos [acoes]="atrasos.projetos()"></app-aviso-atrasos>
+
     <div class="card container-conteudo">
       <ul class="nav filtro px-4 pt-3 border-bottom">
         <li class="nav-item">
@@ -53,6 +55,15 @@
         <div class="campo-pesquisa">
           <i class="bi bi-search"></i>
           <input type="text" placeholder="Pesquisar pelo nome do projeto..." (input)="pesquisarProjeto($event)" />
+        </div>
+        <div class="filtro-execucao">
+          <label for="filtroExecucaoProjeto">Status de execução</label>
+          <select id="filtroExecucaoProjeto" class="form-select" [value]="filtroExecucao()" (change)="alterarFiltroExecucao($event)">
+            <option value="TODOS">Todos</option>
+            <option value="ANDAMENTO">Em andamento</option>
+            <option value="DESCONTINUADO">Descontinuado</option>
+            <option value="CONCLUIDO">Concluído</option>
+          </select>
         </div>
         <div class="filtro-unidades" *ngIf="isAdmin()">
           <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
@@ -108,14 +119,9 @@
               <td class="ps-4">
                 <div class="titulo-projeto">
                   {{ projeto.nome }}
+                  <span *ngIf="atrasos.temAtraso('projetos', projeto.id)" class="notificacao-revisao"><i class="bi bi-clock-history" aria-hidden="true"></i> Ação em atraso</span>
                   <ng-container *ngIf="obterRevisaoProjeto(projeto.id) as revisaoProjeto">
-                    <span class="notificacao-revisao" [ngClass]="'revisao-' + revisaoProjeto.status.toLowerCase()">
-                      <i class="bi" [ngClass]="{
-                        'bi-bell-fill': revisaoProjeto.status === 'PENDENTE',
-                        'bi-check-circle-fill': revisaoProjeto.status === 'APROVADA',
-                        'bi-x-circle-fill': revisaoProjeto.status === 'REJEITADA'
-                      }"></i> {{ obterRotuloStatusRevisao(revisaoProjeto.status) }}
-                    </span>
+                    <span *ngIf="revisaoProjeto.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
                   </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1" *ngIf="obterObjetivosProjeto(projeto)?.length; else semObjetivos">
@@ -438,6 +444,12 @@
                     </select>
                   </div>
                 </div>
+                <div class="justificativa-descontinuacao-formulario" *ngIf="formularioProjeto.get('statusExecucao')?.value === 'DESCONTINUADO'">
+                  <label for="justificativaDescontinuacaoProjeto">JUSTIFICATIVA DA DESCONTINUAÇÃO <span class="campo-obrigatorio">*</span></label>
+                  <textarea id="justificativaDescontinuacaoProjeto" class="form-control" formControlName="justificativaDescontinuacao" maxlength="2000" rows="3" placeholder="Explique por que o projeto foi descontinuado."></textarea>
+                  <small>A justificativa ficará disponível na visualização pública após a aprovação.</small>
+                  <p class="text-danger mt-1 mb-0" *ngIf="formularioProjeto.get('justificativaDescontinuacao')?.touched && formularioProjeto.get('justificativaDescontinuacao')?.invalid">Informe uma justificativa válida, com no máximo 2000 caracteres.</p>
+                </div>
                 <div class="card-monitoramento">
                   <div class="card-monitoramento-texto">
                     <p>Informe o percentual de conclusão do projeto para atualizar o acompanhamento.</p>
@@ -661,7 +673,7 @@
 </div>
 
   <app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado"
-    [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
+    [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()" (excluido)="fecharAvaliacao(); buscarProjeto()"
     (aprovado)="aprovarProjeto($event)" (rejeitado)="rejeitarProjeto($event)"
     (editar)="abrirEdicaoPeloModal($event)" (revisaoAprovada)="aprovarRevisao($event)"
     (revisaoRejeitada)="rejeitarRevisao($event)">

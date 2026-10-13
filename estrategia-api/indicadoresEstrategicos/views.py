@@ -8,7 +8,10 @@ from .serializers import IndicadorEstrategicoSerializer
 from revisoes.serializers import SubmissaoRevisaoIndicadorSerializer, RevisaoEdicaoSerializer
 from revisoes.services import criar_revisao_indicador
 
-class IndicadorEstrategicoViewSet(ModelViewSet):
+from revisoes.exclusao import ExclusaoRegistroMixin
+
+class IndicadorEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
+    entidade_exclusao = 'INDICADOR'
     queryset = IndicadorEstrategico.objects.all()
     serializer_class = IndicadorEstrategicoSerializer
 
@@ -16,9 +19,9 @@ class IndicadorEstrategicoViewSet(ModelViewSet):
         usuario = self.request.user
 
         if usuario.papel == 'ADMIN':
-            return IndicadorEstrategico.objects.all()
+            return IndicadorEstrategico.objects.exclude(status='EXCLUIDO')
 
-        return IndicadorEstrategico.objects.filter(unidade=usuario.unidade)
+        return IndicadorEstrategico.objects.filter(unidade=usuario.unidade).exclude(status='EXCLUIDO')
 
     def perform_create(self, serializer):
         usuario = self.request.user

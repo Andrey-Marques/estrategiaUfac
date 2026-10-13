@@ -1,0 +1,22 @@
+:host { display: block; margin-right: auto; }
+button { padding: 9px 16px; border: 1px solid; border-radius: 4px; font: inherit; font-size: 14px; cursor: pointer; }
+.botao-excluir { border-color: #b42318; color: #b42318; background: #fff; }
+.botao-excluir:hover { background: #fff1f0; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+h3 { margin: 0 0 8px; color: #b42318; font-size: 16px; }
+p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+.acoes-confirmacao { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.botao-cancelar { background: #fff; color: #334155; border-color: #cbd5e1; }
+.erro-exclusao { color: #b42318; margin-top: 8px; }
+.modal-confirmacao-final {
+  width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px);
+  padding: 0; border: 1px solid #d5deeb; border-radius: 6px; color: #233c60;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .25);
+  &[open] { display: flex; flex-direction: column; }
+  &::backdrop { background: rgba(0, 0, 0, .55); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; background: #172b84; color: white; }
+  header h3 { margin: 0; color: white; font-size: 18px; }
+  .fechar-modal { border: 0; color: white; background: transparent; padding: 0 4px; font-size: 26px; }
+  .conteudo-confirmacao { padding: 20px; overflow-y: auto; min-height: 0; }
+  footer { margin: 0; padding: 16px 20px; border-top: 1px solid #d5deeb; flex-shrink: 0; }
+}

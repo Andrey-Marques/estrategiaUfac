@@ -18,6 +18,7 @@ export interface ObjetivoIniciativaDetalhe{
 }
 
 export interface IniciativaEstrategica{
+    pode_excluir?: boolean;
     id: number;
     nome: string;
     data_preenchimento: string;

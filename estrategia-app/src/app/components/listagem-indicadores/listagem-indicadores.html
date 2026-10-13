@@ -91,10 +91,7 @@
                 <div class="titulo-indicador">
                   {{ indicador.nome }}
                   <ng-container *ngIf="obterRevisao(indicador.id) as revisao">
-                    <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
-                      <i class="bi" [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
-                      {{ obterRotuloRevisao(revisao.status) }}
-                    </span>
+                    <span *ngIf="revisao.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
                   </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1">
@@ -601,5 +598,5 @@
     </div>
   </div>
 </div>
-<app-avaliacao-indicador *ngIf="indicadorSelecionado" [indicador]="indicadorSelecionado" [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharIndicador()" (aprovado)="aprovarIndicador($event)" (rejeitado)="rejeitarIndicador($event)" (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)" (editar)="editarIndicadorEmAnalise($event)">
+<app-avaliacao-indicador *ngIf="indicadorSelecionado" [indicador]="indicadorSelecionado" [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharIndicador()" (excluido)="fecharIndicador(); buscarIndicador()" (aprovado)="aprovarIndicador($event)" (rejeitado)="rejeitarIndicador($event)" (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)" (editar)="editarIndicadorEmAnalise($event)">
 </app-avaliacao-indicador>

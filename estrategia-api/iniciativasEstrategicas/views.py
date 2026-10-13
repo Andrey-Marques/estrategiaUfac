@@ -9,7 +9,10 @@ from rest_framework.response import Response
 from revisoes.serializers import SubmissaoRevisaoIniciativaSerializer, RevisaoEdicaoSerializer
 from revisoes.services import criar_revisao_iniciativa
 from usuarios.models import Usuario
-class IniciativaEstrategicaViewSet(ModelViewSet):
+from revisoes.exclusao import ExclusaoRegistroMixin
+
+class IniciativaEstrategicaViewSet(ExclusaoRegistroMixin, ModelViewSet):
+    entidade_exclusao = 'INICIATIVA'
     queryset = IniciativaEstrategica.objects.all()
     serializer_class = IniciativaEstrategicaSerializer
     
@@ -17,11 +20,11 @@ class IniciativaEstrategicaViewSet(ModelViewSet):
         usuario = self.request.user
         
         if usuario.papel == 'ADMIN':
-            return IniciativaEstrategica.objects.all()
+            return IniciativaEstrategica.objects.exclude(status='EXCLUIDO')
         
         return IniciativaEstrategica.objects.filter(
             unidade=usuario.unidade
-        )
+        ).exclude(status='EXCLUIDO')
         
     def perform_create(self, serializer):
         usuario = self.request.user

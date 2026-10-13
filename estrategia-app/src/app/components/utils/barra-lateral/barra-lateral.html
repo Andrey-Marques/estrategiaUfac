@@ -84,6 +84,7 @@
                                 stroke="currentColor"
                                 stroke-width="1.7"
                                 stroke-linecap="round"/>
+                        <circle *ngIf="atrasos.projetos().length" cx="18" cy="3" r="3.5" fill="#dc3545" stroke="#fff" stroke-width="1.2"><title>Há ações em atraso</title></circle>
                         </svg>
                         <span>Projetos Estratégicos</span>
                     </a>
@@ -131,6 +132,7 @@
                                 stroke-width="1.7"
                                 stroke-linecap="round"
                                 stroke-linejoin="round"/>
+                        <circle *ngIf="atrasos.iniciativas().length" cx="18" cy="3" r="3.5" fill="#dc3545" stroke="#fff" stroke-width="1.2"><title>Há ações em atraso</title></circle>
                         </svg>
                         <span>Iniciativas Estratégicas</span>
                     </a>

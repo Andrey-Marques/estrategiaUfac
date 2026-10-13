@@ -67,6 +67,7 @@ def snapshot_projeto(projeto):
 
     return {
         'status_execucao': projeto.status_execucao,
+        'justificativa_descontinuacao': projeto.justificativa_descontinuacao,
 
         'percentual_progresso': str(
             projeto.percentual_progresso
@@ -116,6 +117,13 @@ def montar_proposta_projeto(
     )
     if 'status_execucao' in dados:
         proposta['status_execucao'] = dados['status_execucao']
+    if 'justificativa_descontinuacao' in dados:
+        proposta['justificativa_descontinuacao'] = dados['justificativa_descontinuacao']
+    if {'status_execucao', 'justificativa_descontinuacao'} & dados.keys():
+        from projetosEstrategicos.serializers import validar_justificativa_descontinuacao
+        proposta['justificativa_descontinuacao'] = validar_justificativa_descontinuacao(
+            proposta['status_execucao'], proposta['justificativa_descontinuacao'],
+        )
 
     if 'percentual_progresso' in dados:
 
@@ -253,6 +261,8 @@ def aprovar_revisao_iniciativa(revisao, administrador):
         raise ValidationError({'detail': 'Esta revisão já foi analisada.'})
 
     iniciativa = IniciativaEstrategica.objects.select_for_update().get(id=revisao.entidade_id)
+    if iniciativa.status == 'EXCLUIDO':
+        raise ValidationError({'detail': 'Não é possível aprovar alterações de um registro excluído.'})
     dados = revisao.dados_propostos
     iniciativa.percentual_evolucao = dados['percentual_evolucao']
     iniciativa.observacao = dados.get('observacao', '')
@@ -323,6 +333,8 @@ def aprovar_revisao_indicador(revisao, administrador):
         raise ValidationError({'detail': 'Esta revisão já foi analisada.'})
 
     indicador = IndicadorEstrategico.objects.select_for_update().get(id=revisao.entidade_id)
+    if indicador.status == 'EXCLUIDO':
+        raise ValidationError({'detail': 'Não é possível aprovar alterações de um registro excluído.'})
     dados = revisao.dados_propostos
     indicador.observacao = dados.get('observacao', '')
     indicador.save(update_fields=['observacao'])
@@ -425,6 +437,8 @@ def aprovar_revisao_projeto(
         )
     )
 
+    if projeto.status == 'EXCLUIDO':
+        raise ValidationError({'detail': 'Não é possível aprovar alterações de um registro excluído.'})
     dados = revisao.dados_propostos
 
     # --------------------------------
@@ -434,7 +448,13 @@ def aprovar_revisao_projeto(
     projeto.percentual_progresso = (
         dados['percentual_progresso']
     )
+    status_execucao_anterior = projeto.status_execucao
     projeto.status_execucao = dados.get('status_execucao', projeto.status_execucao)
+    from projetosEstrategicos.serializers import validar_justificativa_descontinuacao
+    if 'justificativa_descontinuacao' in dados or projeto.status_execucao != 'DESCONTINUADO' or status_execucao_anterior != 'DESCONTINUADO':
+        projeto.justificativa_descontinuacao = validar_justificativa_descontinuacao(
+            projeto.status_execucao, dados.get('justificativa_descontinuacao', projeto.justificativa_descontinuacao),
+        )
 
     projeto.save()
 

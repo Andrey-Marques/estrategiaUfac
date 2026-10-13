@@ -1,4 +1,5 @@
 import { compararAcoes } from '../../model/comparacao-acoes';
+import { ExcluirRegistro } from '../utils/excluir-registro/excluir-registro';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,11 +14,12 @@ export interface DecisaoIniciativa {
 @Component({
   selector: 'app-avaliacao-iniciativa',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ExcluirRegistro, CommonModule, FormsModule],
   templateUrl: './avaliacao-iniciativa.html',
   styleUrl: './avaliacao-iniciativa.scss',
 })
 export class AvaliacaoIniciativa {
+  @Output() excluido = new EventEmitter<void>();
   @Input({ required: true })
   iniciativa!: IniciativaEstrategica;
 
