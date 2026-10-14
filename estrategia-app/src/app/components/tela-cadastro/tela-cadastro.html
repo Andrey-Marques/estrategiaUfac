@@ -358,36 +358,7 @@
 
 
     </div>
-    <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO -->
-    <div class="modal-overlay" *ngIf="confirmarExclusaoAberto" (click)="cancelarExclusao()">
-
-        <div class="modal-confirmacao" role="alertdialog" aria-labelledby="titulo-exclusao"
-            (click)="$event.stopPropagation()">
-
-            <div class="icone-alerta">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    <circle cx="12" cy="18" r="1.3" fill="currentColor" />
-                </svg>
-            </div>
-
-            <h2 id="titulo-exclusao">Atenção!</h2>
-
-            <p>
-                Tem certeza que deseja excluir esse usuário?
-            </p>
-
-            <div class="confirmacao-botoes">
-                <button type="button" class="btn-confirmar-exclusao" (click)="confirmarExclusao()">
-                    Excluir
-                </button>
-                <button type="button" class="btn-cancelar-exclusao" (click)="cancelarExclusao()">
-                    Cancelar
-                </button>
-            </div>
-
-        </div>
-    </div>
+    <app-confirmacao-exclusao [aberto]="confirmarExclusaoAberto" [carregando]="excluindoUsuario()" [erro]="erroExclusao()" mensagem="Tem certeza que deseja excluir esse usuário?" (confirmado)="confirmarExclusao()" (cancelado)="cancelarExclusao()"></app-confirmacao-exclusao>
 
     <!-- MODAL DE ATIVAR / INATIVAR -->
     <div class="modal-overlay" *ngIf="statusAberto" (click)="cancelarAlteracaoStatus()">

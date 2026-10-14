@@ -1,3 +1,4 @@
+import { ConfirmacaoExclusao } from '../utils/confirmacao-exclusao/confirmacao-exclusao';
 import { MascaraCpf } from '../../directives/mascara-cpf';
 import { Component, computed, signal } from '@angular/core';
 import { Paginacao } from '../utils/paginacao/paginacao';
@@ -11,7 +12,7 @@ import { UnidadeService } from '../../service/unidade.service';
 //chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
 @Component({
   selector: 'app-tela-cadastro',
-  imports: [CommonModule, FormsModule, Paginacao, MascaraCpf],
+  imports: [ConfirmacaoExclusao, CommonModule, FormsModule, Paginacao, MascaraCpf],
   templateUrl: './tela-cadastro.html',
   styleUrl: './tela-cadastro.scss',
   providers: [DatePipe],
@@ -225,37 +226,40 @@ export class TelaCadastro {
   }
 
   confirmarExclusaoAberto = false;
+  excluindoUsuario = signal(false);
+  erroExclusao = signal('');
   usuarioParaExcluir: Usuario | null = null;
 
   abrirConfirmacaoExclusao(usuario: Usuario): void {
+    this.erroExclusao.set('');
     this.usuarioParaExcluir = usuario;
     this.confirmarExclusaoAberto = true;
   }
 
   cancelarExclusao(): void {
+    if (this.excluindoUsuario()) return;
     this.confirmarExclusaoAberto = false;
     this.usuarioParaExcluir = null;
   }
 
   confirmarExclusao(): void {
-    if (!this.usuarioParaExcluir) return;
+    if (!this.usuarioParaExcluir || this.excluindoUsuario()) return;
+    this.excluindoUsuario.set(true);
+    this.erroExclusao.set('');
 
     const id = this.usuarioParaExcluir.id;
 
     this.usuarioService.excluirUsuario(id).subscribe({
 
       next: () => {
+        this.excluindoUsuario.set(false);
         console.log('Usuario excluido com sucesso');
         this.cancelarExclusao();
         this.buscarUsuarios();
       },
       error: (erro) => {
-        console.error('Erro ao excluir usuário', erro);
-
-        alert(
-          erro.error?.detail ||
-          'Não foi possível excluir o usuário.'
-        );
+        this.excluindoUsuario.set(false);
+        this.erroExclusao.set(erro.error?.detail || 'Não foi possível excluir o usuário.');
       }
     })
   }

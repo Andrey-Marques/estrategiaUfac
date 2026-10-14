@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 from objetivosEstrategicos.models import ObjetivoEstrategico
 from .models import AcaoProjeto, ProjetoEstrategico, EvolucaoProjeto
+from revisoes.validacoes_acoes import validar_datas_status_acao
 
 
 def validar_justificativa_descontinuacao(status, motivo):
@@ -48,6 +49,7 @@ class AcaoProjetoSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
+        validar_datas_status_acao(attrs, self.instance)
         prazo_inicio = attrs.get('prazo_inicio')
         prazo_fim = attrs.get('prazo_fim')
         data_inicio_efetivo = attrs.get('data_inicio_efetivo')

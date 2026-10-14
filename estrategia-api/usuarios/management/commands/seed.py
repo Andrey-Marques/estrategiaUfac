@@ -530,11 +530,7 @@ class Command(BaseCommand):
             'PROGRAD': gestor_prograd,
         }
 
-        projetos_criados = {}
-
         for sigla, dados_unidade in projetos_dados.items():
-            projetos_criados[sigla] = []
-
             for (
                 nome,
                 descricao,
@@ -559,7 +555,6 @@ class Command(BaseCommand):
 
                 self.criar_acoes_projeto(projeto, custo_estimado, acoes)
                 projeto.objetivos.add(objetivo)
-                projetos_criados[sigla].append(projeto)
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -600,7 +595,7 @@ class Command(BaseCommand):
         }
 
         for sigla, dados_unidade in iniciativas_dados.items():
-            for indice, (nome, percentual, objetivo) in enumerate(dados_unidade):
+            for nome, percentual, objetivo in dados_unidade:
                 iniciativa, _ = IniciativaEstrategica.objects.update_or_create(
                     nome=nome,
                     defaults={
@@ -611,7 +606,6 @@ class Command(BaseCommand):
                         'status': 'APROVADO',
                         'unidade': unidades[sigla],
                         'responsavel': responsaveis[sigla],
-                        'projeto': projetos_criados[sigla][indice],
                     }
                 )
 
@@ -749,6 +743,9 @@ class Command(BaseCommand):
                         'prazo_inicio': inicio,
                         'prazo_fim': fim,
                         'custo': custo,
+                        'custo_realizado': custo if status == 'CONCLUIDA' else Decimal('0.00'),
+                        'data_inicio_efetivo': inicio if status in ('ANDAMENTO', 'CONCLUIDA') else None,
+                        'data_fim_efetivo': fim if status == 'CONCLUIDA' else None,
                         'status': status,
                     },
                 )

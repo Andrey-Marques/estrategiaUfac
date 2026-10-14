@@ -13,7 +13,7 @@ class AcoesEmAtrasoView(APIView):
         hoje = timezone.localdate()
         resultado = {'projetos': [], 'iniciativas': []}
         for tipo, modelo, vinculo in [('projetos', AcaoProjeto, 'fk_projeto'), ('iniciativas', AcaoRealizada, 'fk_iniciativa')]:
-            acoes = modelo.objects.filter(prazo_fim__lt=hoje, data_fim_efetivo__isnull=True, **{f'{vinculo}__status': 'APROVADO'}).exclude(status__in=['CONCLUIDA', 'CANCELADA']).select_related(vinculo).order_by('prazo_fim', 'id')
+            acoes = modelo.objects.filter(prazo_inicio__lt=hoje, data_inicio_efetivo__isnull=True, **{f'{vinculo}__status': 'APROVADO'}).exclude(status__in=['CONCLUIDA', 'CANCELADA']).select_related(vinculo).order_by('prazo_inicio', 'id')
             if tipo == 'projetos':
                 acoes = acoes.filter(fk_projeto__status_execucao='ANDAMENTO')
             if request.user.papel != 'ADMIN':
@@ -24,6 +24,6 @@ class AcoesEmAtrasoView(APIView):
                     'tipo': tipo,
                     'registro_id': registro.pk, 'registro_nome': registro.nome,
                     'acao_id': acao.pk, 'acao_nome': acao.nome,
-                    'prazo_fim': acao.prazo_fim, 'dias_atraso': (hoje - acao.prazo_fim).days,
+                    'prazo_inicio': acao.prazo_inicio, 'dias_atraso': (hoje - acao.prazo_inicio).days,
                 })
         return Response(resultado)

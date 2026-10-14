@@ -8,7 +8,7 @@ export interface AcaoEmAtraso {
   registro_nome: string;
   acao_id: number;
   acao_nome: string;
-  prazo_fim: string;
+  prazo_inicio: string;
   dias_atraso: number;
 }
 

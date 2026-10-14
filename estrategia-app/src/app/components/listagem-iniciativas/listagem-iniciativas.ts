@@ -1,4 +1,5 @@
 import { AtrasosService } from '../../service/atrasos.service';
+import { validarStatusAcao } from '../../model/validacao-status-acao';
 import { AvisoAtrasos } from '../utils/aviso-atrasos/aviso-atrasos';
 import { MascaraReais } from '../../directives/mascara-reais';
 import { Component, inject, signal } from '@angular/core';
@@ -404,6 +405,8 @@ export class ListagemIniciativas {
     }
 
     const dadosAcao = this.formularioAcaoInterno.getRawValue();
+    const erroStatus = validarStatusAcao(this.converterStatusParaApi(dadosAcao.statusAtual), dadosAcao.inicioEfetivo, dadosAcao.fimEfetivo);
+    if (erroStatus) { window.alert(erroStatus); return; }
     if (dadosAcao.prazoFim < dadosAcao.prazoInicio || (dadosAcao.inicioEfetivo && dadosAcao.fimEfetivo && dadosAcao.fimEfetivo < dadosAcao.inicioEfetivo)) {
       window.alert('As datas de fim devem ser iguais ou posteriores às respectivas datas de início.');
       return;

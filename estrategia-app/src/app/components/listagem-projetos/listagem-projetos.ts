@@ -1,4 +1,5 @@
 import { AtrasosService } from '../../service/atrasos.service';
+import { validarStatusAcao } from '../../model/validacao-status-acao';
 import { AvisoAtrasos } from '../utils/aviso-atrasos/aviso-atrasos';
 import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -1214,6 +1215,8 @@ export class ListagemProjetos {
       return;
     }
     const dados = this.formularioAcaoInterno.getRawValue();
+    const erroStatus = validarStatusAcao(dados.statusAtual, dados.inicioEfetivo, dados.fimEfetivo);
+    if (erroStatus) { window.alert(erroStatus); return; }
     if (!dados.descricaoAcao.trim()) {
       window.alert('Informe a descrição da ação.');
       return;
