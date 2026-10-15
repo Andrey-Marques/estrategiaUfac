@@ -1,0 +1,21 @@
+<nav aria-label="Navegação estrutural">
+  <ol>
+    <li>
+      <a routerLink="/pagina-inicial" aria-label="Página inicial">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V14H9V21H4C3.45 21 3 20.55 3 20V10.5Z" fill="currentColor" />
+        </svg>
+      </a>
+    </li>
+    @for (item of itens(); track $index) {
+      <li>
+        <span class="separador" aria-hidden="true">›</span>
+        @if (item.rota) {
+          <a [routerLink]="item.rota" [queryParams]="item.queryParams">{{ item.titulo }}</a>
+        } @else {
+          <span class="atual" aria-current="page">{{ item.titulo }}</span>
+        }
+      </li>
+    }
+  </ol>
+</nav>

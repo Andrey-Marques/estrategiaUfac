@@ -1,14 +1,14 @@
+import { Breadcrumb } from '../utils/breadcrumb/breadcrumb';
 import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule } from '@angular/common';
 import { Component, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { HeaderPublico } from '../utils/header-publico/header-publico';
 import { Rodape } from '../utils/rodape/rodape';
 import { carregarDetalhePublico } from '../../service/detalhe-publico';
 
 @Component({
   selector: 'app-visualizacao-projeto',
-  imports: [StatusProjeto, CommonModule, RouterLink, HeaderPublico, Rodape],
+  imports: [Breadcrumb, StatusProjeto, CommonModule, HeaderPublico, Rodape],
   templateUrl: './visualizacao-projeto.html',
   styleUrl: './visualizacao-projeto.scss',
 })

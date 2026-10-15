@@ -1,4 +1,4 @@
-@use '../../../styles.scss' as *;
+@use '../../../styles/variables' as *;
 
 // ============================================================
 // VARIÁVEIS
@@ -25,40 +25,8 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
 }
 
 
-// ============================================================
-// BREADCRUMB
-// ============================================================
 
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 30px;
-  font-size: 0.7rem;
 
-  a {
-    text-decoration: none;
-    color: $azul-claro;
-
-    &:hover {
-      border-radius: 100%;
-      background-color: $cinza-fundo;
-      cursor: pointer;
-    }
-  }
-
-  span {
-    color: $azul-claro;
-    font-size: 0.8rem;
-    cursor: pointer;
-  }
-
-  .atual {
-    color: $cinza-texto;
-    font-weight: 600;
-    cursor: default;
-  }
-}
 
 
 // ============================================================

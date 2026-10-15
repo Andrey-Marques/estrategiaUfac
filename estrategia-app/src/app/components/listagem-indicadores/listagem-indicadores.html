@@ -1,13 +1,13 @@
 <div>
-  <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="container-fluid listagem-privada">
+    <div class="cabecalho-listagem">
       <h1 class="titulo-pagina m-0">Indicadores Estratégicos</h1>
-      <button
-        type="button"
-        class="btn botao-principal"
-        data-bs-toggle="modal"
-        data-bs-target="#modalIndicador"
-      >
+      <button type="button" class="btn botao-principal" data-bs-toggle="modal" data-bs-target="#modalIndicador"
+        (click)="formulario.fecharFormulario()" *ngIf="!isAdmin()">
+        Propor novo Indicador
+      </button>
+      <button type="button" class="btn botao-principal" data-bs-toggle="modal" data-bs-target="#modalIndicador"
+        (click)="formulario.fecharFormulario()" *ngIf="isAdmin()">
         +Novo Indicador
       </button>
     </div>
@@ -17,23 +17,33 @@
       <ul class="nav filtro px-4 pt-3 border-bottom">
         <li class="nav-item">
           <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'TODOS'"
-            (click)="alterarFiltroStatus('TODOS')">Todos</button>
+            (click)="alterarFiltroStatus('TODOS')">
+            Todos
+          </button>
         </li>
         <li class="nav-item">
           <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'APROVADO'"
-            (click)="alterarFiltroStatus('APROVADO')">Aprovados</button>
+            (click)="alterarFiltroStatus('APROVADO')">
+            Aprovados
+          </button>
         </li>
         <li class="nav-item">
           <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'REJEITADO'"
-            (click)="alterarFiltroStatus('REJEITADO')">Rejeitados</button>
+            (click)="alterarFiltroStatus('REJEITADO')">
+            Rejeitados
+          </button>
         </li>
         <li class="nav-item">
           <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'RASCUNHO'"
-            (click)="alterarFiltroStatus('RASCUNHO')">Rascunhos</button>
+            (click)="alterarFiltroStatus('RASCUNHO')">
+            Rascunhos
+          </button>
         </li>
         <li class="nav-item">
           <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'EM_ESPERA'"
-            (click)="alterarFiltroStatus('EM_ESPERA')">Em Espera</button>
+            (click)="alterarFiltroStatus('EM_ESPERA')">
+            Em Espera
+          </button>
         </li>
       </ul>
 
@@ -57,7 +67,9 @@
             <div class="cabecalho-filtro-unidades">
               <strong>Filtrar por unidade</strong>
               <button type="button" class="botao-limpar" *ngIf="unidadesSelecionadas().length > 0"
-                (click)="limparFiltroUnidades()">Limpar</button>
+                (click)="limparFiltroUnidades()">
+                Limpar
+              </button>
             </div>
 
             <label class="opcao-unidade" *ngFor="let unidade of unidades()">
@@ -74,8 +86,8 @@
       </div>
 
       <!-- Tabela de indicadores -->
-      <div class="table-responsive pb-4">
-        <table class="table align-middle mb-0">
+      <div class="table-responsive">
+        <table class="table tabela-listagem align-middle mb-0">
           <thead class="cabecalho-tabela">
             <tr class="linha-cabecalho-tabela">
               <th scope="col" class="ps-4">INDICADOR</th>
@@ -86,12 +98,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="linha-tabela" *ngFor="let indicador of indicadoresFiltrados()">
+            <tr class="linha-tabela" *ngFor="let indicador of indicadoresPaginados()">
               <td class="ps-4">
-                <div class="titulo-indicador">
+                <div class="titulo-registro">
                   {{ indicador.nome }}
                   <ng-container *ngIf="obterRevisao(indicador.id) as revisao">
-                    <span *ngIf="revisao.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
+                    <span *ngIf="revisao.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i
+                        class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
                   </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1">
@@ -100,14 +113,16 @@
               </td>
               <td class="text-center" *ngIf="isAdmin()">
                 <ng-container *ngIf="obterUnidadeIndicador(indicador) as unidade">
-                  <div class="unidade-indicador">
+                  <div class="unidade-registro">
                     <strong>{{ unidade.sigla }}</strong>
                     <small>{{ unidade.nome }}</small>
                   </div>
                 </ng-container>
               </td>
               <td class="text-center">
-                <strong class="d-block texto-data">{{ formatarDataEnvio(indicador.data_envio) }}</strong>
+                <strong class="d-block texto-data">{{
+                  formatarDataEnvio(indicador.data_envio)
+                  }}</strong>
               </td>
               <td class="text-center">
                 <span class="badge" [ngClass]="obterClasseStatus(indicador.status)">
@@ -130,473 +145,18 @@
           </tbody>
         </table>
       </div>
+      <app-paginacao [total]="indicadoresFiltrados().length" [pagina]="paginaAtual()" [porPagina]="itensPorPagina()"
+        (paginaAlterada)="paginaSelecionada.set($event)"
+        (tamanhoAlterado)="alterarItensPorPagina($event)"></app-paginacao>
     </div>
   </div>
 </div>
-<div
-  class="modal fade"
-  id="modalIndicador"
-  aria-hidden="true"
-  aria-labelledby="modalIndicadorLabel"
-  tabindex="-1"
->
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <div class="modal-content">
-      <div class="formulario-iniciativas posicao-relativa">
-        <!-- ================= CABEÇALHO ================= -->
 
-        <div class="cabecalho-formulario modal-header">
-          <div>
-            <h1>{{ indicadorEmEdicao === null ? 'CRIAR INDICADOR ESTRATÉGICO' : 'EDITAR INDICADOR ESTRATÉGICO' }}</h1>
-            <p>Preencha as informações técnicas do indicador estratégico</p>
-          </div>
-
-          <button
-            type="button"
-            class="btn-close btn-close-white"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-
-        <section class="feedback-edicao-indicador" *ngIf="indicadorEmEdicao !== null && obterRevisao(indicadorEmEdicao) as revisaoEdicao"
-          [ngClass]="'feedback-' + revisaoEdicao.status.toLowerCase()">
-          <i class="bi" [ngClass]="revisaoEdicao.status === 'PENDENTE' ? 'bi-bell-fill' : revisaoEdicao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
-          <div>
-            <strong>{{ obterRotuloRevisao(revisaoEdicao.status) }}</strong>
-            <span>Enviada em {{ revisaoEdicao.criado_em | date:'dd/MM/yyyy HH:mm' }}<span *ngIf="revisaoEdicao.analisado_em"> · Analisada em {{ revisaoEdicao.analisado_em | date:'dd/MM/yyyy HH:mm' }}</span></span>
-            <small *ngIf="revisaoEdicao.observacao">{{ revisaoEdicao.observacao }}</small>
-          </div>
-        </section>
-
-        <!-- ================= ETAPAS ================= -->
-
-        <div class="etapas-formulario">
-          <div
-            class="etapa-formulario"
-            [class.etapa-atual]="etapaAtual === 1"
-            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()"
-            (click)="irParaEtapa(1)"
-          >
-            <span>1. Apresentação</span>
-          </div>
-
-          <div
-            class="etapa-formulario"
-            [class.etapa-atual]="etapaAtual === 2"
-            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()"
-            (click)="irParaEtapa(2)"
-          >
-            <span>2. Método de cálculo</span>
-          </div>
-
-          <div
-            class="etapa-formulario"
-            [class.etapa-atual]="etapaAtual === 3"
-            (click)="irParaEtapa(3)"
-          >
-            <span>3. Evolução</span>
-          </div>
-
-          <div
-            class="etapa-formulario"
-            [class.etapa-atual]="etapaAtual === 4"
-            (click)="irParaEtapa(4)"
-          >
-            <span>4. Observações</span>
-          </div>
-        </div>
-
-        <form [formGroup]="formularioIndicador">
-          <!-- ========================================================= -->
-          <!-- ETAPA 1 - APRESENTAÇÃO                                   -->
-          <!-- ========================================================= -->
-
-          <div class="conteudo-formulario secao1" [class.sumir]="etapaAtual !== 1">
-            <div class="titulo-secao">
-              <h2>Passo 1: Identificação Geral & Objetivos</h2>
-              <p>Informe os dados básicos do indicador</p>
-              <hr />
-            </div>
-
-            <div class="card-informativo">
-              <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-
-              <p>
-                Indicadores traduzem de forma numérica os objetivos estratégicos, com vistas a representar a evolução
-                no alcance de cada objetivo, enquanto as metas buscam estabelecer o nível desejado de cada indicador
-                quanto ao alcance dos resultados.
-              </p>
-            </div>
-
-            <!-- NOME -->
-
-            <div class="campo-formulario">
-              <label>
-                NOME DO INDICADOR
-                <span class="campo-obrigatorio">*</span>
-              </label>
-
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Insira o título aqui"
-                formControlName="nome"
-              />
-            </div>
-
-            <!-- RESPONSÁVEL e UNIDADE -->
-
-            <div class="linha-informacoes">
-
-
-              <div class="campo-formulario">
-                <label> UNIDADE RESPONSÁVEL </label>
-
-                <select class="form-control" formControlName="unidade" (change)="aoSelecionarUnidade()">
-
-                  <option [ngValue]="null">
-                    Selecione uma unidade
-                  </option>
-
-                  <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id">
-                    {{ unidade.sigla }} - {{ unidade.nome }}
-                  </option>
-                </select>
-              </div>
-              <div class="campo-formulario">
-                <label>
-                  RESPONSÁVEL PELO INDICADOR
-                  <span class="campo-obrigatorio" *ngIf="!isAdmin()">*</span>
-                </label>
-
-                <select class="form-control" formControlName="responsavel">
-                  <option [ngValue]="null">
-                    {{
-                      isAdmin()
-                        ? 'Sem responsável'
-                        : 'Selecione um responsável'
-                    }}
-                  </option>
-
-                  <option
-                    *ngFor="let usuario of responsaveisDisponiveis()"
-                    [ngValue]="usuario.id">
-
-                    {{ usuario.nome_social || usuario.nome_completo }}
-                    — {{ obterSiglaUnidadeUsuario(usuario) }}
-
-                  </option>
-                </select>
-              </div>
-            </div>
-
-
-
-            <!-- FINALIDADE -->
-
-            <div class="campo-formulario">
-              <label> FINALIDADE </label>
-
-              <textarea
-                class="form-control finalidade-indicador"
-                placeholder="Insira a finalidade aqui"
-                formControlName="finalidade"
-              ></textarea>
-            </div>
-
-            <!-- OBJETIVOS -->
-
-            <section class="secao-objetivos">
-              <div class="titulo-objetivos">
-                <h2>Objetivos Estratégicos</h2>
-                <p>Selecione quais objetivos institucionais o indicador mede</p>
-              </div>
-
-              <hr />
-
-              <div class="container-objetivos">
-                <div
-                  class="card-objetivo-estrategico"
-                  *ngFor="let objetivo of objetivos()"
-                  [class.objetivo-selecionado]="objetivoSelecionado === objetivo.id"
-                  (click)="selecionarObjetivo(objetivo.id)"
-                >
-                  <div class="cabecalho-card-objetivo">
-                    <span class="codigo-objetivo">
-                      {{ objetivo.codigo }}
-                    </span>
-                  </div>
-
-                  <p class="descricao-objetivo">
-                    {{ objetivo.descricao }}
-                  </p>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <!-- ========================================================= -->
-          <!-- ETAPA 2 - MÉTODO DE CÁLCULO                              -->
-          <!-- ========================================================= -->
-
-          <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 2">
-            <div class="titulo-secao">
-              <h2>Passo 2: Método de cálculo</h2>
-              <p>
-                Adicione a unidade de medida, polaridade e método utilizado para calcular o
-                indicador.
-              </p>
-              <hr />
-            </div>
-
-            <!-- UNIDADE / POLARIDADE -->
-
-            <div class="linha-informacoes">
-              <div class="campo-formulario">
-                <label>UNIDADE DE MEDIDA</label>
-
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Ex.: Percentual"
-                  formControlName="unidadeMedida"
-                />
-              </div>
-
-              <div class="campo-formulario">
-                <label>POLARIDADE</label>
-
-                <select class="form-control" formControlName="polaridade">
-                  <option value="">Selecione a polaridade</option>
-
-                  <option value="POSITIVA">Positiva (quanto maior, melhor)</option>
-
-                  <option value="NEGATIVA">Negativa (quanto menor, melhor)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- CARD MÉTODO -->
-
-            <div class="card-metodo-calculo">
-              <label class="titulo-metodo"> MÉTODO DE CÁLCULO </label>
-
-              <!-- FÓRMULA -->
-
-              <div class="campo-formulario">
-                <label> FÓRMULA </label>
-
-                <textarea
-                  class="form-control formula-textarea"
-                  formControlName="formula"
-                  placeholder="Ex.: \frac{A}{B} \times 100"
-                  (input)="renderizarFormula()"
-                ></textarea>
-
-                <div
-                  *ngIf="formulaRenderizada"
-                  class="preview-formula"
-                  [innerHTML]="formulaRenderizada"
-                ></div>
-              </div>
-
-              <!-- DESCRIÇÃO -->
-
-              <textarea
-                class="form-control descricao-metodo"
-                formControlName="metodoCalculo"
-                placeholder="Descreva o método de cálculo, variáveis e regras utilizadas..."
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- ========================================================= -->
-          <!-- ETAPA 3 - EVOLUÇÃO                                       -->
-          <!-- ========================================================= -->
-
-          <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 3">
-            <div class="titulo-secao">
-              <h2>Passo 3: Evoluções & Metas</h2>
-              <p>Adicione as metas previstas e os resultados alcançados durante os exercícios.</p>
-              <hr />
-            </div>
-
-            <div class="card-metas-monitoramento">
-              <!-- CABEÇALHO -->
-
-              <div class="cabecalho-metas">
-                <div>
-                  <h3>METAS DE MONITORAMENTO</h3>
-                  <p>
-                    Clique no botão para inserir quantos novos anos forem necessários ao
-                    planejamento.
-                  </p>
-                </div>
-
-                <button type="button" class="btn botao-adicionar-ano" (click)="adicionarMeta()">
-                  <i class="bi bi-plus-lg"></i>
-                  Adicionar ano
-                </button>
-              </div>
-
-              <!-- TABELA -->
-
-              <div class="container-tabela-metas">
-                <div class="cabecalho-tabela-metas">
-                  <div>ANO/EXERCÍCIO</div>
-
-                  <div>PREVISTA</div>
-
-                  <div>ALCANÇADA</div>
-
-                  <div>AÇÕES</div>
-                </div>
-
-                <div class="linha-meta" *ngFor="let meta of metas; let indice = index">
-                  <div>
-                    <input
-                      type="number"
-                      class="form-control"
-                      [(ngModel)]="meta.ano"
-                      [ngModelOptions]="{ standalone: true }"
-                      placeholder="2026"
-                    />
-                  </div>
-
-                  <div class="campo-meta-percentual">
-                    <input
-                      type="number"
-                      class="form-control"
-                      [(ngModel)]="meta.prevista"
-                      [ngModelOptions]="{ standalone: true }"
-                      min="0"
-                      max="100"
-                      placeholder="-"
-                    />
-                  </div>
-
-                  <div class="campo-meta-percentual">
-                    <input
-                      type="number"
-                      class="form-control"
-                      [(ngModel)]="meta.alcancada"
-                      [ngModelOptions]="{ standalone: true }"
-                      min="0"
-                      max="100"
-                      placeholder="-"
-                    />
-                  </div>
-
-                  <div class="acoes-meta">
-                    <button
-                      type="button"
-                      class="botao-excluir-meta"
-                      title="Excluir"
-                      (click)="removerMeta(indice)"
-                    >
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="sem-metas" *ngIf="metas.length === 0">
-                  Nenhuma meta de monitoramento adicionada.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ========================================================= -->
-          <!-- ETAPA 4 - OBSERVAÇÕES                                    -->
-          <!-- ========================================================= -->
-
-          <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 4">
-            <div class="titulo-secao">
-              <h2>Passo 4: Observações</h2>
-
-              <p>Adicione informações complementares sobre o indicador.</p>
-
-              <hr />
-            </div>
-
-            <div class="campo-formulario campo-observacao">
-              <textarea
-                class="form-control caixa-texto-observacao observacoes-indicador"
-                placeholder="Insira suas observações aqui!"
-                formControlName="observacao"
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- ========================================================= -->
-          <!-- RODAPÉ                                                    -->
-          <!-- ========================================================= -->
-
-          <div class="rodape-formulario">
-            <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
-
-            <div class="botoes-navegacao">
-              <!-- ANTERIOR -->
-
-              <button
-                type="button"
-                class="btn botao-anterior"
-                (click)="voltar()"
-                [disabled]="etapaAtual === 1 || (edicaoRestrita && !ehGestor() && etapaAtual === 3)"
-              >
-                <i class="bi bi-chevron-left"></i>
-                Anterior
-              </button>
-
-              <!-- PRÓXIMO -->
-
-              <button
-                *ngIf="etapaAtual < 4"
-                type="button"
-                class="btn botao-proximo"
-                (click)="avancar()"
-              >
-                Próximo
-                <i class="bi bi-chevron-right"></i>
-              </button>
-
-              <!-- ÚLTIMA ETAPA -->
-
-              <ng-container *ngIf="etapaAtual === 4">
-                <button
-                  *ngIf="!isAdmin() || statusIndicadorEmEdicao === 'RASCUNHO'"
-                  type="button"
-                  class="btn botao-salvar-rascunho"
-                  (click)="salvarIndicador('RASCUNHO')"
-                >
-                  Salvar rascunho
-                </button>
-
-                <button
-                  *ngIf="!isAdmin()"
-                  type="button"
-                  class="btn botao-submeter-analise"
-                  (click)="salvarIndicador('EM_ESPERA')"
-                >
-                  Submeter à análise
-                </button>
-
-                <button
-                  *ngIf="isAdmin()"
-                  type="button"
-                  class="btn botao-submeter-analise"
-                  (click)="salvarIndicador('APROVADO')"
-                >
-                  Publicar indicador
-                </button>
-              </ng-container>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-<app-avaliacao-indicador *ngIf="indicadorSelecionado" [indicador]="indicadorSelecionado" [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharIndicador()" (excluido)="fecharIndicador(); buscarIndicador()" (aprovado)="aprovarIndicador($event)" (rejeitado)="rejeitarIndicador($event)" (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)" (editar)="editarIndicadorEmAnalise($event)">
+<app-avaliacao-indicador *ngIf="indicadorSelecionado" [indicador]="indicadorSelecionado" [isAdmin]="isAdmin()"
+  [revisao]="revisaoEmAnalise()" (fechado)="fecharIndicador()" (excluido)="fecharIndicador(); buscarIndicador()"
+  (aprovado)="aprovarIndicador($event)" (rejeitado)="rejeitarIndicador($event)"
+  (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)"
+  (editar)="fecharIndicador(); formulario.editarIndicadorEmAnalise($event)">
 </app-avaliacao-indicador>
+<app-formulario-indicadores [revisoes]="revisoes()" #formulario
+  (salvo)="buscarIndicador(); buscarRevisoes()"></app-formulario-indicadores>

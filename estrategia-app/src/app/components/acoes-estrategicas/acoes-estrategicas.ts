@@ -1,8 +1,9 @@
+import { Breadcrumb } from '../utils/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HeaderPublico } from '../utils/header-publico/header-publico';
-import { ActivatedRoute, RouterModule, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Rodape } from '../utils/rodape/rodape';
 import {
@@ -33,7 +34,7 @@ type Ordenacao = 'titulo-az' | 'titulo-za' | 'data-recente' | 'data-antiga';
 
 @Component({
   selector: 'app-acoes-estrategicas',
-  imports: [CommonModule, HeaderPublico, RouterModule, FormsModule, Rodape],
+  imports: [Breadcrumb, CommonModule, HeaderPublico, FormsModule, Rodape],
   templateUrl: './acoes-estrategicas.html',
   styleUrl: './acoes-estrategicas.scss',
 })
@@ -287,6 +288,8 @@ export class AcoesEstrategicas implements OnInit {
       iniciativas: '/visualizacao-iniciativa',
     };
     this.salvarAba(this.abaAtiva());
-    this.router.navigate([rotas[registro.tipo], registro.id]);
+    this.router.navigate([rotas[registro.tipo], registro.id], {
+      queryParams: { unidade: this.unidadeDoPainel(), aba: this.abaAtiva() },
+    });
   }
 }

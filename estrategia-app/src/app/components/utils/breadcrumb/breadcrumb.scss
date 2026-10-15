@@ -1,0 +1,43 @@
+@use '../../../../styles/variables' as *;
+
+:host {
+  display: block;
+  margin-bottom: 30px;
+  font-family: "Inter", "Open Sans", Arial, sans-serif;
+}
+
+ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+a {
+  display: inline-flex;
+  align-items: center;
+  color: $cor-azul-padrao;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+}
+
+.separador { color: $cor-azul-padrao; }
+.atual { color: #555; font-weight: 600; overflow-wrap: anywhere; }
+
+@media (max-width: 800px) {
+  :host { margin-bottom: 25px; }
+}
