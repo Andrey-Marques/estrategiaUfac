@@ -1,6 +1,7 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { finalize } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface AcaoEmAtraso {
   tipo: 'projetos' | 'iniciativas';
@@ -25,7 +26,7 @@ export class AtrasosService {
     if (token !== this.tokenAtual) { this.projetos.set([]); this.iniciativas.set([]); this.tokenAtual = token; }
     if (this.carregando) return;
     this.carregando = true;
-    this.http.get<{projetos: AcaoEmAtraso[]; iniciativas: AcaoEmAtraso[]}>('http://127.0.0.1:8000/api/acoes-em-atraso/').pipe(finalize(() => this.carregando = false)).subscribe({
+    this.http.get<{projetos: AcaoEmAtraso[]; iniciativas: AcaoEmAtraso[]}>(`${environment.apiUrl}/acoes-em-atraso/`).pipe(finalize(() => this.carregando = false)).subscribe({
       next: dados => { if (localStorage.getItem('access') === token) { this.projetos.set(dados.projetos); this.iniciativas.set(dados.iniciativas); } },
       error: () => { this.projetos.set([]); this.iniciativas.set([]); },
     });

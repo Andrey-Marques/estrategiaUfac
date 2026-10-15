@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {ObjetivoEstrategico, CriarObjetivoEstrategico} from '../model/objetivoEstrategico';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ObjetivoService {
 
-  private apiUrl = 'http://localhost:8000/api/objetivos/';
+  private apiUrl = `${environment.apiUrl}/objetivos/`;
 
   constructor(private http: HttpClient){}
 

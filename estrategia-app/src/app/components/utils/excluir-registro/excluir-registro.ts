@@ -2,6 +2,7 @@ import { ConfirmacaoExclusao } from '../confirmacao-exclusao/confirmacao-exclusa
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectorRef, EventEmitter, Input, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-excluir-registro',
@@ -35,7 +36,7 @@ export class ExcluirRegistro {
     if (this.excluindo || !this.confirmacaoAberta) return;
     this.excluindo = true;
     this.erro = '';
-    this.http.delete(`http://127.0.0.1:8000/api/${this.tipo}/${this.registro.id}/`).subscribe({
+    this.http.delete( `${environment.apiUrl}/${this.tipo}/${this.registro.id}/`).subscribe({
       next: () => { this.excluindo = false; this.confirmacaoAberta = false; this.excluido.emit(); this.cdr.detectChanges(); },
       error: erro => {
         this.excluindo = false;

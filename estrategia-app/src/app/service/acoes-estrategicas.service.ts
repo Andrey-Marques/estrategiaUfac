@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { ProjetoEstrategico } from '../model/projetoEstrategico';
 import { IndicadorEstrategico } from '../model/indicadorEstrategico';
 import { IniciativaEstrategica } from '../model/iniciativaEstrategica';
+import { environment } from '../../environments/environment';
 
 interface DetalhePublico {
   id: number;
@@ -42,7 +43,7 @@ export interface AcoesEstrategicasPublicas {
 @Injectable({ providedIn: 'root' })
 export class AcoesEstrategicasService {
   private readonly http = inject(HttpClient);
-  private readonly url = 'http://localhost:8000/api/acoes-estrategicas/';
+  private readonly url = `${environment.apiUrl}/acoes-estrategicas/`;
 
   listar() {
     return this.http.get<AcoesEstrategicasPublicas>(this.url);

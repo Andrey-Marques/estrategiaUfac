@@ -3,30 +3,32 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { ProjetoEstrategico } from "../model/projetoEstrategico";
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+
 
 @Injectable({
     providedIn: 'root'
 })
 export class ProjetoService {
-    private apiUrl = 'http://localhost:8000/api/projetos/';
-    private apiUrlEvolucao = 'http://localhost:8000/api/evolucoes-projeto/';
+    private url = `${environment.apiUrl}/projetos/`;
+    private apiUrlEvolucao = `${environment.apiUrl}/projetos/`;
 
     constructor(private http: HttpClient){}
 
     get(){
-        return this.http.get<ProjetoEstrategico[]>(this.apiUrl);
+        return this.http.get<ProjetoEstrategico[]>(this.url);
     }
 
     getById(id: number): Observable<ProjetoEstrategico> {
-      return this.http.get<ProjetoEstrategico>(`${this.apiUrl}${id}/`);
+      return this.http.get<ProjetoEstrategico>(`${this.url}${id}/`);
     }
 
     CriarProjeto(projeto: CriarProjeto){
-      return this.http.post<ProjetoEstrategico>(this.apiUrl, projeto);
+      return this.http.post<ProjetoEstrategico>(this.url, projeto);
     }
 
     atualizarProjeto(id: number, projeto: Partial<CriarProjeto & { responsavel?: number | null; evolucoes?: Array<{ realizacao?: string; proximo_passo?: string }> }>): Observable<ProjetoEstrategico> {
-      return this.http.patch<ProjetoEstrategico>(`${this.apiUrl}${id}/`, projeto);
+      return this.http.patch<ProjetoEstrategico>(`${this.url}${id}/`, projeto);
     }
 
     adicionarEvolucao(projetoId: number, evolucao: { realizacao?: string; proximo_passo?: string }): Observable<any> {
@@ -45,7 +47,7 @@ export class ProjetoService {
     }
     aprovarProjeto(id: number, observacao: string): Observable<ProjetoEstrategico> {
       return this.http.post<ProjetoEstrategico>(
-        `${this.apiUrl}${id}/aprovar/`,
+        `${this.url}${id}/aprovar/`,
         {
           observacao
         }
@@ -54,7 +56,7 @@ export class ProjetoService {
 
     rejeitarProjeto(id: number, observacao: string): Observable<ProjetoEstrategico> {
       return this.http.post<ProjetoEstrategico>(
-        `${this.apiUrl}${id}/rejeitar/`,
+        `${this.url}${id}/rejeitar/`,
         {
           observacao
         }
@@ -62,7 +64,7 @@ export class ProjetoService {
     }
     submeterAtualizacao(projetoId: number, dados: any) {
       return this.http.post(
-        `${this.apiUrl}${projetoId}/submeter-atualizacao/`,
+        `${this.url}${projetoId}/submeter-atualizacao/`,
         dados
       );
     }

@@ -15,6 +15,27 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  backend:
+    build:
+      context: ./estrategia-api
+    env_file:
+      - ./estrategia-api/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      FRONTEND_URL: "http://localhost:8080"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    build:
+      context: ./estrategia-app
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
