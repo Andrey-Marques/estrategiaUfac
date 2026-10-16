@@ -4,6 +4,9 @@ export interface AcaoReslizada{
     prazo_inicio: string;
     prazo_fim: string;
     custo: string;
+    custo_realizado?: string | number;
+    data_inicio_efetivo?: string | null;
+    data_fim_efetivo?: string | null;
     status: string;
     fk_iniciativa?: number;
 }
@@ -15,6 +18,7 @@ export interface ObjetivoIniciativaDetalhe{
 }
 
 export interface IniciativaEstrategica{
+    pode_excluir?: boolean;
     id: number;
     nome: string;
     data_preenchimento: string;

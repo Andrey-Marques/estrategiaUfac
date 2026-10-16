@@ -1,4 +1,4 @@
-@use '../../../styles.scss' as *;
+@use '../../../styles/variables' as *;
 
 $azul-principal: #08088b;
 $azul-escuro: #071f48;
@@ -23,42 +23,8 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   padding-top: var(--altura-header);
 }
 
-// ============================================================
-// BREADCRUMB
-// ============================================================
-
-.breadcrumb {
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  margin-bottom: 30px;
-
-  font-size: 0.7rem;
 
 
-  a {
-    text-decoration: none;
-    color: $cor-azul-padrao;
-
-
-
-
-    &:hover {
-
-      border-radius: 100%;
-      cursor: pointer;
-
-    }
-  }
-
-span{
-    color: $cor-azul-padrao;
-    font-size: 0.8rem;
-  }
-}
 
 h1 {
   color: $azul-principal;
@@ -964,7 +930,6 @@ h1 {
 
 @media (max-width: 1100px) {
 
-  .breadcrumb,
   h1,
   .abas {
     width: calc(100% - 50px);
@@ -993,7 +958,6 @@ h1 {
 
 @media (max-width: 800px) {
 
-  .breadcrumb,
   h1,
   .abas {
     width: calc(100% - 30px);
@@ -1033,7 +997,6 @@ h1 {
 
 @media (max-width: 550px) {
 
-  .breadcrumb,
   h1,
   .abas {
     width: calc(100% - 20px);

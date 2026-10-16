@@ -1,0 +1,10 @@
+Olá,
+
+Recebemos uma solicitação para redefinir a senha da sua conta no Estratégia UFAC.
+
+Acesse o link abaixo para escolher uma nova senha:
+{{ link }}
+
+Este link expira em {{ minutos }} minutos e deixa de funcionar após a alteração da senha.
+
+Se você não solicitou a recuperação, ignore esta mensagem. Sua senha continuará a mesma.

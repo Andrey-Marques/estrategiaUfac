@@ -2,10 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Usuario } from '../model/usuario';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  private url = 'http://localhost:8000/api/usuarios/';
+  private url = `${environment.apiUrl}/usuarios/`;
 
   constructor(private http: HttpClient) {}
 
@@ -28,6 +29,10 @@ export class UsuarioService {
     return this.http.get<Usuario[]>(
       `${this.url}responsaveis/`
     );
+  }
+
+  alterarSenha(dados: { senha_atual: string; nova_senha: string; confirmar_senha: string }) {
+    return this.http.post<{ detail: string }>(`${this.url}alterar-senha/`, dados);
   }
 
   salvarMeuPerfil(dados: Partial<Usuario>) {

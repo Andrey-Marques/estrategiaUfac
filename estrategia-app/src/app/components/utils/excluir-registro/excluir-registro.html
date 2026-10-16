@@ -1,0 +1,4 @@
+<ng-container *ngIf="registro.pode_excluir">
+  <button type="button" class="botao-excluir" [disabled]="excluindo" (click)="abrir()"><i class="bi bi-trash" aria-hidden="true"></i> Excluir</button>
+  <app-confirmacao-exclusao [aberto]="confirmacaoAberta" [carregando]="excluindo" [mensagem]="mensagemConfirmacao" [erro]="erro" (confirmado)="excluirConfirmado()" (cancelado)="fecharConfirmacaoFinal()"></app-confirmacao-exclusao>
+</ng-container>

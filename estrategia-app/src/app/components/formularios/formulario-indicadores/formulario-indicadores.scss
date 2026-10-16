@@ -1,0 +1,249 @@
+@use '../../../../styles/variables' as *;
+
+.feedback-edicao-indicador {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 24px 0;
+  padding: 10px 12px;
+  border: 1px solid #f5d76e;
+  border-radius: 6px;
+  background: #fffbea;
+  color: #7a5b00;
+  font-size: 12px;
+
+  strong,
+  span,
+  small {
+    display: block;
+  }
+  strong {
+    font-size: 13px;
+  }
+  span {
+    margin-top: 3px;
+  }
+  small {
+    margin-top: 4px;
+    white-space: pre-line;
+  }
+}
+
+@media (max-width: 600px) {
+}
+
+.finalidade-indicador,
+textarea.descricao-metodo {
+  min-height: 120px;
+  padding: 6px 12px;
+  border: 1px solid $cor-borda-principal;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #858484;
+  box-shadow: none;
+  resize: none;
+
+  &::placeholder {
+    color: $cor-texto-placeholder;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $cor-foco-formulario;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
+  }
+}
+
+.card-metodo-calculo {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: $cor-fundo-branco;
+  border: 1px solid $cor-borda-principal;
+  border-radius: 12px;
+  .campo-formulario{
+    margin-bottom: 10px;
+  }
+}
+
+.titulo-metodo {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 14px;
+  font-weight: 700;
+  color: $cor-texto-rotulo;
+}
+
+.preview-formula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+  min-height: 96px;
+  padding: 24px 20px;
+
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow-x: auto;
+}
+
+.card-metas-monitoramento {
+  margin: 20px 0;
+  padding: 20px;
+
+  border: 1px solid $cor-borda-principal;
+  border-radius: 12px;
+
+  background-color: $cor-fundo-branco;
+}
+
+.cabecalho-metas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 20px;
+
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: $cor-texto-rotulo;
+  }
+
+  p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: $cor-texto-auxiliar;
+  }
+}
+
+.botao-adicionar-ano {
+  height: 40px;
+  padding: 0 15px;
+
+  border: 1px solid $cor-primaria-botao;
+  border-radius: 8px;
+
+  background-color: $cor-primaria-botao;
+  color: $cor-fundo-branco;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    background-color: $cor-primaria-botao-hover;
+    border-color: $cor-primaria-botao-hover;
+    color: $cor-fundo-branco;
+  }
+}
+
+.container-tabela-metas {
+  overflow: hidden;
+
+  border: 1px solid $cor-borda-principal;
+  border-radius: 12px;
+}
+
+.cabecalho-tabela-metas,
+.linha-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 100px;
+  align-items: center;
+  gap: 20px;
+}
+
+.cabecalho-tabela-metas {
+  padding: 12px 20px;
+
+  background-color: #f8f9fa;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: $cor-texto-rotulo;
+}
+
+.linha-meta {
+  padding: 10px 20px;
+  border-top: 1px solid $cor-borda-principal;
+}
+
+.linha-meta .form-control {
+  height: 40px;
+  padding: 6px 12px;
+
+  border: 1px solid $cor-borda-principal;
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  box-shadow: none;
+
+  &:focus {
+    border-color: $cor-foco-formulario;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
+  }
+}
+
+.campo-meta-percentual {
+  position: relative;
+
+  span {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+
+    transform: translateY(-50%);
+
+    font-size: 14px;
+    color: $cor-texto-auxiliar;
+  }
+
+  input {
+    padding-right: 30px;
+  }
+}
+
+.acoes-meta {
+  display: flex;
+  justify-content: center;
+}
+
+.botao-excluir-meta {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #dc3545;
+
+  &:hover {
+    background-color: #fff1f1;
+  }
+}
+
+.sem-metas {
+  padding: 30px;
+  text-align: center;
+
+  font-size: 14px;
+  color: $cor-texto-desativado;
+}
+
+.feedback-aprovada {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #166534;
+}
+.feedback-rejeitada {
+  border-color: #fca5a5;
+  background: #fff1f2;
+  color: #b91c1c;
+}

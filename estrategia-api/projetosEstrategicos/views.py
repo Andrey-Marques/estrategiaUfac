@@ -9,13 +9,16 @@ from rest_framework.exceptions import ValidationError
 from revisoes.serializers import (SubmissaoRevisaoProjetoSerializer, RevisaoEdicaoSerializer)
 from revisoes.services import (criar_revisao_projeto)
 
-class ProjetoEstrategicoViewSet(ModelViewSet):
+from revisoes.exclusao import ExclusaoRegistroMixin
+
+class ProjetoEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
+    entidade_exclusao = 'PROJETO'
     queryset = ProjetoEstrategico.objects.all()
     serializer_class = ProjetoEstrategicoSerializer 
     
     def get_queryset(self):
         usuario = self.request.user
-        queryset = ProjetoEstrategico.objects.prefetch_related('acoes', 'evolucoes', 'objetivos')
+        queryset = ProjetoEstrategico.objects.exclude(status='EXCLUIDO').prefetch_related('acoes', 'evolucoes', 'objetivos')
         
         if usuario.papel == 'ADMIN':
             return queryset
@@ -91,7 +94,8 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                 'nome',
                 'descricao',
                 'tempo_estimado',
-                'acoes_previstas',
+                'status_execucao',
+                'justificativa_descontinuacao',
                 'percentual_progresso',
                 'responsavel',
                 'unidade',
@@ -112,6 +116,8 @@ class ProjetoEstrategicoViewSet(ModelViewSet):
                 'evolucoes',
                 'percentual_progresso',
                 'acoes',
+                'status_execucao',
+                'justificativa_descontinuacao',
             }
 
         campos_enviados = set(
@@ -343,8 +349,8 @@ class EvolucaoProjetoViewSet(ReadOnlyModelViewSet):
         usuario = self.request.user
 
         if usuario.papel == 'ADMIN':
-            return EvolucaoProjeto.objects.all()
+            return EvolucaoProjeto.objects.exclude(fk_projeto__status='EXCLUIDO')
 
         return EvolucaoProjeto.objects.filter(
             fk_projeto__unidade=usuario.unidade
-        )
+        ).exclude(fk_projeto__status='EXCLUIDO')

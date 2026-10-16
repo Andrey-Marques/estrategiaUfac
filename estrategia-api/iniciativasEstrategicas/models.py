@@ -16,7 +16,6 @@ class IniciativaEstrategica(models.Model):
     ultima_atualizacao = models.DateTimeField(auto_now=True)
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='iniciativas_estrategicas')
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='iniciativas_estrategicas', null=True, blank=True)
-    projeto = models.ForeignKey('projetosEstrategicos.ProjetoEstrategico', on_delete=models.PROTECT, null=True, blank=True, related_name='iniciativas_estrategicas')
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoIniciativa',related_name='iniciativas')
     observacao_analise = models.TextField(blank=True)
     analisado_por = models.ForeignKey('usuarios.Usuario', on_delete= models.SET_NULL, null=True, blank=True, related_name='iniciativas_analisadas')
@@ -41,6 +40,9 @@ class AcaoRealizada(models.Model):
     prazo_inicio = models.DateField()
     prazo_fim = models.DateField()
     custo = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    custo_realizado = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    data_inicio_efetivo = models.DateField(null=True, blank=True)
+    data_fim_efetivo = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default= 'PLANEJAMENTO') 
     fk_iniciativa = models.ForeignKey(IniciativaEstrategica, on_delete=models.CASCADE, related_name='acoes_realizadas')
     

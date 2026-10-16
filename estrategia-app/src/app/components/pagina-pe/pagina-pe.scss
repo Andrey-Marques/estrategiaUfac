@@ -1,4 +1,4 @@
-@use '../../../styles.scss' as *;
+@use '../../../styles/variables' as *;
 
 
 //VARIÁVEIS
@@ -6,7 +6,6 @@ $azul-principal: #08088b;
 $azul-escuro: #071f48;
 $branco: #ffffff;
 $azul-card: #1762bd;
-$cinza-breadcrumb: #8b8b8b;
 $cinza-texto: #333333;
 
 :host {
@@ -27,42 +26,8 @@ $cinza-texto: #333333;
   padding-top: var(--altura-header);
 }
 
-// ============================================================
-// BREADCRUMB -> TRANSFORMAR EM UM COMPONENT PARA TODAS AS PAGINA
-// ============================================================
-
-.breadcrumb {
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  margin-bottom: 30px;
-
-  font-size: 0.7rem;
 
 
-  a {
-    text-decoration: none;
-    color: $cor-azul-padrao;
-
-    
-
-
-    &:hover {
-      
-      border-radius: 100%;
-      background-color: $cor-hover-padrao;
-      
-    }
-  }
-
-span{
-    color: $cor-azul-padrao;
-    font-size: 0.8rem;
-  }
-}
 
 // ============================================================
 // CONTEÚDO PRINCIPAL
@@ -397,9 +362,7 @@ li{
     padding: 18px 20px 50px;
   }
 
-  .breadcrumb {
-    margin-bottom: 25px;
-  }
+
 
   .introducao {
 

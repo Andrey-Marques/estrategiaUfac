@@ -13,7 +13,6 @@ import { AuthService } from '../../../service/auth.service';
   styleUrl: './header-principal.scss',
 })
 export class HeaderPrincipal {
-
   private usuarioService = inject(UsuarioService);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -26,7 +25,6 @@ export class HeaderPrincipal {
   ngOnInit(): void {
     this.buscarUsuarioAtual();
   }
-
 
   buscarUsuarioAtual(): void {
 

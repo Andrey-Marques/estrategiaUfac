@@ -1,4 +1,4 @@
-@use '../../../styles.scss' as *;
+@use '../../../styles/variables' as *;
 
 @mixin flex-center {
   display: flex;
@@ -64,6 +64,7 @@ form {
     font-weight: 500;
   }
 
+  input[type="email"],
   input[type="text"],
   input[type="password"] {
     width: 100%;
@@ -129,3 +130,22 @@ form {
     }
   }
 }
+
+form button.link-recuperacao {
+  padding: 0; margin: 0; background: transparent; color: $cor-primaria;
+  text-align: right; font-size: 14px; font-weight: 500;
+  &:hover { background: transparent; text-decoration: underline; }
+}
+.recuperacao-overlay { position: fixed; inset: 0; z-index: 2200; background: rgba(0, 0, 0, .5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.recuperacao-modal {
+  width: 100%; max-width: 480px; max-height: calc(100dvh - 32px); overflow: auto; background: white; border-radius: 8px;
+  header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; background: $cor-primaria; color: white; }
+  header h2 { font-size: 20px; margin: 0; }
+  header button { background: transparent; border: 0; color: white; font-size: 28px; cursor: pointer; }
+  form { padding: 24px; box-shadow: none; animation: none; }
+  p { margin: 0; font-size: 14px; }
+  footer { display: flex; gap: 12px; }
+  form .cancelar { background: #e8ecf2; color: #233c60; }
+}
+.mensagem-erro { color: #b42318; }
+.mensagem-sucesso { color: #146b37; }

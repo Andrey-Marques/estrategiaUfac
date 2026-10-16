@@ -1,5 +1,5 @@
 
-@use '../../../styles.scss' as *;
+@use '../../../styles/variables' as *;
 // ============================================================
 // VARIÁVEIS
 // ============================================================
@@ -11,7 +11,6 @@ $azul-escuro: #071f48;
 
 $branco: #ffffff;
 
-$cinza-breadcrumb: #8b8b8b;
 
 $cinza-texto: #333333;
 
@@ -53,42 +52,8 @@ li{
 }
 
 
-// ============================================================
-// BREADCRUMB
-// ============================================================
-
-.breadcrumb {
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  margin-bottom: 30px;
-
-  font-size: 0.7rem;
 
 
-  a {
-    text-decoration: none;
-    color: $cor-azul-padrao;
-
-
-
-
-    &:hover {
-
-      border-radius: 100%;
-      background-color: $cor-hover-padrao;
-
-    }
-  }
-
-span{
-    color: $cor-azul-padrao;
-    font-size: 0.8rem;
-  }
-}
 
 // ============================================================
 // TÍTULO
@@ -392,9 +357,7 @@ span{
     padding: 18px 20px 50px;
   }
 
-  .breadcrumb {
-    margin-bottom: 25px;
-  }
+
 
   .introducao {
 
