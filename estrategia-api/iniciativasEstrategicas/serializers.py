@@ -5,13 +5,25 @@ from usuarios.models import Usuario
 from objetivosEstrategicos.models import ObjetivoEstrategico
 
 from .models import (IniciativaEstrategica, AcaoRealizada)
+from revisoes.validacoes_acoes import validar_datas_status_acao
 
 
 class AcaoRealizadaSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        validar_datas_status_acao(attrs, self.instance)
+        from decimal import Decimal
+        if attrs.get('custo', Decimal('0')) < 0 or attrs.get('custo_realizado', Decimal('0')) < 0:
+            raise serializers.ValidationError('Os custos não podem ser negativos.')
+        if attrs.get('prazo_inicio') and attrs.get('prazo_fim') and attrs['prazo_fim'] < attrs['prazo_inicio']:
+            raise serializers.ValidationError('O prazo de fim deve ser igual ou posterior ao início.')
+        if attrs.get('data_inicio_efetivo') and attrs.get('data_fim_efetivo') and attrs['data_fim_efetivo'] < attrs['data_inicio_efetivo']:
+            raise serializers.ValidationError('O fim efetivo deve ser igual ou posterior ao início efetivo.')
+        return attrs
+
     class Meta:
         model = AcaoRealizada
 
-        fields = ['id','nome','prazo_inicio','prazo_fim','custo','status']
+        fields = ['id','nome','prazo_inicio','prazo_fim','custo','custo_realizado','data_inicio_efetivo','data_fim_efetivo','status']
 
 
 class RelatedByIdOrNameField(serializers.PrimaryKeyRelatedField):
@@ -30,7 +42,9 @@ class RelatedByIdOrNameField(serializers.PrimaryKeyRelatedField):
 
         return super().to_internal_value(data)
 
-class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
+from revisoes.exclusao import ExclusaoSerializerMixin
+
+class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.ModelSerializer):
 
     responsavel_nome = serializers.SerializerMethodField()
 
@@ -51,6 +65,7 @@ class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
         model = IniciativaEstrategica
         fields = [
             'id',
+            'pode_excluir',
             'nome',
             'data_preenchimento',
             'ultima_atualizacao',
@@ -58,7 +73,6 @@ class IniciativaEstrategicaSerializer(serializers.ModelSerializer):
             'unidade_sigla',
             'responsavel',
             'responsavel_nome',
-            'projeto',
             'objetivos',
             'objetivos_detalhes',
             'acoes_realizadas',

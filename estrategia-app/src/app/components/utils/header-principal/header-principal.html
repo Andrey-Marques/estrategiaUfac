@@ -6,8 +6,7 @@
         <span class="header_tag">ÁREA RESTRITA</span>
     </div>
 
-    <div class="header_usuario" *ngIf="usuarioAtual() as usuario">
-
+    <div class="header_usuario" #dropdownUsuario *ngIf="usuarioAtual() as usuario">
         <button type="button" class="perfil_usuario" [class.perfil_usuario_ativo]="menuUsuarioAberto()"
             (click)="alternarMenuUsuario()">
 

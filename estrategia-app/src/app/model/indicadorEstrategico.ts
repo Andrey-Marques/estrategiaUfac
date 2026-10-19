@@ -1,4 +1,5 @@
 export interface IndicadorEstrategico {
+    pode_excluir?: boolean;
     id: number;
     nome: string;
     polaridade: string;

@@ -1,0 +1,12 @@
+<dialog #dialogo class="modal-confirmacao" role="alertdialog" [attr.aria-labelledby]="tituloId" [attr.aria-describedby]="mensagemId" [attr.aria-busy]="carregando" (cancel)="cancelar($event)" (click)="$event.stopPropagation()">
+  <div class="icone-alerta" aria-hidden="true">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="18" r="1.3" fill="currentColor"/></svg>
+  </div>
+  <h2 [id]="tituloId">Atenção!</h2>
+  <p [id]="mensagemId">{{ mensagem }}</p>
+  <p *ngIf="erro" class="erro-exclusao" role="alert">{{ erro }}</p>
+  <div class="confirmacao-botoes">
+    <button type="button" class="btn-confirmar-exclusao" [disabled]="carregando" (click)="confirmar()">{{ carregando ? 'Excluindo…' : 'Excluir' }}</button>
+    <button type="button" class="btn-cancelar-exclusao" autofocus [disabled]="carregando" (click)="cancelar()">Cancelar</button>
+  </div>
+</dialog>

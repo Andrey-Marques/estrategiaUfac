@@ -1,8 +1,9 @@
+import { Breadcrumb } from '../utils/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HeaderPublico } from '../utils/header-publico/header-publico';
-import { ActivatedRoute, RouterModule, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Rodape } from '../utils/rodape/rodape';
 import {
@@ -33,11 +34,23 @@ type Ordenacao = 'titulo-az' | 'titulo-za' | 'data-recente' | 'data-antiga';
 
 @Component({
   selector: 'app-acoes-estrategicas',
-  imports: [CommonModule, HeaderPublico, RouterModule, FormsModule, Rodape],
+  imports: [Breadcrumb, CommonModule, HeaderPublico, FormsModule, Rodape],
   templateUrl: './acoes-estrategicas.html',
   styleUrl: './acoes-estrategicas.scss',
 })
 export class AcoesEstrategicas implements OnInit {
+  @ViewChild('unidades') private dropdownUnidades?: ElementRef<HTMLDetailsElement>;
+  @ViewChild('objetivos') private dropdownObjetivos?: ElementRef<HTMLDetailsElement>;
+
+  @HostListener('document:click', ['$event'])
+  fecharFiltrosAoClicarFora(evento: MouseEvent): void {
+    for (const dropdown of [this.dropdownUnidades, this.dropdownObjetivos]) {
+      if (dropdown && !evento.composedPath().includes(dropdown.nativeElement)) {
+        dropdown.nativeElement.open = false;
+      }
+    }
+  }
+
   private readonly service = inject(AcoesEstrategicasService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
@@ -208,6 +221,12 @@ export class AcoesEstrategicas implements OnInit {
     this.objetivosSelecionados.update((ids) => this.alternarSelecao(ids, id));
   }
 
+  atualizarPesquisa(valor: string): void {
+    this.pesquisa.set(valor);
+    this.filtrosAplicados.update((atual) => ({ ...atual, pesquisa: valor.trim() }));
+    this.paginaAtual.set(1);
+  }
+
   filtrar(): void {
     this.filtrosAplicados.set({
       pesquisa: this.pesquisa().trim(),
@@ -287,6 +306,8 @@ export class AcoesEstrategicas implements OnInit {
       iniciativas: '/visualizacao-iniciativa',
     };
     this.salvarAba(this.abaAtiva());
-    this.router.navigate([rotas[registro.tipo], registro.id]);
+    this.router.navigate([rotas[registro.tipo], registro.id], {
+      queryParams: { unidade: this.unidadeDoPainel(), aba: this.abaAtiva() },
+    });
   }
 }

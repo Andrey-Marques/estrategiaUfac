@@ -24,7 +24,7 @@
   justify-content: center;
 
   padding: 20px;
-  background: rgba(15, 23, 42, .72);
+  background: rgba(15, 23, 42, 0.72);
 }
 
 .modal-avaliacao {
@@ -40,7 +40,7 @@
   border: 1px solid #cbd5e1;
   border-radius: 3px;
 
-  box-shadow: 0 10px 35px rgba(0, 0, 0, .28);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.28);
 }
 
 .modal-header,
@@ -86,7 +86,6 @@
   }
 }
 
-
 /* =========================
    CABEÇALHO
    ========================= */
@@ -127,7 +126,6 @@
     background: #f1f5f9;
   }
 }
-
 
 /* =========================
    PROJETO / STATUS
@@ -189,12 +187,6 @@
   color: #745900;
 }
 
-.status-rascunho {
-  background: #e5e7eb;
-  color: #475569;
-}
-
-
 /* =========================
    SEÇÕES
    ========================= */
@@ -226,7 +218,7 @@
   p {
     margin: 4px 0 0;
 
-    color: rgba(255, 255, 255, .85);
+    color: rgba(255, 255, 255, 0.85);
     font-size: 12px;
   }
 
@@ -259,8 +251,7 @@
   }
 }
 
-.descricao,
-.acoes-previstas {
+.descricao {
   margin: 0;
 
   color: var(--texto);
@@ -281,7 +272,6 @@
   font-size: 12px;
   line-height: 1.5;
 }
-
 
 /* =========================
    INFORMAÇÕES GERAIS
@@ -331,7 +321,6 @@
   }
 }
 
-
 /* =========================
    GRIDS
    ========================= */
@@ -357,7 +346,6 @@
 .grid-acompanhamento {
   padding-top: 14px;
 }
-
 
 /* =========================
    REVISÃO
@@ -406,7 +394,6 @@
   background: #fef2f2;
 }
 
-
 /* =========================
    ACOMPANHAMENTO
    ========================= */
@@ -454,7 +441,6 @@
 .sem-registros {
   padding: 5px 12px 10px;
 }
-
 
 /* =========================
    ALTERAÇÕES
@@ -506,15 +492,9 @@
   color: #9b2424;
 }
 
-
 /* =========================
    ACOMPANHAMENTO
    ========================= */
-
-
-
-
-
 
 /* =========================
    PROGRESSO
@@ -580,7 +560,7 @@
 
   background: var(--azul);
 
-  transition: width .25s ease;
+  transition: width 0.25s ease;
 }
 
 .progresso-pendente {
@@ -617,7 +597,6 @@
 .barra-pendente .barra-progresso-preenchimento {
   background: var(--amarelo);
 }
-
 
 /* =========================
    OBSERVAÇÃO
@@ -677,7 +656,7 @@
   &:focus {
     border-color: var(--azul);
 
-    box-shadow: 0 0 0 2px rgba(7, 94, 181, .08);
+    box-shadow: 0 0 0 2px rgba(7, 94, 181, 0.08);
   }
 }
 
@@ -685,7 +664,6 @@
   color: #b42318;
   font-size: 13px;
 }
-
 
 /* =========================
    RESULTADO
@@ -739,7 +717,7 @@
   margin-top: 12px;
   padding-top: 11px;
 
-  border-top: 1px solid rgba(100, 116, 139, .18);
+  border-top: 1px solid rgba(100, 116, 139, 0.18);
 
   span {
     display: block;
@@ -761,7 +739,6 @@
     line-height: 1.5;
   }
 }
-
 
 /* =========================
    BOTÕES
@@ -839,7 +816,6 @@
   }
 }
 
-
 /* =========================
    RESPONSIVIDADE
    ========================= */
@@ -882,8 +858,6 @@
   }
 
   .status-linha,
-
-
   .data-proposta {
     padding-left: 0;
     border-left: 0;
@@ -960,23 +934,168 @@
    Compacta
    ========================= */
 
-
 /* Lista */
-
 
 /* Cada lançamento */
 
-
 /* Valor + data */
-
 
 /* Data */
 
-
 /* Descrição */
-
 
 /* Sem registros */
 
+.acompanhamento-acoes {
+  margin-top: 20px;
+}
 
-.acompanhamento-acoes { margin-top: 20px; }
+.lista-acoes-detalhes {
+  display: grid;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.acao-detalhe {
+  padding: 12px 14px;
+  border: 1px solid var(--borda);
+  border-left: 3px solid var(--azul);
+  border-radius: 3px;
+  background: #fff;
+}
+
+.acao-detalhe-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+
+  h5 {
+    margin: 0;
+    color: var(--azul-escuro);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+}
+
+.acao-status {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border: 1px solid var(--borda);
+  border-radius: 3px;
+  background: var(--fundo);
+  color: var(--secundario);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  &.acao-status-ANDAMENTO {
+    color: #745900;
+    background: #fff8e1;
+    border-color: #f0d98a;
+  }
+  &.acao-status-CONCLUIDA {
+    color: #17632d;
+    background: #eefaf2;
+    border-color: #a9e5b7;
+  }
+}
+
+.acao-detalhe-grupos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.acao-detalhe-grupo {
+  min-width: 0;
+
+  & + & {
+    padding-left: 14px;
+    border-left: 1px solid var(--borda);
+  }
+
+  h6 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 8px;
+    color: var(--texto);
+    font-size: 12px;
+    font-weight: 600;
+
+    i {
+      color: var(--secundario);
+    }
+  }
+
+  dl {
+    display: grid;
+    gap: 5px;
+    margin: 0;
+  }
+  dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  dt {
+    color: var(--secundario);
+    font-size: 12px;
+    font-weight: 400;
+  }
+  dd {
+    margin: 0;
+    color: var(--azul-escuro);
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.acompanhamento-acoes {
+  .registro-pendente .acao-detalhe,
+  .registro-removido .acao-detalhe {
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 700px) {
+  .acao-detalhe {
+    padding: 14px;
+  }
+  .acao-detalhe-cabecalho {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .acao-detalhe-grupos {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .acao-detalhe-grupo + .acao-detalhe-grupo {
+    padding: 14px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--borda);
+  }
+}
+.justificativa-descontinuacao {
+  padding: 14px 16px;
+  margin: 0 0 18px;
+  border: 1px solid #d5deeb;
+  border-left: 3px solid #4d9fff;
+  border-radius: 4px;
+  background: #f8fafc;
+  strong {
+    color: #233c60;
+    font-size: 14px;
+  }
+  p {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}

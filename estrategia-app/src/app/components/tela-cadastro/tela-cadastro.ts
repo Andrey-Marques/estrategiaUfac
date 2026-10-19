@@ -1,4 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { ConfirmacaoExclusao } from '../utils/confirmacao-exclusao/confirmacao-exclusao';
+import { MascaraCpf } from '../../directives/mascara-cpf';
+import { Component, ElementRef, HostListener, ViewChild, computed, signal } from '@angular/core';
+import { Paginacao } from '../utils/paginacao/paginacao';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService } from '../../service/usuario.service';
@@ -9,12 +12,22 @@ import { UnidadeService } from '../../service/unidade.service';
 //chat recomendou, mas pode tirar se quiser, pois nao sei como vai ser a integração
 @Component({
   selector: 'app-tela-cadastro',
-  imports: [CommonModule, FormsModule],
+  imports: [ConfirmacaoExclusao, CommonModule, FormsModule, Paginacao, MascaraCpf],
   templateUrl: './tela-cadastro.html',
   styleUrl: './tela-cadastro.scss',
   providers: [DatePipe],
 })
 export class TelaCadastro {
+  @ViewChild('dropdownUnidades') private dropdownUnidades?: ElementRef<HTMLElement>;
+
+  @HostListener('document:click', ['$event'])
+  fecharFiltroAoClicarFora(evento: MouseEvent): void {
+    const dropdown = this.dropdownUnidades?.nativeElement;
+    if (this.menuUnidadesAberto() && (!dropdown || !evento.composedPath().includes(dropdown))) {
+      this.menuUnidadesAberto.set(false);
+    }
+  }
+
   constructor(
     private usuarioService: UsuarioService,
     private unidadeService: UnidadeService,
@@ -35,6 +48,18 @@ export class TelaCadastro {
   termoPesquisa = signal('');
   unidadesSelecionadas = signal<number[]>([]);
   menuUnidadesAberto = signal(false);
+  paginaSelecionada = signal(1);
+  itensPorPagina = signal(10);
+  paginaAtual = computed(() => Math.min(this.paginaSelecionada(), Math.max(1, Math.ceil(this.usuariosFiltrados().length / this.itensPorPagina()))));
+  usuariosPaginados = computed(() => {
+    const inicio = (this.paginaAtual() - 1) * this.itensPorPagina();
+    return this.usuariosFiltrados().slice(inicio, inicio + this.itensPorPagina());
+  });
+
+  alterarItensPorPagina(quantidade: number): void {
+    this.itensPorPagina.set(quantidade);
+    this.paginaSelecionada.set(1);
+  }
 
   buscarUsuarioAtual(): void {
     this.usuarioService.getAtual().subscribe({
@@ -78,9 +103,11 @@ export class TelaCadastro {
   pesquisarUsuario(evento: Event): void {
     const input = evento.target as HTMLInputElement;
     this.termoPesquisa.set(input.value.trim().toLowerCase());
+    this.paginaSelecionada.set(1);
   }
 
   alternarUnidade(unidadeId: number): void {
+    this.paginaSelecionada.set(1);
     const selecionadas = this.unidadesSelecionadas();
     this.unidadesSelecionadas.set(
       selecionadas.includes(unidadeId)
@@ -98,6 +125,7 @@ export class TelaCadastro {
   }
 
   limparFiltroUnidades(): void {
+    this.paginaSelecionada.set(1);
     this.unidadesSelecionadas.set([]);
   }
 
@@ -192,10 +220,11 @@ export class TelaCadastro {
        this.fecharModal();
       },
       error: (erro) => {
-        console.error(
-        'Erro ao cadastrar usuário:',
-        erro
-      );
+        const mensagens = Object.values(erro.error ?? {})
+          .flatMap((valor) => Array.isArray(valor) ? valor : [String(valor)]);
+        alert(erro.status === 400 && mensagens.length
+          ? mensagens.join('\n')
+          : 'Não foi possível cadastrar o usuário. Tente novamente.');
       }
     })
   }
@@ -207,37 +236,39 @@ export class TelaCadastro {
   }
 
   confirmarExclusaoAberto = false;
+  excluindoUsuario = signal(false);
+  erroExclusao = signal('');
   usuarioParaExcluir: Usuario | null = null;
 
   abrirConfirmacaoExclusao(usuario: Usuario): void {
+    this.erroExclusao.set('');
     this.usuarioParaExcluir = usuario;
     this.confirmarExclusaoAberto = true;
   }
 
   cancelarExclusao(): void {
+    if (this.excluindoUsuario()) return;
     this.confirmarExclusaoAberto = false;
     this.usuarioParaExcluir = null;
   }
 
   confirmarExclusao(): void {
-    if (!this.usuarioParaExcluir) return;
+    if (!this.usuarioParaExcluir || this.excluindoUsuario()) return;
+    this.excluindoUsuario.set(true);
+    this.erroExclusao.set('');
 
     const id = this.usuarioParaExcluir.id;
 
     this.usuarioService.excluirUsuario(id).subscribe({
 
       next: () => {
-        console.log('Usuario excluido com sucesso');
+        this.excluindoUsuario.set(false);
         this.cancelarExclusao();
         this.buscarUsuarios();
       },
       error: (erro) => {
-        console.error('Erro ao excluir usuário', erro);
-
-        alert(
-          erro.error?.detail ||
-          'Não foi possível excluir o usuário.'
-        );
+        this.excluindoUsuario.set(false);
+        this.erroExclusao.set(erro.error?.detail || 'Não foi possível excluir o usuário.');
       }
     })
   }

@@ -1,3 +1,4 @@
+import { Breadcrumb } from '../utils/breadcrumb/breadcrumb';
 import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HeaderPublico } from '../utils/header-publico/header-publico';
@@ -8,7 +9,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-painel-unidades',
-  imports: [RouterLink, HeaderPublico, Rodape, CommonModule],
+  imports: [Breadcrumb, RouterLink, HeaderPublico, Rodape, CommonModule],
   templateUrl: './painel-unidades.html',
   styleUrl: './painel-unidades.scss',
 })

@@ -1,0 +1,14 @@
+<div class="login-container">
+  <form #formSenha="ngForm" (ngSubmit)="salvar()">
+    <h2>Redefinir senha</h2>
+    <ng-container *ngIf="!sucesso">
+      <p>Escolha uma nova senha com pelo menos 8 caracteres. Evite senhas comuns, apenas números ou semelhantes aos seus dados pessoais.</p>
+      <div class="campo"><label for="nova-senha">Nova senha</label><input id="nova-senha" name="novaSenha" type="password" autocomplete="new-password" required minlength="8" maxlength="1024" [(ngModel)]="novaSenha" [disabled]="salvando"></div>
+      <div class="campo"><label for="confirmar-senha">Confirmar nova senha</label><input id="confirmar-senha" name="confirmarSenha" type="password" autocomplete="new-password" required minlength="8" maxlength="1024" [(ngModel)]="confirmarSenha" [disabled]="salvando"></div>
+      <p *ngIf="erro" class="mensagem-erro" role="alert">{{ erro }}</p>
+      <button type="submit" [disabled]="formSenha.invalid || salvando">{{ salvando ? 'Salvando…' : 'Salvar nova senha' }}</button>
+    </ng-container>
+    <p *ngIf="sucesso" class="mensagem-sucesso" role="status">{{ sucesso }}</p>
+    <a routerLink="/login">{{ sucesso ? 'Ir para o login' : 'Voltar ao login ou solicitar um novo link' }}</a>
+  </form>
+</div>

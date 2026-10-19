@@ -1,4 +1,6 @@
-import { Component, Signal, signal } from '@angular/core';
+import { AtrasosService } from '../../service/atrasos.service';
+import { AvisoAtrasos } from '../utils/aviso-atrasos/aviso-atrasos';
+import { Component, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProjetoEstrategico } from '../../model/projetoEstrategico';
 import { ProjetoService } from '../../service/projeto.service';
@@ -20,11 +22,12 @@ import { RevisaoService } from '../../service/revisao.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, AvaliacaoProjeto, AvaliacaoIniciativa, AvaliacaoIndicador, InfoBar],
+  imports: [AvisoAtrasos, CommonModule, AvaliacaoProjeto, AvaliacaoIniciativa, AvaliacaoIndicador, InfoBar],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home {
+  atrasos = inject(AtrasosService);
   listaProjetos = signal<ProjetoEstrategico[]>([]);
   isAdmin = signal(false);
   projetoEmAnalise = signal<
@@ -74,7 +77,10 @@ export class Home {
             this.obterRevisaoPendente('PROJETO', projeto.id) !== null,
         );
 
-        this.listaProjetos.set(pendentes);
+        this.listaProjetos.set(pendentes.sort((a, b) =>
+          new Date(this.obterRevisaoPendente('PROJETO', a.id)?.criado_em ?? a.ultima_atualizacao).getTime() -
+          new Date(this.obterRevisaoPendente('PROJETO', b.id)?.criado_em ?? b.ultima_atualizacao).getTime(),
+        ));
       },
 
       error: (erro) => {
@@ -196,7 +202,10 @@ export class Home {
             iniciativa.status === 'EM_ESPERA' ||
             this.obterRevisaoPendente('INICIATIVA', iniciativa.id),
         );
-        this.listaIniciativas.set(pendentes);
+        this.listaIniciativas.set(pendentes.sort((a, b) =>
+          new Date(this.obterRevisaoPendente('INICIATIVA', a.id)?.criado_em ?? a.ultima_atualizacao).getTime() -
+          new Date(this.obterRevisaoPendente('INICIATIVA', b.id)?.criado_em ?? b.ultima_atualizacao).getTime(),
+        ));
       },
       error: (erro) => {
         console.error('Erro ao buscar iniciativas em espera:', erro);
@@ -281,6 +290,9 @@ export class Home {
           (indicador) =>
             indicador.status === 'EM_ESPERA' ||
             this.obterRevisaoPendente('INDICADOR', indicador.id),
+        ).sort((a, b) =>
+          new Date(this.obterRevisaoPendente('INDICADOR', a.id)?.criado_em ?? a.data_envio ?? 0).getTime() -
+          new Date(this.obterRevisaoPendente('INDICADOR', b.id)?.criado_em ?? b.data_envio ?? 0).getTime(),
         );
       },
       error: (erro) => console.error('Erro ao buscar indicadores em espera:', erro),

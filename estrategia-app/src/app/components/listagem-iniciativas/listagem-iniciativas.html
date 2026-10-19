@@ -1,488 +1,241 @@
-<div>
-  <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1 class="titulo-pagina m-0">Iniciativas Estratégicas</h1>
-      <button class="btn botao-principal" (click)="CriarNovaIniciativa()" data-bs-target="#exampleModalToggle"
-        data-bs-toggle="modal">
-        +Nova Iniciativa
-      </button>
-    </div>
-    <div class="card container-conteudo">
-      <!-- Filtro -->
-      <ul class="nav filtro px-4 pt-3 border-bottom">
-        <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'TODOS'"
-            (click)="alterarFiltroStatus('TODOS')">Todos</button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'APROVADO'"
-            (click)="alterarFiltroStatus('APROVADO')">Aprovados</button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'REJEITADO'"
-            (click)="alterarFiltroStatus('REJEITADO')">Rejeitados</button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'RASCUNHO'"
-            (click)="alterarFiltroStatus('RASCUNHO')">Rascunhos</button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'EM_ESPERA'"
-            (click)="alterarFiltroStatus('EM_ESPERA')">Em Espera</button>
-        </li>
-      </ul>
-
-      <div class="area-filtros">
-        <div class="campo-pesquisa">
-          <i class="bi bi-search"></i>
-          <input type="text" placeholder="Pesquisar pelo nome da iniciativa..." (input)="pesquisarIniciativa($event)" />
-        </div>
-
-        <div class="filtro-unidades" *ngIf="isAdmin()">
-          <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
-            <i class="bi bi-building"></i>
-            Unidades
-            <span class="quantidade-unidades" *ngIf="unidadesSelecionadas().length > 0">
-              {{ unidadesSelecionadas().length }}
-            </span>
-            <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-          </button>
-
-          <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
-            <div class="cabecalho-filtro-unidades">
-              <strong>Filtrar por unidade</strong>
-              <button type="button" class="botao-limpar" *ngIf="unidadesSelecionadas().length > 0"
-                (click)="limparFiltroUnidades()">Limpar</button>
-            </div>
-
-            <label class="opcao-unidade" *ngFor="let unidade of unidades()">
-              <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
-                (change)="alternarUnidade(unidade.id)" />
-              <span class="checkbox-personalizado"></span>
-              <div class="dados-unidade">
-                <strong>{{ unidade.sigla }}</strong>
-                <small>{{ unidade.nome }}</small>
-              </div>
-            </label>
-          </div>
-        </div>
-      </div>
-      <!-- Tabela de Iniciativas -->
-      <div class="table-responsive pb-4">
-        <table class="table align-middle mb-0">
-          <thead class="cabecalho-tabela">
-            <tr class="linha-cabecalho-tabela">
-              <th scope="col" class="ps-4">INICIATIVA</th>
-              <th scope="col" class="text-center" *ngIf="isAdmin()">UNIDADE</th>
-              <th scope="col" class="text-center">DATA DE ENVIO</th>
-              <th scope="col" class="text-center">STATUS</th>
-              <th scope="col" class="text-center pe-4">AÇÕES</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="linha-tabela" *ngFor="let iniciativas of iniciativasFiltradas()">
-              <td class="ps-4">
-                <div class="titulo-iniciativa">
-                  {{ iniciativas.nome }}
-                  <ng-container *ngIf="obterRevisao(iniciativas.id) as revisao">
-                    <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
-                      <i class="bi"
-                        [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
-                      {{ obterRotuloRevisao(revisao.status) }}
-                    </span>
-                  </ng-container>
-                </div>
-                <div class="d-flex gap-1 mt-1">
-                  <span class="etiqueta" *ngFor="let objetivo of iniciativas.objetivos_detalhes | slice:0:2">
-                    {{ objetivo.codigo }}
-                  </span>
-                </div>
-              </td>
-              <td class="text-center" *ngIf="isAdmin()">
-                <ng-container *ngIf="obterUnidadeIniciativa(iniciativas) as unidade">
-                  <div class="unidade-iniciativa">
-                    <strong>{{ unidade.sigla }}</strong>
-                    <small>{{ unidade.nome }}</small>
-                  </div>
-                </ng-container>
-              </td>
-              <td class="text-center">
-                <strong class="d-block texto-data">{{
-                  iniciativas.data_preenchimento | date: 'dd/MM/yyyy'
-                  }}</strong>
-                <small class="texto-subtitulo">
-                  Última atualização:{{ iniciativas.ultima_atualizacao | date: 'dd/MM/yyyy' }}
-                </small>
-              </td>
-              <td class="text-center">
-                <span class="badge" [ngClass]="obterClasseStatusIniciativa(iniciativas.status)">
-                  {{ obterRotuloStatusIniciativa(iniciativas.status) }}
-                </span>
-              </td>
-              <td class="text-center pe-4">
-                <button type="button" class="btn botao-visualizar" (click)="abrirAvaliacao(iniciativas)">
-                  <i class="bi bi-eye"></i>
-                  Visualizar
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="iniciativasFiltradas().length === 0">
-              <td [attr.colspan]="isAdmin() ? 5 : 4" class="text-center py-5">
-                <i class="bi bi-search fs-4"></i>
-                <p class="mt-2 mb-0">Nenhuma iniciativa encontrada com os filtros selecionados.</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+<div class="container-fluid listagem-privada">
+  <div class="cabecalho-listagem">
+    <h1 class="titulo-pagina m-0">Iniciativas Estratégicas</h1>
+    <button
+      class="btn botao-principal"
+      (click)="formulario.criarNovaIniciativa()"
+      data-bs-target="#exampleModalToggle"
+      data-bs-toggle="modal"
+      *ngIf="!isAdmin()"
+    >
+      Propor nova Iniciativa
+    </button>
+    <button
+      class="btn botao-principal"
+      (click)="formulario.criarNovaIniciativa()"
+      data-bs-target="#exampleModalToggle"
+      data-bs-toggle="modal"
+      *ngIf="isAdmin()"
+    >
+      +Nova Iniciativa
+    </button>
   </div>
-  <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
-    tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="formulario-iniciativas posicao-relativa">
-          <div class="cabecalho-formulario modal-header">
-            <div>
-              <h1>
-                {{
-                modoEdicao
-                ? 'EDIÇÃO DE INICIATIVA ESTRATÉGICA'
-                : 'CRIAÇÃO DE UMA INICIATIVA ESTRATÉGICA'
-                }}
-              </h1>
-              <p>
-                {{
-                editandoIniciativaRejeitada
-                ? 'Corrija as informações apontadas na avaliação e reenvie a iniciativa.'
-                : modoEdicao
-                ? 'Atualize as informações de acompanhamento da iniciativa.'
-                : 'Insira as informações técnicas para o preenchimento oficial do PDI'
-                }}
-              </p>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-              (click)="fecharFormulario()"></button>
+  <app-aviso-atrasos [acoes]="atrasos.iniciativas()"></app-aviso-atrasos>
+
+  <div class="card container-conteudo">
+    <!-- Filtro -->
+    <ul class="nav filtro px-4 pt-3 border-bottom">
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'TODOS'"
+          (click)="alterarFiltroStatus('TODOS')"
+        >
+          Todos
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'APROVADO'"
+          (click)="alterarFiltroStatus('APROVADO')"
+        >
+          Aprovados
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'REJEITADO'"
+          (click)="alterarFiltroStatus('REJEITADO')"
+        >
+          Rejeitados
+        </button>
+      </li>
+
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'EM_ESPERA'"
+          (click)="alterarFiltroStatus('EM_ESPERA')"
+        >
+          Em Espera
+        </button>
+      </li>
+    </ul>
+
+    <div class="area-filtros">
+      <div class="campo-pesquisa">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Pesquisar pelo nome da iniciativa..."
+          (input)="pesquisarIniciativa($event)"
+        />
+      </div>
+
+      <div class="filtro-unidades" #dropdownUnidades *ngIf="isAdmin()">
+        <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
+          <i class="bi bi-building"></i>
+          Unidades
+          <span class="quantidade-unidades" *ngIf="unidadesSelecionadas().length > 0">
+            {{ unidadesSelecionadas().length }}
+          </span>
+          <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+        </button>
+
+        <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
+          <div class="cabecalho-filtro-unidades">
+            <strong>Filtrar por unidade</strong>
+            <button
+              type="button"
+              class="botao-limpar"
+              *ngIf="unidadesSelecionadas().length > 0"
+              (click)="limparFiltroUnidades()"
+            >
+              Limpar
+            </button>
           </div>
 
-          <div class="etapas-formulario">
-            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 1" (click)="irParaEtapa(1)">
-              <span>1. Apresentação</span>
+          <label class="opcao-unidade" *ngFor="let unidade of unidades()">
+            <input
+              type="checkbox"
+              [checked]="unidadeEstaSelecionada(unidade.id)"
+              (change)="alternarUnidade(unidade.id)"
+            />
+            <span class="checkbox-personalizado"></span>
+            <div class="dados-unidade">
+              <strong>{{ unidade.sigla }}</strong>
+              <small>{{ unidade.nome }}</small>
             </div>
-            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 2" (click)="irParaEtapa(2)">
-              <span>2. Ações e Evolução</span>
-            </div>
-            <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 3" (click)="irParaEtapa(3)">
-              <span>3. Observações</span>
-            </div>
-          </div>
-
-          <form [formGroup]="formularioIniciativa">
-            <!-- ETAPA 1 -->
-            <div class="conteudo-formulario secao1" [class.sumir]="etapaAtual !== 1">
-              <div class="titulo-secao">
-                <h2>Passo 1: Identificação Geral &amp; Objetivos</h2>
-                <p>Informe os dados básicos da iniciativa</p>
-                <hr />
-              </div>
-
-              <div class="card-informativo">
-                <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-
-                <p>
-                  Iniciativa Estratégica é um programa, projeto ou ação desenvolvida por uma unidade da UFAC para
-                  contribuir para o alcance de um ou mais objetivos estratégicos institucionais.
-                </p>
-              </div>
-
-              <div class="campo-formulario campo-titulo-iniciativa">
-                <label for="nome">TÍTULO DA INICIATIVA <span class="campo-obrigatorio">*</span></label>
-                <input id="tituloIniciativa" type="text" class="form-control" placeholder="Insira o título aqui"
-                  formControlName="tituloIniciativa" />
-              </div>
-
-              <div class="linha-informacoes">
-                <div class="linha-vinculo">
-                  <!-- UNIDADE -->
-                  <div class="campo-formulario">
-                    <label for="unidadeResponsavel">
-                      UNIDADE RESPONSÁVEL
-                      <span class="obrigatorio">*</span>
-                    </label>
-
-                    <select id="unidadeResponsavel" class="form-control" formControlName="unidadeResponsavel"
-                      (change)="aoSelecionarUnidade()">
-
-                      <option [ngValue]="null">
-                        Selecione uma unidade
-                      </option>
-
-                      <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id">
-
-                        {{ unidade.nome }}
-                        ({{ unidade.sigla }})
-
-                      </option>
-
-                    </select>
-
-                    <small class="texto-ajuda">
-                      A unidade é definida de acordo com o servidor responsável.
-                    </small>
-                  </div>
-
-                  <!-- RESPONSÁVEL -->
-                  <div class="campo-formulario">
-                    <label for="responsavelPreenchimento">
-                      RESPONSÁVEL PELA INICIATIVA
-                      <span class="obrigatorio">*</span>
-                    </label>
-
-                    <select id="responsavelPreenchimento" class="form-control"
-                      formControlName="responsavelPreenchimento">
-                      <option [ngValue]="null">
-                        {{
-                        isAdmin()
-                        ? 'Sem responsável'
-                        : 'Selecione um responsável'
-                        }}
-                      </option>
-
-                      <option *ngFor="let usuario of responsaveisDisponiveis()" [ngValue]="usuario.id">
-
-                        {{ usuario.nome_social || usuario.nome_completo }}
-                        — {{ obterSiglaUnidadeUsuario(usuario) }}
-
-                      </option>
-                    </select>
-                  </div>
-
-                </div>
-              </div>
-
-              <section class="secao-objetivos">
-                <div class="titulo-objetivos">
-                  <h2>Objetivos Estratégicos</h2>
-                  <p>Selecione quais objetivos institucionais a iniciativa atende</p>
-                </div>
-                <hr />
-                <div class="container-objetivos">
-                  <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivos()">
-                    <div class="cabecalho-card-objetivo">
-                      <input class="form-check-input selecao-objetivo" type="checkbox"
-                        [disabled]="formularioIniciativa.get('objetivosEstrategicos')?.disabled"
-                        [checked]="objetivoEstaSelecionado(objetivo)" (change)="selecionarObjetivo(objetivo, $event)" />
-                      <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
-                    </div>
-                    <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
-                  </label>
-                </div>
-              </section>
-              <hr />
-            </div>
-
-            <!-- ETAPA 2 -->
-            <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 2">
-              <div class="cabecalho-secao-acao">
-                <div class="titulo-secao">
-                  <h2>Passo 2: Ações Relacionadas à Iniciativa</h2>
-                  <p>Adicione e edite prazos, custos e progressos das ações.</p>
-                </div>
-                <button *ngIf="!visualizando" type="button" class="btn btn-adicionar-acao"
-                  (click)="abrirSubmodalAcao()">
-                  + Adicionar Ação
-                </button>
-              </div>
-
-              <div class="container-tabela-acoes">
-                <div class="cabecalho-tabela">
-                  <div class="coluna col-acao">AÇÃO</div>
-                  <div class="coluna col-prazo">PRAZO INÍCIO</div>
-                  <div class="coluna col-prazo">PRAZO FIM</div>
-                  <div class="coluna col-custo">CUSTO</div>
-                  <div class="coluna col-status">STATUS</div>
-                  <div class="coluna col-acoes">OPÇÕES</div>
-                </div>
-
-                <div *ngIf="acoesIniciativa().length === 0" class="corpo-tabela-vazio">
-                  <p>Nenhuma ação adicionada ainda. Clique em "Adicionar Ação"</p>
-                </div>
-
-                <div *ngFor="let acao of acoesIniciativa(); let indice = index" class="linha-tabela-acao">
-                  <div class="coluna col-acao">{{ acao.descricaoAcao }}</div>
-                  <div class="coluna col-prazo">{{ acao.prazoInicio }}</div>
-                  <div class="coluna col-prazo">{{ acao.prazoFim }}</div>
-                  <div class="coluna col-custo">R$ {{ acao.custoEstimado }}</div>
-                  <div class="coluna col-status">
-                    <span class="badge-status" [ngClass]="acao.statusAtual">{{
-                      obterRotuloStatus(acao.statusAtual)
-                      }}</span>
-                  </div>
-                  <div class="coluna col-acoes">
-                    <button *ngIf="!visualizando" type="button" class="btn-editar-acao"
-                      (click)="editarAcaoIniciativa(acao, indice)" title="Editar ação">
-                      <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <button *ngIf="!visualizando" type="button" class="btn-excluir-acao"
-                      (click)="removerAcaoIniciativa(indice)" title="Excluir ação">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <hr />
-
-              <div class="card-evolucao-iniciativa">
-                <div class="info-evolucao">
-                  <h2>Evolução da iniciativa</h2>
-                  <p>
-                    Insira manualmente o percentual de evolução exato correspondente a este
-                    monitoramento oficial.
-                  </p>
-                </div>
-                <div class="widget-progresso">
-                  <div class="widget-cabecalho">
-                    <span>Evolução da iniciativa</span>
-                    <div class="campo-porcentagem">
-                      <input type="number" min="0" max="100" formControlName="evolucaoPercentual"
-                        (input)="validarEvolucaoPercentual($event)" />
-                      <span>%</span>
-                    </div>
-                  </div>
-                  <div class="trilho-progresso">
-                    <div class="preenchimento-progresso"
-                      [style.width.%]="formularioIniciativa.get('evolucaoPercentual')?.value || 0"></div>
-                  </div>
-                </div>
-              </div>
-
-              <hr />
-            </div>
-
-            <!-- ETAPA 3 -->
-            <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 3">
-              <div class="titulo-secao">
-                <h2>Passo 3: Observações</h2>
-                <hr />
-              </div>
-              <div class="campo-formulario campo-observacao">
-                <textarea class="form-control caixa-texto-observacao" rows="8"
-                  placeholder="Insira suas observações aqui!" formControlName="observacoes"></textarea>
-              </div>
-              <hr />
-            </div>
-
-            <!-- RODAPÉ -->
-            <div class="rodape-formulario">
-              <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
-              <div class="botoes-navegacao">
-                <button type="button" class="btn botao-submeter-analise"
-                  *ngIf="modoEdicao && !editandoRascunho && !editandoIniciativaRejeitada && usuarioAtual()?.papel === 'GESTOR' && etapaAtual === 1"
-                  (click)="salvarResponsavelIniciativa()">
-                  Salvar responsável
-                </button>
-                <button type="button" class="btn botao-anterior" (click)="voltar()" [disabled]="etapaAtual === 1">
-                  <i class="bi bi-chevron-left"></i> Anterior
-                </button>
-                <button *ngIf="etapaAtual < 3" type="button" class="btn botao-proximo" (click)="avancar()">
-                  Próximo <i class="bi bi-chevron-compact-right"></i>
-                </button>
-
-                <ng-container *ngIf="etapaAtual === 3">
-                  <ng-container *ngIf="modoEdicao && etapaAtual === 3">
-                    <button *ngIf="editandoRascunho" type="button" class="btn botao-salvar-rascunho"
-                      (click)="salvarEdicaoIniciativa('RASCUNHO')">
-                      Salvar rascunho
-                    </button>
-                    <button type="button" class="btn botao-submeter-analise" (click)="salvarEdicaoIniciativa()">
-                      {{ isAdmin() ? 'Salvar alterações' : 'Enviar atualização para análise' }}
-                    </button>
-                  </ng-container>
-
-                  <ng-container *ngIf="!visualizando && !modoEdicao && etapaAtual === 3">
-                    <button *ngIf="!isAdmin()" type="button" class="btn botao-salvar-rascunho"
-                      (click)="salvarIniciativa('RASCUNHO')">
-                      Salvar rascunho
-                    </button>
-
-                    <button *ngIf="!isAdmin()" type="button" class="btn botao-submeter-analise"
-                      (click)="salvarIniciativa('EM_ESPERA')">
-                      Submeter à análise
-                    </button>
-
-                    <button *ngIf="isAdmin()" type="button" class="btn botao-submeter-analise"
-                      (click)="salvarIniciativa('APROVADO')">
-                      Publicar iniciativa
-                    </button>
-                  </ng-container>
-                </ng-container>
-              </div>
-            </div>
-          </form>
-
-          <!-- SUBMODAL -->
-          <div class="sobreposicao-submodal-interno" [class.exibir-submodal]="submodalAcaoAberto">
-            <div class="caixa-submodal-acao" [formGroup]="formularioAcaoInterno">
-              <div class="cabecalho-modal-acao">
-                <h1 class="titulo-modal-acao">
-                  {{ acaoEmEdicaoIndice !== null ? 'Editar ação' : 'Adicionar nova ação' }}
-                </h1>
-                <button type="button" class="btn-close" (click)="fecharSubmodalAcao()"></button>
-              </div>
-              <div class="corpo-modal-acao">
-                <div class="campo-formulario">
-                  <label for="descricaoAcaoInterna">DESCRIÇÃO DA AÇÃO <span class="campo-obrigatorio">*</span></label>
-                  <input type="text" id="descricaoAcaoInterna" class="form-control"
-                    placeholder="Ex: Implantação da Central de Empresas Juniores" formControlName="descricaoAcao" />
-                </div>
-                <div class="linha-informacoes">
-                  <div class="campo-formulario">
-                    <label for="prazoInicioInterno">PRAZO DE INÍCIO <span class="campo-obrigatorio">*</span></label>
-                    <input type="text" id="prazoInicioInterno" class="form-control" placeholder="DD/MM/AAAA"
-                      formControlName="prazoInicio" />
-                  </div>
-                  <div class="campo-formulario">
-                    <label for="prazoFimInterno">PRAZO DE FIM <span class="campo-obrigatorio">*</span></label>
-                    <input type="text" id="prazoFimInterno" class="form-control" placeholder="DD/MM/AAAA ou contínua"
-                      formControlName="prazoFim" />
-                  </div>
-                </div>
-                <div class="linha-informacoes">
-                  <div class="campo-formulario">
-                    <label for="custoEstimadoInterno">CUSTO ESTIMADO <span class="campo-obrigatorio">*</span></label>
-                    <input type="text" id="custoEstimadoInterno" class="form-control" placeholder="0.00"
-                      formControlName="custoEstimado" />
-                  </div>
-                  <div class="campo-formulario">
-                    <label for="statusAtualInterno">STATUS ATUAL <span class="campo-obrigatorio">*</span></label>
-                    <select id="statusAtualInterno" class="form-select selecao-status" formControlName="statusAtual">
-                      <option value="nao-iniciada">Não iniciada</option>
-                      <option value="em-execucao">Em execução</option>
-                      <option value="concluida">Concluída</option>
-                    </select>
-                  </div>
-                </div>
-                <hr />
-                <div class="rodape-modal-acao">
-                  <button type="button" class="btn botao-cancelar-acao" (click)="fecharSubmodalAcao()">
-                    Cancelar
-                  </button>
-                  <button type="button" class="btn botao-confirmar-acao" (click)="adicionarAcaoIniciativa()">
-                    {{ acaoEmEdicaoIndice !== null ? 'Salvar alterações' : 'Adicionar ação' }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          </label>
         </div>
       </div>
     </div>
+    <!-- Tabela de Iniciativas -->
+    <div class="table-responsive">
+      <table class="table tabela-listagem align-middle mb-0">
+        <thead class="cabecalho-tabela">
+          <tr class="linha-cabecalho-tabela">
+            <th scope="col" class="ps-4">INICIATIVA</th>
+            <th scope="col" class="text-center" *ngIf="isAdmin()">UNIDADE</th>
+            <th scope="col" class="text-center">PROGRESSO</th>
+            <th scope="col" class="text-center">DATA DE ENVIO</th>
+            <th scope="col" class="text-center">STATUS</th>
+            <th scope="col" class="text-center pe-4">AÇÕES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="linha-tabela" *ngFor="let iniciativas of iniciativasPaginadas()">
+            <td class="ps-4">
+              <div class="titulo-registro">
+                {{ iniciativas.nome }}
+                <span
+                  *ngIf="atrasos.temAtraso('iniciativas', iniciativas.id)"
+                  class="notificacao-revisao"
+                  ><i class="bi bi-clock-history" aria-hidden="true"></i> Ação em atraso</span
+                >
+                <ng-container *ngIf="obterRevisao(iniciativas.id) as revisao">
+                  <span
+                    *ngIf="revisao.status === 'PENDENTE'"
+                    class="notificacao-revisao revisao-pendente"
+                    ><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span
+                  >
+                </ng-container>
+              </div>
+              <div class="d-flex gap-1 mt-1">
+                <span
+                  class="etiqueta"
+                  *ngFor="let objetivo of iniciativas.objetivos_detalhes | slice: 0 : 2"
+                >
+                  {{ objetivo.codigo }}
+                </span>
+              </div>
+            </td>
+            <td class="text-center" *ngIf="isAdmin()">
+              <ng-container *ngIf="obterUnidadeIniciativa(iniciativas) as unidade">
+                <div class="unidade-registro">
+                  <strong>{{ unidade.sigla }}</strong>
+                  <small>{{ unidade.nome }}</small>
+                </div>
+              </ng-container>
+            </td>
+            <td class="text-center">
+              <div class="progresso-projeto">
+                <div class="progresso-info">
+                  <span>Progresso</span>
+                  <strong>{{ obterPercentual(iniciativas) }}%</strong>
+                </div>
+                <div class="barra-progresso">
+                  <div
+                    class="barra-progresso-preenchimento"
+                    [style.width.%]="obterPercentual(iniciativas)"
+                  ></div>
+                </div>
+              </div>
+            </td>
+            <td class="text-center">
+              <strong class="d-block texto-data">{{
+                iniciativas.data_preenchimento | date: 'dd/MM/yyyy'
+              }}</strong>
+              <small class="texto-subtitulo">
+                Última atualização:{{ iniciativas.ultima_atualizacao | date: 'dd/MM/yyyy' }}
+              </small>
+            </td>
+            <td class="text-center">
+              <span class="badge" [ngClass]="obterClasseStatusIniciativa(iniciativas.status)">
+                {{ obterRotuloStatusIniciativa(iniciativas.status) }}
+              </span>
+            </td>
+            <td class="text-center pe-4">
+              <button
+                type="button"
+                class="btn botao-visualizar"
+                (click)="abrirAvaliacao(iniciativas)"
+              >
+                <i class="bi bi-eye"></i>
+                Visualizar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="iniciativasFiltradas().length === 0">
+            <td [attr.colspan]="isAdmin() ? 6 : 5" class="text-center py-5">
+              <i class="bi bi-search fs-4"></i>
+              <p class="mt-2 mb-0">Nenhuma iniciativa encontrada com os filtros selecionados.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <app-paginacao
+      [total]="iniciativasFiltradas().length"
+      [pagina]="paginaAtual()"
+      [porPagina]="itensPorPagina()"
+      (paginaAlterada)="paginaSelecionada.set($event)"
+      (tamanhoAlterado)="alterarItensPorPagina($event)"
+    ></app-paginacao>
   </div>
 </div>
-<app-avaliacao-iniciativa *ngIf="iniciativaEmAnalise() as iniciativaSelecionada" [iniciativa]="iniciativaSelecionada"
-  [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
-  (aprovado)="aprovarIniciativa($event)" (rejeitado)="rejeitarIniciativa($event)"
-  (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)"
-  (editar)="abrirEdicaoPeloModal($event)">
+
+<app-avaliacao-iniciativa
+  *ngIf="iniciativaEmAnalise() as iniciativaSelecionada"
+  [iniciativa]="iniciativaSelecionada"
+  [isAdmin]="isAdmin()"
+  [revisao]="revisaoEmAnalise()"
+  (fechado)="fecharAvaliacao()"
+  (excluido)="fecharAvaliacao(); buscarIniciativa()"
+  (aprovado)="aprovarIniciativa($event)"
+  (rejeitado)="rejeitarIniciativa($event)"
+  (revisaoAprovada)="aprovarRevisao($event)"
+  (revisaoRejeitada)="rejeitarRevisao($event)"
+  (editar)="fecharAvaliacao(); formulario.abrirEdicaoPeloModal($event)"
+>
 </app-avaliacao-iniciativa>
+<app-formulario-iniciativas
+  #formulario
+  (salvo)="buscarIniciativa(); buscarRevisoes()"
+></app-formulario-iniciativas>

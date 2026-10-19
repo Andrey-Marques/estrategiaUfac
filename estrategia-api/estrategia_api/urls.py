@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework_simplejwt.views import( TokenObtainPairView, TokenRefreshView,)
+from rest_framework_simplejwt.views import TokenRefreshView
 from unidades.views import ResumoUnidadeView
+from usuarios.login import LoginSeguroView
 from .acoes_publicas import AcoesEstrategicasPublicasView, AcaoEstrategicaPublicaDetalheView
 
 urlpatterns = [
@@ -14,7 +15,7 @@ urlpatterns = [
     path('api/', include('projetosEstrategicos.urls')),
     path('api/', include('iniciativasEstrategicas.urls')),
     path('api/', include('indicadoresEstrategicos.urls')),
-    path('api/login/', TokenObtainPairView.as_view(), name='login'),
+    path('api/login/', LoginSeguroView.as_view(), name='login'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/resumo-unidade/', ResumoUnidadeView.as_view(), name='resumo-unidade'),
     path('api/revisoes/', include('revisoes.urls')),

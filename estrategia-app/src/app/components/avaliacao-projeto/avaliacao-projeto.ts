@@ -1,3 +1,6 @@
+import { compararAcoes } from '../../model/comparacao-acoes';
+import { ExcluirRegistro } from '../utils/excluir-registro/excluir-registro';
+import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -17,11 +20,12 @@ export interface DecisaoProjeto {
 @Component({
   selector: 'app-avaliacao-projeto',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ExcluirRegistro, StatusProjeto, CommonModule, FormsModule],
   templateUrl: './avaliacao-projeto.html',
   styleUrl: './avaliacao-projeto.scss',
 })
 export class AvaliacaoProjeto {
+  @Output() excluido = new EventEmitter<void>();
   @Input({ required: true })
   projeto!: ProjetoAvaliacao;
 
@@ -79,9 +83,16 @@ export class AvaliacaoProjeto {
     return this.revisao?.diferencas['acoes'] ?? null;
   }
 
+  get comparacaoAcoes(): { anteriores: AcaoProjeto[]; propostas: AcaoProjeto[] } {
+    const diferenca = this.diferencaAcoes;
+    return compararAcoes<AcaoProjeto>(
+      Array.isArray(diferenca?.anterior) ? diferenca.anterior : [],
+      Array.isArray(diferenca?.proposto) ? diferenca.proposto : [],
+    );
+  }
+
   get acoesPropostas(): AcaoProjeto[] {
-    const acoes = this.diferencaAcoes?.proposto;
-    return Array.isArray(acoes) ? acoes : [];
+    return this.comparacaoAcoes.propostas;
   }
 
   get diferencaProgresso(): DiferencaRevisao | null {
@@ -186,7 +197,7 @@ export class AvaliacaoProjeto {
     const rotulos: Record<string, string> = {
       APROVADO: 'Aprovado/Público',
       REJEITADO: 'Rejeitado',
-      RASCUNHO: 'Rascunho',
+
       EM_ESPERA: 'Em espera',
     };
 
@@ -197,18 +208,25 @@ export class AvaliacaoProjeto {
     const classes: Record<string, string> = {
       APROVADO: 'status-aprovado',
       REJEITADO: 'status-rejeitado',
-      RASCUNHO: 'status-rascunho',
+
       EM_ESPERA: 'status-em-espera',
     };
 
-    return classes[this.projeto.status] ?? 'status-rascunho';
+    return classes[this.projeto.status] ?? 'status-desconhecido';
   }
   get acoesAnteriores(): AcaoProjeto[] {
-    const acoes = this.diferencaAcoes?.anterior;
-    return Array.isArray(acoes) ? acoes : [];
+    return this.comparacaoAcoes.anteriores;
   }
   rotuloStatusAcao(status: string): string {
-    return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída',
-      CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;
+    return (
+      (
+        {
+          PLANEJAMENTO: 'Não iniciada',
+          ANDAMENTO: 'Em execução',
+          CONCLUIDA: 'Concluída',
+          CANCELADA: 'Cancelada',
+        } as Record<string, string>
+      )[status] ?? status
+    );
   }
 }

@@ -1,461 +1,420 @@
-<div class="container-cadastro">
-    <header class="header-cadastro">
+<div class="container-cadastro listagem-privada">
+  <header class="header-cadastro cabecalho-listagem">
+    <h1 class="titulo-pagina">Usuários Cadastrados</h1>
 
-        <h1 class="titulo-pagina">
-            Usuários Cadastrados
-        </h1>
+    <button
+      type="button"
+      class="btn-novo-usuario"
+      *ngIf="podeCadastrarUsuarios()"
+      (click)="abrirModal()"
+    >
+      + Novo Usuário
+    </button>
+  </header>
 
-        <button type="button" class="btn-novo-usuario" *ngIf="podeCadastrarUsuarios()" (click)="abrirModal()">
-            + Novo Usuário
-        </button>
+  <hr class="linha-divisor" />
 
-    </header>
+  <section class="area-filtros">
+    <div class="campo-pesquisa">
+      <i class="bi bi-search"></i>
+      <input
+        type="text"
+        placeholder="Pesquisar pelo nome do usuário..."
+        (input)="pesquisarUsuario($event)"
+      />
+    </div>
 
-    <hr class="linha-divisor">
+    <div class="filtro-unidades" #dropdownUnidades *ngIf="usuarioAtual()?.papel === 'ADMIN'">
+      <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
+        <i class="bi bi-building"></i>
+        Unidades
+        <span class="quantidade-unidades" *ngIf="unidadesSelecionadas().length > 0">
+          {{ unidadesSelecionadas().length }}
+        </span>
+        <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+      </button>
 
-    <section class="area-filtros">
-        <div class="campo-pesquisa">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Pesquisar pelo nome do usuário..." (input)="pesquisarUsuario($event)" />
+      <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
+        <div class="cabecalho-filtro-unidades">
+          <strong>Filtrar por unidade</strong>
+          <button
+            type="button"
+            class="botao-limpar"
+            *ngIf="unidadesSelecionadas().length > 0"
+            (click)="limparFiltroUnidades()"
+          >
+            Limpar
+          </button>
         </div>
 
-        <div class="filtro-unidades" *ngIf="usuarioAtual()?.papel === 'ADMIN'">
-            <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
-                <i class="bi bi-building"></i>
-                Unidades
-                <span class="quantidade-unidades" *ngIf="unidadesSelecionadas().length > 0">
-                    {{ unidadesSelecionadas().length }}
-                </span>
-                <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-            </button>
+        <label class="opcao-unidade" *ngFor="let unidade of unidades()">
+          <input
+            type="checkbox"
+            [checked]="unidadeEstaSelecionada(unidade.id)"
+            (change)="alternarUnidade(unidade.id)"
+          />
+          <span class="checkbox-personalizado"></span>
+          <div class="dados-unidade">
+            <strong>{{ unidade.sigla }}</strong>
+            <small>{{ unidade.nome }}</small>
+          </div>
+        </label>
+      </div>
+    </div>
+  </section>
 
-            <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
-                <div class="cabecalho-filtro-unidades">
-                    <strong>Filtrar por unidade</strong>
-                    <button type="button" class="botao-limpar" *ngIf="unidadesSelecionadas().length > 0"
-                        (click)="limparFiltroUnidades()">Limpar</button>
-                </div>
+  <section class="area-tabela">
+    <div class="rolagem-tabela">
+      <table class="tabela-usuarios tabela-listagem">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Unidade</th>
+            <th>Data de Cadastro</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
 
-                <label class="opcao-unidade" *ngFor="let unidade of unidades()">
-                    <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
-                        (change)="alternarUnidade(unidade.id)" />
-                    <span class="checkbox-personalizado"></span>
-                    <div class="dados-unidade">
-                        <strong>{{ unidade.sigla }}</strong>
-                        <small>{{ unidade.nome }}</small>
-                    </div>
-                </label>
-            </div>
-        </div>
-    </section>
+        <tbody>
+          <tr *ngFor="let usuario of usuariosPaginados()">
+            <td>{{ usuario.nome_completo }}</td>
+            <td>
+              <ng-container *ngIf="obterUnidade(usuario) as unidade">
+                {{ unidade.sigla }}
+              </ng-container>
+            </td>
+            <td>{{ usuario.date_joined | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <span
+                class="status"
+                [class.status-ativo]="usuario.is_active"
+                [class.status-inativo]="!usuario.is_active"
+              >
+                {{ usuario.is_active ? 'ATIVO' : 'INATIVO' }}
+              </span>
+            </td>
 
+            <td class="acoes">
+              <button
+                type="button"
+                class="btn-acao"
+                aria-label="visualizar usuário"
+                (click)="abrirVisualizacao(usuario)"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2 12C2 12 5.5 6 12 6C18.5 6 22 12 22 12C22 12 18.5 18 12 18C5.5 18 2 12 2 12Z"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
 
-    <section class="area-tabela">
+                  <circle cx="12" cy="12" r="3" stroke="#667085" stroke-width="1.7" />
+                </svg>
+              </button>
 
-        <table class="tabela-usuarios">
+              <button
+                type="button"
+                class="btn-acao"
+                aria-label="excluir usuário"
+                [disabled]="ehProprioUsuario(usuario)"
+                (click)="abrirConfirmacaoExclusao(usuario)"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 7H19"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
 
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Unidade</th>
-                    <th>Data de Cadastro</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
+                  <path
+                    d="M10 4H14"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
 
-            <tbody>
+                  <path
+                    d="M7 7L8 20H16L17 7"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
 
-                <tr *ngFor="let usuario of usuariosFiltrados()">
-                    <td>{{ usuario.nome_completo }}</td>
-                    <td>
-                        <ng-container *ngIf="obterUnidade(usuario) as unidade">
-                            {{unidade.sigla}}
-                        </ng-container>
-                    </td>
-                    <td>{{ usuario.date_joined | date: 'dd/MM/yyyy'}}</td>
-                    <td>
-                        <span class="status"
-                                [class.status-ativo]="usuario.is_active"
-                                [class.status-inativo]="!usuario.is_active">
-                            {{ usuario.is_active ? 'ATIVO' : 'INATIVO' }}
-                            </span>
-                    </td>
+                  <path
+                    d="M10 10V17"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
 
-                    <td class="acoes">
+                  <path
+                    d="M14 10V17"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
 
-                        <button type="button" class="btn-acao" aria-label="visualizar usuário"
-                            (click)="abrirVisualizacao(usuario)">
+              <button
+                type="button"
+                class="btn-acao"
+                aria-label="desativar usuário"
+                [disabled]="ehProprioUsuario(usuario)"
+                [class.btn-acao-inativo]="!usuario.is_active"
+                [attr.aria-label]="usuario.is_active ? 'Inativar usuário' : 'Ativar usuário'"
+                (click)="abrirConfirmacaoStatus(usuario)"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7" />
 
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 12C2 12 5.5 6 12 6C18.5 6 22 12 22 12C22 12 18.5 18 12 18C5.5 18 2 12 2 12Z"
-                                    stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                  <path
+                    d="M8.5 12H15.5"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    *ngIf="!usuario.is_active"
+                    d="M12 8.5V15.5"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-                                <circle cx="12" cy="12" r="3" stroke="#667085" stroke-width="1.7" />
-                            </svg>
-                        </button>
-
-                        <button type="button" class="btn-acao" aria-label="excluir usuário"
-                            [disabled]="ehProprioUsuario(usuario)"
-                            (click)="abrirConfirmacaoExclusao(usuario)">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 7H19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-
-                                <path d="M10 4H14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-
-                                <path d="M7 7L8 20H16L17 7" stroke="currentColor" stroke-width="1.7"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-
-                                <path d="M10 10V17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-
-                                <path d="M14 10V17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-                            </svg>
-                        </button>
-
-                        <button
-                                type="button"
-                                class="btn-acao"
-                                aria-label="desativar usuário"
-                                [disabled]="ehProprioUsuario(usuario)"
-                                [class.btn-acao-inativo]="!usuario.is_active"
-                                [attr.aria-label]="usuario.is_active ? 'Inativar usuário' : 'Ativar usuário'"
-                                (click)="abrirConfirmacaoStatus(usuario)">
-
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <circle
-                                        cx="12"
-                                        cy="12"
-                                        r="8.5"
-                                        stroke="currentColor"
-                                        stroke-width="1.7"
-                                    />
-
-                                    <path
-                                        d="M8.5 12H15.5"
-                                        stroke="currentColor"
-                                        stroke-width="1.7"
-                                        stroke-linecap="round"
-                                    />
-                                    <path *ngIf="!usuario.is_active" d="M12 8.5V15.5"
-                                       stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-                                </svg>
-
-                            </button>
-
-                    </td>
-                </tr>
-
-            </tbody>
-
-        </table>
-
-        <div class="rodape-tabela">
-
-            <span class="quantidade-resultados">
-                Mostrando {{usuariosFiltrados().length}} resultados
-            </span>
-
-            <!-- <nav class="paginacao" aria-label="Paginação">
-
-                    <button
-                        type="button"
-                        aria-label="Página anterior"
-                    >
-                        &lt;
-                    </button>
-
-                    <button
-                        type="button"
-                        class="pagina-atual"
-                        aria-current="page"
-                    >
-                        1
-                    </button>
-
-                    <button type="button">
-                        2
-                    </button>
-
-                    <button type="button">
-                        3
-                    </button>
-
-                    <span>...</span>
-
-                    <button
-                        type="button"
-                        aria-label="Próxima página"
-                    >
-                        &gt;
-                    </button>
-
-                </nav> -->
-
-        </div>
-
-    </section>
-    <!-- =========================================
+    <app-paginacao
+      [total]="usuariosFiltrados().length"
+      [pagina]="paginaAtual()"
+      [porPagina]="itensPorPagina()"
+      (paginaAlterada)="paginaSelecionada.set($event)"
+      (tamanhoAlterado)="alterarItensPorPagina($event)"
+    ></app-paginacao>
+  </section>
+  <!-- =========================================
             MODAL
             ========================================= -->
 
-    <div class="modal-overlay" *ngIf="modalAberto" (click)="fecharModal()">
-        <div class="modal-cadastro" (click)="$event.stopPropagation()">
-
-            <!-- =========================================
+  <div class="modal-overlay" *ngIf="modalAberto" (click)="fecharModal()">
+    <div class="modal-cadastro" (click)="$event.stopPropagation()">
+      <!-- =========================================
                     CABEÇALHO
                     ========================================= -->
 
-            <div class="modal-header">
+      <div class="modal-header">
+        <div>
+          <h2>
+            {{ modoVisualizacao ? 'Visualizar usuário' : 'Cadastro de Usuário' }}
+          </h2>
 
-                <div>
+          <p>
+            {{
+              modoVisualizacao
+                ? 'Visualize as informações do servidor cadastrado.'
+                : 'Preencha as informações para realizar o cadastro do servidor.'
+            }}
+          </p>
+        </div>
 
-                    <h2>
-                        {{ modoVisualizacao ? 'Visualizar usuário' : 'Cadastro de Usuário' }}
-                    </h2>
+        <button
+          type="button"
+          class="btn-fechar-modal"
+          (click)="fecharModal()"
+          aria-label="Fechar modal"
+        >
+          ×
+        </button>
+      </div>
 
-                    <p>
-                        {{ modoVisualizacao
-                        ? 'Visualize as informações do servidor cadastrado.'
-                        : 'Preencha as informações para realizar o cadastro do servidor.'
-                        }}
-                    </p>
-
-                </div>
-
-                <button type="button" class="btn-fechar-modal" (click)="fecharModal()" aria-label="Fechar modal">
-                    ×
-                </button>
-
-            </div>
-
-
-            <!-- =========================================
+      <!-- =========================================
                     CONTEÚDO DO MODAL
                     ========================================= -->
 
-            <div class="modal-conteudo">
-                <form action="">
-                    
-                </form>
+      <div class="modal-conteudo">
+        <form action=""></form>
 
-                <!-- NOME -->
-                <div class="campo-modal">
+        <!-- NOME -->
+        <div class="campo-modal">
+          <label for="nome"> NOME COMPLETO* </label>
 
-                    <label for="nome">
-                        NOME COMPLETO*
-                    </label>
+          <input
+            id="nome"
+            type="text"
+            [(ngModel)]="usuarioFormulario!.nome_completo"
+            [readonly]="modoVisualizacao"
+          />
+        </div>
 
-                    <input id="nome" type="text" [(ngModel)]="usuarioFormulario!.nome_completo"
-                        [readonly]="modoVisualizacao">
+        <!-- EMAIL + UNIDADE -->
+        <div class="linha-campos">
+          <div class="campo-modal">
+            <label for="email"> E-MAIL </label>
 
-                </div>
+            <input
+              id="email"
+              type="email"
+              [(ngModel)]="usuarioFormulario!.email"
+              [readonly]="modoVisualizacao"
+            />
+          </div>
 
+          <div class="campo-modal">
+            <label for="unidade"> UNIDADE RESPONSÁVEL </label>
 
-                <!-- EMAIL + UNIDADE -->
-                <div class="linha-campos">
+            <select
+              id="unidade"
+              [(ngModel)]="usuarioFormulario!.unidade"
+              [disabled]="modoVisualizacao"
+            >
+              <option *ngFor="let unidade of unidadesDisponiveis()" [ngValue]="unidade.id">
+                {{ unidade.sigla }}
+              </option>
+            </select>
+          </div>
+        </div>
 
-                    <div class="campo-modal">
+        <!-- PAPEL -->
+        <div class="campo-modal">
+          <label for="papel"> PAPEL </label>
 
-                        <label for="email">
-                            E-MAIL
-                        </label>
+          <select id="papel" [(ngModel)]="usuarioFormulario!.papel" [disabled]="modoVisualizacao">
+            <option value="">Selecione</option>
 
-                        <input id="email" type="email" [(ngModel)]="usuarioFormulario!.email"
-                            [readonly]="modoVisualizacao">
+            <option value="ADMIN" *ngIf="usuarioAtual()?.papel === 'ADMIN'">Administrador</option>
 
-                    </div>
+            <option value="GESTOR">Gestor</option>
 
+            <option value="SERVIDOR">Servidor</option>
+          </select>
+        </div>
 
-                    <div class="campo-modal">
+        <!-- USUÁRIO + SENHA -->
+        <div class="linha-campos">
+          <div class="campo-modal">
+            <label for="usuario"> USUÁRIO </label>
 
-                        <label for="unidade">
-                            UNIDADE RESPONSÁVEL
-                        </label>
+            <input
+              id="usuario"
+              type="text"
+              [(ngModel)]="usuarioFormulario.username"
+              [readonly]="modoVisualizacao"
+            />
+          </div>
 
-                        <select id="unidade" [(ngModel)]="usuarioFormulario!.unidade"  [disabled]="modoVisualizacao">
-                            <option *ngFor="let unidade of unidadesDisponiveis()" [ngValue]="unidade.id">
-                                {{unidade.sigla}}
-                            </option>
+          <div class="campo-modal" *ngIf="!modoVisualizacao">
+            <label for="senha"> SENHA </label>
 
-                        </select>
+            <input id="senha" type="password" [(ngModel)]="usuarioFormulario.password" />
+          </div>
 
-                    </div>
+          <div class="campo-modal">
+            <label for="nome-social"> NOME SOCIAL </label>
 
-                </div>
+            <input
+              id="nome-social"
+              type="text"
+              [(ngModel)]="usuarioFormulario.nome_social"
+              [readonly]="modoVisualizacao"
+            />
+          </div>
 
+          <div class="campo-modal">
+            <label for="cpf"> CPF </label>
 
-                <!-- PAPEL -->
-                <div class="campo-modal">
+            <input
+              id="cpf"
+              type="text"
+              appMascaraCpf
+              inputmode="numeric"
+              maxlength="14"
+              placeholder="000.000.000-00"
+              [(ngModel)]="usuarioFormulario.cpf"
+              [readonly]="modoVisualizacao"
+            />
+          </div>
+        </div>
+      </div>
 
-                    <label for="papel">
-                        PAPEL
-                    </label>
-
-                    <select id="papel" [(ngModel)]="usuarioFormulario!.papel" [disabled]="modoVisualizacao">
-
-                        <option value="">
-                            Selecione
-                        </option>
-
-                        <option value="ADMIN" *ngIf="usuarioAtual()?.papel === 'ADMIN'">
-                            Administrador
-                        </option>
-
-                        <option value="GESTOR">
-                            Gestor
-                        </option>
-
-                        <option value="SERVIDOR">
-                            Servidor
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- USUÁRIO + SENHA -->
-                <div class="linha-campos">
-
-                    <div class="campo-modal">
-
-                        <label for="usuario">
-                            USUÁRIO
-                        </label>
-
-                        <input id="usuario" type="text" [(ngModel)]="usuarioFormulario.username"
-                            [readonly]="modoVisualizacao">
-
-                    </div>
-
-
-                    <div class="campo-modal" *ngIf="!modoVisualizacao">
-
-                        <label for="senha">
-                            SENHA
-                        </label>
-
-                        <input id="senha" type="password" [(ngModel)]="usuarioFormulario.password">
-
-                    </div>
-
-                    <div class="campo-modal">
-
-                        <label for="nome-social">
-                            NOME SOCIAL
-                        </label>
-
-                        <input id="nome-social" type="text" [(ngModel)]="usuarioFormulario.nome_social"
-                            [readonly]="modoVisualizacao">
-
-                    </div>
-
-                    <div class="campo-modal">
-
-                        <label for="cpf">
-                            CPF
-                        </label>
-
-                        <input id="cpf" type="text" [(ngModel)]="usuarioFormulario.cpf" [readonly]="modoVisualizacao">
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================================
+      <!-- =========================================
                     RODAPÉ
                     ========================================= -->
 
-            <div class="modal-footer">
-                <ng-container *ngIf="!modoVisualizacao">
-                    <button type="button" class="btn-cancelar" (click)="fecharModal()">Cancelar</button>
-                    <button type="button" class="btn-salvar-usuario" (click)="cadastrarUsuario()">Cadastrar</button>
-                </ng-container>
-                <!-- VISUALIZAÇÃO -->
-                <ng-container *ngIf="modoVisualizacao">
-
-                    <button type="button" class="btn-cancelar" (click)="fecharModal()">
-                        Fechar
-                    </button>
-
-                </ng-container>
-
-
-            </div>
-
-        </div>
-
-
+      <div class="modal-footer">
+        <ng-container *ngIf="!modoVisualizacao">
+          <button type="button" class="btn-cancelar" (click)="fecharModal()">Cancelar</button>
+          <button type="button" class="btn-salvar-usuario" (click)="cadastrarUsuario()">
+            Cadastrar
+          </button>
+        </ng-container>
+        <!-- VISUALIZAÇÃO -->
+        <ng-container *ngIf="modoVisualizacao">
+          <button type="button" class="btn-cancelar" (click)="fecharModal()">Fechar</button>
+        </ng-container>
+      </div>
     </div>
-    <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO -->
-    <div class="modal-overlay" *ngIf="confirmarExclusaoAberto" (click)="cancelarExclusao()">
+  </div>
+  <app-confirmacao-exclusao
+    [aberto]="confirmarExclusaoAberto"
+    [carregando]="excluindoUsuario()"
+    [erro]="erroExclusao()"
+    mensagem="Tem certeza que deseja excluir esse usuário?"
+    (confirmado)="confirmarExclusao()"
+    (cancelado)="cancelarExclusao()"
+  ></app-confirmacao-exclusao>
 
-        <div class="modal-confirmacao" role="alertdialog" aria-labelledby="titulo-exclusao"
-            (click)="$event.stopPropagation()">
+  <!-- MODAL DE ATIVAR / INATIVAR -->
+  <div class="modal-overlay" *ngIf="statusAberto" (click)="cancelarAlteracaoStatus()">
+    <div
+      class="modal-status"
+      role="alertdialog"
+      aria-labelledby="titulo-status"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-status-header">
+        <h2 id="titulo-status">{{ acaoStatus }} Usuário?</h2>
+      </div>
 
-            <div class="icone-alerta">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    <circle cx="12" cy="18" r="1.3" fill="currentColor" />
-                </svg>
-            </div>
+      <div class="modal-status-corpo">
+        <p>Tem certeza que quer {{ acaoStatus | lowercase }} esse usuário?</p>
+      </div>
 
-            <h2 id="titulo-exclusao">Atenção!</h2>
-
-            <p>
-                Tem certeza que deseja excluir esse usuário?
-            </p>
-
-            <div class="confirmacao-botoes">
-                <button type="button" class="btn-confirmar-exclusao" (click)="confirmarExclusao()">
-                    Excluir
-                </button>
-                <button type="button" class="btn-cancelar-exclusao" (click)="cancelarExclusao()">
-                    Cancelar
-                </button>
-            </div>
-
-        </div>
+      <div class="modal-status-footer">
+        <button type="button" class="btn-cancelar" (click)="cancelarAlteracaoStatus()">
+          Cancelar
+        </button>
+        <button type="button" class="btn-salvar-usuario" (click)="confirmarAlteracaoStatus()">
+          {{ acaoStatus }}
+        </button>
+      </div>
     </div>
-
-    <!-- MODAL DE ATIVAR / INATIVAR -->
-    <div class="modal-overlay" *ngIf="statusAberto" (click)="cancelarAlteracaoStatus()">
-
-            <div class="modal-status"
-                role="alertdialog"
-                aria-labelledby="titulo-status"
-                (click)="$event.stopPropagation()">
-
-                <div class="modal-status-header">
-                    <h2 id="titulo-status">{{ acaoStatus }} Usuário?</h2>
-                </div>
-
-                <div class="modal-status-corpo">
-                    <p>Tem certeza que quer {{ acaoStatus | lowercase }} esse usuário?</p>
-                </div>
-
-                <div class="modal-status-footer">
-                    <button type="button" class="btn-cancelar" (click)="cancelarAlteracaoStatus()">
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn-salvar-usuario" (click)="confirmarAlteracaoStatus()">
-                        {{ acaoStatus }}
-                    </button>
-                </div>
-
-            </div>
-        </div>
-
+  </div>
 </div>

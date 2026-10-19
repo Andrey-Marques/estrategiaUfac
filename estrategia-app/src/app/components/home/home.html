@@ -1,3 +1,4 @@
+
 <app-info-bar></app-info-bar>
 <div>
   <div class="div-home" *ngIf="usuarioAtual() as usuario">
@@ -16,6 +17,7 @@
       da UFAC.
     </p>
   </div>
+  <app-aviso-atrasos [acoes]="atrasos.todas()"></app-aviso-atrasos>
 
   <div class="tabela-espera">
     <!-- Cabeçalho -->
@@ -79,13 +81,7 @@
               <span class="registro-titulo">
                 {{ projeto.nome }}
                 <ng-container *ngIf="obterRevisaoProjeto(projeto.id) as revisaoProjeto">
-                  <span class="notificacao-revisao" [ngClass]="'revisao-' + revisaoProjeto.status.toLowerCase()">
-                    <i class="bi" [ngClass]="{
-                      'bi-bell-fill': revisaoProjeto.status === 'PENDENTE',
-                      'bi-check-circle-fill': revisaoProjeto.status === 'APROVADA',
-                      'bi-x-circle-fill': revisaoProjeto.status === 'REJEITADA'
-                    }"></i> {{ obterRotuloStatusRevisao(revisaoProjeto.status) }}
-                  </span>
+                  <span *ngIf="revisaoProjeto.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
                 </ng-container>
               </span>
 
@@ -128,10 +124,7 @@
               <span class="registro-titulo">
                 {{ iniciativa.nome }}
                 <ng-container *ngIf="obterRevisao('INICIATIVA', iniciativa.id) as revisao">
-                  <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
-                    <i class="bi" [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
-                    {{ obterRotuloStatusRevisao(revisao.status) }}
-                  </span>
+                  <span *ngIf="revisao.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
                 </ng-container>
               </span>
 
@@ -191,10 +184,7 @@
               <span class="registro-titulo">
                 {{ indicador.nome }}
                 <ng-container *ngIf="obterRevisao('INDICADOR', indicador.id) as revisao">
-                  <span class="notificacao-revisao revisao-{{ revisao.status.toLowerCase() }}">
-                    <i class="bi" [ngClass]="revisao.status === 'PENDENTE' ? 'bi-bell-fill' : revisao.status === 'APROVADA' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
-                    {{ obterRotuloStatusRevisao(revisao.status) }}
-                  </span>
+                  <span *ngIf="revisao.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
                 </ng-container>
               </span>
               <small>Responsável:<br />{{ indicador.responsavel_nome || '-' }}</small>
@@ -216,6 +206,7 @@
   [isAdmin]="isAdmin()"
   [revisao]="revisaoEmAnalise()"
   (fechado)="fecharAvaliacao()"
+  (excluido)="fecharAvaliacao(); buscarRevisoes()"
   (aprovado)="aprovarProjeto($event)"
   (rejeitado)="rejeitarProjeto($event)"
   (revisaoAprovada)="aprovarRevisao($event)"
@@ -228,6 +219,7 @@
   [isAdmin]="isAdmin()"
   [revisao]="revisaoIniciativaEmAnalise()"
   (fechado)="fecharAvaliacaoIniciativa()"
+  (excluido)="fecharAvaliacaoIniciativa(); buscarRevisoes()"
   (aprovado)="aprovarIniciativa($event)"
   (rejeitado)="rejeitarIniciativa($event)"
   (revisaoAprovada)="aprovarRevisao($event)"
@@ -240,6 +232,7 @@
   [isAdmin]="isAdmin()"
   [revisao]="revisaoIndicadorEmAnalise()"
   (fechado)="fecharAvaliacaoIndicador()"
+  (excluido)="fecharAvaliacaoIndicador(); buscarRevisoes()"
   (aprovado)="aprovarIndicador($event)"
   (rejeitado)="rejeitarIndicador($event)"
   (revisaoAprovada)="aprovarRevisao($event)"

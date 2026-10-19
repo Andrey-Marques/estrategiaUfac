@@ -150,9 +150,10 @@
             <input
               id="senha"
               type="password"
-              value="********"
+              value="********" autocomplete="off"
               disabled
             >
+            <button id="botaoAlterarSenha" type="button" class="btn botao-editar botao-alterar-senha" (click)="abrirModalSenha()">Alterar senha</button>
           </div>
 
         </div>
@@ -161,4 +162,39 @@
     </div>
 
   </div>
+</div>
+
+<div *ngIf="modalSenhaAberto" class="sobreposicao-senha" (keydown)="manterFocoModal($event)" (keydown.escape)="fecharModalSenha()">
+  <section class="modal-senha" role="dialog" aria-modal="true" aria-labelledby="tituloModalSenha" aria-describedby="descricaoModalSenha">
+    <header class="cabecalho-modal-senha">
+      <h2 id="tituloModalSenha">Alterar senha</h2>
+      <button type="button" class="fechar-senha" aria-label="Fechar alteração de senha" [disabled]="salvandoSenha" (click)="fecharModalSenha()">×</button>
+    </header>
+    <form #formSenha="ngForm" (ngSubmit)="alterarSenha()">
+      <div class="corpo-modal-senha">
+        <p id="descricaoModalSenha">Confirme sua senha atual e escolha uma nova. Após a alteração, você precisará entrar novamente.</p>
+        <div class="campo">
+          <label for="senhaAtual">SENHA ATUAL</label>
+          <input id="senhaAtual" type="password" name="senha_atual" autocomplete="current-password" required maxlength="1024" [(ngModel)]="senhaFormulario.senha_atual" [disabled]="salvandoSenha" [attr.aria-invalid]="errosSenha['senha_atual'] ? 'true' : null" aria-describedby="erroSenhaAtual">
+          <span id="erroSenhaAtual" class="erro-senha" *ngIf="errosSenha['senha_atual']">{{ errosSenha['senha_atual'].join(' ') }}</span>
+        </div>
+        <div class="campo">
+          <label for="novaSenha">NOVA SENHA</label>
+          <input id="novaSenha" type="password" name="nova_senha" autocomplete="new-password" required minlength="8" maxlength="1024" [(ngModel)]="senhaFormulario.nova_senha" [disabled]="salvandoSenha" [attr.aria-invalid]="errosSenha['nova_senha'] ? 'true' : null" aria-describedby="regrasSenha erroNovaSenha">
+          <small id="regrasSenha">Use ao menos 8 caracteres. Evite senhas comuns, apenas números ou semelhantes aos seus dados pessoais.</small>
+          <span id="erroNovaSenha" class="erro-senha" *ngIf="errosSenha['nova_senha']">{{ errosSenha['nova_senha'].join(' ') }}</span>
+        </div>
+        <div class="campo">
+          <label for="confirmarSenha">CONFIRMAR NOVA SENHA</label>
+          <input id="confirmarSenha" type="password" name="confirmar_senha" autocomplete="new-password" required maxlength="1024" [(ngModel)]="senhaFormulario.confirmar_senha" [disabled]="salvandoSenha" [attr.aria-invalid]="errosSenha['confirmar_senha'] ? 'true' : null" aria-describedby="erroConfirmacaoSenha">
+          <span id="erroConfirmacaoSenha" class="erro-senha" *ngIf="errosSenha['confirmar_senha']">{{ errosSenha['confirmar_senha'].join(' ') }}</span>
+        </div>
+        <p role="alert" class="erro-senha" *ngIf="errosSenha['detail'] || errosSenha['non_field_errors']">{{ (errosSenha['detail'] || errosSenha['non_field_errors']).join(' ') }}</p>
+      </div>
+      <footer class="rodape-modal-senha">
+        <button type="button" class="btn botao-cancelar" [disabled]="salvandoSenha" (click)="fecharModalSenha()">Cancelar</button>
+        <button type="submit" class="btn botao-salvar" [disabled]="formSenha.invalid || salvandoSenha">{{ salvandoSenha ? 'Salvando...' : 'Salvar senha' }}</button>
+      </footer>
+    </form>
+  </section>
 </div>

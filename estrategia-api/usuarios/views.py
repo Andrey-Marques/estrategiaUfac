@@ -5,8 +5,15 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from django.db.models.deletion import ProtectedError
 from .models import Usuario
-from .serializers import UsuarioSerializer, MeuPerfilSerializer
+from .serializers import UsuarioSerializer, MeuPerfilSerializer, AlterarSenhaSerializer
+from rest_framework.throttling import UserRateThrottle
+from django.db import transaction
 
+
+
+class AlterarSenhaThrottle(UserRateThrottle):
+    rate = '5/min'
+    scope = 'alterar_senha'
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
@@ -49,10 +56,10 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         if usuario.papel == 'ADMIN':
             return Usuario.objects.all()
 
-        if usuario.papel == 'GESTOR':
+        if usuario.papel == 'GESTOR' and usuario.unidade_id is not None:
             return Usuario.objects.filter(
                 unidade=usuario.unidade
-            )
+            ).exclude(papel='ADMIN')
 
         return Usuario.objects.none()
         
@@ -64,7 +71,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
         return super().list(request, *args, **kwargs)
     
-    def partial_update(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
         usuario_logado = request.user
         usuario_alvo = self.get_object()
 
@@ -86,7 +93,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                 'is_active': 'Você não pode inativar o seu próprio usuário.'
             })
 
-        return super().partial_update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], url_path='responsaveis')
     def responsaveis(self, request):
@@ -111,6 +118,8 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
         dados = {}
         if usuario.papel == 'GESTOR':
+            if usuario.unidade_id is None:
+                raise PermissionDenied('O gestor precisa estar vinculado a uma unidade.')
             if serializer.validated_data.get('papel') == 'ADMIN':
                 raise ValidationError({'papel': 'Gestores não podem cadastrar administradores.'})
             dados['unidade'] = usuario.unidade
@@ -119,6 +128,16 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         
     
 
+
+    @action(detail=False, methods=['post'], url_path='alterar-senha', throttle_classes=[AlterarSenhaThrottle])
+    def alterar_senha(self, request):
+        with transaction.atomic():
+            request.user = Usuario.objects.select_for_update().get(pk=request.user.pk)
+            serializer = AlterarSenhaSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            request.user.set_password(serializer.validated_data['nova_senha'])
+            request.user.save(update_fields=['password'])
+        return Response({'detail': 'Senha alterada com sucesso. Entre novamente com sua nova senha.'})
 
     @action(detail=False, methods=['get', 'patch'], url_path='me')
     def me(self, request):

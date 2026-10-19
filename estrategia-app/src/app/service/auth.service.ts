@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
+import { environment } from '../../environments/environment';
 
 interface LoginResponse{
     access: string;
@@ -15,7 +16,7 @@ interface RefreshResponse{
     providedIn: 'root'
 })
 export class AuthService{
-    private url = 'http://127.0.0.1:8000/api';
+    private url = environment.apiUrl;
 
     constructor (private http: HttpClient){}
 
@@ -42,6 +43,14 @@ export class AuthService{
   logout(): void {
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
+  }
+
+  solicitarRecuperacaoSenha(email: string): Observable<{detail: string}> {
+    return this.http.post<{detail: string}>(`${this.url}/recuperar-senha/`, { email });
+  }
+
+  redefinirSenha(dados: {uid: string; token: string; nova_senha: string; confirmar_senha: string}): Observable<{detail: string}> {
+    return this.http.post<{detail: string}>(`${this.url}/redefinir-senha/`, dados);
   }
 
 }

@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostBinding, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, HostBinding, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { merge, timer, filter } from 'rxjs';
+import { NavigationEnd, Router } from '@angular/router';
+import { AtrasosService } from '../../../service/atrasos.service';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { UsuarioService } from '../../../service/usuario.service';
 
@@ -10,6 +14,9 @@ import { UsuarioService } from '../../../service/usuario.service';
   styleUrl: './barra-lateral.scss',
 })
 export class BarraLateral implements OnInit {
+  atrasos = inject(AtrasosService);
+  private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   menuExpandido = false;
 
@@ -18,6 +25,7 @@ export class BarraLateral implements OnInit {
   constructor(private usuarioService: UsuarioService) {}
 
   ngOnInit(): void {
+    merge(timer(0, 60000), this.router.events.pipe(filter(evento => evento instanceof NavigationEnd))).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.atrasos.atualizar());
     this.usuarioService.getAtual().subscribe({
       next: usuario => this.papelUsuario.set(usuario.papel),
       error: () => this.papelUsuario.set(null),

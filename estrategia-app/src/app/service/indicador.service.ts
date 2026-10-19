@@ -1,12 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { IndicadorEstrategico } from "../model/indicadorEstrategico";
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class IndicadorService {
-    private apiUrl = 'http://localhost:8000/api/indicadores/';
+    private apiUrl = `${environment.apiUrl}/indicadores/`;
 
     constructor(private http: HttpClient) {}
 

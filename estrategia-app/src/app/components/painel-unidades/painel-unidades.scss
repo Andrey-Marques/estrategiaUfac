@@ -1,4 +1,4 @@
-@use '../../../styles.scss' as *;
+@use '../../../styles/variables' as *;
 
 //VARIÁVEIS
 $azul-principal: #08088b;
@@ -30,42 +30,8 @@ $cinza-texto: #687386;
   padding-top: var(--altura-header);
 }
 
-// ============================================================
-// BREADCRUMB
-// ============================================================
-
-.breadcrumb {
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  margin-bottom: 30px;
-
-  font-size: 0.7rem;
 
 
-  a {
-    text-decoration: none;
-    color: $cor-azul-padrao;
-
-    
-
-
-    &:hover {
-      
-      border-radius: 100%;
-      background-color: $cor-hover-padrao;
-      
-    }
-  }
-
-span{
-    color: $cor-azul-padrao;
-    font-size: 0.8rem;
-  }
-}
 
 h1 {
   color: $azul-principal;
@@ -386,9 +352,7 @@ h1 {
     padding: 18px 20px 50px;
   }
 
-  .breadcrumb {
-    margin-bottom: 25px;
-  }
+
 
   .introducao {
 

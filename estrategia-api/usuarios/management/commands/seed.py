@@ -1,8 +1,9 @@
-from datetime import date
+from datetime import timedelta
 from decimal import Decimal
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
+from django.utils import timezone
 
 from unidades.models import Unidade
 from usuarios.models import Usuario
@@ -16,43 +17,55 @@ class Command(BaseCommand):
     help = 'Popula o banco com dados iniciais do Estratégia UFAC'
 
     @staticmethod
-    def criar_acoes_projeto(projeto, orcamento):
-        """Preenche projetos sem ações; novas execuções preservam o acompanhamento existente."""
-        if projeto.acoes.exists():
-            projeto.atualizar_custo_estimado()
-            return
-
+    def dados_acoes(orcamento, cenario, atividade=None):
+        """Datas relativas mantêm os exemplos de atraso úteis em qualquer dia."""
+        hoje = timezone.localdate()
         total = Decimal(str(orcamento)).quantize(Decimal('0.01'))
-        planejamento = (total * Decimal('0.20')).quantize(Decimal('0.01'))
-        execucao = (total * Decimal('0.65')).quantize(Decimal('0.01'))
-        avaliacao = total - planejamento - execucao
-        exemplos = [
-            {
-                'nome': 'Levantamento de necessidades e planejamento',
-                'prazo_inicio': date(2026, 2, 2), 'prazo_fim': date(2026, 3, 31),
-                'custo_estimado': planejamento, 'custo_realizado': planejamento,
-                'data_inicio_efetivo': date(2026, 2, 5),
-                'data_fim_efetivo': date(2026, 3, 27), 'status': 'CONCLUIDA',
-            },
-            {
-                'nome': (projeto.acoes_previstas or 'Execução das atividades previstas')[:255],
-                'prazo_inicio': date(2026, 4, 1), 'prazo_fim': date(2026, 10, 30),
-                'custo_estimado': execucao,
-                'custo_realizado': (execucao * Decimal('0.50')).quantize(Decimal('0.01')),
-                'data_inicio_efetivo': date(2026, 4, 6),
-                'data_fim_efetivo': None, 'status': 'ANDAMENTO',
-            },
-            {
-                'nome': 'Avaliação dos resultados e encerramento',
-                'prazo_inicio': date(2026, 11, 2), 'prazo_fim': date(2026, 12, 18),
-                'custo_estimado': avaliacao, 'custo_realizado': Decimal('0.00'),
-                'data_inicio_efetivo': None, 'data_fim_efetivo': None,
-                'status': 'PLANEJAMENTO',
-            },
-        ]
-        for dados in exemplos:
-            AcaoProjeto.objects.create(fk_projeto=projeto, **dados)
+        custos = [(total * Decimal(fracao)).quantize(Decimal('0.01'))
+                  for fracao in ('0.20', '0.65')]
+        custos.append(total - sum(custos))
+        nomes = ['Levantamento de necessidades e planejamento',
+                 (atividade or 'Execução das atividades previstas')[:255],
+                 'Avaliação dos resultados e encerramento']
+        for indice, (nome, custo) in enumerate(zip(nomes, custos)):
+            # Em execução: uma concluída e duas ainda sem início, já atrasadas.
+            inicio = hoje - timedelta(days=90 - indice * 20)
+            fim = inicio + timedelta(days=15)
+            status = 'CONCLUIDA' if indice == 0 else 'PLANEJAMENTO'
+            if cenario == 'CONCLUIDO':
+                status = 'CONCLUIDA'
+            elif cenario == 'DESCONTINUADO':
+                status = 'CONCLUIDA' if indice == 0 else 'CANCELADA'
+            elif cenario == 'PROPOSTA':
+                inicio = hoje + timedelta(days=15 + indice * 30)
+                fim = inicio + timedelta(days=20)
+                status = 'PLANEJAMENTO'
+            elif cenario == 'REGULAR':
+                status = ('CONCLUIDA', 'ANDAMENTO', 'PLANEJAMENTO')[indice]
+                if indice == 2:
+                    inicio, fim = hoje + timedelta(days=15), hoje + timedelta(days=45)
+            yield {
+                'nome': nome, 'prazo_inicio': inicio, 'prazo_fim': fim,
+                'custo_estimado': custo,
+                'custo_realizado': custo if status == 'CONCLUIDA' else (
+                    (custo * Decimal('0.40')).quantize(Decimal('0.01'))
+                    if status == 'ANDAMENTO' else Decimal('0.00')),
+                'data_inicio_efetivo': inicio if status in ('ANDAMENTO', 'CONCLUIDA') else None,
+                'data_fim_efetivo': fim if status == 'CONCLUIDA' else None,
+                'status': status,
+            }
+
+    def criar_acoes_projeto(self, projeto, orcamento, atividade, cenario):
+        """Preenche projetos sem ações e preserva acompanhamentos existentes."""
+        if not projeto.acoes.exists():
+            for dados in self.dados_acoes(orcamento, cenario, atividade):
+                AcaoProjeto.objects.create(fk_projeto=projeto, **dados)
         projeto.atualizar_custo_estimado()
+
+    @staticmethod
+    def status_exemplo(indice):
+        # Mantém dois publicados por unidade e varia as demais propostas.
+        return ('APROVADO', 'APROVADO', 'REJEITADO', 'EM_ESPERA')[indice]
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -128,7 +141,8 @@ class Command(BaseCommand):
             papel,
             unidade,
             is_staff=False,
-            is_superuser=False
+            is_superuser=False,
+            is_active=True
         ):
             usuario, criado = Usuario.objects.get_or_create(
                 username=username,
@@ -141,6 +155,7 @@ class Command(BaseCommand):
                     'unidade': unidade,
                     'is_staff': is_staff,
                     'is_superuser': is_superuser,
+                    'is_active': is_active,
                 }
             )
 
@@ -156,6 +171,7 @@ class Command(BaseCommand):
                 'unidade': unidade,
                 'is_staff': is_staff,
                 'is_superuser': is_superuser,
+                'is_active': is_active,
             }
 
             for campo, valor in dados_atualizados.items():
@@ -251,6 +267,15 @@ class Command(BaseCommand):
             email='gestor.prograd@ufac.br',
             papel='GESTOR',
             unidade=prograd
+        )
+
+        criar_usuario(
+            'servidorinativo', 'Ana Souza (conta inativa)', '000.000.000-09',
+            'ana.inativa@ufac.br', 'SERVIDOR', proaes, is_active=False,
+        )
+        criar_usuario(
+            'gestorinativo', 'Carlos Lima (conta inativa)', '000.000.000-10',
+            'carlos.inativo@ufac.br', 'GESTOR', proex, is_active=False,
         )
 
         self.stdout.write(
@@ -530,12 +555,8 @@ class Command(BaseCommand):
             'PROGRAD': gestor_prograd,
         }
 
-        projetos_criados = {}
-
         for sigla, dados_unidade in projetos_dados.items():
-            projetos_criados[sigla] = []
-
-            for (
+            for indice, (
                 nome,
                 descricao,
                 tempo_estimado,
@@ -543,24 +564,33 @@ class Command(BaseCommand):
                 percentual,
                 acoes,
                 objetivo
-            ) in dados_unidade:
+            ) in enumerate(dados_unidade):
+                status = self.status_exemplo(indice)
+                execucao = ('DESCONTINUADO' if sigla in ('PROPLAN', 'PROEX')
+                            else 'CONCLUIDO') if indice == 1 else 'ANDAMENTO'
+                cenario = execucao if indice == 1 else ('ATRASADO' if indice == 0 else 'PROPOSTA')
 
                 projeto, _ = ProjetoEstrategico.objects.update_or_create(
                     nome=nome,
                     defaults={
                         'descricao': descricao,
                         'tempo_estimado': tempo_estimado,
-                        'acoes_previstas': acoes,
-                        'percentual_progresso': percentual,
-                        'status': 'APROVADO',
+                        'percentual_progresso': 100 if execucao == 'CONCLUIDO' else (0 if status != 'APROVADO' else percentual),
+                        'status': status,
+                        'status_execucao': execucao,
+                        'justificativa_descontinuacao': (
+                            'Projeto descontinuado por revisão das prioridades e indisponibilidade de recursos.'
+                            if execucao == 'DESCONTINUADO' else ''),
+                        'observacao_analise': 'Revisar o escopo, o cronograma e a estimativa de custos antes de reenviar.' if status == 'REJEITADO' else '',
+                        'analisado_por': admin if status in ('APROVADO', 'REJEITADO') else None,
+                        'data_analise': timezone.now() - timedelta(days=5) if status in ('APROVADO', 'REJEITADO') else None,
                         'unidade': unidades[sigla],
                         'responsavel': responsaveis[sigla],
                     }
                 )
 
-                self.criar_acoes_projeto(projeto, custo_estimado)
+                self.criar_acoes_projeto(projeto, custo_estimado, acoes, cenario)
                 projeto.objetivos.add(objetivo)
-                projetos_criados[sigla].append(projeto)
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -602,21 +632,29 @@ class Command(BaseCommand):
 
         for sigla, dados_unidade in iniciativas_dados.items():
             for indice, (nome, percentual, objetivo) in enumerate(dados_unidade):
+                status = self.status_exemplo(indice)
                 iniciativa, _ = IniciativaEstrategica.objects.update_or_create(
                     nome=nome,
                     defaults={
                         'observacao':
                             'Iniciativa criada para dados de teste do '
                             'sistema Estratégia UFAC.',
-                        'percentual_evolucao': percentual,
-                        'status': 'APROVADO',
+                        'percentual_evolucao': percentual if status == 'APROVADO' else 0,
+                        'status': status,
+                        'observacao_analise': 'Detalhar as entregas e ajustar os prazos das ações antes de reenviar.' if status == 'REJEITADO' else '',
+                        'analisado_por': admin if status in ('APROVADO', 'REJEITADO') else None,
+                        'data_analise': timezone.now() - timedelta(days=4) if status in ('APROVADO', 'REJEITADO') else None,
                         'unidade': unidades[sigla],
                         'responsavel': responsaveis[sigla],
-                        'projeto': projetos_criados[sigla][indice],
                     }
                 )
 
                 iniciativa.objetivos.add(objetivo)
+                if not iniciativa.acoes_realizadas.exists():
+                    cenario = ('ATRASADO' if indice == 0 else 'REGULAR') if status == 'APROVADO' else 'PROPOSTA'
+                    for dados in self.dados_acoes(7500 + indice * 2500, cenario):
+                        dados['custo'] = dados.pop('custo_estimado')
+                        AcaoRealizada.objects.create(fk_iniciativa=iniciativa, **dados)
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -666,7 +704,8 @@ class Command(BaseCommand):
                         'finalidade':
                             'Acompanhar o desempenho das ações estratégicas '
                             'da unidade.',
-                        'status': 'APROVADO',
+                        'status': self.status_exemplo(indice),
+                        'observacao_analise': 'Esclarecer a fórmula de cálculo e a origem dos dados.' if indice == 2 else '',
                         'metodo_calculo':
                             'Relação entre o resultado alcançado e a meta '
                             'prevista no período.',
@@ -684,7 +723,7 @@ class Command(BaseCommand):
 
                 EvolucaoIndicador.objects.get_or_create(
                     indicador=indicador,
-                    ano='2026',
+                    ano=str(timezone.localdate().year),
                     defaults={
                         'meta_prevista': str(70 + (indice * 5)),
                         'meta_alcancada': str(50 + (indice * 5)),
@@ -705,10 +744,9 @@ class Command(BaseCommand):
 
         realizacoes_adicionadas = 0
         proximos_passos_adicionados = 0
-        acoes_adicionadas = 0
         evolucoes_adicionadas = 0
 
-        for projeto in ProjetoEstrategico.objects.all().iterator():
+        for projeto in ProjetoEstrategico.objects.filter(status='APROVADO').iterator():
             if not projeto.evolucoes.filter(tipo='REALIZACAO').exists():
                 for descricao in (
                     f'Levantamento das necessidades e definição da equipe do projeto "{projeto.nome}" concluídos.',
@@ -721,7 +759,7 @@ class Command(BaseCommand):
                     )
                     realizacoes_adicionadas += 1
 
-            if not projeto.evolucoes.filter(tipo='PROXIMO_PASSO').exists():
+            if projeto.status_execucao == 'ANDAMENTO' and not projeto.evolucoes.filter(tipo='PROXIMO_PASSO').exists():
                 for descricao in (
                     f'Executar a próxima etapa do projeto "{projeto.nome}" conforme o plano de trabalho.',
                     f'Avaliar os resultados do projeto "{projeto.nome}" com a unidade responsável e atualizar o acompanhamento.',
@@ -732,28 +770,6 @@ class Command(BaseCommand):
                         descricao=descricao,
                     )
                     proximos_passos_adicionados += 1
-
-        for iniciativa in IniciativaEstrategica.objects.all().iterator():
-            if iniciativa.acoes_realizadas.exists():
-                continue
-
-            acoes_exemplo = (
-                ('Levantamento de necessidades', date(2026, 2, 2), date(2026, 3, 31), Decimal('1500.00'), 'CONCLUIDA'),
-                ('Execução das atividades previstas', date(2026, 4, 1), date(2026, 10, 30), Decimal('5000.00'), 'ANDAMENTO'),
-                ('Avaliação dos resultados', date(2026, 11, 2), date(2026, 12, 18), Decimal('1000.00'), 'PLANEJAMENTO'),
-            )
-            for nome, inicio, fim, custo, status in acoes_exemplo:
-                AcaoRealizada.objects.get_or_create(
-                    fk_iniciativa=iniciativa,
-                    nome=nome,
-                    defaults={
-                        'prazo_inicio': inicio,
-                        'prazo_fim': fim,
-                        'custo': custo,
-                        'status': status,
-                    },
-                )
-                acoes_adicionadas += 1
 
         for indicador in IndicadorEstrategico.objects.all().iterator():
             if indicador.evolucao_indicador.exists():
@@ -788,7 +804,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f'✓ Históricos complementados: {realizacoes_adicionadas} realizações, '
             f'{proximos_passos_adicionados} próximos passos, '
-            f'{acoes_adicionadas} ações e {evolucoes_adicionadas} evoluções de indicadores'
+            f'{evolucoes_adicionadas} evoluções de indicadores'
         ))
 
         # =====================================================
@@ -839,3 +855,7 @@ class Command(BaseCommand):
         self.stdout.write('  gestorproaes')
         self.stdout.write('  gestorproex')
         self.stdout.write('  gestorprograd')
+        self.stdout.write('')
+        self.stdout.write('CONTAS INATIVAS: servidorinativo e gestorinativo')
+        self.stdout.write('Cenários: aprovados, rejeitados, em espera, projetos concluídos e descontinuados.')
+        self.stdout.write('Atrasos: duas ações sem início efetivo em cada primeiro projeto/iniciativa da unidade.')

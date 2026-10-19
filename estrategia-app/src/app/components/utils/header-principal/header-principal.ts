@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Usuario } from '../../../model/usuario';
@@ -13,6 +13,15 @@ import { AuthService } from '../../../service/auth.service';
   styleUrl: './header-principal.scss',
 })
 export class HeaderPrincipal {
+  @ViewChild('dropdownUsuario') private dropdownUsuario?: ElementRef<HTMLElement>;
+
+  @HostListener('document:click', ['$event'])
+  fecharPerfilAoClicarFora(evento: MouseEvent): void {
+    const dropdown = this.dropdownUsuario?.nativeElement;
+    if (this.menuUsuarioAberto() && (!dropdown || !evento.composedPath().includes(dropdown))) {
+      this.fecharMenuUsuario();
+    }
+  }
 
   private usuarioService = inject(UsuarioService);
   private authService = inject(AuthService);
@@ -26,7 +35,6 @@ export class HeaderPrincipal {
   ngOnInit(): void {
     this.buscarUsuarioAtual();
   }
-
 
   buscarUsuarioAtual(): void {
 

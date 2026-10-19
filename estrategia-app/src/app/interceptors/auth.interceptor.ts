@@ -28,6 +28,9 @@ export const authInterceptor: HttpInterceptorFn = (
   req,
   next
 ) => {
+  if (/\/api\/(recuperar-senha|redefinir-senha)\/?(?:\?|$)/.test(req.url)) {
+    return next(req.clone({ headers: req.headers.delete('Authorization') }));
+  }
 
   const authService = inject(AuthService);
   const router = inject(Router);

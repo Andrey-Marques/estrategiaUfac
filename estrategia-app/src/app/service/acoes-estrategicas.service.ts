@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { ProjetoEstrategico } from '../model/projetoEstrategico';
 import { IndicadorEstrategico } from '../model/indicadorEstrategico';
 import { IniciativaEstrategica } from '../model/iniciativaEstrategica';
+import { environment } from '../../environments/environment';
 
 interface DetalhePublico {
   id: number;
@@ -14,7 +15,7 @@ interface DetalhePublico {
 }
 
 export interface DetalhesPublicos {
-  projetos: DetalhePublico & Pick<ProjetoEstrategico, 'descricao' | 'tempo_estimado' | 'custo_estimado' | 'ultima_atualizacao' | 'percentual_progresso' | 'custo_realizado' | 'acoes' | 'acoes_previstas' | 'evolucoes'>;
+  projetos: DetalhePublico & Pick<ProjetoEstrategico, 'justificativa_descontinuacao' | 'status_execucao' | 'descricao' | 'tempo_estimado' | 'custo_estimado' | 'ultima_atualizacao' | 'percentual_progresso' | 'custo_realizado' | 'acoes' | 'evolucoes'>;
   indicadores: DetalhePublico & Pick<IndicadorEstrategico, 'finalidade' | 'polaridade' | 'unidade_medida' | 'metodo_calculo' | 'formula' | 'observacao' | 'data_envio' | 'evolucao_indicador'>;
   iniciativas: DetalhePublico & Pick<IniciativaEstrategica, 'data_preenchimento' | 'ultima_atualizacao' | 'observacao' | 'percentual_evolucao' | 'acoes_realizadas'>;
 }
@@ -42,7 +43,7 @@ export interface AcoesEstrategicasPublicas {
 @Injectable({ providedIn: 'root' })
 export class AcoesEstrategicasService {
   private readonly http = inject(HttpClient);
-  private readonly url = 'http://localhost:8000/api/acoes-estrategicas/';
+  private readonly url = `${environment.apiUrl}/acoes-estrategicas/`;
 
   listar() {
     return this.http.get<AcoesEstrategicasPublicas>(this.url);
