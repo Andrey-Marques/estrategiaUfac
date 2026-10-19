@@ -40,7 +40,7 @@ class IniciativaEstrategicaViewSet(ExclusaoRegistroMixin, ModelViewSet):
                     'O responsável deve pertencer à unidade selecionada.'
                 })
 
-            serializer.save(status='RASCUNHO' if self.request.data.get('status') == 'RASCUNHO' else 'APROVADO')
+            serializer.save(status='APROVADO')
             return
         if usuario.papel == 'GESTOR':
 
@@ -58,12 +58,7 @@ class IniciativaEstrategicaViewSet(ExclusaoRegistroMixin, ModelViewSet):
                     'O responsável deve pertencer à sua unidade.'
                 })
 
-            status_solicitado = self.request.data.get('status')
-            status_iniciativa = (
-                'RASCUNHO'
-                if status_solicitado == 'RASCUNHO'
-                else 'EM_ESPERA'
-            )
+            status_iniciativa = 'EM_ESPERA'
             serializer.save(
                 unidade=usuario.unidade,
                 responsavel=responsavel,
@@ -80,9 +75,7 @@ class IniciativaEstrategicaViewSet(ExclusaoRegistroMixin, ModelViewSet):
         if (responsavel.unidade_id != usuario.unidade_id):
              raise ValidationError({ 'responsavel': 'O responsável pela iniciativa ''deve pertencer à sua unidade.'})
 
-        status_solicitado = (self.request.data.get('status'))
-
-        status_iniciativa = ( 'RASCUNHO' if status_solicitado == 'RASCUNHO' else 'EM_ESPERA')
+        status_iniciativa = 'EM_ESPERA'
 
         serializer.save( unidade=usuario.unidade, responsavel=responsavel, status=status_iniciativa)
 
@@ -114,7 +107,7 @@ class IniciativaEstrategicaViewSet(ExclusaoRegistroMixin, ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if iniciativa.status in ('REJEITADO', 'RASCUNHO'):
+        if iniciativa.status == 'REJEITADO':
             campos_permitidos = {
                 'nome',
                 'responsavel',
@@ -174,8 +167,6 @@ class IniciativaEstrategicaViewSet(ExclusaoRegistroMixin, ModelViewSet):
             return
 
         novo_status = 'EM_ESPERA'
-        if iniciativa.status == 'RASCUNHO' and self.request.data.get('status', 'RASCUNHO') == 'RASCUNHO':
-            novo_status = 'RASCUNHO'
         serializer.save(
             unidade=usuario.unidade, responsavel=responsavel, status=novo_status,
             observacao_analise='', data_analise=None, analisado_por=None,

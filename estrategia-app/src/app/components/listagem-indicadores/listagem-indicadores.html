@@ -2,12 +2,24 @@
   <div class="container-fluid listagem-privada">
     <div class="cabecalho-listagem">
       <h1 class="titulo-pagina m-0">Indicadores Estratégicos</h1>
-      <button type="button" class="btn botao-principal" data-bs-toggle="modal" data-bs-target="#modalIndicador"
-        (click)="formulario.fecharFormulario()" *ngIf="!isAdmin()">
+      <button
+        type="button"
+        class="btn botao-principal"
+        data-bs-toggle="modal"
+        data-bs-target="#modalIndicador"
+        (click)="formulario.fecharFormulario()"
+        *ngIf="!isAdmin()"
+      >
         Propor novo Indicador
       </button>
-      <button type="button" class="btn botao-principal" data-bs-toggle="modal" data-bs-target="#modalIndicador"
-        (click)="formulario.fecharFormulario()" *ngIf="isAdmin()">
+      <button
+        type="button"
+        class="btn botao-principal"
+        data-bs-toggle="modal"
+        data-bs-target="#modalIndicador"
+        (click)="formulario.fecharFormulario()"
+        *ngIf="isAdmin()"
+      >
         +Novo Indicador
       </button>
     </div>
@@ -16,32 +28,43 @@
       <!-- Filtro -->
       <ul class="nav filtro px-4 pt-3 border-bottom">
         <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'TODOS'"
-            (click)="alterarFiltroStatus('TODOS')">
+          <button
+            type="button"
+            class="nav-link filtro-item"
+            [class.ativa]="filtroStatus() === 'TODOS'"
+            (click)="alterarFiltroStatus('TODOS')"
+          >
             Todos
           </button>
         </li>
         <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'APROVADO'"
-            (click)="alterarFiltroStatus('APROVADO')">
+          <button
+            type="button"
+            class="nav-link filtro-item"
+            [class.ativa]="filtroStatus() === 'APROVADO'"
+            (click)="alterarFiltroStatus('APROVADO')"
+          >
             Aprovados
           </button>
         </li>
         <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'REJEITADO'"
-            (click)="alterarFiltroStatus('REJEITADO')">
+          <button
+            type="button"
+            class="nav-link filtro-item"
+            [class.ativa]="filtroStatus() === 'REJEITADO'"
+            (click)="alterarFiltroStatus('REJEITADO')"
+          >
             Rejeitados
           </button>
         </li>
+
         <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'RASCUNHO'"
-            (click)="alterarFiltroStatus('RASCUNHO')">
-            Rascunhos
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'EM_ESPERA'"
-            (click)="alterarFiltroStatus('EM_ESPERA')">
+          <button
+            type="button"
+            class="nav-link filtro-item"
+            [class.ativa]="filtroStatus() === 'EM_ESPERA'"
+            (click)="alterarFiltroStatus('EM_ESPERA')"
+          >
             Em Espera
           </button>
         </li>
@@ -50,31 +73,45 @@
       <div class="area-filtros">
         <div class="campo-pesquisa">
           <i class="bi bi-search"></i>
-          <input type="text" placeholder="Pesquisar pelo nome do indicador..." (input)="pesquisarIndicador($event)" />
+          <input
+            type="text"
+            placeholder="Pesquisar pelo nome do indicador..."
+            (input)="pesquisarIndicador($event)"
+          />
         </div>
 
-        <div class="filtro-unidades" *ngIf="isAdmin()">
+        <div class="filtro-unidades" #dropdownUnidades *ngIf="isAdmin()">
           <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
             <i class="bi bi-building"></i>
             Unidades
             <span class="quantidade-unidades" *ngIf="unidadesSelecionadas().length > 0">
               {{ unidadesSelecionadas().length }}
             </span>
-            <i class="bi" [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            <i
+              class="bi"
+              [ngClass]="menuUnidadesAberto() ? 'bi-chevron-up' : 'bi-chevron-down'"
+            ></i>
           </button>
 
           <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
             <div class="cabecalho-filtro-unidades">
               <strong>Filtrar por unidade</strong>
-              <button type="button" class="botao-limpar" *ngIf="unidadesSelecionadas().length > 0"
-                (click)="limparFiltroUnidades()">
+              <button
+                type="button"
+                class="botao-limpar"
+                *ngIf="unidadesSelecionadas().length > 0"
+                (click)="limparFiltroUnidades()"
+              >
                 Limpar
               </button>
             </div>
 
             <label class="opcao-unidade" *ngFor="let unidade of unidades()">
-              <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
-                (change)="alternarUnidade(unidade.id)" />
+              <input
+                type="checkbox"
+                [checked]="unidadeEstaSelecionada(unidade.id)"
+                (change)="alternarUnidade(unidade.id)"
+              />
               <span class="checkbox-personalizado"></span>
               <div class="dados-unidade">
                 <strong>{{ unidade.sigla }}</strong>
@@ -103,8 +140,11 @@
                 <div class="titulo-registro">
                   {{ indicador.nome }}
                   <ng-container *ngIf="obterRevisao(indicador.id) as revisao">
-                    <span *ngIf="revisao.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i
-                        class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
+                    <span
+                      *ngIf="revisao.status === 'PENDENTE'"
+                      class="notificacao-revisao revisao-pendente"
+                      ><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span
+                    >
                   </ng-container>
                 </div>
                 <div class="d-flex gap-1 mt-1">
@@ -122,7 +162,7 @@
               <td class="text-center">
                 <strong class="d-block texto-data">{{
                   formatarDataEnvio(indicador.data_envio)
-                  }}</strong>
+                }}</strong>
               </td>
               <td class="text-center">
                 <span class="badge" [ngClass]="obterClasseStatus(indicador.status)">
@@ -130,7 +170,11 @@
                 </span>
               </td>
               <td class="text-center pe-4">
-                <button type="button" class="btn botao-visualizar" (click)="abrirIndicador(indicador)">
+                <button
+                  type="button"
+                  class="btn botao-visualizar"
+                  (click)="abrirIndicador(indicador)"
+                >
                   <i class="bi bi-eye"></i>
                   Visualizar
                 </button>
@@ -145,18 +189,33 @@
           </tbody>
         </table>
       </div>
-      <app-paginacao [total]="indicadoresFiltrados().length" [pagina]="paginaAtual()" [porPagina]="itensPorPagina()"
+      <app-paginacao
+        [total]="indicadoresFiltrados().length"
+        [pagina]="paginaAtual()"
+        [porPagina]="itensPorPagina()"
         (paginaAlterada)="paginaSelecionada.set($event)"
-        (tamanhoAlterado)="alterarItensPorPagina($event)"></app-paginacao>
+        (tamanhoAlterado)="alterarItensPorPagina($event)"
+      ></app-paginacao>
     </div>
   </div>
 </div>
 
-<app-avaliacao-indicador *ngIf="indicadorSelecionado" [indicador]="indicadorSelecionado" [isAdmin]="isAdmin()"
-  [revisao]="revisaoEmAnalise()" (fechado)="fecharIndicador()" (excluido)="fecharIndicador(); buscarIndicador()"
-  (aprovado)="aprovarIndicador($event)" (rejeitado)="rejeitarIndicador($event)"
-  (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)"
-  (editar)="fecharIndicador(); formulario.editarIndicadorEmAnalise($event)">
+<app-avaliacao-indicador
+  *ngIf="indicadorSelecionado"
+  [indicador]="indicadorSelecionado"
+  [isAdmin]="isAdmin()"
+  [revisao]="revisaoEmAnalise()"
+  (fechado)="fecharIndicador()"
+  (excluido)="fecharIndicador(); buscarIndicador()"
+  (aprovado)="aprovarIndicador($event)"
+  (rejeitado)="rejeitarIndicador($event)"
+  (revisaoAprovada)="aprovarRevisao($event)"
+  (revisaoRejeitada)="rejeitarRevisao($event)"
+  (editar)="fecharIndicador(); formulario.editarIndicadorEmAnalise($event)"
+>
 </app-avaliacao-indicador>
-<app-formulario-indicadores [revisoes]="revisoes()" #formulario
-  (salvo)="buscarIndicador(); buscarRevisoes()"></app-formulario-indicadores>
+<app-formulario-indicadores
+  [revisoes]="revisoes()"
+  #formulario
+  (salvo)="buscarIndicador(); buscarRevisoes()"
+></app-formulario-indicadores>

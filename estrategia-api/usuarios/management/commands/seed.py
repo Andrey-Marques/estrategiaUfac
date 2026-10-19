@@ -63,10 +63,9 @@ class Command(BaseCommand):
         projeto.atualizar_custo_estimado()
 
     @staticmethod
-    def status_exemplo(indice, sigla):
+    def status_exemplo(indice):
         # Mantém dois publicados por unidade e varia as demais propostas.
-        return ('APROVADO', 'APROVADO', 'REJEITADO',
-                'RASCUNHO' if sigla in ('PROEX', 'PROGRAD') else 'EM_ESPERA')[indice]
+        return ('APROVADO', 'APROVADO', 'REJEITADO', 'EM_ESPERA')[indice]
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -566,7 +565,7 @@ class Command(BaseCommand):
                 acoes,
                 objetivo
             ) in enumerate(dados_unidade):
-                status = self.status_exemplo(indice, sigla)
+                status = self.status_exemplo(indice)
                 execucao = ('DESCONTINUADO' if sigla in ('PROPLAN', 'PROEX')
                             else 'CONCLUIDO') if indice == 1 else 'ANDAMENTO'
                 cenario = execucao if indice == 1 else ('ATRASADO' if indice == 0 else 'PROPOSTA')
@@ -633,7 +632,7 @@ class Command(BaseCommand):
 
         for sigla, dados_unidade in iniciativas_dados.items():
             for indice, (nome, percentual, objetivo) in enumerate(dados_unidade):
-                status = self.status_exemplo(indice, sigla)
+                status = self.status_exemplo(indice)
                 iniciativa, _ = IniciativaEstrategica.objects.update_or_create(
                     nome=nome,
                     defaults={
@@ -705,7 +704,7 @@ class Command(BaseCommand):
                         'finalidade':
                             'Acompanhar o desempenho das ações estratégicas '
                             'da unidade.',
-                        'status': self.status_exemplo(indice, sigla),
+                        'status': self.status_exemplo(indice),
                         'observacao_analise': 'Esclarecer a fórmula de cálculo e a origem dos dados.' if indice == 2 else '',
                         'metodo_calculo':
                             'Relação entre o resultado alcançado e a meta '
@@ -858,5 +857,5 @@ class Command(BaseCommand):
         self.stdout.write('  gestorprograd')
         self.stdout.write('')
         self.stdout.write('CONTAS INATIVAS: servidorinativo e gestorinativo')
-        self.stdout.write('Cenários: aprovados, rejeitados, em espera, rascunhos, projetos concluídos e descontinuados.')
+        self.stdout.write('Cenários: aprovados, rejeitados, em espera, projetos concluídos e descontinuados.')
         self.stdout.write('Atrasos: duas ações sem início efetivo em cada primeiro projeto/iniciativa da unidade.')

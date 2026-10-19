@@ -81,7 +81,6 @@ a {
     pointer-events: none;
   }
 
-  .botao-salvar-rascunho,
   .botao-submeter-analise {
     min-height: 42px;
     border-radius: 8px;
@@ -409,19 +408,6 @@ a {
     &:hover {
       border-color: $cor-primaria-botao-hover;
       background-color: $cor-primaria-botao-hover;
-      color: $cor-fundo-branco;
-    }
-  }
-
-  .botao-salvar-rascunho {
-    padding: 0 20px;
-    border: 1px solid $cor-primaria;
-    background-color: $cor-primaria;
-    color: $cor-fundo-branco;
-
-    &:hover {
-      background-color: $cor-primaria-botao-hover;
-      border-color: $cor-primaria-botao-hover;
       color: $cor-fundo-branco;
     }
   }
@@ -1485,7 +1471,6 @@ a {
   .status-aprovado,
   .status-em-espera,
   .status-espera,
-  .status-rascunho,
   .status-rejeitado {
     font-weight: 600;
     font-size: 12px;
@@ -1504,12 +1489,6 @@ a {
     background-color: rgba(255, 193, 7, 0.15);
     color: #997404;
     border: 1px solid rgba(255, 193, 7, 0.4);
-  }
-
-  .status-rascunho {
-    background-color: rgba(108, 117, 125, 0.12);
-    color: #6c757d;
-    border: 1px solid rgba(108, 117, 125, 0.3);
   }
 
   .status-rejeitado {

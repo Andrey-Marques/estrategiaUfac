@@ -61,7 +61,7 @@
           <div class="input-pesquisa">
             <i class="bi bi-search"></i>
             <input id="pesquisa-acoes" type="search" placeholder="Ex: Graduação, TDG, OE1..."
-              [ngModel]="pesquisa()" (ngModelChange)="pesquisa.set($event)" (keydown.enter)="filtrar()" />
+              [ngModel]="pesquisa()" (ngModelChange)="atualizarPesquisa($event)" />
           </div>
         </div>
 

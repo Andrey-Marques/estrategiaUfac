@@ -86,8 +86,6 @@ export class FormularioProjetos {
 
   editandoProjetoRejeitado = false;
 
-  editandoRascunho = false;
-
   projetoSelecionadoId: number | null = null;
 
   realizacoesConcluidas = signal<string[]>([]);
@@ -156,7 +154,6 @@ export class FormularioProjetos {
     this.visualizando = false;
 
     this.editandoProjetoRejeitado = projeto.status === 'REJEITADO';
-    this.editandoRascunho = projeto.status === 'RASCUNHO';
 
     this.modoEdicaoProjeto = false;
 
@@ -266,7 +263,7 @@ export class FormularioProjetos {
 
   cancelarEdicaoProjetoRejeitado(): void {
     this.editandoProjetoRejeitado = false;
-    this.editandoRascunho = false;
+
     this.projetoSelecionadoId = null;
     this.formularioProjeto.reset();
     this.formularioProjeto.enable();
@@ -278,8 +275,7 @@ export class FormularioProjetos {
   abrirEdicaoPeloModal(projeto: ProjetoEstrategico): void {
     this.editandoProjetoRejeitado = false;
 
-    this.editandoRascunho = false;
-    if (projeto.status === 'RASCUNHO' || (projeto.status === 'REJEITADO' && !this.isAdmin())) {
+    if (projeto.status === 'REJEITADO' && !this.isAdmin()) {
       this.editarProjetoRejeitado(projeto);
       return;
     }
@@ -408,7 +404,7 @@ export class FormularioProjetos {
     this.proximosPassos.set(passos);
   }
 
-  salvarProjeto(status: string): void {
+  salvarProjeto(status: 'EM_ESPERA' | 'APROVADO'): void {
     if (this.formularioProjeto.invalid) {
       this.formularioProjeto.markAllAsTouched();
       return;
@@ -454,16 +450,12 @@ export class FormularioProjetos {
       evolucoes: this.montarEvolucoes(),
     };
 
-    const operacao =
-      this.editandoRascunho && this.projetoSelecionadoId !== null
-        ? this.projetoService.atualizarProjeto(this.projetoSelecionadoId, projeto)
-        : this.projetoService.CriarProjeto(projeto);
+    const operacao = this.projetoService.CriarProjeto(projeto);
     operacao.subscribe({
       next: (projetoCriado) => {
-        console.log('Projeto criado:', projetoCriado);
         this.limparEvolucoesProjeto();
         this.projetoSelecionadoId = null;
-        this.editandoRascunho = false;
+
         this.dadosFormularioAntesDaEdicao = null;
         this.modoEdicaoProjeto = false;
         this.fecharModal();
@@ -483,7 +475,6 @@ export class FormularioProjetos {
 
   criarNovoProjeto(): void {
     this.editandoProjetoRejeitado = false;
-    this.editandoRascunho = false;
 
     this.visualizando = false;
     this.modoEdicaoProjeto = false;
@@ -517,7 +508,7 @@ export class FormularioProjetos {
 
   fecharFormulario(): void {
     this.fecharSubmodalAcao();
-    this.editandoRascunho = false;
+
     this.visualizando = false;
     this.modoEdicaoProjeto = false;
     this.projetoSelecionadoId = null;

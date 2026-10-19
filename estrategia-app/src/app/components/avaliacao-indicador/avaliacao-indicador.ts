@@ -154,7 +154,7 @@ export class AvaliacaoIndicador implements OnChanges {
     const rotulos: Record<string, string> = {
       APROVADO: 'Aprovado/Público',
       REJEITADO: 'Rejeitado',
-      RASCUNHO: 'Rascunho',
+
       EM_ESPERA: 'Em espera',
     };
 
@@ -165,11 +165,11 @@ export class AvaliacaoIndicador implements OnChanges {
     const classes: Record<string, string> = {
       APROVADO: 'status-aprovado',
       REJEITADO: 'status-rejeitado',
-      RASCUNHO: 'status-rascunho',
+
       EM_ESPERA: 'status-em-espera',
     };
 
-    return classes[this.indicador.status] ?? 'status-rascunho';
+    return classes[this.indicador.status] ?? 'status-desconhecido';
   }
 
   obterRotuloRevisao(status: string): string {

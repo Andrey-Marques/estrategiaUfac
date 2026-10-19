@@ -38,14 +38,12 @@
               'status-aprovado': iniciativa.status === 'APROVADO',
               'status-rejeitado': iniciativa.status === 'REJEITADO',
               'status-em-espera': iniciativa.status === 'EM_ESPERA',
-              'status-rascunho': iniciativa.status === 'RASCUNHO',
             }"
           >
             <ng-container [ngSwitch]="iniciativa.status">
               <span *ngSwitchCase="'APROVADO'">Aprovado/Público</span>
               <span *ngSwitchCase="'REJEITADO'">Rejeitado</span>
               <span *ngSwitchCase="'EM_ESPERA'">Em espera</span>
-              <span *ngSwitchCase="'RASCUNHO'">Rascunho</span>
 
               <span *ngSwitchDefault>
                 {{ iniciativa.status }}
@@ -193,51 +191,94 @@
           <p>Consulte as ações realizadas ou previstas para esta iniciativa.</p>
         </div>
 
-          <ng-template #detalhesAcao let-acao>
-            <article class="acao-detalhe">
-              <header class="acao-detalhe-cabecalho">
-                <h5>{{ acao.nome }}</h5>
-                <span class="acao-status" [ngClass]="'acao-status-' + acao.status">{{ statusAcao(acao.status) }}</span>
-              </header>
-              <div class="acao-detalhe-grupos">
-                <section class="acao-detalhe-grupo">
-                  <h6><i class="bi bi-calendar3" aria-hidden="true"></i> Prazo previsto</h6>
-                  <dl>
-                    <div><dt>Início</dt><dd>{{ acao.prazo_inicio | date:'dd/MM/yyyy':'UTC' }}</dd></div>
-                    <div><dt>Fim</dt><dd>{{ acao.prazo_fim | date:'dd/MM/yyyy':'UTC' }}</dd></div>
-                  </dl>
-                </section>
-                <section class="acao-detalhe-grupo">
-                  <h6><i class="bi bi-cash-stack" aria-hidden="true"></i> Custos</h6>
-                  <dl>
-                    <div><dt>Estimado</dt><dd>{{ acao.custo | currency:'BRL' }}</dd></div>
-                    <div><dt>Realizado</dt><dd>{{ acao.custo_realizado | currency:'BRL' }}</dd></div>
-                  </dl>
-                </section>
-                <section class="acao-detalhe-grupo">
-                  <h6><i class="bi bi-clock-history" aria-hidden="true"></i> Execução efetiva</h6>
-                  <dl>
-                    <div><dt>Início</dt><dd>{{ acao.data_inicio_efetivo ? (acao.data_inicio_efetivo | date:'dd/MM/yyyy':'UTC') : 'Não informado' }}</dd></div>
-                    <div><dt>Fim</dt><dd>{{ acao.data_fim_efetivo ? (acao.data_fim_efetivo | date:'dd/MM/yyyy':'UTC') : 'Não informado' }}</dd></div>
-                  </dl>
-                </section>
-              </div>
-            </article>
-          </ng-template>
+        <ng-template #detalhesAcao let-acao>
+          <article class="acao-detalhe">
+            <header class="acao-detalhe-cabecalho">
+              <h5>{{ acao.nome }}</h5>
+              <span class="acao-status" [ngClass]="'acao-status-' + acao.status">{{
+                statusAcao(acao.status)
+              }}</span>
+            </header>
+            <div class="acao-detalhe-grupos">
+              <section class="acao-detalhe-grupo">
+                <h6><i class="bi bi-calendar3" aria-hidden="true"></i> Prazo previsto</h6>
+                <dl>
+                  <div>
+                    <dt>Início</dt>
+                    <dd>{{ acao.prazo_inicio | date: 'dd/MM/yyyy' : 'UTC' }}</dd>
+                  </div>
+                  <div>
+                    <dt>Fim</dt>
+                    <dd>{{ acao.prazo_fim | date: 'dd/MM/yyyy' : 'UTC' }}</dd>
+                  </div>
+                </dl>
+              </section>
+              <section class="acao-detalhe-grupo">
+                <h6><i class="bi bi-cash-stack" aria-hidden="true"></i> Custos</h6>
+                <dl>
+                  <div>
+                    <dt>Estimado</dt>
+                    <dd>{{ acao.custo | currency: 'BRL' }}</dd>
+                  </div>
+                  <div>
+                    <dt>Realizado</dt>
+                    <dd>{{ acao.custo_realizado | currency: 'BRL' }}</dd>
+                  </div>
+                </dl>
+              </section>
+              <section class="acao-detalhe-grupo">
+                <h6><i class="bi bi-clock-history" aria-hidden="true"></i> Execução efetiva</h6>
+                <dl>
+                  <div>
+                    <dt>Início</dt>
+                    <dd>
+                      {{
+                        acao.data_inicio_efetivo
+                          ? (acao.data_inicio_efetivo | date: 'dd/MM/yyyy' : 'UTC')
+                          : 'Não informado'
+                      }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Fim</dt>
+                    <dd>
+                      {{
+                        acao.data_fim_efetivo
+                          ? (acao.data_fim_efetivo | date: 'dd/MM/yyyy' : 'UTC')
+                          : 'Não informado'
+                      }}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+            </div>
+          </article>
+        </ng-template>
         <div class="lista-acoes-detalhes">
           <ng-container *ngFor="let acao of iniciativa.acoes_realizadas">
-            <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
+            <ng-container
+              *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"
+            ></ng-container>
           </ng-container>
-          <p *ngIf="!iniciativa.acoes_realizadas?.length" class="texto-vazio">Nenhuma ação registrada.</p>
-          <div class="comparacao-acoes-anteriores" *ngIf="revisaoPendente && acoesAnteriores.length">
+          <p *ngIf="!iniciativa.acoes_realizadas?.length" class="texto-vazio">
+            Nenhuma ação registrada.
+          </p>
+          <div
+            class="comparacao-acoes-anteriores"
+            *ngIf="revisaoPendente && acoesAnteriores.length"
+          >
             <span class="rotulo-removido">Ações anteriores alteradas ou removidas</span>
             <ng-container *ngFor="let acao of acoesAnteriores">
-              <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
+              <ng-container
+                *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"
+              ></ng-container>
             </ng-container>
           </div>
           <div class="acao-proposta" *ngFor="let acao of revisaoPendente ? acoesPropostas : []">
             <span class="rotulo-pendente">Ação proposta pendente</span>
-            <ng-container *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"></ng-container>
+            <ng-container
+              *ngTemplateOutlet="detalhesAcao; context: { $implicit: acao }"
+            ></ng-container>
           </div>
         </div>
       </section>
@@ -353,7 +394,12 @@
          RODAPÉ
          ========================= -->
     <footer class="modal-footer">
-      <app-excluir-registro *ngIf="iniciativa.pode_excluir" tipo="iniciativas" [registro]="iniciativa" (excluido)="excluido.emit()"></app-excluir-registro>
+      <app-excluir-registro
+        *ngIf="iniciativa.pode_excluir"
+        tipo="iniciativas"
+        [registro]="iniciativa"
+        (excluido)="excluido.emit()"
+      ></app-excluir-registro>
       <button type="button" class="btn btn-cancelar" (click)="fechar()">
         {{ modoAvaliacao ? 'Cancelar' : 'Fechar' }}
       </button>
@@ -372,7 +418,7 @@
 
       <!-- REJEITADA -->
       <button
-        *ngIf="(iniciativa.status === 'REJEITADO' || iniciativa.status === 'RASCUNHO') && revisao?.status !== 'PENDENTE'"
+        *ngIf="iniciativa.status === 'REJEITADO' && revisao?.status !== 'PENDENTE'"
         type="button"
         class="btn btn-editar"
         data-bs-toggle="modal"
@@ -388,7 +434,6 @@
           isAdmin &&
           !modoAvaliacao &&
           iniciativa.status !== 'REJEITADO' &&
-          iniciativa.status !== 'RASCUNHO' &&
           revisao?.status !== 'PENDENTE'
         "
         type="button"

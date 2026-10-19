@@ -3,7 +3,7 @@ import { AtrasosService } from '../../service/atrasos.service';
 import { AvisoAtrasos } from '../utils/aviso-atrasos/aviso-atrasos';
 import { StatusProjeto } from '../utils/status-projeto/status-projeto';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, computed, inject, signal } from '@angular/core';
 import { ObjetivoEstrategico } from '../../model/objetivoEstrategico';
 import { ProjetoEstrategico } from '../../model/projetoEstrategico';
 import { Unidade } from '../../model/unidade';
@@ -31,6 +31,16 @@ import { FormularioProjetos } from '../formularios/formulario-projetos/formulari
   styleUrl: './listagem-projetos.scss',
 })
 export class ListagemProjetos {
+  @ViewChild('dropdownUnidades') private dropdownUnidades?: ElementRef<HTMLElement>;
+
+  @HostListener('document:click', ['$event'])
+  fecharFiltroAoClicarFora(evento: MouseEvent): void {
+    const dropdown = this.dropdownUnidades?.nativeElement;
+    if (this.menuUnidadesAberto() && (!dropdown || !evento.composedPath().includes(dropdown))) {
+      this.menuUnidadesAberto.set(false);
+    }
+  }
+
   constructor(
     private projetoService: ProjetoService,
     private usuarioService: UsuarioService,
@@ -304,18 +314,18 @@ export class ListagemProjetos {
     const classes: Record<string, string> = {
       APROVADO: 'status-aprovado',
       EM_ESPERA: 'status-em-espera',
-      RASCUNHO: 'status-rascunho',
+
       REJEITADO: 'status-rejeitado',
     };
 
-    return classes[status] ?? 'status-rascunho';
+    return classes[status] ?? 'status-desconhecido';
   }
 
   obterRotuloStatus(status: string): string {
     const rotulos: Record<string, string> = {
       APROVADO: 'Aprovado/Público',
       EM_ESPERA: 'Em Espera',
-      RASCUNHO: 'Rascunho',
+
       REJEITADO: 'Rejeitado',
     };
 

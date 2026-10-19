@@ -26,6 +26,8 @@ class ExclusaoSerializerMixin(serializers.Serializer):
     def validate_status(self, valor):
         if valor == 'EXCLUIDO':
             raise serializers.ValidationError('Use a opção Excluir na visualização do registro.')
+        if valor not in {'APROVADO', 'REJEITADO', 'EM_ESPERA'}:
+            raise serializers.ValidationError('Status inválido. Use aprovado, rejeitado ou em espera.')
         return valor
 
 

@@ -1,4 +1,10 @@
-<div class="modal fade" id="modalIndicador" aria-hidden="true" aria-labelledby="modalIndicadorLabel" tabindex="-1">
+<div
+  class="modal fade"
+  id="modalIndicador"
+  aria-hidden="true"
+  aria-labelledby="modalIndicadorLabel"
+  tabindex="-1"
+>
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
       <div class="formulario-iniciativas posicao-relativa">
@@ -7,26 +13,36 @@
           <div>
             <h1>
               {{
-              indicadorEmEdicao === null
-              ? 'CRIAR INDICADOR ESTRATÉGICO'
-              : 'EDITAR INDICADOR ESTRATÉGICO'
+                indicadorEmEdicao === null
+                  ? 'CRIAR INDICADOR ESTRATÉGICO'
+                  : 'EDITAR INDICADOR ESTRATÉGICO'
               }}
             </h1>
             <p>Preencha as informações técnicas do indicador estratégico</p>
           </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
 
-        <section class="feedback-edicao-indicador"
+        <section
+          class="feedback-edicao-indicador"
           *ngIf="indicadorEmEdicao !== null && obterRevisao(indicadorEmEdicao) as revisaoEdicao"
-          [ngClass]="'feedback-' + revisaoEdicao.status.toLowerCase()">
-          <i class="bi" [ngClass]="
+          [ngClass]="'feedback-' + revisaoEdicao.status.toLowerCase()"
+        >
+          <i
+            class="bi"
+            [ngClass]="
               revisaoEdicao.status === 'PENDENTE'
                 ? 'bi-bell-fill'
                 : revisaoEdicao.status === 'APROVADA'
                   ? 'bi-check-circle-fill'
                   : 'bi-x-circle-fill'
-            "></i>
+            "
+          ></i>
           <div>
             <strong>{{ obterRotuloRevisao(revisaoEdicao.status) }}</strong>
             <span>
@@ -41,21 +57,37 @@
 
         <!-- ETAPAS -->
         <div class="etapas-formulario">
-          <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 1"
-            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()" (click)="irParaEtapa(1)">
+          <div
+            class="etapa-formulario"
+            [class.etapa-atual]="etapaAtual === 1"
+            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()"
+            (click)="irParaEtapa(1)"
+          >
             <span>1. Apresentação</span>
           </div>
 
-          <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 2"
-            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()" (click)="irParaEtapa(2)">
+          <div
+            class="etapa-formulario"
+            [class.etapa-atual]="etapaAtual === 2"
+            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()"
+            (click)="irParaEtapa(2)"
+          >
             <span>2. Método de cálculo</span>
           </div>
 
-          <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 3" (click)="irParaEtapa(3)">
+          <div
+            class="etapa-formulario"
+            [class.etapa-atual]="etapaAtual === 3"
+            (click)="irParaEtapa(3)"
+          >
             <span>3. Evolução</span>
           </div>
 
-          <div class="etapa-formulario" [class.etapa-atual]="etapaAtual === 4" (click)="irParaEtapa(4)">
+          <div
+            class="etapa-formulario"
+            [class.etapa-atual]="etapaAtual === 4"
+            (click)="irParaEtapa(4)"
+          >
             <span>4. Observações</span>
           </div>
         </div>
@@ -81,14 +113,23 @@
             <!-- NOME -->
             <div class="campo-formulario">
               <label>NOME DO INDICADOR <span class="campo-obrigatorio">*</span></label>
-              <input type="text" class="form-control" placeholder="Insira o título aqui" formControlName="nome" />
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Insira o título aqui"
+                formControlName="nome"
+              />
             </div>
 
             <!-- RESPONSÁVEL E UNIDADE -->
             <div class="linha-informacoes">
               <div class="campo-formulario">
                 <label>UNIDADE RESPONSÁVEL</label>
-                <select class="form-control" formControlName="unidade" (change)="aoSelecionarUnidade()">
+                <select
+                  class="form-control"
+                  formControlName="unidade"
+                  (change)="aoSelecionarUnidade()"
+                >
                   <option [ngValue]="null">Selecione uma unidade</option>
                   <option *ngFor="let unidade of unidades()" [ngValue]="unidade.id">
                     {{ unidade.sigla }} - {{ unidade.nome }}
@@ -116,8 +157,11 @@
             <!-- FINALIDADE -->
             <div class="campo-formulario">
               <label>FINALIDADE</label>
-              <textarea class="form-control finalidade-indicador" placeholder="Insira a finalidade aqui"
-                formControlName="finalidade"></textarea>
+              <textarea
+                class="form-control finalidade-indicador"
+                placeholder="Insira a finalidade aqui"
+                formControlName="finalidade"
+              ></textarea>
             </div>
 
             <!-- OBJETIVOS -->
@@ -129,9 +173,12 @@
               <hr />
 
               <div class="container-objetivos">
-                <div class="card-objetivo-estrategico" *ngFor="let objetivo of objetivos()"
+                <div
+                  class="card-objetivo-estrategico"
+                  *ngFor="let objetivo of objetivos()"
                   [class.objetivo-selecionado]="objetivoSelecionado === objetivo.id"
-                  (click)="selecionarObjetivo(objetivo.id)">
+                  (click)="selecionarObjetivo(objetivo.id)"
+                >
                   <div class="cabecalho-card-objetivo">
                     <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
                   </div>
@@ -156,7 +203,12 @@
             <div class="linha-informacoes">
               <div class="campo-formulario">
                 <label>UNIDADE DE MEDIDA</label>
-                <input type="text" class="form-control" placeholder="Ex.: Percentual" formControlName="unidadeMedida" />
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Ex.: Percentual"
+                  formControlName="unidadeMedida"
+                />
               </div>
 
               <div class="campo-formulario">
@@ -176,15 +228,26 @@
               <!-- FÓRMULA -->
               <div class="campo-formulario">
                 <label>FÓRMULA</label>
-                <textarea class="form-control formula-textarea" formControlName="formula"
-                  placeholder="Ex.: \frac{A}{B} \times 100" (input)="renderizarFormula()"></textarea>
+                <textarea
+                  class="form-control formula-textarea"
+                  formControlName="formula"
+                  placeholder="Ex.: \frac{A}{B} \times 100"
+                  (input)="renderizarFormula()"
+                ></textarea>
 
-                <div *ngIf="formulaRenderizada" class="preview-formula" [innerHTML]="formulaRenderizada"></div>
+                <div
+                  *ngIf="formulaRenderizada"
+                  class="preview-formula"
+                  [innerHTML]="formulaRenderizada"
+                ></div>
               </div>
 
               <!-- DESCRIÇÃO -->
-              <textarea class="form-control descricao-metodo" formControlName="metodoCalculo"
-                placeholder="Descreva o método de cálculo, variáveis e regras utilizadas..."></textarea>
+              <textarea
+                class="form-control descricao-metodo"
+                formControlName="metodoCalculo"
+                placeholder="Descreva o método de cálculo, variáveis e regras utilizadas..."
+              ></textarea>
             </div>
           </div>
 
@@ -222,22 +285,46 @@
 
                 <div class="linha-meta" *ngFor="let meta of metas; let indice = index">
                   <div>
-                    <input type="number" class="form-control" [(ngModel)]="meta.ano"
-                      [ngModelOptions]="{ standalone: true }" placeholder="2026" />
+                    <input
+                      type="number"
+                      class="form-control"
+                      [(ngModel)]="meta.ano"
+                      [ngModelOptions]="{ standalone: true }"
+                      placeholder="2026"
+                    />
                   </div>
 
                   <div class="campo-meta-percentual">
-                    <input type="number" class="form-control" [(ngModel)]="meta.prevista"
-                      [ngModelOptions]="{ standalone: true }" min="0" max="100" placeholder="-" />
+                    <input
+                      type="number"
+                      class="form-control"
+                      [(ngModel)]="meta.prevista"
+                      [ngModelOptions]="{ standalone: true }"
+                      min="0"
+                      max="100"
+                      placeholder="-"
+                    />
                   </div>
 
                   <div class="campo-meta-percentual">
-                    <input type="number" class="form-control" [(ngModel)]="meta.alcancada"
-                      [ngModelOptions]="{ standalone: true }" min="0" max="100" placeholder="-" />
+                    <input
+                      type="number"
+                      class="form-control"
+                      [(ngModel)]="meta.alcancada"
+                      [ngModelOptions]="{ standalone: true }"
+                      min="0"
+                      max="100"
+                      placeholder="-"
+                    />
                   </div>
 
                   <div class="acoes-meta">
-                    <button type="button" class="botao-excluir-meta" title="Excluir" (click)="removerMeta(indice)">
+                    <button
+                      type="button"
+                      class="botao-excluir-meta"
+                      title="Excluir"
+                      (click)="removerMeta(indice)"
+                    >
                       <i class="bi bi-trash3"></i>
                     </button>
                   </div>
@@ -259,41 +346,56 @@
             </div>
 
             <div class="campo-formulario campo-observacao">
-              <textarea class="form-control caixa-texto-observacao observacoes-indicador"
-                placeholder="Insira suas observações aqui!" formControlName="observacao"></textarea>
+              <textarea
+                class="form-control caixa-texto-observacao observacoes-indicador"
+                placeholder="Insira suas observações aqui!"
+                formControlName="observacao"
+              ></textarea>
             </div>
           </div>
-          <hr>
+          <hr />
           <!-- RODAPÉ -->
           <div class="rodape-formulario">
             <p class="texto-orientacao">* Navegue de forma segura usando os botões ao lado.</p>
 
             <div class="botoes-navegacao">
               <!-- ANTERIOR -->
-              <button type="button" class="btn botao-anterior" (click)="voltar()"
-                [disabled]="etapaAtual === 1 || (edicaoRestrita && !ehGestor() && etapaAtual === 3)">
+              <button
+                type="button"
+                class="btn botao-anterior"
+                (click)="voltar()"
+                [disabled]="etapaAtual === 1 || (edicaoRestrita && !ehGestor() && etapaAtual === 3)"
+              >
                 <i class="bi bi-chevron-left"></i> Anterior
               </button>
 
               <!-- PRÓXIMO -->
-              <button *ngIf="etapaAtual < 4" type="button" class="btn botao-proximo" (click)="avancar()">
+              <button
+                *ngIf="etapaAtual < 4"
+                type="button"
+                class="btn botao-proximo"
+                (click)="avancar()"
+              >
                 Próximo <i class="bi bi-chevron-right"></i>
               </button>
 
               <!-- ÚLTIMA ETAPA -->
               <ng-container *ngIf="etapaAtual === 4">
-                <button *ngIf="!isAdmin() || statusIndicadorEmEdicao === 'RASCUNHO'" type="button"
-                  class="btn botao-salvar-rascunho" (click)="salvarIndicador('RASCUNHO')">
-                  Salvar rascunho
-                </button>
-
-                <button *ngIf="!isAdmin()" type="button" class="btn botao-submeter-analise"
-                  (click)="salvarIndicador('EM_ESPERA')">
+                <button
+                  *ngIf="!isAdmin()"
+                  type="button"
+                  class="btn botao-submeter-analise"
+                  (click)="salvarIndicador('EM_ESPERA')"
+                >
                   Submeter à análise
                 </button>
 
-                <button *ngIf="isAdmin()" type="button" class="btn botao-submeter-analise"
-                  (click)="salvarIndicador('APROVADO')">
+                <button
+                  *ngIf="isAdmin()"
+                  type="button"
+                  class="btn botao-submeter-analise"
+                  (click)="salvarIndicador('APROVADO')"
+                >
                   Publicar indicador
                 </button>
               </ng-container>

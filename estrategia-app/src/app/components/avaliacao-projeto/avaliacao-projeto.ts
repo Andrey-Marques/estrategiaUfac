@@ -197,7 +197,7 @@ export class AvaliacaoProjeto {
     const rotulos: Record<string, string> = {
       APROVADO: 'Aprovado/Público',
       REJEITADO: 'Rejeitado',
-      RASCUNHO: 'Rascunho',
+
       EM_ESPERA: 'Em espera',
     };
 
@@ -208,17 +208,25 @@ export class AvaliacaoProjeto {
     const classes: Record<string, string> = {
       APROVADO: 'status-aprovado',
       REJEITADO: 'status-rejeitado',
-      RASCUNHO: 'status-rascunho',
+
       EM_ESPERA: 'status-em-espera',
     };
 
-    return classes[this.projeto.status] ?? 'status-rascunho';
+    return classes[this.projeto.status] ?? 'status-desconhecido';
   }
   get acoesAnteriores(): AcaoProjeto[] {
     return this.comparacaoAcoes.anteriores;
   }
   rotuloStatusAcao(status: string): string {
-    return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída',
-      CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;
+    return (
+      (
+        {
+          PLANEJAMENTO: 'Não iniciada',
+          ANDAMENTO: 'Em execução',
+          CONCLUIDA: 'Concluída',
+          CANCELADA: 'Cancelada',
+        } as Record<string, string>
+      )[status] ?? status
+    );
   }
 }

@@ -1,12 +1,22 @@
 <div class="container-fluid listagem-privada">
   <div class="cabecalho-listagem">
     <h1 class="titulo-pagina m-0">Iniciativas Estratégicas</h1>
-    <button class="btn botao-principal" (click)="formulario.criarNovaIniciativa()" data-bs-target="#exampleModalToggle"
-      data-bs-toggle="modal" *ngIf="!isAdmin()">
+    <button
+      class="btn botao-principal"
+      (click)="formulario.criarNovaIniciativa()"
+      data-bs-target="#exampleModalToggle"
+      data-bs-toggle="modal"
+      *ngIf="!isAdmin()"
+    >
       Propor nova Iniciativa
     </button>
-    <button class="btn botao-principal" (click)="formulario.criarNovaIniciativa()" data-bs-target="#exampleModalToggle"
-      data-bs-toggle="modal" *ngIf="isAdmin()">
+    <button
+      class="btn botao-principal"
+      (click)="formulario.criarNovaIniciativa()"
+      data-bs-target="#exampleModalToggle"
+      data-bs-toggle="modal"
+      *ngIf="isAdmin()"
+    >
       +Nova Iniciativa
     </button>
   </div>
@@ -16,32 +26,43 @@
     <!-- Filtro -->
     <ul class="nav filtro px-4 pt-3 border-bottom">
       <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'TODOS'"
-          (click)="alterarFiltroStatus('TODOS')">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'TODOS'"
+          (click)="alterarFiltroStatus('TODOS')"
+        >
           Todos
         </button>
       </li>
       <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'APROVADO'"
-          (click)="alterarFiltroStatus('APROVADO')">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'APROVADO'"
+          (click)="alterarFiltroStatus('APROVADO')"
+        >
           Aprovados
         </button>
       </li>
       <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'REJEITADO'"
-          (click)="alterarFiltroStatus('REJEITADO')">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'REJEITADO'"
+          (click)="alterarFiltroStatus('REJEITADO')"
+        >
           Rejeitados
         </button>
       </li>
+
       <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'RASCUNHO'"
-          (click)="alterarFiltroStatus('RASCUNHO')">
-          Rascunhos
-        </button>
-      </li>
-      <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'EM_ESPERA'"
-          (click)="alterarFiltroStatus('EM_ESPERA')">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'EM_ESPERA'"
+          (click)="alterarFiltroStatus('EM_ESPERA')"
+        >
           Em Espera
         </button>
       </li>
@@ -50,10 +71,14 @@
     <div class="area-filtros">
       <div class="campo-pesquisa">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Pesquisar pelo nome da iniciativa..." (input)="pesquisarIniciativa($event)" />
+        <input
+          type="text"
+          placeholder="Pesquisar pelo nome da iniciativa..."
+          (input)="pesquisarIniciativa($event)"
+        />
       </div>
 
-      <div class="filtro-unidades" *ngIf="isAdmin()">
+      <div class="filtro-unidades" #dropdownUnidades *ngIf="isAdmin()">
         <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
           <i class="bi bi-building"></i>
           Unidades
@@ -66,15 +91,22 @@
         <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
           <div class="cabecalho-filtro-unidades">
             <strong>Filtrar por unidade</strong>
-            <button type="button" class="botao-limpar" *ngIf="unidadesSelecionadas().length > 0"
-              (click)="limparFiltroUnidades()">
+            <button
+              type="button"
+              class="botao-limpar"
+              *ngIf="unidadesSelecionadas().length > 0"
+              (click)="limparFiltroUnidades()"
+            >
               Limpar
             </button>
           </div>
 
           <label class="opcao-unidade" *ngFor="let unidade of unidades()">
-            <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
-              (change)="alternarUnidade(unidade.id)" />
+            <input
+              type="checkbox"
+              [checked]="unidadeEstaSelecionada(unidade.id)"
+              (change)="alternarUnidade(unidade.id)"
+            />
             <span class="checkbox-personalizado"></span>
             <div class="dados-unidade">
               <strong>{{ unidade.sigla }}</strong>
@@ -102,15 +134,24 @@
             <td class="ps-4">
               <div class="titulo-registro">
                 {{ iniciativas.nome }}
-                <span *ngIf="atrasos.temAtraso('iniciativas', iniciativas.id)" class="notificacao-revisao"><i
-                    class="bi bi-clock-history" aria-hidden="true"></i> Ação em atraso</span>
+                <span
+                  *ngIf="atrasos.temAtraso('iniciativas', iniciativas.id)"
+                  class="notificacao-revisao"
+                  ><i class="bi bi-clock-history" aria-hidden="true"></i> Ação em atraso</span
+                >
                 <ng-container *ngIf="obterRevisao(iniciativas.id) as revisao">
-                  <span *ngIf="revisao.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i
-                      class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
+                  <span
+                    *ngIf="revisao.status === 'PENDENTE'"
+                    class="notificacao-revisao revisao-pendente"
+                    ><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span
+                  >
                 </ng-container>
               </div>
               <div class="d-flex gap-1 mt-1">
-                <span class="etiqueta" *ngFor="let objetivo of iniciativas.objetivos_detalhes | slice: 0 : 2">
+                <span
+                  class="etiqueta"
+                  *ngFor="let objetivo of iniciativas.objetivos_detalhes | slice: 0 : 2"
+                >
                   {{ objetivo.codigo }}
                 </span>
               </div>
@@ -130,14 +171,17 @@
                   <strong>{{ obterPercentual(iniciativas) }}%</strong>
                 </div>
                 <div class="barra-progresso">
-                  <div class="barra-progresso-preenchimento" [style.width.%]="obterPercentual(iniciativas)"></div>
+                  <div
+                    class="barra-progresso-preenchimento"
+                    [style.width.%]="obterPercentual(iniciativas)"
+                  ></div>
                 </div>
               </div>
             </td>
             <td class="text-center">
               <strong class="d-block texto-data">{{
                 iniciativas.data_preenchimento | date: 'dd/MM/yyyy'
-                }}</strong>
+              }}</strong>
               <small class="texto-subtitulo">
                 Última atualização:{{ iniciativas.ultima_atualizacao | date: 'dd/MM/yyyy' }}
               </small>
@@ -148,7 +192,11 @@
               </span>
             </td>
             <td class="text-center pe-4">
-              <button type="button" class="btn botao-visualizar" (click)="abrirAvaliacao(iniciativas)">
+              <button
+                type="button"
+                class="btn botao-visualizar"
+                (click)="abrirAvaliacao(iniciativas)"
+              >
                 <i class="bi bi-eye"></i>
                 Visualizar
               </button>
@@ -163,16 +211,31 @@
         </tbody>
       </table>
     </div>
-    <app-paginacao [total]="iniciativasFiltradas().length" [pagina]="paginaAtual()" [porPagina]="itensPorPagina()"
+    <app-paginacao
+      [total]="iniciativasFiltradas().length"
+      [pagina]="paginaAtual()"
+      [porPagina]="itensPorPagina()"
       (paginaAlterada)="paginaSelecionada.set($event)"
-      (tamanhoAlterado)="alterarItensPorPagina($event)"></app-paginacao>
+      (tamanhoAlterado)="alterarItensPorPagina($event)"
+    ></app-paginacao>
   </div>
 </div>
 
-<app-avaliacao-iniciativa *ngIf="iniciativaEmAnalise() as iniciativaSelecionada" [iniciativa]="iniciativaSelecionada"
-  [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
-  (excluido)="fecharAvaliacao(); buscarIniciativa()" (aprovado)="aprovarIniciativa($event)"
-  (rejeitado)="rejeitarIniciativa($event)" (revisaoAprovada)="aprovarRevisao($event)"
-  (revisaoRejeitada)="rejeitarRevisao($event)" (editar)="fecharAvaliacao(); formulario.abrirEdicaoPeloModal($event)">
+<app-avaliacao-iniciativa
+  *ngIf="iniciativaEmAnalise() as iniciativaSelecionada"
+  [iniciativa]="iniciativaSelecionada"
+  [isAdmin]="isAdmin()"
+  [revisao]="revisaoEmAnalise()"
+  (fechado)="fecharAvaliacao()"
+  (excluido)="fecharAvaliacao(); buscarIniciativa()"
+  (aprovado)="aprovarIniciativa($event)"
+  (rejeitado)="rejeitarIniciativa($event)"
+  (revisaoAprovada)="aprovarRevisao($event)"
+  (revisaoRejeitada)="rejeitarRevisao($event)"
+  (editar)="fecharAvaliacao(); formulario.abrirEdicaoPeloModal($event)"
+>
 </app-avaliacao-iniciativa>
-<app-formulario-iniciativas #formulario (salvo)="buscarIniciativa(); buscarRevisoes()"></app-formulario-iniciativas>
+<app-formulario-iniciativas
+  #formulario
+  (salvo)="buscarIniciativa(); buscarRevisoes()"
+></app-formulario-iniciativas>

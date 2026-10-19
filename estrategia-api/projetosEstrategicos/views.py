@@ -40,7 +40,7 @@ class ProjetoEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
                     'O responsável deve pertencer à unidade selecionada.'
                 })
 
-            serializer.save(status='RASCUNHO' if self.request.data.get('status') == 'RASCUNHO' else 'APROVADO')
+            serializer.save(status='APROVADO')
             return
 
         responsavel_selecionado = serializer.validated_data.get(
@@ -59,15 +59,7 @@ class ProjetoEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
                 'O líder do projeto deve pertencer à sua unidade.'
             })
 
-        status_solicitado = self.request.data.get(
-            'status'
-        )
-
-        status_projeto = (
-            'RASCUNHO'
-            if status_solicitado == 'RASCUNHO'
-            else 'EM_ESPERA'
-        )
+        status_projeto = 'EM_ESPERA'
 
         serializer.save(
             unidade=usuario.unidade,
@@ -88,7 +80,7 @@ class ProjetoEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
         # PROJETO REJEITADO
         # O servidor pode corrigir o formulário completo
         # --------------------------------------------------
-        if projeto.status in ('REJEITADO', 'RASCUNHO'):
+        if projeto.status == 'REJEITADO':
 
             campos_permitidos = {
                 'nome',
@@ -196,8 +188,6 @@ class ProjetoEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
             })
 
         novo_status = 'EM_ESPERA'
-        if projeto.status == 'RASCUNHO' and self.request.data.get('status', 'RASCUNHO') == 'RASCUNHO':
-            novo_status = 'RASCUNHO'
         serializer.save(
             unidade=usuario.unidade, responsavel=responsavel, status=novo_status,
             observacao_analise='', data_analise=None, analisado_por=None,

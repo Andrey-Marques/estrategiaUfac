@@ -343,14 +343,14 @@ export class FormularioIndicadores {
     });
   }
 
-  salvarIndicador(status: 'RASCUNHO' | 'EM_ESPERA' | 'APROVADO'): void {
-    if (status !== 'RASCUNHO' && this.formularioIndicador.invalid) {
+  salvarIndicador(status: 'EM_ESPERA' | 'APROVADO'): void {
+    if (this.formularioIndicador.invalid) {
       this.formularioIndicador.markAllAsTouched();
       alert('Preencha os campos obrigatórios.');
       return;
     }
 
-    if (status !== 'RASCUNHO' && !this.objetivoSelecionado) {
+    if (!this.objetivoSelecionado) {
       alert('Selecione um objetivo estratégico.');
       this.etapaAtual = 1;
       return;

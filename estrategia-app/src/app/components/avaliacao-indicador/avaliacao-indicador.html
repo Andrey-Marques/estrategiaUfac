@@ -339,7 +339,12 @@
          RODAPÉ
          ======================================== -->
     <footer class="modal-footer">
-      <app-excluir-registro *ngIf="indicador.pode_excluir" tipo="indicadores" [registro]="indicador" (excluido)="excluido.emit()"></app-excluir-registro>
+      <app-excluir-registro
+        *ngIf="indicador.pode_excluir"
+        tipo="indicadores"
+        [registro]="indicador"
+        (excluido)="excluido.emit()"
+      ></app-excluir-registro>
       <button type="button" class="btn btn-cancelar" (click)="fechar()">
         {{ modoAvaliacao ? 'Cancelar' : 'Fechar' }}
       </button>
@@ -356,7 +361,7 @@
         *ngIf="
           !modoAvaliacao &&
           revisao?.status !== 'PENDENTE' &&
-          ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO' || indicador.status === 'RASCUNHO')) ||
+          ((!isAdmin && (indicador.status === 'REJEITADO' || indicador.status === 'APROVADO')) ||
             (isAdmin && indicador.status !== 'EM_ESPERA'))
         "
         type="button"

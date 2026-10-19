@@ -1,12 +1,22 @@
 <div class="container-fluid listagem-privada">
   <div class="cabecalho-listagem">
     <h1 class="titulo-pagina m-0">Projetos Estratégicos</h1>
-    <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal"
-      (click)="formulario.criarNovoProjeto()" *ngIf="isAdmin()">
+    <button
+      class="btn botao-principal"
+      data-bs-target="#modalProjeto"
+      data-bs-toggle="modal"
+      (click)="formulario.criarNovoProjeto()"
+      *ngIf="isAdmin()"
+    >
       +Novo Projeto
     </button>
-    <button class="btn botao-principal" data-bs-target="#modalProjeto" data-bs-toggle="modal"
-      (click)="formulario.criarNovoProjeto()" *ngIf="!isAdmin()">
+    <button
+      class="btn botao-principal"
+      data-bs-target="#modalProjeto"
+      data-bs-toggle="modal"
+      (click)="formulario.criarNovoProjeto()"
+      *ngIf="!isAdmin()"
+    >
       Propor novo projeto
     </button>
   </div>
@@ -16,36 +26,45 @@
   <div class="card container-conteudo">
     <ul class="nav filtro px-4 pt-3 border-bottom">
       <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'TODOS'"
-          (click)="alterarFiltroStatus('TODOS')">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'TODOS'"
+          (click)="alterarFiltroStatus('TODOS')"
+        >
           Todos
         </button>
       </li>
 
       <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'APROVADO'"
-          (click)="alterarFiltroStatus('APROVADO')">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'APROVADO'"
+          (click)="alterarFiltroStatus('APROVADO')"
+        >
           Aprovados
         </button>
       </li>
 
       <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'REJEITADO'"
-          (click)="alterarFiltroStatus('REJEITADO')">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'REJEITADO'"
+          (click)="alterarFiltroStatus('REJEITADO')"
+        >
           Rejeitados
         </button>
       </li>
 
       <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'RASCUNHO'"
-          (click)="alterarFiltroStatus('RASCUNHO')">
-          Rascunhos
-        </button>
-      </li>
-
-      <li class="nav-item">
-        <button type="button" class="nav-link filtro-item" [class.ativa]="filtroStatus() === 'EM_ESPERA'"
-          (click)="alterarFiltroStatus('EM_ESPERA')">
+        <button
+          type="button"
+          class="nav-link filtro-item"
+          [class.ativa]="filtroStatus() === 'EM_ESPERA'"
+          (click)="alterarFiltroStatus('EM_ESPERA')"
+        >
           Em Espera
         </button>
       </li>
@@ -53,19 +72,27 @@
     <div class="area-filtros">
       <div class="campo-pesquisa">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Pesquisar pelo nome do projeto..." (input)="pesquisarProjeto($event)" />
+        <input
+          type="text"
+          placeholder="Pesquisar pelo nome do projeto..."
+          (input)="pesquisarProjeto($event)"
+        />
       </div>
       <div class="filtro-execucao">
         <label for="filtroExecucaoProjeto">Status de execução</label>
-        <select id="filtroExecucaoProjeto" class="form-select" [value]="filtroExecucao()"
-          (change)="alterarFiltroExecucao($event)">
+        <select
+          id="filtroExecucaoProjeto"
+          class="form-select"
+          [value]="filtroExecucao()"
+          (change)="alterarFiltroExecucao($event)"
+        >
           <option value="TODOS">Todos</option>
           <option value="ANDAMENTO">Em andamento</option>
           <option value="DESCONTINUADO">Descontinuado</option>
           <option value="CONCLUIDO">Concluído</option>
         </select>
       </div>
-      <div class="filtro-unidades" *ngIf="isAdmin()">
+      <div class="filtro-unidades" #dropdownUnidades *ngIf="isAdmin()">
         <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
           <i class="bi bi-building"></i>
           Unidades
@@ -78,15 +105,22 @@
         <div class="menu-filtro-unidades" *ngIf="menuUnidadesAberto()">
           <div class="cabecalho-filtro-unidades">
             <strong> Filtrar por unidade </strong>
-            <button type="button" class="botao-limpar" *ngIf="unidadeSelecionadas().length > 0"
-              (click)="limparFiltroUnidades()">
+            <button
+              type="button"
+              class="botao-limpar"
+              *ngIf="unidadeSelecionadas().length > 0"
+              (click)="limparFiltroUnidades()"
+            >
               Limpar
             </button>
           </div>
 
           <label class="opcao-unidade" *ngFor="let unidade of unidades()">
-            <input type="checkbox" [checked]="unidadeEstaSelecionada(unidade.id)"
-              (change)="alternarUnidade(unidade.id)" />
+            <input
+              type="checkbox"
+              [checked]="unidadeEstaSelecionada(unidade.id)"
+              (change)="alternarUnidade(unidade.id)"
+            />
 
             <span class="checkbox-personalizado"></span>
             <div class="dados-unidade">
@@ -119,15 +153,25 @@
             <td class="ps-4">
               <div class="titulo-registro">
                 {{ projeto.nome }}
-                <span *ngIf="atrasos.temAtraso('projetos', projeto.id)" class="notificacao-revisao"><i
-                    class="bi bi-clock-history" aria-hidden="true"></i> Ação em atraso</span>
+                <span *ngIf="atrasos.temAtraso('projetos', projeto.id)" class="notificacao-revisao"
+                  ><i class="bi bi-clock-history" aria-hidden="true"></i> Ação em atraso</span
+                >
                 <ng-container *ngIf="obterRevisaoProjeto(projeto.id) as revisaoProjeto">
-                  <span *ngIf="revisaoProjeto.status === 'PENDENTE'" class="notificacao-revisao revisao-pendente"><i
-                      class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span>
+                  <span
+                    *ngIf="revisaoProjeto.status === 'PENDENTE'"
+                    class="notificacao-revisao revisao-pendente"
+                    ><i class="bi bi-bell-fill" aria-hidden="true"></i> Alteração pendente</span
+                  >
                 </ng-container>
               </div>
-              <div class="d-flex gap-1 mt-1" *ngIf="obterObjetivosProjeto(projeto)?.length; else semObjetivos">
-                <span class="etiqueta" *ngFor="let objetivo of obterObjetivosProjeto(projeto) | slice: 0 : 2">
+              <div
+                class="d-flex gap-1 mt-1"
+                *ngIf="obterObjetivosProjeto(projeto)?.length; else semObjetivos"
+              >
+                <span
+                  class="etiqueta"
+                  *ngFor="let objetivo of obterObjetivosProjeto(projeto) | slice: 0 : 2"
+                >
                   {{ objetivo.codigo }}
                 </span>
               </div>
@@ -155,7 +199,10 @@
                 </div>
 
                 <div class="barra-progresso">
-                  <div class="barra-progresso-preenchimento" [style.width.%]="obterPercentual(projeto)"></div>
+                  <div
+                    class="barra-progresso-preenchimento"
+                    [style.width.%]="obterPercentual(projeto)"
+                  ></div>
                 </div>
               </div>
             </td>
@@ -163,9 +210,10 @@
             <td class="text-center">
               <strong class="d-block texto-data">{{
                 projeto.ultima_atualizacao | date: 'dd/MM/yyyy'
-                }}</strong>
-              <small class="texto-subtitulo">Última atualização: {{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy'
-                }}</small>
+              }}</strong>
+              <small class="texto-subtitulo"
+                >Última atualização: {{ projeto.ultima_atualizacao | date: 'dd/MM/yyyy' }}</small
+              >
             </td>
             <td class="text-center">
               <span class="badge" [ngClass]="obterClasseStatus(projeto.status)">
@@ -191,16 +239,31 @@
         </tbody>
       </table>
     </div>
-    <app-paginacao [total]="projetosFiltrados().length" [pagina]="paginaAtual()" [porPagina]="itensPorPagina()"
+    <app-paginacao
+      [total]="projetosFiltrados().length"
+      [pagina]="paginaAtual()"
+      [porPagina]="itensPorPagina()"
       (paginaAlterada)="paginaSelecionada.set($event)"
-      (tamanhoAlterado)="alterarItensPorPagina($event)"></app-paginacao>
+      (tamanhoAlterado)="alterarItensPorPagina($event)"
+    ></app-paginacao>
   </div>
 </div>
 
-<app-avaliacao-projeto *ngIf="projetoEmAnalise() as projetoSelecionado" [projeto]="projetoSelecionado"
-  [isAdmin]="isAdmin()" [revisao]="revisaoEmAnalise()" (fechado)="fecharAvaliacao()"
-  (excluido)="fecharAvaliacao(); buscarProjeto()" (aprovado)="aprovarProjeto($event)"
-  (rejeitado)="rejeitarProjeto($event)" (editar)="fecharAvaliacao(); formulario.abrirEdicaoPeloModal($event)"
-  (revisaoAprovada)="aprovarRevisao($event)" (revisaoRejeitada)="rejeitarRevisao($event)">
+<app-avaliacao-projeto
+  *ngIf="projetoEmAnalise() as projetoSelecionado"
+  [projeto]="projetoSelecionado"
+  [isAdmin]="isAdmin()"
+  [revisao]="revisaoEmAnalise()"
+  (fechado)="fecharAvaliacao()"
+  (excluido)="fecharAvaliacao(); buscarProjeto()"
+  (aprovado)="aprovarProjeto($event)"
+  (rejeitado)="rejeitarProjeto($event)"
+  (editar)="fecharAvaliacao(); formulario.abrirEdicaoPeloModal($event)"
+  (revisaoAprovada)="aprovarRevisao($event)"
+  (revisaoRejeitada)="rejeitarRevisao($event)"
+>
 </app-avaliacao-projeto>
-<app-formulario-projetos #formulario (salvo)="buscarProjeto(); buscarRevisoes()"></app-formulario-projetos>
+<app-formulario-projetos
+  #formulario
+  (salvo)="buscarProjeto(); buscarRevisoes()"
+></app-formulario-projetos>

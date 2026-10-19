@@ -24,7 +24,7 @@
       />
     </div>
 
-    <div class="filtro-unidades" *ngIf="usuarioAtual()?.papel === 'ADMIN'">
+    <div class="filtro-unidades" #dropdownUnidades *ngIf="usuarioAtual()?.papel === 'ADMIN'">
       <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
         <i class="bi bi-building"></i>
         Unidades

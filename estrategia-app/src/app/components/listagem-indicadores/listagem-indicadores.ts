@@ -1,5 +1,5 @@
 import { Paginacao } from '../utils/paginacao/paginacao';
-import { Component, computed, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IndicadorEstrategico } from '../../model/indicadorEstrategico';
 import { IndicadorService } from '../../service/indicador.service';
@@ -20,6 +20,16 @@ import { FormularioIndicadores } from '../formularios/formulario-indicadores/for
   styleUrl: './listagem-indicadores.scss',
 })
 export class ListagemIndicadores {
+  @ViewChild('dropdownUnidades') private dropdownUnidades?: ElementRef<HTMLElement>;
+
+  @HostListener('document:click', ['$event'])
+  fecharFiltroAoClicarFora(evento: MouseEvent): void {
+    const dropdown = this.dropdownUnidades?.nativeElement;
+    if (this.menuUnidadesAberto() && (!dropdown || !evento.composedPath().includes(dropdown))) {
+      this.menuUnidadesAberto.set(false);
+    }
+  }
+
   constructor(
     private indicadorService: IndicadorService,
     private usuarioService: UsuarioService,
@@ -249,7 +259,7 @@ export class ListagemIndicadores {
     const rotulos: Record<string, string> = {
       APROVADO: 'Aprovado/Público',
       REJEITADO: 'Rejeitado',
-      RASCUNHO: 'Rascunho',
+
       EM_ESPERA: 'Em espera',
     };
 
@@ -260,10 +270,10 @@ export class ListagemIndicadores {
     const classes: Record<string, string> = {
       APROVADO: 'status-aprovado',
       REJEITADO: 'status-rejeitado',
-      RASCUNHO: 'status-rascunho',
+
       EM_ESPERA: 'status-em-espera',
     };
 
-    return classes[status] ?? 'status-rascunho';
+    return classes[status] ?? 'status-desconhecido';
   }
 }

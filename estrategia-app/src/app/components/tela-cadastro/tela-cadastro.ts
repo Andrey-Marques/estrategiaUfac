@@ -1,6 +1,6 @@
 import { ConfirmacaoExclusao } from '../utils/confirmacao-exclusao/confirmacao-exclusao';
 import { MascaraCpf } from '../../directives/mascara-cpf';
-import { Component, computed, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, computed, signal } from '@angular/core';
 import { Paginacao } from '../utils/paginacao/paginacao';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +18,16 @@ import { UnidadeService } from '../../service/unidade.service';
   providers: [DatePipe],
 })
 export class TelaCadastro {
+  @ViewChild('dropdownUnidades') private dropdownUnidades?: ElementRef<HTMLElement>;
+
+  @HostListener('document:click', ['$event'])
+  fecharFiltroAoClicarFora(evento: MouseEvent): void {
+    const dropdown = this.dropdownUnidades?.nativeElement;
+    if (this.menuUnidadesAberto() && (!dropdown || !evento.composedPath().includes(dropdown))) {
+      this.menuUnidadesAberto.set(false);
+    }
+  }
+
   constructor(
     private usuarioService: UsuarioService,
     private unidadeService: UnidadeService,
@@ -253,7 +263,6 @@ export class TelaCadastro {
 
       next: () => {
         this.excluindoUsuario.set(false);
-        console.log('Usuario excluido com sucesso');
         this.cancelarExclusao();
         this.buscarUsuarios();
       },

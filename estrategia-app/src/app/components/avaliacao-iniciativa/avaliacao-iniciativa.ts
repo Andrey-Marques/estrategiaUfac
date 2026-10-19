@@ -65,7 +65,10 @@ export class AvaliacaoIniciativa {
     return this.revisao?.status === 'PENDENTE';
   }
 
-  get comparacaoAcoes(): { anteriores: Partial<AcaoReslizada>[]; propostas: Partial<AcaoReslizada>[] } {
+  get comparacaoAcoes(): {
+    anteriores: Partial<AcaoReslizada>[];
+    propostas: Partial<AcaoReslizada>[];
+  } {
     const diferenca = this.revisao?.diferencas['acoes'];
     return compararAcoes<Partial<AcaoReslizada>>(
       Array.isArray(diferenca?.anterior) ? diferenca.anterior : [],
@@ -92,7 +95,16 @@ export class AvaliacaoIniciativa {
   }
 
   statusAcao(status: string): string {
-    return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída', CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;
+    return (
+      (
+        {
+          PLANEJAMENTO: 'Não iniciada',
+          ANDAMENTO: 'Em execução',
+          CONCLUIDA: 'Concluída',
+          CANCELADA: 'Cancelada',
+        } as Record<string, string>
+      )[status] ?? status
+    );
   }
 
   fechar(): void {

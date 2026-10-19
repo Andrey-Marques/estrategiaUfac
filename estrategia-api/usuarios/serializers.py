@@ -45,6 +45,21 @@ class IdentificacaoUnicaMixin:
 
 
 class UsuarioSerializer(IdentificacaoUnicaMixin, serializers.ModelSerializer):
+    def validate(self, dados):
+        dados = super().validate(dados)
+        request = self.context.get('request')
+        if request is None or self.instance is None:
+            return dados
+        usuario = request.user
+        if usuario.papel != 'ADMIN':
+            if 'papel' in dados and dados['papel'] != self.instance.papel:
+                raise serializers.ValidationError({'papel': 'Apenas administradores podem alterar o perfil.'})
+            if 'unidade' in dados and dados['unidade'] != self.instance.unidade:
+                raise serializers.ValidationError({'unidade': 'Apenas administradores podem alterar a unidade.'})
+        if usuario.pk == self.instance.pk and dados.get('is_active') is False:
+            raise serializers.ValidationError({'is_active': 'Você não pode inativar o seu próprio usuário.'})
+        return dados
+
     class Meta:
         model = Usuario
         fields = [

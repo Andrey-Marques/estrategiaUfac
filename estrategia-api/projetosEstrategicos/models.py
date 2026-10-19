@@ -13,7 +13,6 @@ class ProjetoEstrategico(models.Model):
     STATUS_CHOICES = [
         ('APROVADO', 'Aprovado/Público'),
         ('REJEITADO', 'Rejeitado'),
-        ('RASCUNHO', 'Rascunho'),
         ('EM_ESPERA', 'Em Espera'),
     ]
   

@@ -5,7 +5,6 @@ class IniciativaEstrategica(models.Model):
     STATUS_CHOICES = [
         ('APROVADO', 'Aprovado/Público'),
         ('REJEITADO', 'Rejeitado'),
-        ('RASCUNHO', 'Rascunho'),
         ('EM_ESPERA', 'Em Espera'),
     ]
     nome = models.CharField(max_length=255)

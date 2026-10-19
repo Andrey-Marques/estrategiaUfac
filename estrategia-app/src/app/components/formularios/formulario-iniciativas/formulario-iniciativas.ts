@@ -85,8 +85,6 @@ export class FormularioIniciativas {
 
   editandoIniciativaRejeitada = false;
 
-  editandoRascunho = false;
-
   iniciativaSelecionadaId: number | null = null;
 
   statusRegistroEditado = '';
@@ -137,7 +135,6 @@ export class FormularioIniciativas {
   }
 
   criarNovaIniciativa(): void {
-    this.editandoRascunho = false;
     this.visualizando = false;
     this.modoEdicao = false;
     this.editandoIniciativaRejeitada = false;
@@ -165,7 +162,6 @@ export class FormularioIniciativas {
   }
 
   fecharFormulario(): void {
-    this.editandoRascunho = false;
     this.visualizando = false;
     this.modoEdicao = false;
     this.editandoIniciativaRejeitada = false;
@@ -203,8 +199,8 @@ export class FormularioIniciativas {
     });
   }
 
-  salvarIniciativa(statusSolicitado: 'RASCUNHO' | 'EM_ESPERA' | 'APROVADO'): void {
-    if (statusSolicitado !== 'RASCUNHO' && !this.validarDadosObrigatorios()) {
+  salvarIniciativa(statusSolicitado: 'EM_ESPERA' | 'APROVADO'): void {
+    if (!this.validarDadosObrigatorios()) {
       return;
     }
     const formulario = this.formularioIniciativa.getRawValue();
@@ -230,7 +226,6 @@ export class FormularioIniciativas {
 
     this.iniciativaService.criarIniciativa(dados).subscribe({
       next: (resposta) => {
-        console.log('Iniciativa criada', resposta);
         this.fecharFormulario();
         this.fecharModal();
         this.salvo.emit();
@@ -548,7 +543,7 @@ export class FormularioIniciativas {
 
   abrirEdicaoPeloModal(iniciativa: IniciativaEstrategica): void {
     this.editandoIniciativaRejeitada = false;
-    this.editandoRascunho = iniciativa.status === 'RASCUNHO';
+
     this.iniciativaSelecionadaId = iniciativa.id;
 
     this.iniciativaService.getById(iniciativa.id).subscribe({
@@ -563,7 +558,7 @@ export class FormularioIniciativas {
           return;
         }
 
-        if (dados.status === 'REJEITADO' || dados.status === 'RASCUNHO') {
+        if (dados.status === 'REJEITADO') {
           this.editandoIniciativaRejeitada = dados.status === 'REJEITADO';
           this.modoEdicao = true;
           this.visualizando = false;
@@ -623,22 +618,18 @@ export class FormularioIniciativas {
     }));
   }
 
-  salvarEdicaoIniciativa(
-    statusSolicitado: 'RASCUNHO' | 'EM_ESPERA' | 'APROVADO' = this.isAdmin()
-      ? 'APROVADO'
-      : 'EM_ESPERA',
-  ): void {
+  salvarEdicaoIniciativa(): void {
     if (!this.iniciativaSelecionadaId) {
       return;
     }
-    if (statusSolicitado !== 'RASCUNHO' && !this.validarDadosObrigatorios()) {
+    if (!this.validarDadosObrigatorios()) {
       return;
     }
     const formulario = this.formularioIniciativa.getRawValue();
 
     let dados: any;
 
-    if (this.isAdmin() || this.editandoIniciativaRejeitada || this.editandoRascunho) {
+    if (this.isAdmin() || this.editandoIniciativaRejeitada) {
       dados = {
         nome: formulario.tituloIniciativa,
         responsavel: formulario.responsavelPreenchimento,
@@ -656,10 +647,8 @@ export class FormularioIniciativas {
       };
     }
 
-    if (this.editandoRascunho) dados.status = statusSolicitado;
-
     const operacao =
-      this.isAdmin() || this.editandoIniciativaRejeitada || this.editandoRascunho
+      this.isAdmin() || this.editandoIniciativaRejeitada
         ? this.iniciativaService.atualizarIniciativa(this.iniciativaSelecionadaId, dados)
         : this.iniciativaService.submeterAtualizacao(this.iniciativaSelecionadaId, dados);
 
@@ -669,7 +658,7 @@ export class FormularioIniciativas {
         this.salvo.emit();
         this.modoEdicao = false;
         this.editandoIniciativaRejeitada = false;
-        this.editandoRascunho = false;
+
         this.iniciativaSelecionadaId = null;
       },
       error: (erro) =>

@@ -627,8 +627,8 @@ h1 {
   box-sizing: border-box;
 
   transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 
 
   &:last-child {
@@ -636,9 +636,16 @@ h1 {
   }
 
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
+    background-color: #f1f6ff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.13);
     cursor: pointer;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $cor-azul-padrao;
+    outline-offset: -2px;
   }
 }
 
@@ -755,7 +762,8 @@ h1 {
 }
 
 
-.indicador:hover {
+.indicador:hover,
+.indicador:focus-visible {
 
   .acao span {
     transform: translateX(3px);

@@ -1,7 +1,7 @@
 import { Paginacao } from '../utils/paginacao/paginacao';
 import { AtrasosService } from '../../service/atrasos.service';
 import { AvisoAtrasos } from '../utils/aviso-atrasos/aviso-atrasos';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, computed, inject, signal } from '@angular/core';
 import { IniciativaEstrategica } from '../../model/iniciativaEstrategica';
 import { IniciativaService } from '../../service/iniciativa.service';
 import { CommonModule } from '@angular/common';
@@ -35,6 +35,16 @@ export interface AcaoIniciativa {
   styleUrl: './listagem-iniciativas.scss',
 })
 export class ListagemIniciativas {
+  @ViewChild('dropdownUnidades') private dropdownUnidades?: ElementRef<HTMLElement>;
+
+  @HostListener('document:click', ['$event'])
+  fecharFiltroAoClicarFora(evento: MouseEvent): void {
+    const dropdown = this.dropdownUnidades?.nativeElement;
+    if (this.menuUnidadesAberto() && (!dropdown || !evento.composedPath().includes(dropdown))) {
+      this.menuUnidadesAberto.set(false);
+    }
+  }
+
   constructor(
     private iniciativaService: IniciativaService,
     private usuarioService: UsuarioService,
@@ -110,7 +120,6 @@ export class ListagemIniciativas {
       next: (iniciativa) => {
         this.iniciativas.set(iniciativa);
         this.atrasos.atualizar();
-        console.log(iniciativa);
       },
       error: (erro) => {
         console.error('erro ao buscar iniciativas:', erro);
@@ -260,7 +269,7 @@ export class ListagemIniciativas {
     const mapa: Record<string, string> = {
       APROVADO: 'Aprovado/Público',
       REJEITADO: 'Rejeitado',
-      RASCUNHO: 'Rascunho',
+
       EM_ESPERA: 'Em Espera',
     };
     return mapa[status] ?? status;
@@ -270,9 +279,9 @@ export class ListagemIniciativas {
     const mapa: Record<string, string> = {
       APROVADO: 'status-aprovado',
       REJEITADO: 'status-rejeitado',
-      RASCUNHO: 'status-rascunho',
+
       EM_ESPERA: 'status-espera',
     };
-    return mapa[status] ?? 'status-rascunho';
+    return mapa[status] ?? 'status-desconhecido';
   }
 }

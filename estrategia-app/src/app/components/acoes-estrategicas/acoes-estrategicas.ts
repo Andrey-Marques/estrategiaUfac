@@ -1,6 +1,6 @@
 import { Breadcrumb } from '../utils/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HeaderPublico } from '../utils/header-publico/header-publico';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -39,6 +39,18 @@ type Ordenacao = 'titulo-az' | 'titulo-za' | 'data-recente' | 'data-antiga';
   styleUrl: './acoes-estrategicas.scss',
 })
 export class AcoesEstrategicas implements OnInit {
+  @ViewChild('unidades') private dropdownUnidades?: ElementRef<HTMLDetailsElement>;
+  @ViewChild('objetivos') private dropdownObjetivos?: ElementRef<HTMLDetailsElement>;
+
+  @HostListener('document:click', ['$event'])
+  fecharFiltrosAoClicarFora(evento: MouseEvent): void {
+    for (const dropdown of [this.dropdownUnidades, this.dropdownObjetivos]) {
+      if (dropdown && !evento.composedPath().includes(dropdown.nativeElement)) {
+        dropdown.nativeElement.open = false;
+      }
+    }
+  }
+
   private readonly service = inject(AcoesEstrategicasService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
@@ -207,6 +219,12 @@ export class AcoesEstrategicas implements OnInit {
 
   alternarObjetivo(id: number): void {
     this.objetivosSelecionados.update((ids) => this.alternarSelecao(ids, id));
+  }
+
+  atualizarPesquisa(valor: string): void {
+    this.pesquisa.set(valor);
+    this.filtrosAplicados.update((atual) => ({ ...atual, pesquisa: valor.trim() }));
+    this.paginaAtual.set(1);
   }
 
   filtrar(): void {

@@ -1,5 +1,7 @@
 import hashlib
 import math
+import socket
+from ipaddress import ip_address
 from datetime import timedelta
 from django.conf import settings
 from django.db.models import F
@@ -17,12 +19,32 @@ def liberar_conta(username):
     TentativaLogin.objects.filter(chave=chave_conta(username)).delete()
 
 
+def ip_cliente(request):
+    remoto = request.META.get('REMOTE_ADDR', '')
+    try:
+        endereco_remoto = ip_address(remoto)
+    except ValueError:
+        return 'desconhecido'
+    # Somente o proxy configurado pode informar o IP original. A resolução
+    # por nome acompanha mudanças de endereço ao recriar o container.
+    for host in settings.TRUSTED_PROXY_HOSTS:
+        try:
+            enderecos = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
+        except OSError:
+            continue
+        if any(ip_address(item[4][0]) == endereco_remoto for item in enderecos):
+            try:
+                return str(ip_address(request.META.get('HTTP_X_REAL_IP', '')))
+            except ValueError:
+                break
+    return str(endereco_remoto)
+
+
 class LoginSeguroView(TokenObtainPairView):
     def limites(self, request):
         username = request.data.get('username', '')
         username = username.strip() if isinstance(username, str) else ''
-        # REMOTE_ADDR evita aceitar um X-Forwarded-For arbitrário do cliente.
-        ip = request.META.get('REMOTE_ADDR', '') or 'desconhecido'
+        ip = ip_cliente(request)
         chave_ip = 'ip:' + hashlib.sha256(ip.encode('utf-8')).hexdigest()
         return [
             (chave_conta(username), settings.LOGIN_MAX_FAILURES),

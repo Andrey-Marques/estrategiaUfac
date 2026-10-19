@@ -175,5 +175,8 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:4200").rstrip("/")
 PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", "1800"))
 
 LOGIN_MAX_FAILURES = 5
+TRUSTED_PROXY_HOSTS = tuple(
+    host.strip() for host in os.getenv('TRUSTED_PROXY_HOSTS', '').split(',') if host.strip()
+)
 LOGIN_IP_MAX_FAILURES = 20
 LOGIN_LOCKOUT_SECONDS = 15 * 60

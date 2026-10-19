@@ -56,10 +56,10 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         if usuario.papel == 'ADMIN':
             return Usuario.objects.all()
 
-        if usuario.papel == 'GESTOR':
+        if usuario.papel == 'GESTOR' and usuario.unidade_id is not None:
             return Usuario.objects.filter(
                 unidade=usuario.unidade
-            )
+            ).exclude(papel='ADMIN')
 
         return Usuario.objects.none()
         
@@ -71,7 +71,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
         return super().list(request, *args, **kwargs)
     
-    def partial_update(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
         usuario_logado = request.user
         usuario_alvo = self.get_object()
 
@@ -93,7 +93,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                 'is_active': 'Você não pode inativar o seu próprio usuário.'
             })
 
-        return super().partial_update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], url_path='responsaveis')
     def responsaveis(self, request):
@@ -118,6 +118,8 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
         dados = {}
         if usuario.papel == 'GESTOR':
+            if usuario.unidade_id is None:
+                raise PermissionDenied('O gestor precisa estar vinculado a uma unidade.')
             if serializer.validated_data.get('papel') == 'ADMIN':
                 raise ValidationError({'papel': 'Gestores não podem cadastrar administradores.'})
             dados['unidade'] = usuario.unidade
