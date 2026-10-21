@@ -47,6 +47,12 @@ class IdentificacaoUnicaMixin:
 class UsuarioSerializer(IdentificacaoUnicaMixin, serializers.ModelSerializer):
     def validate(self, dados):
         dados = super().validate(dados)
+        papel = dados.get('papel', getattr(self.instance, 'papel', 'SERVIDOR'))
+        unidade = dados.get('unidade', getattr(self.instance, 'unidade', None))
+        if papel == 'ADMIN' and (unidade is None or unidade.sigla != 'PROPLAN'):
+            raise serializers.ValidationError({
+                'unidade': 'Administradores devem pertencer à unidade PROPLAN.'
+            })
         request = self.context.get('request')
         if request is None or self.instance is None:
             return dados
