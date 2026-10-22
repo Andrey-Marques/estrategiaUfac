@@ -46,4 +46,8 @@ export class UsuarioService {
   alterarStatus(id: number, is_active: boolean): Observable<Usuario>{
     return this.http.patch<Usuario>(`${this.url}${id}/`,{is_active: is_active})
   }
+
+  atualizarUsuario(id: number, dados: Partial<Usuario>): Observable<Usuario> {
+    return this.http.patch<Usuario>(`${this.url}${id}/`, dados);
+  }
 }
