@@ -170,6 +170,8 @@ export class TelaCadastro {
   }
 
   abrirModal(): void {
+    this.modoEdicao = false;
+    this.erroEdicao.set('');
     this.usuarioFormulario = {
       id: 0,
       username: '',
@@ -193,7 +195,9 @@ export class TelaCadastro {
   }
 
   abrirVisualizacao(usuario: Usuario): void {
-    this.usuarioFormulario = { ...usuario };
+    this.usuarioFormulario = { ...usuario, unidade: this.obterIdUnidade(usuario) };
+    this.modoEdicao = false;
+    this.erroEdicao.set('');
     this.modalAberto = true;
     this.modoVisualizacao = true;
   }
@@ -230,9 +234,61 @@ export class TelaCadastro {
   }
 
   fecharModal(): void {
+    if (this.salvandoEdicao()) return;
     this.modalAberto = false;
     this.modoVisualizacao = false;
+    this.modoEdicao = false;
+    this.erroEdicao.set('');
     this.usuarioFormulario = null;
+  }
+
+  podeEditarUsuario(): boolean {
+    const atual = this.usuarioAtual();
+    const alvo = this.usuarioFormulario;
+    return !!(atual && alvo?.id && (atual.papel === 'ADMIN' || (
+      atual.papel === 'GESTOR' && alvo.papel !== 'ADMIN' &&
+      this.obterIdUnidade(atual) !== null && this.obterIdUnidade(atual) === alvo.unidade
+    )));
+  }
+
+  editarUsuario(): void {
+    if (!this.podeEditarUsuario()) return;
+    this.modoVisualizacao = false;
+    this.modoEdicao = true;
+    this.erroEdicao.set('');
+  }
+
+  salvarEdicaoUsuario(): void {
+    if (!this.modoEdicao || !this.podeEditarUsuario() || this.salvandoEdicao()) return;
+    const formulario = this.usuarioFormulario;
+    if (!formulario.nome_completo?.trim() || !formulario.username?.trim()) {
+      this.erroEdicao.set('Informe o nome completo e o usuário.');
+      return;
+    }
+    const dados: Partial<Usuario> = {
+      nome_completo: formulario.nome_completo.trim(), username: formulario.username.trim(),
+      nome_social: formulario.nome_social, cpf: formulario.cpf, email: formulario.email,
+    };
+    if (this.usuarioAtual()?.papel === 'ADMIN') {
+      dados.papel = formulario.papel;
+      dados.unidade = formulario.unidade;
+    }
+    this.erroEdicao.set('');
+    this.salvandoEdicao.set(true);
+    this.usuarioService.atualizarUsuario(formulario.id, dados).subscribe({
+      next: (usuario) => {
+        this.salvandoEdicao.set(false);
+        this.usuarios.update(usuarios => usuarios.map(item => item.id === usuario.id ? usuario : item));
+        if (this.usuarioAtual()?.id === usuario.id) this.buscarUsuarioAtual();
+        this.fecharModal();
+      },
+      error: (erro) => {
+        this.salvandoEdicao.set(false);
+        const mensagens = Object.values(erro.error ?? {})
+          .flatMap(valor => Array.isArray(valor) ? valor : [String(valor)]);
+        this.erroEdicao.set(mensagens.length ? mensagens.join(' ') : 'Não foi possível salvar as alterações.');
+      },
+    });
   }
 
   confirmarExclusaoAberto = false;
@@ -275,6 +331,9 @@ export class TelaCadastro {
 
   modalAberto = false;
   modoVisualizacao = false;
+  modoEdicao = false;
+  salvandoEdicao = signal(false);
+  erroEdicao = signal('');
 
   usuarioFormulario: any = null;
 

@@ -233,14 +233,14 @@
       <div class="modal-header">
         <div>
           <h2>
-            {{ modoVisualizacao ? 'Visualizar usuário' : 'Cadastro de Usuário' }}
+            {{ modoVisualizacao ? 'Visualizar usuário' : modoEdicao ? 'Editar usuário' : 'Cadastro de Usuário' }}
           </h2>
 
           <p>
             {{
               modoVisualizacao
                 ? 'Visualize as informações do servidor cadastrado.'
-                : 'Preencha as informações para realizar o cadastro do servidor.'
+                : modoEdicao ? 'Atualize as informações do usuário.' : 'Preencha as informações para realizar o cadastro do servidor.'
             }}
           </p>
         </div>
@@ -260,7 +260,7 @@
                     ========================================= -->
 
       <div class="modal-conteudo">
-        <form action=""></form>
+        <p *ngIf="erroEdicao()" class="erro-edicao" role="alert">{{ erroEdicao() }}</p>
 
         <!-- NOME -->
         <div class="campo-modal">
@@ -270,7 +270,7 @@
             id="nome"
             type="text"
             [(ngModel)]="usuarioFormulario!.nome_completo"
-            [readonly]="modoVisualizacao"
+            [readonly]="modoVisualizacao || salvandoEdicao()"
           />
         </div>
 
@@ -283,7 +283,7 @@
               id="email"
               type="email"
               [(ngModel)]="usuarioFormulario!.email"
-              [readonly]="modoVisualizacao"
+              [readonly]="modoVisualizacao || salvandoEdicao()"
             />
           </div>
 
@@ -293,7 +293,7 @@
             <select
               id="unidade"
               [(ngModel)]="usuarioFormulario!.unidade"
-              [disabled]="modoVisualizacao"
+              [disabled]="modoVisualizacao || salvandoEdicao() || (modoEdicao && usuarioAtual()?.papel !== 'ADMIN')"
             >
               <option *ngFor="let unidade of unidadesDisponiveis()" [ngValue]="unidade.id">
                 {{ unidade.sigla }}
@@ -306,7 +306,7 @@
         <div class="campo-modal">
           <label for="papel"> PAPEL </label>
 
-          <select id="papel" [(ngModel)]="usuarioFormulario!.papel" [disabled]="modoVisualizacao">
+          <select id="papel" [(ngModel)]="usuarioFormulario!.papel" [disabled]="modoVisualizacao || salvandoEdicao() || (modoEdicao && usuarioAtual()?.papel !== 'ADMIN')">
             <option value="">Selecione</option>
 
             <option value="ADMIN" *ngIf="usuarioAtual()?.papel === 'ADMIN'">Administrador</option>
@@ -326,11 +326,11 @@
               id="usuario"
               type="text"
               [(ngModel)]="usuarioFormulario.username"
-              [readonly]="modoVisualizacao"
+              [readonly]="modoVisualizacao || salvandoEdicao()"
             />
           </div>
 
-          <div class="campo-modal" *ngIf="!modoVisualizacao">
+          <div class="campo-modal" *ngIf="!modoVisualizacao && !modoEdicao">
             <label for="senha"> SENHA </label>
 
             <input id="senha" type="password" [(ngModel)]="usuarioFormulario.password" />
@@ -343,7 +343,7 @@
               id="nome-social"
               type="text"
               [(ngModel)]="usuarioFormulario.nome_social"
-              [readonly]="modoVisualizacao"
+              [readonly]="modoVisualizacao || salvandoEdicao()"
             />
           </div>
 
@@ -358,7 +358,7 @@
               maxlength="14"
               placeholder="000.000.000-00"
               [(ngModel)]="usuarioFormulario.cpf"
-              [readonly]="modoVisualizacao"
+              [readonly]="modoVisualizacao || salvandoEdicao()"
             />
           </div>
         </div>
@@ -371,12 +371,13 @@
       <div class="modal-footer">
         <ng-container *ngIf="!modoVisualizacao">
           <button type="button" class="btn-cancelar" (click)="fecharModal()">Cancelar</button>
-          <button type="button" class="btn-salvar-usuario" (click)="cadastrarUsuario()">
-            Cadastrar
+          <button type="button" class="btn-salvar-usuario" [disabled]="salvandoEdicao()" (click)="modoEdicao ? salvarEdicaoUsuario() : cadastrarUsuario()">
+            {{ salvandoEdicao() ? 'Salvando...' : modoEdicao ? 'Salvar alterações' : 'Cadastrar' }}
           </button>
         </ng-container>
         <!-- VISUALIZAÇÃO -->
         <ng-container *ngIf="modoVisualizacao">
+          <button type="button" class="btn-salvar-usuario" *ngIf="podeEditarUsuario()" (click)="editarUsuario()">Editar usuário</button>
           <button type="button" class="btn-cancelar" (click)="fecharModal()">Fechar</button>
         </ng-container>
       </div>

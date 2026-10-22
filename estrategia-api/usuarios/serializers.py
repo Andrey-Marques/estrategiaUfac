@@ -115,8 +115,6 @@ class MeuPerfilSerializer(IdentificacaoUnicaMixin, serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id',
-            'username',
-            'nome_completo',
             'papel',
             'unidade',
             'unidade_sigla',

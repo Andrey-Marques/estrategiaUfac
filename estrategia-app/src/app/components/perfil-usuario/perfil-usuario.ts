@@ -129,9 +129,11 @@ export class PerfilUsuario implements OnInit {
   }
 
   salvarDados(): void {
-    const { nome_social, cpf, email } = this.usuario;
+    const { nome_completo, username, nome_social, cpf, email } = this.usuario;
 
     this.usuarioService.salvarMeuPerfil({
+      nome_completo,
+      username,
       nome_social,
       cpf,
       email

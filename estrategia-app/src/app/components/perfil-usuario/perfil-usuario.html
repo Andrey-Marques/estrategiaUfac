@@ -22,8 +22,10 @@
             <input
               id="nome"
               type="text"
-              [value]="usuario.nome_completo || ''"
-              disabled
+              [(ngModel)]="usuario.nome_completo"
+              name="nome_completo"
+              [readonly]="!modoEdicaoDados"
+              [class.campo-bloqueado]="!modoEdicaoDados"
             >
           </div>
 
@@ -137,11 +139,13 @@
             <input
               id="usuario"
               type="text"
-              [value]="usuario.username || ''"
-              disabled
+              [(ngModel)]="usuario.username"
+              name="username"
+              [readonly]="!modoEdicaoDados"
+              [class.campo-bloqueado]="!modoEdicaoDados"
             >
             <span class="descricao">
-              Utilizado para acesso aos sistemas integrados e rede.
+              Utilize este nome de usuário para entrar no sistema.
             </span>
           </div>
 
