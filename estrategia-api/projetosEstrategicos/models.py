@@ -74,7 +74,6 @@ class AcaoProjeto(models.Model):
         ('PLANEJAMENTO', 'Planejamento'),
         ('ANDAMENTO', 'Em andamento'),
         ('CONCLUIDA', 'Concluída'),
-        ('CANCELADA', 'Cancelada'),
     ]
 
     nome = models.CharField(max_length=255)
