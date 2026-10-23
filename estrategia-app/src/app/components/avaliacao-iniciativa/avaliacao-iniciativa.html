@@ -96,20 +96,21 @@
           <div class="coluna-informacoes">
             <div class="informacao-item">
               <span>Responsável</span>
-
-              <strong>
-                {{ iniciativa.responsavel_nome || 'Não informado' }}
-              </strong>
+              <strong>{{ iniciativa.responsavel_nome || 'Não informado' }}</strong>
             </div>
-          </div>
-
-          <div class="coluna-informacoes">
             <div class="informacao-item">
               <span>Unidade</span>
-
-              <strong>
-                {{ iniciativa.unidade_sigla || 'Não informada' }}
-              </strong>
+              <strong>{{ iniciativa.unidade_sigla || 'Não informada' }}</strong>
+            </div>
+          </div>
+          <div class="coluna-informacoes">
+            <div class="informacao-item">
+              <span>Custo estimado</span>
+              <strong>{{ custos.estimado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+            </div>
+            <div class="informacao-item">
+              <span>Custo total realizado</span>
+              <strong>{{ custos.realizado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
             </div>
           </div>
         </div>

@@ -41,6 +41,7 @@
       <h2 class="faixa">Método de Cálculo</h2>
       <section class="metodo-calculo">
         <div class="formula" *ngIf="formula()" [innerHTML]="formula()"></div>
+        <h6>Descrição dos componentes:</h6>
         <div class="formula-explicacao">
           <p class="texto-multilinha">{{ registro.metodo_calculo || 'Não informado.' }}</p>
         </div>

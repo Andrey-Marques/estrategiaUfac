@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { ProjetoEstrategico } from '../model/projetoEstrategico';
+import { ProjetoEstrategico, StatusExecucaoProjeto } from '../model/projetoEstrategico';
 import { IndicadorEstrategico } from '../model/indicadorEstrategico';
 import { IniciativaEstrategica } from '../model/iniciativaEstrategica';
 import { environment } from '../../environments/environment';
@@ -26,6 +26,8 @@ export interface AcaoEstrategicaPublica {
   id: number;
   tipo: TipoAcaoEstrategica;
   titulo: string;
+  status_execucao?: StatusExecucaoProjeto | null;
+  progresso?: number | string | null;
   unidade_id: number;
   unidade_sigla: string;
   responsavel: string | null;

@@ -68,9 +68,24 @@
         </article>
       </section>
       <section class="rodape-projeto">
-        <article class="card-orcamento card-orcamento--destaque">
-          <h3>Evolução da iniciativa</h3>
+        <article class="card-custos card-custos--destaque">
+          <h3>Custos da iniciativa</h3>
+          <div class="custos-valores">
+            <div class="custos-valor-item">
+              <span class="custos-label">Custo estimado</span
+              ><span class="custos-valor">{{
+                custos().estimado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+              }}</span>
+            </div>
+            <div class="custos-valor-item">
+              <span class="custos-label">Custo total realizado</span
+              ><span class="custos-valor">{{
+                custos().realizado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+              }}</span>
+            </div>
+          </div>
           <div class="progresso">
+            <span class="progresso-titulo">Evolução da iniciativa</span>
             <div class="barra-progresso">
               <div
                 class="barra-progresso-preenchida"

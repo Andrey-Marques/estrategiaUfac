@@ -103,8 +103,26 @@ export class AvaliacaoIndicador implements OnChanges {
   }
 
   get metasPropostas(): Array<{ ano?: string; meta_prevista?: string; meta_alcancada?: string }> {
-    const metas = this.revisao?.diferencas['evolucao_indicador']?.proposto;
-    return Array.isArray(metas) ? metas : [];
+    const diferenca = this.revisao?.diferencas['evolucao_indicador'];
+    if (!Array.isArray(diferenca?.proposto)) return [];
+    const anteriores = Array.isArray(diferenca.anterior)
+      ? diferenca.anterior
+      : this.indicador.evolucao_indicador ?? [];
+    const chave = (meta: { ano?: string; meta_prevista?: string; meta_alcancada?: string }) =>
+      JSON.stringify([meta.ano, meta.meta_prevista, meta.meta_alcancada]
+        .map(valor => String(valor ?? '').trim()));
+    const inalteradas = new Map<string, number>();
+    for (const meta of anteriores) {
+      const identificacao = chave(meta);
+      inalteradas.set(identificacao, (inalteradas.get(identificacao) ?? 0) + 1);
+    }
+    return diferenca.proposto.filter(meta => {
+      const identificacao = chave(meta);
+      const quantidade = inalteradas.get(identificacao) ?? 0;
+      if (!quantidade) return true;
+      inalteradas.set(identificacao, quantidade - 1);
+      return false;
+    });
   }
 
   get observacaoProposta(): string | null {

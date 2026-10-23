@@ -45,6 +45,8 @@ class AcoesEstrategicasPublicasView(APIView):
                     'id': registro.id,
                     'tipo': tipo,
                     'titulo': registro.nome,
+                    'status_execucao': getattr(registro, 'status_execucao', None),
+                    'progresso': getattr(registro, 'percentual_progresso', getattr(registro, 'percentual_evolucao', None)),
                     'unidade_id': registro.unidade_id,
                     'unidade_sigla': registro.unidade.sigla,
                     'responsavel': (

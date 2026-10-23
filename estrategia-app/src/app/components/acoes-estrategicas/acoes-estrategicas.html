@@ -24,7 +24,7 @@
          FILTROS
          ===================================================== -->
 
-    <section class="filtros" *ngIf="unidadeDoPainel() === null">
+    <section class="filtros">
 
       <div class="cabecalho-filtros">
 
@@ -53,7 +53,7 @@
 
 
       <div class="divisor-filtros"></div>
-     <div class="linha-filtros">
+     <div class="linha-filtros" [class.com-status]="abaAtiva() === 'projetos'" [class.unidade-fixa]="unidadeDoPainel() !== null">
 
         <!-- Pesquisa -->
         <div class="campo-filtro campo-pesquisa">
@@ -66,7 +66,7 @@
         </div>
 
         <!-- Unidade -->
-        <div class="campo-filtro">
+        <div class="campo-filtro" [style.display]="unidadeDoPainel() !== null ? 'none' : null">
           <label id="label-unidades">Unidade Responsável</label>
           <details class="seletor-multiplo" #unidades (keydown.escape)="unidades.open = false">
             <summary class="select-filtro" aria-labelledby="label-unidades resumo-unidades">
@@ -99,6 +99,16 @@
               <span *ngIf="!dados().objetivos.length">Nenhum objetivo disponível.</span>
             </div>
           </details>
+        </div>
+
+        <div class="campo-filtro" *ngIf="abaAtiva() === 'projetos'">
+          <label for="status-projetos-publicos">Status:</label>
+          <select id="status-projetos-publicos" class="select-filtro" [ngModel]="statusProjeto()" (ngModelChange)="filtrarStatus($event)">
+            <option value="">Todos os status</option>
+            <option value="ANDAMENTO">Em andamento</option>
+            <option value="DESCONTINUADO">Descontinuado</option>
+            <option value="CONCLUIDO">Concluído</option>
+          </select>
         </div>
 
         <!-- Botão Filtrar -->
@@ -142,6 +152,7 @@
           Exibindo {{ registrosPagina().length }} de {{ registrosFiltrados().length }} registros
         </span>
 
+
         <div class="ordenacao">
 
           <label for="ordenacao-acoes">
@@ -168,11 +179,24 @@
       <section class="lista-indicadores">
 
         <p class="estado-listagem" role="status" *ngIf="!registrosFiltrados().length">Nenhuma ação aprovada encontrada para esta seleção.</p>
-        <article class="indicador" *ngFor="let acao of registrosPagina(); trackBy: identificarRegistro" role="link" tabindex="0" (click)="abrirRegistro(acao)" (keydown.enter)="abrirRegistro(acao)">
+        <article class="indicador" [class.com-progresso]="acao.tipo !== 'indicadores'" *ngFor="let acao of registrosPagina(); trackBy: identificarRegistro" role="link" tabindex="0" (click)="abrirRegistro(acao)" (keydown.enter)="abrirRegistro(acao)">
 
           <div class="codigo">{{ codigos(acao) }}</div>
 
-          <div class="titulo-indicador">{{ acao.titulo }}</div>
+          <div class="titulo-indicador" [class.com-acompanhamento]="acao.tipo !== 'indicadores'">
+            <div class="resumo-registro">
+              <span>{{ acao.titulo }}</span>
+              <app-status-projeto *ngIf="acao.tipo === 'projetos'" [status]="acao.status_execucao || undefined"></app-status-projeto>
+            </div>
+          </div>
+
+            <div class="progresso-publico" *ngIf="acao.tipo !== 'indicadores'">
+              <div class="progresso-legenda"><span>Progresso</span><strong>{{ percentual(acao).toLocaleString('pt-BR', {maximumFractionDigits: 2}) }}%</strong></div>
+              <div class="trilha-progresso" role="progressbar" [attr.aria-label]="'Progresso de ' + acao.titulo" [attr.aria-valuenow]="percentual(acao)" aria-valuemin="0" aria-valuemax="100">
+                <div class="preenchimento-progresso" [style.width.%]="percentual(acao)"></div>
+              </div>
+            </div>
+
 
           <div class="responsavel">
             <strong>{{ acao.unidade_sigla }}</strong>

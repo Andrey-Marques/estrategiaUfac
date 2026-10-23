@@ -16,7 +16,7 @@ $azul-card-bg: #e8f0ff;
 $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
 
 // tons amarelados (tirados da referência)
-$amarelo-faixa: rgb(250, 240, 178);
+$amarelo-faixa: #d99b00;
 $amarelo-borda: #fbe194;
 $amarelo-texto: #FEF7DD;// placeholder removido abaixo
 
@@ -75,7 +75,7 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
   background-color: $amarelo-faixa;
   color: $azul-escuro;
 
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -113,7 +113,7 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
   padding: 10px 20px;
   background-color: $amarelo-faixa;
   color: $azul-escuro;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -228,7 +228,7 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
   }
 
   a {
-    color: $azul-claro;
+    color: $amarelo-faixa;
     word-break: break-all;
   }
 }
@@ -255,33 +255,64 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
 
 .rodape-projeto {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 20px;
   align-items: start;
 }
 
-.card-orcamento,
+.card-custos,
 .card-objetivos {
-         background: linear-gradient(180deg, $azul-card-bg 0%, $branco 60%);
-         box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
-         padding: 32px 28px;
-         border-radius: 8px;
-         border: 1px solid $azul-claro;
+  background: linear-gradient(180deg, #fff8df 0%, $branco 60%);
+  box-shadow: 0 4px 16px rgba(217, 155, 0, 0.12);
+  padding: 32px 28px;
+  border-radius: 8px;
+  border: 1px solid $amarelo-faixa;
 
   h3 {
     margin: 0 0 12px;
-    color: $azul-escuro;
-    font-size: 14px;
+    color: #946600;
     font-weight: 700;
-        font-size: 18px;
+    font-size: 18px;
     margin-bottom: 20px;
   }
 }
 
-.card-orcamento--destaque {
+.card-custos--destaque {
   text-align: center;
+  background: linear-gradient(180deg, #fff8df 0%, $branco 60%);
+  border-color: $amarelo-faixa;
+  box-shadow: 0 4px 16px rgba(217, 155, 0, 0.12);
 
+  h3 { color: #946600; }
 }
+
+.custos-valores {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 32px;
+
+  margin-bottom: 24px;
+}
+
+.custos-valor-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.custos-label {
+  color: $cinza-claro;
+  font-size: 12px;
+}
+
+.custos-valor {
+  color: #946600;
+  font-size: 26px;
+  font-weight: 800;
+}
+
 .progresso {
   margin: 0 auto 10px;
   max-width: 420px;
@@ -289,6 +320,12 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.progresso-titulo {
+  flex-shrink: 0;
+  color: $cinza-texto;
+  font-size: 12px;
 }
 
 .barra-progresso {
@@ -302,23 +339,25 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
 .barra-progresso-preenchida {
   height: 100%;
   border-radius: 5px;
-  background-color: $azul-claro;
+  background-color: $amarelo-faixa;
   transition: width 0.3s ease;
 }
 
 .progresso-valor {
   flex-shrink: 0;
-  color: $azul-escuro;
+  color: #946600;
   font-size: 14px;
   font-weight: 800;
 }
+
 .ultima-modificacao {
   display: block;
   color: $cinza-claro;
-  font-size: 11px;
+  font-size: 10px;
 }
 
-// ============================================================
+
+
 // RESPONSIVIDADE
 // ============================================================
 
@@ -363,7 +402,7 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
 .acao-projeto {
   padding: 20px;
   border: 1px solid $cinza-borda;
-  border-left: 4px solid $azul-claro;
+  border-left: 4px solid $amarelo-faixa;
   border-radius: 6px;
   background: $branco;
 }
@@ -400,4 +439,10 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
   .acao-publica-cabecalho { flex-wrap: wrap; gap: 8px; }
   .acao-publica-grupos { grid-template-columns: 1fr; gap: 16px; }
   .acao-publica-grupo + .acao-publica-grupo { padding: 14px 0 0; border-left: 0; border-top: 1px solid $cinza-borda; }
+}
+
+@media (max-width: 900px) { .custos-valores { gap: 20px; } }
+@media (max-width: 550px) {
+  .card-custos--destaque { padding: 22px 16px; }
+  .custos-valor { font-size: 22px; }
 }

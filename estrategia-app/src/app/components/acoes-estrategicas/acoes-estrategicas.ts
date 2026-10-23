@@ -1,4 +1,6 @@
 import { Breadcrumb } from '../utils/breadcrumb/breadcrumb';
+import { StatusProjeto } from '../utils/status-projeto/status-projeto';
+import { StatusExecucaoProjeto } from '../../model/projetoEstrategico';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostListener, ViewChild, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -34,7 +36,7 @@ type Ordenacao = 'titulo-az' | 'titulo-za' | 'data-recente' | 'data-antiga';
 
 @Component({
   selector: 'app-acoes-estrategicas',
-  imports: [Breadcrumb, CommonModule, HeaderPublico, FormsModule, Rodape],
+  imports: [Breadcrumb, StatusProjeto, CommonModule, HeaderPublico, FormsModule, Rodape],
   templateUrl: './acoes-estrategicas.html',
   styleUrl: './acoes-estrategicas.scss',
 })
@@ -60,8 +62,8 @@ export class AcoesEstrategicas implements OnInit {
 
   readonly abas: AbaEstrategica[] = [
     { id: 'projetos', label: 'Projetos Estratégicos' },
-    { id: 'indicadores', label: 'Indicadores Estratégicos' },
     { id: 'iniciativas', label: 'Iniciativas Estratégicas' },
+    { id: 'indicadores', label: 'Indicadores Estratégicos' },
   ];
 
   readonly abaAtiva = signal<TipoAcaoEstrategica>('indicadores');
@@ -73,6 +75,7 @@ export class AcoesEstrategicas implements OnInit {
   readonly carregando = signal(true);
   readonly erro = signal('');
   readonly pesquisa = signal('');
+  readonly statusProjeto = signal<StatusExecucaoProjeto | ''>('');
   readonly unidadesSelecionadas = signal<number[]>([]);
   readonly objetivosSelecionados = signal<number[]>([]);
   readonly ordenacao = signal<Ordenacao>('titulo-az');
@@ -106,6 +109,7 @@ export class AcoesEstrategicas implements OnInit {
     const registros = this.dados().registros.filter(
       (registro) =>
         registro.tipo === this.abaAtiva() &&
+        (registro.tipo !== 'projetos' || !this.statusProjeto() || registro.status_execucao === this.statusProjeto()) &&
         (this.unidadeDoPainel() === null || registro.unidade_id === this.unidadeDoPainel()) &&
         (!pesquisa ||
           this.normalizar(
@@ -257,6 +261,7 @@ export class AcoesEstrategicas implements OnInit {
   }
 
   limparFiltros(): void {
+    this.statusProjeto.set('');
     this.pesquisa.set('');
     this.unidadesSelecionadas.set([]);
     this.objetivosSelecionados.set([]);
@@ -266,6 +271,16 @@ export class AcoesEstrategicas implements OnInit {
   ordenar(valor: Ordenacao): void {
     this.ordenacao.set(valor);
     this.paginaAtual.set(1);
+  }
+
+  filtrarStatus(valor: StatusExecucaoProjeto | ''): void {
+    this.statusProjeto.set(valor);
+    this.paginaAtual.set(1);
+  }
+
+  percentual(registro: AcaoEstrategicaPublica): number {
+    const valor = Number(registro.progresso);
+    return Number.isFinite(valor) ? Math.min(100, Math.max(0, valor)) : 0;
   }
 
   mudarPagina(pagina: number): void {

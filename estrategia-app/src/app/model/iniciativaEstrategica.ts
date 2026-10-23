@@ -37,3 +37,13 @@ export interface IniciativaEstrategica {
   observacao_analise?: string | null;
   analisado_por?: number | null;
 }
+
+export function totaisCustosIniciativa(acoes: readonly AcaoReslizada[] = []) {
+  const centavos = (valor: number | string | undefined) => {
+    const numero = Number(valor ?? 0);
+    return Number.isFinite(numero) ? Math.round(numero * 100) : 0;
+  };
+  const estimado = acoes.reduce((total, acao) => total + centavos(acao.custo), 0);
+  const realizado = acoes.reduce((total, acao) => total + centavos(acao.custo_realizado), 0);
+  return { estimado: estimado / 100, realizado: realizado / 100 };
+}

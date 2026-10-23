@@ -1087,3 +1087,36 @@ h1 {
     gap: 6px;
   }
 }
+
+// Coluna central de acompanhamento na listagem pública.
+.indicador.com-progresso {
+  grid-template-columns: 45px minmax(220px, 1fr) minmax(180px, 280px) 180px 190px 45px;
+}
+.titulo-indicador.com-acompanhamento { min-width: 0; padding-top: 12px; padding-bottom: 12px; }
+.resumo-registro { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.progresso-publico { align-self: center; width: 140px; max-width: calc(100% - 24px); margin: 12px auto; }
+.progresso-legenda { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-weight: 400; }
+.progresso-legenda span { font-size: 10px; color: $cor-texto-auxiliar; }
+.progresso-legenda strong { font-size: 11px; color: $cor-primaria; }
+.resumo-registro app-status-projeto { --status-fonte: 10px; --status-espacamento: 2px 6px; }
+.trilha-progresso { width: 100%; height: 7px; overflow: hidden; border-radius: 20px; background: #e8edf5; }
+.preenchimento-progresso { height: 100%; min-width: 0; border-radius: 20px; background: $cor-primaria-texto-destaque; transition: width 0.3s ease; }
+.linha-filtros.com-status { grid-template-columns: minmax(180px, 1.3fr) repeat(3, minmax(150px, 1fr)) auto; }
+.linha-filtros.unidade-fixa { grid-template-columns: minmax(180px, 1.3fr) minmax(150px, 1fr) auto; }
+.linha-filtros.unidade-fixa.com-status { grid-template-columns: minmax(180px, 1.3fr) repeat(2, minmax(150px, 1fr)) auto; }
+@media (max-width: 1200px) {
+  .indicador.com-progresso { grid-template-columns: 45px minmax(180px, 1fr) minmax(140px, 220px) 130px 140px 40px; }
+}
+@media (max-width: 1000px) {
+  .linha-filtros.com-status, .linha-filtros.unidade-fixa, .linha-filtros.unidade-fixa.com-status { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+  .indicador.com-progresso { grid-template-columns: 42px minmax(0, 1fr) minmax(120px, 180px) 40px; }
+}
+@media (max-width: 600px) {
+  .indicador.com-progresso { grid-template-columns: 42px minmax(0, 1fr) 40px; }
+  .com-progresso .codigo { grid-row: 1 / 3; }
+  .com-progresso .acao { grid-column: 3; grid-row: 1 / 3; }
+  .progresso-publico { grid-column: 2; margin-top: 0; }
+  .linha-filtros.com-status, .linha-filtros.unidade-fixa, .linha-filtros.unidade-fixa.com-status { grid-template-columns: minmax(0, 1fr); }
+}
