@@ -727,6 +727,9 @@ class Command(BaseCommand):
                     defaults={
                         'meta_prevista': str(70 + (indice * 5)),
                         'meta_alcancada': str(50 + (indice * 5)),
+                        'justificativa_meta_alcancada': (
+                            'Resultado fictício registrado para demonstração do acompanhamento anual.'
+                        ),
                     }
                 )
 
@@ -797,6 +800,9 @@ class Command(BaseCommand):
                     defaults={
                         'meta_prevista': prevista,
                         'meta_alcancada': alcancada,
+                        'justificativa_meta_alcancada': (
+                            'Resultado fictício registrado para demonstração do acompanhamento anual.'
+                        ),
                     },
                 )
                 evolucoes_adicionadas += 1

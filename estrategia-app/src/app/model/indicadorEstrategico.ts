@@ -24,6 +24,7 @@ export interface EvolucaoIndicador {
     id: number;
     meta_prevista: string;
     meta_alcancada: string;
+    justificativa_meta_alcancada?: string;
     ano: string;
     indicador: number;
 }

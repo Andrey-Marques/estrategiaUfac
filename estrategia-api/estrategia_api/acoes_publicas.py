@@ -117,7 +117,7 @@ class AcaoEstrategicaPublicaDetalheView(APIView):
             campos = ('finalidade', 'polaridade', 'unidade_medida', 'metodo_calculo', 'formula',
                       'observacao', 'data_envio')
             dados['evolucao_indicador'] = list(registro.evolucao_indicador.order_by('ano', 'id').values(
-                'id', 'ano', 'meta_prevista', 'meta_alcancada'))
+                'id', 'ano', 'meta_prevista', 'meta_alcancada', 'justificativa_meta_alcancada'))
         else:
             campos = ('data_preenchimento', 'ultima_atualizacao', 'observacao', 'percentual_evolucao')
             dados['acoes_realizadas'] = list(registro.acoes_realizadas.order_by('prazo_inicio', 'id').values(

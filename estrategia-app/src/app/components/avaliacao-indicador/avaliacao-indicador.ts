@@ -15,6 +15,7 @@ type IndicadorAvaliacao = IndicadorEstrategico & {
     ano: string;
     meta_prevista: string;
     meta_alcancada: string;
+    justificativa_meta_alcancada?: string;
   }[];
 };
 
@@ -61,6 +62,7 @@ export class AvaliacaoIndicador implements OnChanges {
   editar = new EventEmitter<IndicadorEstrategico>();
 
   formulaRenderizada: SafeHtml | null = null;
+  detalheMetaAberto: { titulo: string; texto: string } | null = null;
 
   constructor(private sanitizer: DomSanitizer) {}
 
@@ -102,14 +104,14 @@ export class AvaliacaoIndicador implements OnChanges {
     return this.revisao?.status === 'PENDENTE';
   }
 
-  get metasPropostas(): Array<{ ano?: string; meta_prevista?: string; meta_alcancada?: string }> {
+  get metasPropostas(): Array<{ ano?: string; meta_prevista?: string; meta_alcancada?: string; justificativa_meta_alcancada?: string }> {
     const diferenca = this.revisao?.diferencas['evolucao_indicador'];
     if (!Array.isArray(diferenca?.proposto)) return [];
     const anteriores = Array.isArray(diferenca.anterior)
       ? diferenca.anterior
       : this.indicador.evolucao_indicador ?? [];
-    const chave = (meta: { ano?: string; meta_prevista?: string; meta_alcancada?: string }) =>
-      JSON.stringify([meta.ano, meta.meta_prevista, meta.meta_alcancada]
+    const chave = (meta: { ano?: string; meta_prevista?: string; meta_alcancada?: string; justificativa_meta_alcancada?: string }) =>
+      JSON.stringify([meta.ano, meta.meta_prevista, meta.meta_alcancada, meta.justificativa_meta_alcancada]
         .map(valor => String(valor ?? '').trim()));
     const inalteradas = new Map<string, number>();
     for (const meta of anteriores) {
@@ -130,9 +132,29 @@ export class AvaliacaoIndicador implements OnChanges {
     return observacao === null || observacao === undefined ? null : String(observacao);
   }
 
+  abrirPremissas(): void {
+    this.detalheMetaAberto = {
+      titulo: 'Premissas das metas',
+      texto: this.indicador.observacao || 'Nenhuma premissa foi informada.',
+    };
+  }
+
+  abrirJustificativa(ano: string | undefined, justificativa: string | undefined): void {
+    if (!justificativa) return;
+    this.detalheMetaAberto = {
+      titulo: `Justificativa da meta alcançada${ano ? ` — ${ano}` : ''}`,
+      texto: justificativa,
+    };
+  }
+
+  fecharDetalheMeta(): void {
+    this.detalheMetaAberto = null;
+  }
+
   fechar(): void {
     this.observacao = '';
     this.mensagemErro = '';
+    this.fecharDetalheMeta();
     this.fechado.emit();
   }
 
@@ -209,7 +231,7 @@ export class AvaliacaoIndicador implements OnChanges {
         valor
           .map(
             (meta) =>
-              `${meta.ano || 'Ano'} | Prevista: ${meta.meta_prevista || '-'} | Alcançada: ${meta.meta_alcancada || '-'}`,
+              `${meta.ano || 'Ano'} | Prevista: ${meta.meta_prevista || '-'} | Alcançada: ${meta.meta_alcancada || '-'}${meta.justificativa_meta_alcancada ? ` | Justificativa: ${meta.justificativa_meta_alcancada}` : ''}`,
           )
           .join('\n') || 'Nenhuma evolução'
       );

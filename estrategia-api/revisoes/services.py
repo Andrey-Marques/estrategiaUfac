@@ -287,6 +287,7 @@ def snapshot_indicador(indicador):
                 'ano': evolucao.ano,
                 'meta_prevista': evolucao.meta_prevista,
                 'meta_alcancada': evolucao.meta_alcancada,
+                'justificativa_meta_alcancada': evolucao.justificativa_meta_alcancada,
             }
             for evolucao in indicador.evolucao_indicador.all()
         ],
@@ -307,11 +308,30 @@ def criar_revisao_indicador(indicador, dados, usuario):
     if 'observacao' in dados:
         propostos['observacao'] = dados['observacao']
     if 'evolucao_indicador' in dados:
+        atuais = {
+            evolucao.ano: evolucao
+            for evolucao in indicador.evolucao_indicador.all()
+        }
+        propostas = {evolucao['ano']: evolucao for evolucao in dados['evolucao_indicador']}
+        if set(atuais) != set(propostas):
+            raise ValidationError({
+                'evolucao_indicador': (
+                    'Após a publicação, não é permitido adicionar, remover ou alterar o ano das metas.'
+                )
+            })
+        for ano, evolucao in propostas.items():
+            if atuais[ano].meta_prevista != evolucao['meta_prevista']:
+                raise ValidationError({
+                    'evolucao_indicador': (
+                        'Após a publicação, a meta prevista não pode ser alterada.'
+                    )
+                })
         propostos['evolucao_indicador'] = [
             {
                 'ano': evolucao['ano'],
                 'meta_prevista': evolucao['meta_prevista'],
                 'meta_alcancada': evolucao['meta_alcancada'],
+                'justificativa_meta_alcancada': evolucao.get('justificativa_meta_alcancada', ''),
             }
             for evolucao in dados['evolucao_indicador']
         ]

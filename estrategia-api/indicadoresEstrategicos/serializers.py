@@ -9,8 +9,24 @@ class EvolucaoIndicadorSerializer(serializers.ModelSerializer):
             'id',
             'ano',
             'meta_prevista',
-            'meta_alcancada'
+            'meta_alcancada',
+            'justificativa_meta_alcancada',
         ]
+
+    def validate(self, attrs):
+        meta_alcancada = str(attrs.get('meta_alcancada', '')).strip()
+        justificativa = str(attrs.get('justificativa_meta_alcancada', '')).strip()
+
+        if meta_alcancada and not justificativa:
+            raise serializers.ValidationError({
+                'justificativa_meta_alcancada': (
+                    'Informe como o resultado da meta alcançada foi obtido.'
+                )
+            })
+
+        attrs['meta_alcancada'] = meta_alcancada
+        attrs['justificativa_meta_alcancada'] = justificativa
+        return attrs
 
 
 from revisoes.exclusao import ExclusaoSerializerMixin
@@ -68,6 +84,12 @@ class IndicadorEstrategicoSerializer(ExclusaoSerializerMixin, serializers.ModelS
             attrs['observacao_analise'] = observacao
         return attrs
 
+    def validate_evolucao_indicador(self, evolucoes):
+        anos = [str(evolucao['ano']).strip() for evolucao in evolucoes]
+        if len(anos) != len(set(anos)):
+            raise serializers.ValidationError('Cada ano pode ser informado apenas uma vez.')
+        return evolucoes
+
     def get_responsavel_nome(self, obj):
         if obj.responsavel is None:
             return None
@@ -106,6 +128,28 @@ class IndicadorEstrategicoSerializer(ExclusaoSerializerMixin, serializers.ModelS
         instance.save()
 
         if evolucoes is not None:
+            usuario = self.context.get('request').user if self.context.get('request') else None
+            if instance.status == 'APROVADO' and getattr(usuario, 'papel', None) != 'ADMIN':
+                atuais = {
+                    evolucao.ano: evolucao
+                    for evolucao in instance.evolucao_indicador.all()
+                }
+                propostas = {evolucao['ano']: evolucao for evolucao in evolucoes}
+
+                if set(atuais) != set(propostas):
+                    raise serializers.ValidationError({
+                        'evolucao_indicador': (
+                            'Após a publicação, não é permitido adicionar, remover ou alterar o ano das metas.'
+                        )
+                    })
+
+                for ano, evolucao in propostas.items():
+                    if atuais[ano].meta_prevista != evolucao['meta_prevista']:
+                        raise serializers.ValidationError({
+                            'evolucao_indicador': (
+                                'Após a publicação, a meta prevista não pode ser alterada.'
+                            )
+                        })
             instance.evolucao_indicador.all().delete()
             for evolucao in evolucoes:
                 EvolucaoIndicador.objects.create(indicador=instance, **evolucao)

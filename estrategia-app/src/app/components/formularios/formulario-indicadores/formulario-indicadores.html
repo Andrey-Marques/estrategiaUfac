@@ -60,7 +60,7 @@
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 1"
-            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()"
+            [class.etapa-bloqueada]="edicaoRestrita"
             (click)="irParaEtapa(1)"
           >
             <span>1. Apresentação</span>
@@ -69,7 +69,7 @@
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 2"
-            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()"
+            [class.etapa-bloqueada]="edicaoRestrita"
             (click)="irParaEtapa(2)"
           >
             <span>2. Método de cálculo</span>
@@ -77,6 +77,7 @@
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 3"
+            [class.etapa-bloqueada]="edicaoRestrita"
             (click)="irParaEtapa(3)"
           >
             <span>3. Premissas das metas</span>
@@ -281,11 +282,11 @@
                 <div>
                   <h3>METAS DE MONITORAMENTO</h3>
                   <p>
-                    Clique no botão para inserir quantos novos anos forem necessários ao
-                    planejamento.
+                    Cadastre o ano e a meta prevista. A meta alcançada pode ser informada agora
+                    ou posteriormente, com a respectiva justificativa.
                   </p>
                 </div>
-                <button type="button" class="btn botao-adicionar-ano" (click)="adicionarMeta()">
+                <button type="button" class="btn botao-adicionar-ano" (click)="adicionarMeta()" [disabled]="metadadosBloqueados()">
                   <i class="bi bi-plus-lg"></i> Adicionar ano
                 </button>
               </div>
@@ -302,34 +303,32 @@
                 <div class="linha-meta" *ngFor="let meta of metas; let indice = index">
                   <div>
                     <input
-                      type="number"
+                      type="text"
                       class="form-control"
                       [(ngModel)]="meta.ano"
                       [ngModelOptions]="{ standalone: true }"
                       placeholder="2026"
+                      [readonly]="metadadosBloqueados()"
                     />
                   </div>
 
                   <div class="campo-meta-percentual">
                     <input
-                      type="number"
+                      type="text"
                       class="form-control"
                       [(ngModel)]="meta.prevista"
                       [ngModelOptions]="{ standalone: true }"
-                      min="0"
-                      max="100"
                       placeholder="-"
+                      [readonly]="metadadosBloqueados()"
                     />
                   </div>
 
                   <div class="campo-meta-percentual">
                     <input
-                      type="number"
+                      type="text"
                       class="form-control"
                       [(ngModel)]="meta.alcancada"
                       [ngModelOptions]="{ standalone: true }"
-                      min="0"
-                      max="100"
                       placeholder="-"
                     />
                   </div>
@@ -337,9 +336,21 @@
                   <div class="acoes-meta">
                     <button
                       type="button"
+                      class="botao-justificativa-meta"
+                      [class.tem-justificativa]="meta.justificativaMetaAlcancada"
+                      title="Justificativa da meta alcançada"
+                      aria-label="Justificativa da meta alcançada"
+                      [disabled]="!podeAlterarJustificativa()"
+                      (click)="abrirJustificativa(indice)"
+                    >
+                      <i class="bi bi-chat-square-text"></i>
+                    </button>
+                    <button
+                      type="button"
                       class="botao-excluir-meta"
                       title="Excluir"
                       (click)="removerMeta(indice)"
+                      [disabled]="metadadosBloqueados()"
                     >
                       <i class="bi bi-trash3"></i>
                     </button>
@@ -349,6 +360,30 @@
                 <div class="sem-metas" *ngIf="metas.length === 0">
                   Nenhuma meta de monitoramento adicionada.
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-justificativa-meta" *ngIf="indiceMetaJustificativa !== null">
+            <div class="modal-justificativa-meta__conteudo" role="dialog" aria-modal="true" aria-labelledby="tituloJustificativaMeta">
+              <div class="modal-justificativa-meta__cabecalho">
+                <div>
+                  <h3 id="tituloJustificativaMeta">Justificativa da meta alcançada</h3>
+                  <p>Explique como o resultado do ano {{ metas[indiceMetaJustificativa].ano || 'informado' }} foi alcançado.</p>
+                </div>
+                <button type="button" class="botao-fechar-justificativa" (click)="fecharJustificativa()" aria-label="Fechar">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+              <textarea
+                class="form-control"
+                [(ngModel)]="justificativaMetaEmEdicao"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Descreva os dados, evidências ou método usado para chegar a este resultado."
+              ></textarea>
+              <div class="modal-justificativa-meta__acoes">
+                <button type="button" class="btn botao-anterior" (click)="fecharJustificativa()">Cancelar</button>
+                <button type="button" class="btn botao-proximo" (click)="salvarJustificativa()">Salvar justificativa</button>
               </div>
             </div>
           </div>
@@ -365,7 +400,7 @@
                 type="button"
                 class="btn botao-anterior"
                 (click)="voltar()"
-                [disabled]="etapaAtual === 1 || (edicaoRestrita && !ehGestor() && etapaAtual === 3)"
+                [disabled]="etapaAtual === 1 || edicaoRestrita"
               >
                 <i class="bi bi-chevron-left"></i> Anterior
               </button>

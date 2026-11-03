@@ -25,7 +25,8 @@ class IndicadorEstrategico(models.Model):
 
 class EvolucaoIndicador(models.Model):
     meta_prevista = models.CharField(max_length=25)
-    meta_alcancada = models.CharField(max_length=25)
+    meta_alcancada = models.CharField(max_length=25, blank=True, default='')
+    justificativa_meta_alcancada = models.TextField(blank=True, default='')
     ano = models.CharField(max_length=25)
     indicador = models.ForeignKey(IndicadorEstrategico, on_delete=models.CASCADE, related_name='evolucao_indicador')
     

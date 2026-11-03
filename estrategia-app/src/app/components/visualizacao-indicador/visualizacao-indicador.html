@@ -51,22 +51,63 @@
         <div class="faixa-conteudo">
           <div class="tabela-indicador">
             <div class="tabela-cabecalho">
-              <span>Ano / Período</span><span>Meta Prevista</span><span>Alcançada</span>
+              <span>Ano / Período</span>
+              <span class="cabecalho-meta-prevista">
+                Meta Prevista
+                <button
+                  type="button"
+                  class="botao-detalhe-meta"
+                  title="Ver premissas das metas"
+                  aria-label="Ver premissas das metas"
+                  (click)="abrirPremissas()"
+                >
+                  <i class="bi bi-info-circle"></i>
+                </button>
+              </span>
+              <span>Alcançada</span>
+              <span class="cabecalho-justificativa">Justificativa</span>
             </div>
             <div class="tabela-linha" *ngFor="let meta of registro.evolucao_indicador">
               <span class="ano">{{ meta.ano }}</span
               ><span>{{ meta.meta_prevista || '—' }}</span
-              ><span>{{ meta.meta_alcancada || '—' }}</span>
+              ><span>
+                {{ meta.meta_alcancada || '—' }}
+              </span>
+              <span class="celula-justificativa">
+                <button
+                  *ngIf="meta.justificativa_meta_alcancada"
+                  type="button"
+                  class="botao-ver-justificativa"
+                  title="Ver justificativa da meta alcançada"
+                  aria-label="Ver justificativa da meta alcançada"
+                  (click)="abrirJustificativa(meta.ano, meta.justificativa_meta_alcancada)"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+                <span *ngIf="!meta.justificativa_meta_alcancada" aria-label="Sem justificativa">—</span>
+              </span>
             </div>
             <p *ngIf="!registro.evolucao_indicador?.length">Nenhuma meta registrada.</p>
           </div>
-          <p class="observacoes observacao-card texto-multilinha">
-            <strong>Observações:</strong><br />{{
-              registro.observacao || 'Nenhuma observação informada.'
-            }}
-          </p>
         </div>
       </section>
+      <div class="modal-detalhe-meta" *ngIf="detalheMetaAberto() as detalheMeta" (click)="fecharDetalheMeta()">
+        <section
+          class="modal-detalhe-meta__conteudo"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tituloDetalheMeta"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="modal-detalhe-meta__cabecalho">
+            <h3 id="tituloDetalheMeta">{{ detalheMeta.titulo }}</h3>
+            <button type="button" (click)="fecharDetalheMeta()" aria-label="Fechar">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <p class="texto-multilinha">{{ detalheMeta.texto }}</p>
+        </section>
+      </div>
       <article class="card-objetivos">
         <h3>Objetivo estratégico relacionado</h3>
         <ul>

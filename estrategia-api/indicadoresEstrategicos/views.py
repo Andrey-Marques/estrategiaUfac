@@ -57,13 +57,25 @@ class IndicadorEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
 
     def _validar_campos_edicao(self, request):
         usuario = request.user
+        indicador = self.get_object()
+
+        campos_enviados = set(request.data.keys())
+
+        if indicador.status == 'APROVADO' and usuario.papel != 'ADMIN':
+            campos_permitidos = {'evolucao_indicador'}
+            campos_proibidos = campos_enviados - campos_permitidos
+            if campos_proibidos:
+                return Response(
+                    {
+                        'detail': 'Após a publicação, somente a meta alcançada pode ser atualizada.',
+                        'campos_proibidos': list(campos_proibidos),
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
 
         if usuario.papel == 'ADMIN':
             return None
 
-        indicador = self.get_object()
-
-        campos_enviados = set(request.data.keys())
         if usuario.papel == 'GESTOR' and campos_enviados == {'responsavel'}:
             responsavel_id = request.data.get('responsavel')
             if not usuario.__class__.objects.filter(
@@ -76,12 +88,6 @@ class IndicadorEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN,
                 )
             return None
-
-        if indicador.status == 'APROVADO':
-            return Response(
-                {'detail': 'Indicadores publicados devem ser alterados através do fluxo de revisão.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
         if indicador.status == 'REJEITADO':
             campos_permitidos = {

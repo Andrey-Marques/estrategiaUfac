@@ -193,8 +193,14 @@
           <div class="tabela-metas" *ngIf="indicador.evolucao_indicador?.length; else semMetas">
             <div class="cabecalho-meta">
               <span>Ano</span>
-              <span>Meta prevista</span>
+              <span class="cabecalho-meta-com-icone">
+                Meta prevista
+                <button type="button" class="botao-info-meta" title="Ver premissas das metas" aria-label="Ver premissas das metas" (click)="abrirPremissas()">
+                  <i class="bi bi-info-circle"></i>
+                </button>
+              </span>
               <span>Meta alcançada</span>
+              <span class="cabecalho-justificativa">Justificativa</span>
             </div>
 
             <div class="linha-meta" *ngFor="let meta of indicador.evolucao_indicador">
@@ -209,6 +215,19 @@
               <span>
                 {{ meta.meta_alcancada || '-' }}
               </span>
+              <span class="celula-justificativa">
+                <button
+                  *ngIf="meta.justificativa_meta_alcancada"
+                  type="button"
+                  class="botao-info-meta"
+                  title="Ver justificativa da meta alcançada"
+                  aria-label="Ver justificativa da meta alcançada"
+                  (click)="abrirJustificativa(meta.ano, meta.justificativa_meta_alcancada)"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+                <span *ngIf="!meta.justificativa_meta_alcancada" aria-label="Sem justificativa">—</span>
+              </span>
             </div>
           </div>
 
@@ -222,8 +241,14 @@
 
             <div class="cabecalho-meta">
               <span>Ano</span>
-              <span>Meta prevista</span>
+              <span class="cabecalho-meta-com-icone">
+                Meta prevista
+                <button type="button" class="botao-info-meta" title="Ver premissas das metas" aria-label="Ver premissas das metas" (click)="abrirPremissas()">
+                  <i class="bi bi-info-circle"></i>
+                </button>
+              </span>
               <span>Meta alcançada</span>
+              <span class="cabecalho-justificativa">Justificativa</span>
             </div>
 
             <div class="linha-meta meta-proposta" *ngFor="let meta of metasPropostas">
@@ -238,10 +263,33 @@
               <span>
                 {{ meta.meta_alcancada || '-' }}
               </span>
+              <span class="celula-justificativa">
+                <button
+                  *ngIf="meta.justificativa_meta_alcancada"
+                  type="button"
+                  class="botao-info-meta"
+                  title="Ver justificativa da meta alcançada"
+                  aria-label="Ver justificativa da meta alcançada"
+                  (click)="abrirJustificativa(meta.ano, meta.justificativa_meta_alcancada)"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+                <span *ngIf="!meta.justificativa_meta_alcancada" aria-label="Sem justificativa">—</span>
+              </span>
             </div>
           </div>
         </div>
       </section>
+
+      <div class="modal-detalhe-meta" *ngIf="detalheMetaAberto" (click)="fecharDetalheMeta()">
+        <section class="modal-detalhe-meta__conteudo" role="dialog" aria-modal="true" aria-labelledby="tituloDetalheMeta" (click)="$event.stopPropagation()">
+          <div class="modal-detalhe-meta__cabecalho">
+            <h4 id="tituloDetalheMeta">{{ detalheMetaAberto.titulo }}</h4>
+            <button type="button" (click)="fecharDetalheMeta()" aria-label="Fechar"><i class="bi bi-x-lg"></i></button>
+          </div>
+          <p>{{ detalheMetaAberto.texto }}</p>
+        </section>
+      </div>
 
       <!-- ========================================
            OBSERVAÇÕES

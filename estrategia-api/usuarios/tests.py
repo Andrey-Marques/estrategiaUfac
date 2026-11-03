@@ -62,6 +62,29 @@ class PermissoesUsuariosTests(APITestCase):
         self.assertEqual(self.client.patch(f'/api/usuarios/{self.servidor.pk}/', {'papel': 'ADMIN'}).status_code, 404)
 
 
+    def test_servidor_edita_nome_e_login_no_proprio_perfil(self):
+        self.client.force_authenticate(self.servidor)
+        resposta = self.client.patch('/api/usuarios/me/', {
+            'nome_completo': 'Nome atualizado', 'username': 'novo_login',
+            'papel': 'ADMIN', 'unidade': self.outra.pk,
+        }, format='json')
+        self.assertEqual(resposta.status_code, 200, resposta.data)
+        self.servidor.refresh_from_db()
+        self.assertEqual(self.servidor.nome_completo, 'Nome atualizado')
+        self.assertEqual(self.servidor.username, 'novo_login')
+        self.assertEqual(self.servidor.papel, 'SERVIDOR')
+        self.assertEqual(self.servidor.unidade_id, self.unidade.pk)
+
+    def test_perfil_recusa_login_duplicado_e_campos_vazios(self):
+        self.client.force_authenticate(self.servidor)
+        for dados in ({'username': self.admin.username}, {'username': ''}, {'nome_completo': ''}):
+            with self.subTest(dados=dados):
+                resposta = self.client.patch('/api/usuarios/me/', dados, format='json')
+                self.assertEqual(resposta.status_code, 400, resposta.data)
+        self.servidor.refresh_from_db()
+        self.assertEqual(self.servidor.username, 'servidor')
+
+
 @override_settings(TRUSTED_PROXY_HOSTS=('frontend',))
 class IpClienteTests(SimpleTestCase):
     def requisicao(self, remoto, original='', encaminhado=''):
