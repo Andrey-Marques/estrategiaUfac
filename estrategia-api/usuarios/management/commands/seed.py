@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 
 from django.core.management.base import BaseCommand, CommandError
@@ -11,6 +11,8 @@ from objetivosEstrategicos.models import ObjetivoEstrategico
 from projetosEstrategicos.models import AcaoProjeto, ProjetoEstrategico, EvolucaoProjeto
 from iniciativasEstrategicas.models import IniciativaEstrategica, AcaoRealizada
 from indicadoresEstrategicos.models import IndicadorEstrategico, EvolucaoIndicador
+from planejamento.models import Planejamento
+from pdi.models import PDI
 
 
 class Command(BaseCommand):
@@ -285,6 +287,32 @@ class Command(BaseCommand):
         )
 
         # =====================================================
+        # PLANEJAMENTO E PDI
+        # =====================================================
+
+        planejamento, _ = Planejamento.objects.update_or_create(
+            nome='Planejamento Estratégico 2024-2033',
+            defaults={
+                'data_inicio': date(2024, 1, 1),
+                'data_fim': date(2033, 12, 31),
+                'status': 'Vigente',
+            },
+        )
+        pdi, _ = PDI.objects.update_or_create(
+            nome='PDI 2025-2029',
+            defaults={
+                'data_inicio': date(2025, 1, 1),
+                'data_fim': date(2029, 12, 31),
+                'status': 'Vigente',
+                'planejamento': planejamento,
+            },
+        )
+
+        self.stdout.write(
+            self.style.SUCCESS('✓ Planejamento estratégico e PDI criados')
+        )
+
+        # =====================================================
         # OBJETIVOS ESTRATÉGICOS
         # =====================================================
 
@@ -405,7 +433,8 @@ class Command(BaseCommand):
             ObjetivoEstrategico.objects.update_or_create(
                 codigo=dados['codigo'],
                 defaults={
-                    'descricao': dados['descricao']
+                    'descricao': dados['descricao'],
+                    'planejamento': planejamento,
                 }
             )
 
@@ -586,6 +615,7 @@ class Command(BaseCommand):
                         'data_analise': timezone.now() - timedelta(days=5) if status in ('APROVADO', 'REJEITADO') else None,
                         'unidade': unidades[sigla],
                         'responsavel': responsaveis[sigla],
+                        'planejamento': planejamento,
                     }
                 )
 
@@ -646,6 +676,7 @@ class Command(BaseCommand):
                         'data_analise': timezone.now() - timedelta(days=4) if status in ('APROVADO', 'REJEITADO') else None,
                         'unidade': unidades[sigla],
                         'responsavel': responsaveis[sigla],
+                        'pdi': pdi,
                     }
                 )
 
@@ -714,6 +745,7 @@ class Command(BaseCommand):
                             r'\times 100',
                         'unidade': unidades[sigla],
                         'objetivo': objetivo,
+                        'planejamento': planejamento,
                         'responsavel': responsaveis[sigla],
                         'observacao':
                             'Indicador criado para dados de teste.',

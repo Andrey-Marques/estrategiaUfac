@@ -27,6 +27,8 @@ export interface IniciativaEstrategica {
   percentual_evolucao: number | string;
   status: 'APROVADO' | 'REJEITADO' | 'EM_ESPERA';
   unidade: number;
+  pdi: number;
+  pdi_nome?: string;
   unidade_sigla?: string;
   responsavel: number;
   responsavel_nome?: string;

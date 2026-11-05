@@ -94,6 +94,7 @@ class IndicadorEstrategicoViewSet(ExclusaoRegistroMixin, ModelViewSet):
                 'nome',
                 'responsavel',
                 'unidade',
+                'planejamento',
                 'objetivo',
                 'finalidade',
                 'unidade_medida',

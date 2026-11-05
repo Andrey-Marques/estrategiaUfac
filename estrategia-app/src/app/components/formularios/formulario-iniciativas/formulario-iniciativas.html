@@ -92,6 +92,27 @@
               />
             </div>
 
+            <div class="campo-formulario">
+              <label for="pdiIniciativa">
+                PLANO DE DESENVOLVIMENTO INSTITUCIONAL (PDI)
+                <span class="obrigatorio">*</span>
+              </label>
+              <select
+                id="pdiIniciativa"
+                class="form-control"
+                formControlName="pdi"
+                (change)="aoSelecionarPdi()"
+              >
+                <option [ngValue]="null">Selecione um PDI vigente</option>
+                <option *ngFor="let pdi of pdis()" [ngValue]="pdi.id">
+                  {{ pdi.nome }} ({{ pdi.data_inicio | date:'dd/MM/yyyy' }} a {{ pdi.data_fim | date:'dd/MM/yyyy' }})
+                </option>
+              </select>
+              <small class="texto-ajuda" *ngIf="!pdis().length">
+                Nenhum PDI disponível. Solicite o cadastro à administração.
+              </small>
+            </div>
+
             <div class="linha-informacoes">
               <div class="linha-vinculo">
                 <!-- UNIDADE -->
@@ -155,7 +176,7 @@
               </div>
               <hr />
               <div class="container-objetivos">
-                <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivos()">
+                <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivosDoPdi()">
                   <div class="cabecalho-card-objetivo">
                     <input
                       class="form-check-input selecao-objetivo"
@@ -168,6 +189,9 @@
                   </div>
                   <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
                 </label>
+                <p *ngIf="!objetivosDoPdi().length">
+                  Não há objetivos estratégicos cadastrados para o PDI selecionado.
+                </p>
               </div>
             </section>
             <hr />

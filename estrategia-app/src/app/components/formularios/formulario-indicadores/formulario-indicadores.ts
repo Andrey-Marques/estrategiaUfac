@@ -1,4 +1,4 @@
-import { Component, signal, output, input } from '@angular/core';
+import { Component, computed, signal, output, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IndicadorEstrategico } from '../../../model/indicadorEstrategico';
 import { IndicadorService } from '../../../service/indicador.service';
@@ -18,6 +18,8 @@ import { Unidade } from '../../../model/unidade';
 import * as katex from 'katex';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RevisaoEdicao } from '../../../model/revisaoEdicao';
+import { Planejamento } from '../../../model/planejamento';
+import { PlanejamentoService } from '../../../service/planejamento.service';
 
 @Component({
   selector: 'app-formulario-indicadores',
@@ -34,9 +36,11 @@ export class FormularioIndicadores {
     private objetivoService: ObjetivoService,
     private fb: FormBuilder,
     private sanitizer: DomSanitizer,
+    private planejamentoService: PlanejamentoService,
   ) {
     this.formularioIndicador = this.fb.group({
       nome: ['', Validators.required],
+      planejamento: [null, Validators.required],
       responsavel: [null, Validators.required],
       unidade: [null, Validators.required],
       finalidade: ['', Validators.required],
@@ -55,6 +59,17 @@ export class FormularioIndicadores {
 
   objetivos = signal<ObjetivoEstrategico[]>([]);
 
+  planejamentos = signal<Planejamento[]>([]);
+
+  planejamentoSelecionadoId = signal<number | null>(null);
+
+  readonly objetivosDoPlanejamento = computed(() => {
+    const planejamentoId = this.planejamentoSelecionadoId();
+    return this.objetivos().filter(
+      objetivo => Number(objetivo.planejamento) === planejamentoId,
+    );
+  });
+
   usuarioAtual = signal<Usuario | null>(null);
 
   isAdmin = signal(false);
@@ -72,10 +87,16 @@ export class FormularioIndicadores {
   statusIndicadorEmEdicao: string | null = null;
 
   ngOnInit(): void {
+    const planejamentoControl = this.formularioIndicador.get('planejamento');
+    this.planejamentoSelecionadoId.set(Number(planejamentoControl?.value) || null);
+    planejamentoControl?.valueChanges.subscribe(id =>
+      this.planejamentoSelecionadoId.set(Number(id) || null),
+    );
     this.buscarUsuarioAtual();
     this.buscarUsuarios();
     this.buscarUnidades();
     this.buscarObjetivos();
+    this.buscarPlanejamentos();
     this.observarResponsavelSelecionado();
   }
 
@@ -100,6 +121,7 @@ export class FormularioIndicadores {
     this.objetivoSelecionado = indicador.objetivo;
     this.formularioIndicador.patchValue({
       nome: indicador.nome,
+      planejamento: indicador.planejamento,
       responsavel: indicador.responsavel,
       unidade: indicador.unidade,
       finalidade: indicador.finalidade,
@@ -344,7 +366,10 @@ export class FormularioIndicadores {
   }
 
   selecionarObjetivo(objetivoId: number): void {
-    if (this.ehGestor() && this.edicaoRestrita) {
+    if (this.formularioIndicador.disabled || (this.ehGestor() && this.edicaoRestrita)) {
+      return;
+    }
+    if (!this.objetivosDoPlanejamento().some(objetivo => objetivo.id === objetivoId)) {
       return;
     }
     this.objetivoSelecionado = objetivoId;
@@ -403,6 +428,44 @@ export class FormularioIndicadores {
     });
   }
 
+  buscarPlanejamentos(): void {
+    this.planejamentoService.listarPlanejamentos().subscribe({
+      next: planejamentos => {
+        this.planejamentos.set(planejamentos);
+        if (!this.formularioIndicador.get('planejamento')?.value) {
+          const planejamentoId = this.planejamentoVigente()?.id ?? null;
+          this.formularioIndicador.patchValue(
+            { planejamento: planejamentoId },
+            { emitEvent: false },
+          );
+          this.planejamentoSelecionadoId.set(planejamentoId);
+        }
+      },
+      error: erro => console.error('Erro ao carregar planejamentos:', erro),
+    });
+  }
+
+  private planejamentoVigente(): Planejamento | null {
+    const hoje = new Date().toISOString().slice(0, 10);
+    const vigentes = this.planejamentos()
+      .filter(planejamento => planejamento.status === 'Vigente')
+      .sort((a, b) => b.data_inicio.localeCompare(a.data_inicio));
+    return vigentes.find(
+      planejamento => planejamento.data_inicio <= hoje && planejamento.data_fim >= hoje,
+    ) ?? vigentes[0] ?? null;
+  }
+
+  aoSelecionarPlanejamento(): void {
+    const planejamentoId = Number(this.formularioIndicador.get('planejamento')?.value);
+    this.planejamentoSelecionadoId.set(planejamentoId || null);
+    if (
+      this.objetivoSelecionado !== null &&
+      !this.objetivosDoPlanejamento().some(objetivo => objetivo.id === this.objetivoSelecionado)
+    ) {
+      this.objetivoSelecionado = null;
+    }
+  }
+
   salvarIndicador(status: 'EM_ESPERA' | 'APROVADO'): void {
     if (this.formularioIndicador.invalid) {
       this.formularioIndicador.markAllAsTouched();
@@ -410,8 +473,11 @@ export class FormularioIndicadores {
       return;
     }
 
-    if (!this.objetivoSelecionado) {
-      alert('Selecione um objetivo estratégico.');
+    if (
+      !this.objetivoSelecionado ||
+      !this.objetivosDoPlanejamento().some(objetivo => objetivo.id === this.objetivoSelecionado)
+    ) {
+      alert('Selecione um objetivo estratégico do planejamento escolhido.');
       this.etapaAtual = 1;
       return;
     }
@@ -424,6 +490,7 @@ export class FormularioIndicadores {
     const formulario = this.formularioIndicador.getRawValue();
     const dados: any = {
       nome: formulario.nome,
+      planejamento: Number(formulario.planejamento),
       responsavel: formulario.responsavel || null,
       unidade: formulario.unidade,
       objetivo: this.objetivoSelecionado,
@@ -515,6 +582,7 @@ export class FormularioIndicadores {
     this.formularioIndicador.enable();
     this.formularioIndicador.reset({
       nome: '',
+      planejamento: this.planejamentoVigente()?.id ?? null,
       responsavel: null,
       unidade: null,
       finalidade: '',

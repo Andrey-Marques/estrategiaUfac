@@ -121,6 +121,26 @@
               />
             </div>
 
+            <div class="campo-formulario">
+              <label for="planejamentoIndicador">
+                PLANEJAMENTO ESTRATÉGICO <span class="campo-obrigatorio">*</span>
+              </label>
+              <select
+                id="planejamentoIndicador"
+                class="form-control"
+                formControlName="planejamento"
+                (change)="aoSelecionarPlanejamento()"
+              >
+                <option [ngValue]="null">Selecione um planejamento vigente</option>
+                <option *ngFor="let planejamento of planejamentos()" [ngValue]="planejamento.id">
+                  {{ planejamento.nome }} ({{ planejamento.data_inicio | date:'dd/MM/yyyy' }} a {{ planejamento.data_fim | date:'dd/MM/yyyy' }})
+                </option>
+              </select>
+              <small class="texto-ajuda" *ngIf="!planejamentos().length">
+                Nenhum planejamento disponível. Solicite o cadastro à administração.
+              </small>
+            </div>
+
             <!-- RESPONSÁVEL E UNIDADE -->
             <div class="linha-informacoes">
               <div class="campo-formulario">
@@ -175,7 +195,7 @@
               <div class="container-objetivos">
                 <div
                   class="card-objetivo-estrategico"
-                  *ngFor="let objetivo of objetivos()"
+                  *ngFor="let objetivo of objetivosDoPlanejamento()"
                   [class.objetivo-selecionado]="objetivoSelecionado === objetivo.id"
                   (click)="selecionarObjetivo(objetivo.id)"
                 >
@@ -184,6 +204,9 @@
                   </div>
                   <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
                 </div>
+                <p *ngIf="!objetivosDoPlanejamento().length">
+                  Não há objetivos estratégicos cadastrados para este planejamento.
+                </p>
               </div>
             </section>
           </div>

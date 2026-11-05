@@ -11,6 +11,8 @@ interface DetalhePublico {
   unidade_nome: string;
   unidade_sigla: string;
   responsavel_nome: string | null;
+  planejamento_nome: string | null;
+  pdi_nome: string | null;
   objetivos_detalhes: Array<{ id: number; codigo: string; descricao: string }>;
 }
 
@@ -30,6 +32,8 @@ export interface AcaoEstrategicaPublica {
   progresso?: number | string | null;
   unidade_id: number;
   unidade_sigla: string;
+  planejamento_nome: string | null;
+  pdi_nome: string | null;
   responsavel: string | null;
   objetivos: Array<{ id: number; codigo: string }>;
   data_atualizacao: string | null;

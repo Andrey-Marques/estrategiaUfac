@@ -7,6 +7,12 @@
     <ng-container *ngIf="detalhe.registro() as registro">
       <h1 class="titulo-projeto">{{ registro.nome }}</h1>
       <section class="info-cards">
+        <article class="info-card">
+          <div class="info-card-titulo">PDI</div>
+          <div class="info-card-conteudo">
+            <p>{{ registro.pdi_nome || 'Não informado' }}</p>
+          </div>
+        </article>
         <article class="info-card info-card--unidade">
           <div class="info-card-titulo">Unidade Responsável</div>
           <div class="info-card-conteudo">

@@ -8,6 +8,8 @@ export interface IndicadorEstrategico {
     metodo_calculo: string;
     formula: string;
     unidade: number;
+    planejamento: number;
+    planejamento_nome?: string;
     objetivo: number;
     responsavel: number;
     observacao: string;

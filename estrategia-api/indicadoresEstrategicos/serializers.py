@@ -60,6 +60,8 @@ class IndicadorEstrategicoSerializer(ExclusaoSerializerMixin, serializers.ModelS
             'observacao',
             'unidade_medida',
             'unidade',
+            'planejamento',
+            'planejamento_nome',
             'objetivo',
             'responsavel',
             'data_envio',
@@ -71,10 +73,20 @@ class IndicadorEstrategicoSerializer(ExclusaoSerializerMixin, serializers.ModelS
         ]
         read_only_fields = [
             'data_envio',
+            'planejamento_nome',
         ]
         extra_kwargs = {'formula': {'required': False, 'allow_blank': True}}
 
     def validate(self, attrs):
+        planejamento = attrs.get('planejamento', getattr(self.instance, 'planejamento', None))
+        objetivo = attrs.get('objetivo', getattr(self.instance, 'objetivo', None))
+        if planejamento is None:
+            raise serializers.ValidationError({'planejamento': 'Selecione um planejamento.'})
+        if objetivo is None or objetivo.planejamento_id != planejamento.id:
+            raise serializers.ValidationError({
+                'objetivo': 'O objetivo deve pertencer ao planejamento selecionado.'
+            })
+
         if attrs.get('status') == 'REJEITADO':
             observacao = (attrs.get('observacao_analise') or '').strip()
             if not observacao:
@@ -83,6 +95,8 @@ class IndicadorEstrategicoSerializer(ExclusaoSerializerMixin, serializers.ModelS
                 })
             attrs['observacao_analise'] = observacao
         return attrs
+
+    planejamento_nome = serializers.CharField(source='planejamento.nome', read_only=True)
 
     def validate_evolucao_indicador(self, evolucoes):
         anos = [str(evolucao['ano']).strip() for evolucao in evolucoes]

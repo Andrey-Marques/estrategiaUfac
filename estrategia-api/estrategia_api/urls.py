@@ -12,6 +12,8 @@ urlpatterns = [
     path('api/', include('usuarios.urls')),
     path('api/', include('unidades.urls')),
     path('api/', include('objetivosEstrategicos.urls')),
+    path('api/', include('planejamento.urls')),
+    path('api/', include('pdi.urls')),
     path('api/', include('projetosEstrategicos.urls')),
     path('api/', include('iniciativasEstrategicas.urls')),
     path('api/', include('indicadoresEstrategicos.urls')),

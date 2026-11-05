@@ -89,6 +89,27 @@
               />
             </div>
 
+            <div class="campo-formulario">
+              <label for="planejamentoProjeto">
+                PLANEJAMENTO ESTRATÉGICO <span class="campo-obrigatorio">*</span>
+              </label>
+              <select
+                id="planejamentoProjeto"
+                class="form-control"
+                formControlName="planejamento"
+                (change)="aoSelecionarPlanejamento()"
+                [disabled]="visualizando && (!modoEdicaoProjeto || !isAdmin())"
+              >
+                <option [ngValue]="null">Selecione um planejamento vigente</option>
+                <option *ngFor="let planejamento of planejamentos()" [ngValue]="planejamento.id">
+                  {{ planejamento.nome }} ({{ planejamento.data_inicio | date:'dd/MM/yyyy' }} a {{ planejamento.data_fim | date:'dd/MM/yyyy' }})
+                </option>
+              </select>
+              <small class="texto-ajuda" *ngIf="!planejamentos().length">
+                Nenhum planejamento disponível. Solicite o cadastro à administração.
+              </small>
+            </div>
+
             <div class="linha-informacoes">
               <div class="campo-formulario campo-unidade">
                 <label for="unidadeResponsavel">
@@ -186,7 +207,7 @@
               </div>
               <hr />
               <div class="container-objetivos">
-                <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivos()">
+                <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivosDoPlanejamento()">
                   <div class="cabecalho-card-objetivo">
                     <input
                       class="form-check-input selecao-objetivo"
@@ -199,6 +220,9 @@
                   </div>
                   <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
                 </label>
+                <p *ngIf="!objetivosDoPlanejamento().length">
+                  Não há objetivos estratégicos cadastrados para este planejamento.
+                </p>
               </div>
             </section>
             <hr />
