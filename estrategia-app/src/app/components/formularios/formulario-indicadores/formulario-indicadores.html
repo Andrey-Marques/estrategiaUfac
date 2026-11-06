@@ -204,9 +204,13 @@
                   </div>
                   <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
                 </div>
-                <p *ngIf="!objetivosDoPlanejamento().length">
-                  Não há objetivos estratégicos cadastrados para este planejamento.
-                </p>
+                <div class="estado-vazio-objetivos" *ngIf="!objetivosDoPlanejamento().length" role="status" aria-live="polite">
+                  <div class="mensagem-estado-vazio">
+                    <strong>Nenhum objetivo disponível</strong>
+                    <p>Não há objetivos estratégicos cadastrados para este planejamento.</p>
+                    <small>Cadastre objetivos estratégicos ou selecione outro planejamento.</small>
+                  </div>
+                </div>
               </div>
             </section>
           </div>

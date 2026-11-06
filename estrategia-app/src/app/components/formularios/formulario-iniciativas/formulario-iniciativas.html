@@ -189,9 +189,13 @@
                   </div>
                   <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
                 </label>
-                <p *ngIf="!objetivosDoPdi().length">
-                  Não há objetivos estratégicos cadastrados para o PDI selecionado.
-                </p>
+                <div class="estado-vazio-objetivos" *ngIf="!objetivosDoPdi().length" role="status" aria-live="polite">
+                  <div class="mensagem-estado-vazio">
+                    <strong>Nenhum objetivo disponível</strong>
+                    <p>Não há objetivos estratégicos cadastrados para o planejamento deste PDI.</p>
+                    <small>Cadastre objetivos estratégicos ou selecione outro PDI.</small>
+                  </div>
+                </div>
               </div>
             </section>
             <hr />

@@ -8,4 +8,5 @@ export interface ObjetivoEstrategico{
 export interface CriarObjetivoEstrategico {
   codigo: string;
   descricao: string;
+  planejamento: number;
 }

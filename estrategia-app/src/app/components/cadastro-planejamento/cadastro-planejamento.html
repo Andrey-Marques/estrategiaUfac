@@ -1,9 +1,7 @@
-<main class="cadastro-planejamento">
+<main class="cadastro-planejamento listagem-privada">
   <header class="cabecalho">
     <div>
-      <p class="sobretitulo">GESTÃO ESTRATÉGICA</p>
-      <h1>Planejamentos e PDIs</h1>
-      <p class="descricao">Consulte os documentos e seus períodos de vigência.</p>
+      <h1 class="titulo-pagina m-0 cabecalho">Planejamentos e PDIs</h1>
     </div>
   </header>
 
@@ -43,16 +41,41 @@
             <i class="bi bi-diagram-3" aria-hidden="true"></i>
             {{ quantidadePdis(planejamento.id) }} PDI(s) vinculado(s)
           </p>
+          <p class="quantidade-objetivos">
+            <i class="bi bi-bullseye" aria-hidden="true"></i>
+            {{ quantidadeObjetivos(planejamento) }} objetivo(s) estratégico(s)
+          </p>
         </div>
-        <button
-          class="botao-editar"
-          type="button"
-          [attr.aria-label]="'Editar planejamento ' + planejamento.nome"
-          title="Editar planejamento"
-          (click)="editarPlanejamento(planejamento)"
-        >
-          <i class="bi bi-pencil-square" aria-hidden="true"></i>
-        </button>
+        <div class="acoes-documento">
+          <button
+            class="botao-objetivos"
+            type="button"
+            [attr.aria-label]="'Ver e cadastrar objetivos de ' + planejamento.nome"
+            title="Ver e cadastrar objetivos"
+            (click)="abrirObjetivos(planejamento)"
+          >
+            <span>Objetivos</span>
+          </button>
+          <button
+            class="botao-editar"
+            type="button"
+            [attr.aria-label]="'Editar planejamento ' + planejamento.nome"
+            title="Editar planejamento"
+            (click)="editarPlanejamento(planejamento)"
+          >
+            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+          </button>
+          <button
+            class="botao-excluir"
+            type="button"
+            [disabled]="!podeExcluirPlanejamento(planejamento) || planejamentoExcluindoId() === planejamento.id"
+            [attr.aria-label]="'Excluir planejamento ' + planejamento.nome"
+            [title]="podeExcluirPlanejamento(planejamento) ? 'Excluir planejamento' : 'Não pode excluir: remova os objetivos e iniciativas dos PDIs vinculados'"
+            (click)="excluirPlanejamento(planejamento)"
+          >
+            <i class="bi bi-trash3" aria-hidden="true"></i>
+          </button>
+        </div>
       </article>
       <div class="estado-vazio" *ngIf="!carregando() && !planejamentos().length && !erroCarregamento()">
         <i class="bi bi-journal-x" aria-hidden="true"></i>
@@ -102,16 +125,32 @@
             <i class="bi bi-folder2" aria-hidden="true"></i>
             Planejamento: {{ nomePlanejamento(pdi.planejamento) }}
           </p>
+          <p class="quantidade-iniciativas">
+            <i class="bi bi-list-check" aria-hidden="true"></i>
+            {{ pdi.quantidade_iniciativas ?? 0 }} iniciativa(s) vinculada(s)
+          </p>
         </div>
-        <button
-          class="botao-editar"
-          type="button"
-          [attr.aria-label]="'Editar PDI ' + pdi.nome"
-          title="Editar PDI"
-          (click)="editarPdi(pdi)"
-        >
-          <i class="bi bi-pencil-square" aria-hidden="true"></i>
-        </button>
+        <div class="acoes-documento">
+          <button
+            class="botao-editar"
+            type="button"
+            [attr.aria-label]="'Editar PDI ' + pdi.nome"
+            title="Editar PDI"
+            (click)="editarPdi(pdi)"
+          >
+            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+          </button>
+          <button
+            class="botao-excluir"
+            type="button"
+            [disabled]="(pdi.quantidade_iniciativas ?? 0) > 0 || pdiExcluindoId() === pdi.id"
+            [attr.aria-label]="'Excluir PDI ' + pdi.nome"
+            [title]="(pdi.quantidade_iniciativas ?? 0) > 0 ? 'Não pode excluir: há iniciativas vinculadas' : 'Excluir PDI'"
+            (click)="excluirPdi(pdi)"
+          >
+            <i class="bi bi-trash3" aria-hidden="true"></i>
+          </button>
+        </div>
       </article>
       <div class="estado-vazio" *ngIf="!carregando() && !pdis().length && !erroCarregamento()">
         <i class="bi bi-diagram-2" aria-hidden="true"></i>
@@ -244,6 +283,76 @@
           <button class="botao-cancelar" type="button" [disabled]="salvandoPdi()" (click)="fecharModal()">Cancelar</button>
           <button class="botao-salvar" type="submit" [disabled]="salvandoPdi()">
             {{ salvandoPdi() ? 'Salvando...' : (pdiEmEdicao() ? 'Salvar alterações' : 'Criar PDI') }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <div
+    class="modal-fundo"
+    *ngIf="planejamentoDosObjetivos() as planejamento"
+    (click)="fecharObjetivos()"
+  >
+    <section
+      class="modal-cartao modal-objetivos"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo-objetivos"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-cabecalho">
+        <div class="titulo-cartao">
+          <span class="documento-icone planejamento-icone">
+            <i class="bi bi-bullseye" aria-hidden="true"></i>
+          </span>
+          <div>
+            <h2 id="modal-titulo-objetivos">Objetivos estratégicos</h2>
+            <p>{{ planejamento.nome }}</p>
+          </div>
+        </div>
+        <button class="botao-fechar" type="button" aria-label="Fechar" (click)="fecharObjetivos()">×</button>
+      </header>
+
+      <div class="lista-objetivos-planejamento" [attr.aria-busy]="carregandoObjetivos()">
+        <div class="estado-vazio" *ngIf="carregandoObjetivos()">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Carregando objetivos...</span>
+        </div>
+        <div class="mensagem erro" role="alert" *ngIf="erroObjetivos()">{{ erroObjetivos() }}</div>
+        <article class="objetivo-planejamento" *ngFor="let objetivo of objetivosDoPlanejamento()">
+          <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
+          <p>{{ objetivo.descricao }}</p>
+        </article>
+        <div class="estado-vazio" *ngIf="!carregandoObjetivos() && !erroObjetivos() && !objetivosDoPlanejamento().length">
+          <i class="bi bi-bullseye" aria-hidden="true"></i>
+          <strong>Nenhum objetivo cadastrado</strong>
+          <span>Adicione o primeiro objetivo para este planejamento.</span>
+        </div>
+      </div>
+
+      <form class="formulario-objetivo" [formGroup]="formularioObjetivo" (ngSubmit)="salvarObjetivo()" novalidate>
+        <h3>Cadastrar objetivo</h3>
+        <div class="linha-campos">
+          <div class="campo">
+            <label for="codigo-objetivo-planejamento">Código <span>*</span></label>
+            <input id="codigo-objetivo-planejamento" formControlName="codigo" maxlength="8" autocomplete="off" placeholder="Ex.: OE1" />
+          </div>
+          <div class="campo campo-descricao-objetivo">
+            <label for="descricao-objetivo-planejamento">Descrição <span>*</span></label>
+            <input id="descricao-objetivo-planejamento" formControlName="descricao" autocomplete="off" placeholder="Descreva o objetivo estratégico" />
+          </div>
+        </div>
+        <small class="erro-campo" *ngIf="formularioObjetivo.controls.codigo.touched && formularioObjetivo.controls.codigo.invalid">
+          Informe um código com até 8 caracteres.
+        </small>
+        <small class="erro-campo" *ngIf="formularioObjetivo.controls.descricao.touched && formularioObjetivo.controls.descricao.invalid">
+          Informe a descrição do objetivo.
+        </small>
+        <div class="mensagem sucesso" role="status" *ngIf="sucessoObjetivo()">{{ sucessoObjetivo() }}</div>
+        <footer class="modal-acoes">
+          <button class="botao-salvar" type="submit" [disabled]="salvandoObjetivo() || carregandoObjetivos()">
+            {{ salvandoObjetivo() ? 'Salvando...' : 'Adicionar objetivo' }}
           </button>
         </footer>
       </form>

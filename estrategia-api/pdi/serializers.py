@@ -2,9 +2,20 @@ from rest_framework import serializers
 from .models import PDI
 
 class PDISerializer(serializers.ModelSerializer):
+    quantidade_iniciativas = serializers.IntegerField(source='iniciativas_count', read_only=True)
+
     class Meta:
         model = PDI
-        fields = '__all__'
+        fields = [
+            'id',
+            'nome',
+            'data_inicio',
+            'data_fim',
+            'status',
+            'planejamento',
+            'quantidade_iniciativas',
+        ]
+        read_only_fields = ['quantidade_iniciativas']
 
     def validate(self, attrs):
         data_inicio = attrs.get('data_inicio', getattr(self.instance, 'data_inicio', None))

@@ -28,7 +28,7 @@ class IniciativaEstrategica(models.Model):
     
     def clean(self):
         super().clean()
-        if self.pdi and self.pdi.planejamento:
+        if self.pk and self.pdi and self.pdi.planejamento:
             for objetivo in self.objetivos.all():
                 if objetivo.planejamento != self.pdi.planejamento:
                     raise ValidationError('A iniciativa só pode estar vinculada a objetivos do mesmo planejamento do PDI.')

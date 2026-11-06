@@ -194,7 +194,7 @@
               <label for="descricao">OBJETIVO DO PROJETO</label>
               <textarea
                 id="descricao"
-                class="objetivo-projeto"
+                class="objetivo-projeto form-control"
                 placeholder="Insira o objetivo aqui"
                 formControlName="descricao"
               ></textarea>
@@ -220,9 +220,15 @@
                   </div>
                   <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
                 </label>
-                <p *ngIf="!objetivosDoPlanejamento().length">
+                <div class="estado-vazio-objetivos" *ngIf="!objetivosDoPlanejamento().length" role="status" aria-live="polite">
+                  <div class="mensagem-estado-vazio">
+                    <strong>Nenhum objetivo disponível</strong>
+                    <p>
                   Não há objetivos estratégicos cadastrados para este planejamento.
-                </p>
+                    </p>
+                    <small>Cadastre objetivos estratégicos ou selecione outro planejamento.</small>
+                  </div>
+                </div>
               </div>
             </section>
             <hr />

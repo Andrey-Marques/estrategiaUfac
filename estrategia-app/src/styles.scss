@@ -293,6 +293,58 @@ a {
     grid-template-columns: repeat(6, 1fr);
     gap: 16px;
 
+    .estado-vazio-objetivos {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      min-height: 112px;
+      padding: 20px 24px;
+      border: 1px dashed #b4b4b4;
+      border-radius: 12px;
+      color: $cor-texto-subtitulo;
+
+      .icone-estado-vazio {
+        display: inline-flex;
+        flex: 0 0 44px;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background-color: #e4edfa;
+        color: $cor-primaria-texto-destaque;
+        font-size: 21px;
+      }
+
+      .mensagem-estado-vazio {
+        min-width: 0;
+
+        strong {
+          display: block;
+          margin-bottom: 4px;
+          font-size: 15px;
+          font-weight: 700;
+        }
+
+        p {
+          margin: 0;
+          font-size: 13px;
+          line-height: 1.5;
+          color: $cor-texto-rotulo;
+        }
+
+        small {
+          display: block;
+          margin-top: 5px;
+          font-size: 12px;
+          line-height: 1.4;
+          color: $cor-texto-auxiliar;
+        }
+      }
+    }
+
     .card-objetivo-estrategico {
       display: flex;
       flex-direction: column;
@@ -349,6 +401,20 @@ a {
         font-weight: 700;
         color: #666666;
         line-height: 1.1;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .container-objetivos .estado-vazio-objetivos {
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+
+      .icone-estado-vazio {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px;
       }
     }
   }

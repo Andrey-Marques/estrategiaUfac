@@ -28,11 +28,19 @@ export class PlanejamentoService {
     return this.http.patch<Planejamento>(`${this.planejamentosUrl}${id}/`, dados);
   }
 
+  excluirPlanejamento(id: number) {
+    return this.http.delete<void>(`${this.planejamentosUrl}${id}/`);
+  }
+
   criarPdi(dados: CriarPdi) {
     return this.http.post<Pdi>(this.pdisUrl, dados);
   }
 
   atualizarPdi(id: number, dados: CriarPdi) {
     return this.http.patch<Pdi>(`${this.pdisUrl}${id}/`, dados);
+  }
+
+  excluirPdi(id: number) {
+    return this.http.delete<void>(`${this.pdisUrl}${id}/`);
   }
 }

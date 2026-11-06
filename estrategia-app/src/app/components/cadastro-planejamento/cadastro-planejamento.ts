@@ -5,6 +5,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { PlanejamentoService } from '../../service/planejamento.service';
 import { Pdi, Planejamento } from '../../model/planejamento';
+import { ObjetivoEstrategico } from '../../model/objetivoEstrategico';
+import { ObjetivoService } from '../../service/objetivo.service';
 
 @Component({
   selector: 'app-cadastro-planejamento',
@@ -15,19 +17,28 @@ import { Pdi, Planejamento } from '../../model/planejamento';
 export class CadastroPlanejamento implements OnInit {
   private readonly service = inject(PlanejamentoService);
   private readonly fb = inject(FormBuilder);
+  private readonly objetivoService = inject(ObjetivoService);
 
   planejamentos = signal<Planejamento[]>([]);
   pdis = signal<Pdi[]>([]);
   carregando = signal(false);
   salvandoPlanejamento = signal(false);
   salvandoPdi = signal(false);
+  salvandoObjetivo = signal(false);
+  carregandoObjetivos = signal(false);
   erroCarregamento = signal('');
   erroPlanejamento = signal('');
   erroPdi = signal('');
+  erroObjetivos = signal('');
+  sucessoObjetivo = signal('');
   sucesso = signal('');
   modalAberto = signal<'planejamento' | 'pdi' | null>(null);
   planejamentoEmEdicao = signal<Planejamento | null>(null);
   pdiEmEdicao = signal<Pdi | null>(null);
+  planejamentoDosObjetivos = signal<Planejamento | null>(null);
+  objetivosDoPlanejamento = signal<ObjetivoEstrategico[]>([]);
+  pdiExcluindoId = signal<number | null>(null);
+  planejamentoExcluindoId = signal<number | null>(null);
 
   readonly pdisOrdenados = computed(() =>
     [...this.pdis()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
@@ -38,6 +49,11 @@ export class CadastroPlanejamento implements OnInit {
     data_inicio: ['', Validators.required],
     data_fim: ['', Validators.required],
     status: this.fb.nonNullable.control<'Vigente' | 'Expirado'>('Vigente', Validators.required),
+  });
+
+  readonly formularioObjetivo = this.fb.nonNullable.group({
+    codigo: ['', [Validators.required, Validators.maxLength(8), Validators.pattern(/\S/)]],
+    descricao: ['', [Validators.required, Validators.pattern(/\S/)]],
   });
 
   readonly formularioPdi = this.fb.nonNullable.group({
@@ -132,6 +148,10 @@ export class CadastroPlanejamento implements OnInit {
 
   @HostListener('document:keydown.escape')
   fecharModalComEscape(): void {
+    if (this.planejamentoDosObjetivos()) {
+      this.fecharObjetivos();
+      return;
+    }
     this.fecharModal();
   }
 
@@ -142,6 +162,126 @@ export class CadastroPlanejamento implements OnInit {
 
   quantidadePdis(planejamentoId: number): number {
     return this.pdis().filter(pdi => pdi.planejamento === planejamentoId).length;
+  }
+
+  quantidadeObjetivos(planejamento: Planejamento): number {
+    return planejamento.quantidade_objetivos ?? this.objetivosDoPlanejamento().filter(
+      objetivo => objetivo.planejamento === planejamento.id,
+    ).length;
+  }
+
+  planejamentoTemIniciativas(planejamentoId: number): boolean {
+    return this.pdis().some(
+      pdi => pdi.planejamento === planejamentoId && (pdi.quantidade_iniciativas ?? 0) > 0,
+    );
+  }
+
+  podeExcluirPlanejamento(planejamento: Planejamento): boolean {
+    return this.quantidadeObjetivos(planejamento) === 0 &&
+      !this.planejamentoTemIniciativas(planejamento.id);
+  }
+
+  abrirObjetivos(planejamento: Planejamento): void {
+    this.planejamentoDosObjetivos.set(planejamento);
+    this.objetivosDoPlanejamento.set([]);
+    this.erroObjetivos.set('');
+    this.sucessoObjetivo.set('');
+    this.formularioObjetivo.reset({ codigo: '', descricao: '' });
+    this.carregandoObjetivos.set(true);
+    this.objetivoService.get().pipe(finalize(() => this.carregandoObjetivos.set(false))).subscribe({
+      next: objetivos => this.objetivosDoPlanejamento.set(
+        objetivos
+          .filter(objetivo => objetivo.planejamento === planejamento.id)
+          .sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR')),
+      ),
+      error: erro => {
+        console.error('Erro ao carregar objetivos do planejamento:', erro);
+        this.erroObjetivos.set('Não foi possível carregar os objetivos deste planejamento.');
+      },
+    });
+  }
+
+  fecharObjetivos(): void {
+    if (this.salvandoObjetivo()) return;
+    this.planejamentoDosObjetivos.set(null);
+    this.erroObjetivos.set('');
+    this.sucessoObjetivo.set('');
+  }
+
+  salvarObjetivo(): void {
+    const planejamento = this.planejamentoDosObjetivos();
+    if (!planejamento || this.salvandoObjetivo()) return;
+    this.formularioObjetivo.markAllAsTouched();
+    this.erroObjetivos.set('');
+    this.sucessoObjetivo.set('');
+    if (this.formularioObjetivo.invalid) return;
+
+    const valores = this.formularioObjetivo.getRawValue();
+    this.salvandoObjetivo.set(true);
+    this.objetivoService.criar({
+      codigo: valores.codigo.trim(),
+      descricao: valores.descricao.trim(),
+      planejamento: planejamento.id,
+    }).pipe(finalize(() => this.salvandoObjetivo.set(false))).subscribe({
+      next: objetivo => {
+        this.objetivosDoPlanejamento.update(objetivos =>
+          [...objetivos, objetivo].sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR')),
+        );
+        this.planejamentos.update(planejamentos =>
+          planejamentos.map(item => item.id === planejamento.id
+            ? { ...item, quantidade_objetivos: (item.quantidade_objetivos ?? 0) + 1 }
+            : item,
+          ),
+        );
+        this.formularioObjetivo.reset({ codigo: '', descricao: '' });
+        this.sucessoObjetivo.set('Objetivo cadastrado com sucesso.');
+      },
+      error: erro => {
+        console.error('Erro ao cadastrar objetivo:', erro);
+        this.erroObjetivos.set(this.mensagemErro(erro, 'Não foi possível cadastrar o objetivo.'));
+      },
+    });
+  }
+
+  excluirPlanejamento(planejamento: Planejamento): void {
+    if (!this.podeExcluirPlanejamento(planejamento) || this.planejamentoExcluindoId() !== null) return;
+    if (!window.confirm(`Excluir o planejamento "${planejamento.nome}"? Os PDIs sem iniciativas vinculadas também serão removidos.`)) return;
+
+    this.planejamentoExcluindoId.set(planejamento.id);
+    this.erroCarregamento.set('');
+    this.service.excluirPlanejamento(planejamento.id)
+      .pipe(finalize(() => this.planejamentoExcluindoId.set(null)))
+      .subscribe({
+        next: () => {
+          this.planejamentos.update(items => items.filter(item => item.id !== planejamento.id));
+          this.pdis.update(items => items.filter(item => item.planejamento !== planejamento.id));
+          this.sucesso.set('Planejamento excluído com sucesso.');
+        },
+        error: erro => {
+          console.error('Erro ao excluir planejamento:', erro);
+          this.erroCarregamento.set(this.mensagemErro(erro, 'Não foi possível excluir o planejamento.'));
+        },
+      });
+  }
+
+  excluirPdi(pdi: Pdi): void {
+    if ((pdi.quantidade_iniciativas ?? 0) > 0 || this.pdiExcluindoId() !== null) return;
+    if (!window.confirm(`Excluir o PDI "${pdi.nome}"?`)) return;
+
+    this.pdiExcluindoId.set(pdi.id);
+    this.erroCarregamento.set('');
+    this.service.excluirPdi(pdi.id)
+      .pipe(finalize(() => this.pdiExcluindoId.set(null)))
+      .subscribe({
+        next: () => {
+          this.pdis.update(items => items.filter(item => item.id !== pdi.id));
+          this.sucesso.set('PDI excluído com sucesso.');
+        },
+        error: erro => {
+          console.error('Erro ao excluir PDI:', erro);
+          this.erroCarregamento.set(this.mensagemErro(erro, 'Não foi possível excluir o PDI.'));
+        },
+      });
   }
 
   statusClass(status: string): string {

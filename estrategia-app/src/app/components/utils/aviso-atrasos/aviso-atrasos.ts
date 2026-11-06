@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AcaoEmAtraso } from '../../../service/atrasos.service';
 
@@ -22,10 +22,40 @@ export function agruparAtrasos(acoes: AcaoEmAtraso[]) {
   selector: 'app-aviso-atrasos',
   standalone: true,
   imports: [CommonModule],
-  template: `<div *ngIf="acoes.length" class="aviso-atrasos" role="status"><strong><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Ações em atraso ({{ acoes.length }})</strong><div class="lista-atrasos"><p *ngFor="let grupo of grupos"><strong>{{ grupo.tipo === 'projetos' ? 'Projeto' : 'Iniciativa' }}: {{ grupo.registro_nome }}</strong> — {{ grupo.nomes.join(', ') }}<small>{{ grupo.nomes.length > 1 ? 'Início previsto mais antigo' : 'Início previsto' }}: {{ grupo.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} · {{ grupo.nomes.length > 1 ? 'Maior atraso' : 'Atraso no início' }}: {{ grupo.dias_atraso }} dia(s)</small></p></div></div>`,
-  styles: [`.aviso-atrasos { margin-bottom: 20px; padding: 14px 18px; border: 1px solid #f0d991; border-left: 4px solid #d99b00; border-radius: 5px; background: #fffaf0; color: #8a5200; font-size: 14px; } .lista-atrasos { max-height: 200px; overflow-y: auto; margin-top: 10px; } p { margin: 0; padding: 8px 0; border-top: 1px solid #f0e3c5; } small { display: block; margin-top: 4px; font-size: 12px; }`],
+  template: `
+    <div *ngIf="acoes.length && !dispensado" class="aviso-atrasos" role="status">
+      <header class="cabecalho-aviso">
+        <strong><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Ações em atraso ({{ acoes.length }})</strong>
+        <button type="button" class="dispensar-aviso" aria-label="Dispensar aviso de ações em atraso" title="Dispensar aviso" (click)="dispensado = true">
+          <i class="bi bi-x" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="lista-atrasos">
+        <p *ngFor="let grupo of grupos">
+          <strong>{{ grupo.tipo === 'projetos' ? 'Projeto' : 'Iniciativa' }}: {{ grupo.registro_nome }}</strong>
+          — {{ grupo.nomes.join('; ') }}
+          <small>{{ grupo.nomes.length > 1 ? 'Início previsto mais antigo' : 'Início previsto' }}: {{ grupo.prazo_inicio | date:'dd/MM/yyyy':'UTC' }} · {{ grupo.nomes.length > 1 ? 'Maior atraso' : 'Atraso no início' }}: {{ grupo.dias_atraso }} dia(s)</small>
+        </p>
+      </div>
+    </div>`,
+  styles: [`
+    .aviso-atrasos { margin-bottom: 20px; padding: 12px 18px; border: 1px solid #f0d991; border-left: 4px solid #d99b00; border-radius: 5px; background: #fffaf0; color: #8a5200; font-size: 14px; }
+    .cabecalho-aviso { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .dispensar-aviso { display: grid; width: 26px; height: 26px; flex: 0 0 26px; place-items: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #8b8b8b; font-size: 20px; line-height: 1; cursor: pointer; }
+    .dispensar-aviso:hover { background: rgb(0 0 0 / 6%); color: #555; }
+    .dispensar-aviso:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+    .lista-atrasos { max-height: 200px; overflow-y: auto; margin-top: 10px; }
+    p { margin: 0; padding: 8px 0; border-top: 1px solid #f0e3c5; }
+    small { display: block; margin-top: 4px; font-size: 12px; }
+  `],
 })
-export class AvisoAtrasos {
+export class AvisoAtrasos implements OnChanges {
   @Input() acoes: AcaoEmAtraso[] = [];
+  dispensado = false;
+
+  ngOnChanges(): void {
+    this.dispensado = false;
+  }
+
   get grupos() { return agruparAtrasos(this.acoes); }
 }
