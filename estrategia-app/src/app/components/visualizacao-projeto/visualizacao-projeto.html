@@ -12,12 +12,7 @@
         <p>{{ registro.justificativa_descontinuacao || 'Justificativa não informada.' }}</p>
       </section>
       <section class="info-cards">
-        <article class="info-card">
-          <div class="info-card-titulo">Planejamento Estratégico</div>
-          <div class="info-card-conteudo">
-            <p>{{ registro.planejamento_nome || 'Não informado' }}</p>
-          </div>
-        </article>
+        
         <article class="info-card info-card--objetivo">
           <div class="info-card-titulo">Objetivo</div>
           <div class="info-card-conteudo">
@@ -128,15 +123,23 @@
             >Última modificação: {{ registro.ultima_atualizacao | date: 'dd/MM/yyyy' }}</span
           >
         </article>
-        <article class="card-objetivos">
-          <h3>Esse projeto contribui para o(s) seguinte(s) objetivo(s):</h3>
-          <ul>
-            <li *ngFor="let objetivo of registro.objetivos_detalhes">
-              {{ objetivo.codigo }} — {{ objetivo.descricao }}
-            </li>
-          </ul>
-          <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
-        </article>
+        <div>
+          <article class="info-card">
+            <div class="info-card-titulo">Planejamento Estratégico</div>
+            <div class="info-card-conteudo">
+              <p>{{ registro.planejamento_nome || 'Não informado' }}</p>
+            </div>
+          </article>
+          <article class="card-objetivos">
+            <h3>Esse projeto contribui para o(s) seguinte(s) objetivo(s):</h3>
+            <ul>
+              <li *ngFor="let objetivo of registro.objetivos_detalhes">
+                {{ objetivo.codigo }} — {{ objetivo.descricao }}
+              </li>
+            </ul>
+            <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
+          </article>
+        </div>
       </section>
     </ng-container>
   </main>

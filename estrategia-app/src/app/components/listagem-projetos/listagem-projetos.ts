@@ -10,6 +10,8 @@ import { Unidade } from '../../model/unidade';
 import { Usuario } from '../../model/usuario';
 import { ObjetivoService } from '../../service/objetivo.service';
 import { ProjetoService } from '../../service/projeto.service';
+import { PlanejamentoService } from '../../service/planejamento.service';
+import { Planejamento } from '../../model/planejamento';
 import { UnidadeService } from '../../service/unidade.service';
 import { UsuarioService } from '../../service/usuario.service';
 import { AvaliacaoProjeto, DecisaoProjeto } from '../avaliacao-projeto/avaliacao-projeto';
@@ -47,6 +49,7 @@ export class ListagemProjetos {
     private unidadeService: UnidadeService,
     private objetivoService: ObjetivoService,
     private revisaoService: RevisaoService,
+    private planejamentoService: PlanejamentoService,
   ) {}
   atrasos = inject(AtrasosService);
 
@@ -56,6 +59,8 @@ export class ListagemProjetos {
 
   objetivos = signal<ObjetivoEstrategico[]>([]);
 
+  planejamentos = signal<Planejamento[]>([]);
+
   isAdmin = signal(false);
 
   usuarioAtual = signal<Usuario | null>(null);
@@ -63,6 +68,8 @@ export class ListagemProjetos {
   filtroStatus = signal<string>('TODOS');
 
   filtroExecucao = signal<string>('TODOS');
+
+  filtroPlanejamento = signal<string>('TODOS');
 
   termoPesquisa = signal<string>('');
 
@@ -79,6 +86,11 @@ export class ListagemProjetos {
   alterarFiltroExecucao(evento: Event): void {
     this.paginaSelecionada.set(1);
     this.filtroExecucao.set((evento.target as HTMLSelectElement).value);
+  }
+
+  alterarFiltroPlanejamento(evento: Event): void {
+    this.paginaSelecionada.set(1);
+    this.filtroPlanejamento.set((evento.target as HTMLSelectElement).value);
   }
 
   paginaSelecionada = signal(1);
@@ -104,6 +116,7 @@ export class ListagemProjetos {
     this.buscarUsuarioAtual();
     this.buscarUnidades();
     this.buscarObjetivosEstrategicos();
+    this.buscarPlanejamentos();
   }
 
   buscarProjeto(): void {
@@ -205,7 +218,10 @@ export class ListagemProjetos {
       const atendeExecucao =
         this.filtroExecucao() === 'TODOS' ||
         (projeto.status_execucao ?? 'ANDAMENTO') === this.filtroExecucao();
-      return atendeStatus && atendeExecucao && atendePesquisa && atendeUnidade;
+      const atendePlanejamento =
+        this.filtroPlanejamento() === 'TODOS' ||
+        Number(projeto.planejamento) === Number(this.filtroPlanejamento());
+      return atendeStatus && atendeExecucao && atendePesquisa && atendeUnidade && atendePlanejamento;
     });
   }
 
@@ -307,6 +323,13 @@ export class ListagemProjetos {
     this.objetivoService.get().subscribe({
       next: (dados) => this.objetivos.set(dados),
       error: (erro) => console.error('Erro ao buscar objetivos estratégicos:', erro),
+    });
+  }
+
+  buscarPlanejamentos(): void {
+    this.planejamentoService.listarPlanejamentos().subscribe({
+      next: (dados) => this.planejamentos.set(dados),
+      error: (erro) => console.error('Erro ao buscar planejamentos:', erro),
     });
   }
 

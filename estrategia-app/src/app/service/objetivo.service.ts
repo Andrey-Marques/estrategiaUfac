@@ -19,4 +19,12 @@ export class ObjetivoService {
   criar(objetivo: CriarObjetivoEstrategico){
     return this.http.post<ObjetivoEstrategico>(this.apiUrl, objetivo);
   }
+
+  atualizar(id: number, objetivo: Partial<CriarObjetivoEstrategico>){
+    return this.http.patch<ObjetivoEstrategico>(`${this.apiUrl}${id}/`, objetivo);
+  }
+
+  excluir(id: number){
+    return this.http.delete<void>(`${this.apiUrl}${id}/`);
+  }
 }

@@ -12,6 +12,8 @@ import { AvaliacaoIndicador, DecisaoIndicador } from '../avaliacao-indicador/ava
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import { RevisaoService } from '../../service/revisao.service';
 import { FormularioIndicadores } from '../formularios/formulario-indicadores/formulario-indicadores';
+import { PlanejamentoService } from '../../service/planejamento.service';
+import { Planejamento } from '../../model/planejamento';
 
 @Component({
   selector: 'app-listagem-indicadores',
@@ -35,8 +37,11 @@ export class ListagemIndicadores {
     private usuarioService: UsuarioService,
     private unidade: UnidadeService,
     private revisaoService: RevisaoService,
+    private planejamentoService: PlanejamentoService,
   ) {}
   unidades = signal<Unidade[]>([]);
+
+  planejamentos = signal<Planejamento[]>([]);
 
   usuarioAtual = signal<Usuario | null>(null);
 
@@ -51,6 +56,8 @@ export class ListagemIndicadores {
   revisaoEmAnalise = signal<RevisaoEdicao | null>(null);
 
   filtroStatus = signal<string>('TODOS');
+
+  filtroPlanejamento = signal<string>('TODOS');
 
   termoPesquisa = signal<string>('');
 
@@ -80,6 +87,7 @@ export class ListagemIndicadores {
     this.buscarIndicador();
     this.buscarUsuarioAtual();
     this.buscarUnidades();
+    this.buscarPlanejamentos();
   }
 
   buscarIndicador(): void {
@@ -92,6 +100,11 @@ export class ListagemIndicadores {
   alterarFiltroStatus(status: string): void {
     this.paginaSelecionada.set(1);
     this.filtroStatus.set(status);
+  }
+
+  alterarFiltroPlanejamento(evento: Event): void {
+    this.paginaSelecionada.set(1);
+    this.filtroPlanejamento.set((evento.target as HTMLSelectElement).value);
   }
 
   pesquisarIndicador(evento: Event): void {
@@ -127,6 +140,7 @@ export class ListagemIndicadores {
     const status = this.filtroStatus();
     const pesquisa = this.termoPesquisa();
     const unidadesSelecionadas = this.unidadesSelecionadas();
+    const planejamentoSelecionado = this.filtroPlanejamento();
 
     return this.indicadores().filter((indicador) => {
       const atendeStatus = status === 'TODOS' || indicador.status === status;
@@ -135,8 +149,11 @@ export class ListagemIndicadores {
         !this.isAdmin() ||
         unidadesSelecionadas.length === 0 ||
         unidadesSelecionadas.includes(Number(indicador.unidade));
+      const atendePlanejamento =
+        planejamentoSelecionado === 'TODOS' ||
+        Number(indicador.planejamento) === Number(planejamentoSelecionado);
 
-      return atendeStatus && atendePesquisa && atendeUnidade;
+      return atendeStatus && atendePesquisa && atendeUnidade && atendePlanejamento;
     });
   }
 
@@ -211,6 +228,13 @@ export class ListagemIndicadores {
       next: (unidades) => this.unidades.set(unidades),
 
       error: (erro) => console.error('Erro ao buscar unidades:', erro),
+    });
+  }
+
+  buscarPlanejamentos(): void {
+    this.planejamentoService.listarPlanejamentos().subscribe({
+      next: (planejamentos) => this.planejamentos.set(planejamentos),
+      error: (erro) => console.error('Erro ao buscar planejamentos:', erro),
     });
   }
 

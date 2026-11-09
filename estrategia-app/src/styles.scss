@@ -1074,6 +1074,23 @@ a {
     flex-wrap: wrap;
   }
 
+  .filtro-planejamento {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 180px;
+
+    label {
+      color: #555;
+      font-size: 13px;
+    }
+
+    select {
+      min-height: 40px;
+      font-size: 14px;
+    }
+  }
+
   .campo-pesquisa {
     display: flex;
     align-items: center;

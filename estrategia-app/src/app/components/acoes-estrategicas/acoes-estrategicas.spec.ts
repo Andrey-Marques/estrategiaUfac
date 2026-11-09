@@ -5,13 +5,23 @@ import { provideRouter } from '@angular/router';
 import { AcoesEstrategicas } from './acoes-estrategicas';
 import { AcaoEstrategicaPublica } from '../../service/acoes-estrategicas.service';
 
-const base = { titulo: 'Registro', unidade_id: 1, unidade_sigla: 'PROPLAN', responsavel: 'Responsável', objetivos: [], data_atualizacao: null, data_cadastro: null };
+const base = {
+  titulo: 'Registro',
+  unidade_id: 1,
+  unidade_sigla: 'PROPLAN',
+  planejamento_nome: null,
+  pdi_nome: null,
+  responsavel: 'Responsável',
+  objetivos: [],
+  data_atualizacao: null,
+  data_cadastro: null,
+};
 const registros: AcaoEstrategicaPublica[] = [
-  { ...base, id: 1, tipo: 'projetos', status_execucao: 'ANDAMENTO', progresso: '25.50' },
-  { ...base, id: 2, tipo: 'projetos', status_execucao: 'DESCONTINUADO', progresso: 40 },
-  { ...base, id: 3, tipo: 'projetos', status_execucao: 'CONCLUIDO', progresso: 100 },
-  { ...base, id: 4, tipo: 'iniciativas', progresso: '65.00' },
-  { ...base, id: 5, tipo: 'indicadores' },
+  { ...base, id: 1, tipo: 'projetos', planejamento_nome: 'PGE 2024-2033', status_execucao: 'ANDAMENTO', progresso: '25.50' },
+  { ...base, id: 2, tipo: 'projetos', planejamento_nome: 'PGE 2024-2033', status_execucao: 'DESCONTINUADO', progresso: 40 },
+  { ...base, id: 3, tipo: 'projetos', planejamento_nome: 'Planejamento Setorial', status_execucao: 'CONCLUIDO', progresso: 100 },
+  { ...base, id: 4, tipo: 'iniciativas', pdi_nome: 'PDI PROPLAN', progresso: '65.00' },
+  { ...base, id: 5, tipo: 'indicadores', planejamento_nome: 'PGE 2024-2033' },
 ];
 
 describe('Acompanhamento na consulta pública', () => {
@@ -34,6 +44,20 @@ describe('Acompanhamento na consulta pública', () => {
     expect(c.registrosFiltrados().map(r => r.id)).toEqual([2]);
     c.limparFiltros();
     expect(c.registrosFiltrados().length).toBe(3);
+    f.destroy();
+  });
+  it('filtra por planejamento e PDI na aba correspondente', () => {
+    const f = iniciar(); const c = f.componentInstance;
+    c.abaAtiva.set('projetos');
+    expect(c.planejamentos()).toEqual(['PGE 2024-2033', 'Planejamento Setorial']);
+    c.atualizarPlanejamento('PGE 2024-2033');
+    c.filtrar();
+    expect(c.registrosFiltrados().map(r => r.id)).toEqual([1, 2]);
+
+    c.abaAtiva.set('iniciativas');
+    c.atualizarPdi('PDI PROPLAN');
+    c.filtrar();
+    expect(c.registrosFiltrados().map(r => r.id)).toEqual([4]);
     f.destroy();
   });
   it('mostra badges e barras nos projetos e mantém filtro no contexto da unidade', () => {

@@ -7,12 +7,7 @@
     <ng-container *ngIf="detalhe.registro() as registro">
       <h1 class="titulo-projeto">{{ registro.nome }}</h1>
       <section class="info-cards">
-        <article class="info-card">
-          <div class="info-card-titulo">PDI</div>
-          <div class="info-card-conteudo">
-            <p>{{ registro.pdi_nome || 'Não informado' }}</p>
-          </div>
-        </article>
+        
         <article class="info-card info-card--unidade">
           <div class="info-card-titulo">Unidade Responsável</div>
           <div class="info-card-conteudo">
@@ -104,15 +99,23 @@
             >Última modificação: {{ registro.ultima_atualizacao | date: 'dd/MM/yyyy' }}</span
           >
         </article>
-        <article class="card-objetivos">
-          <h3>Essa iniciativa contribui para o(s) seguinte(s) objetivo(s):</h3>
-          <ul class="lista-objetivos">
-            <li *ngFor="let objetivo of registro.objetivos_detalhes">
-              {{ objetivo.codigo }} — {{ objetivo.descricao }}
-            </li>
-          </ul>
-          <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
-        </article>
+        <div>
+          <article class="info-card">
+            <div class="info-card-titulo">PDI</div>
+            <div class="info-card-conteudo">
+              <p>{{ registro.pdi_nome || 'Não informado' }}</p>
+            </div>
+          </article>
+          <article class="card-objetivos">
+            <h3>Essa iniciativa contribui para o(s) seguinte(s) objetivo(s):</h3>
+            <ul class="lista-objetivos">
+              <li *ngFor="let objetivo of registro.objetivos_detalhes">
+                {{ objetivo.codigo }} — {{ objetivo.descricao }}
+              </li>
+            </ul>
+            <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
+          </article>
+        </div>
       </section>
     </ng-container>
   </main>

@@ -311,7 +311,13 @@
             <p>{{ planejamento.nome }}</p>
           </div>
         </div>
-        <button class="botao-fechar" type="button" aria-label="Fechar" (click)="fecharObjetivos()">×</button>
+        <button
+          class="botao-fechar"
+          type="button"
+          aria-label="Fechar"
+          [disabled]="salvandoObjetivo() || objetivoExcluindoId() !== null"
+          (click)="fecharObjetivos()"
+        >×</button>
       </header>
 
       <div class="lista-objetivos-planejamento" [attr.aria-busy]="carregandoObjetivos()">
@@ -322,7 +328,31 @@
         <div class="mensagem erro" role="alert" *ngIf="erroObjetivos()">{{ erroObjetivos() }}</div>
         <article class="objetivo-planejamento" *ngFor="let objetivo of objetivosDoPlanejamento()">
           <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
-          <p>{{ objetivo.descricao }}</p>
+          <div class="objetivo-detalhes">
+            <p>{{ objetivo.descricao }}</p>
+          </div>
+          <div class="acoes-objetivo">
+            <button
+              class="botao-editar"
+              type="button"
+              [attr.aria-label]="'Editar objetivo ' + objetivo.codigo"
+              title="Editar objetivo"
+              [disabled]="salvandoObjetivo() || objetivoExcluindoId() !== null"
+              (click)="editarObjetivo(objetivo)"
+            >
+              <i class="bi bi-pencil" aria-hidden="true"></i>
+            </button>
+            <button
+              class="botao-excluir"
+              type="button"
+              [attr.aria-label]="'Excluir objetivo ' + objetivo.codigo"
+              [title]="objetivoExcluindoId() === objetivo.id ? 'Excluindo objetivo' : 'Excluir objetivo'"
+              [disabled]="salvandoObjetivo() || objetivoExcluindoId() !== null"
+              (click)="excluirObjetivo(objetivo)"
+            >
+              <i class="bi bi-trash" aria-hidden="true"></i>
+            </button>
+          </div>
         </article>
         <div class="estado-vazio" *ngIf="!carregandoObjetivos() && !erroObjetivos() && !objetivosDoPlanejamento().length">
           <i class="bi bi-bullseye" aria-hidden="true"></i>
@@ -332,7 +362,7 @@
       </div>
 
       <form class="formulario-objetivo" [formGroup]="formularioObjetivo" (ngSubmit)="salvarObjetivo()" novalidate>
-        <h3>Cadastrar objetivo</h3>
+        <h3>{{ objetivoEmEdicao() ? 'Editar objetivo' : 'Cadastrar objetivo' }}</h3>
         <div class="linha-campos">
           <div class="campo">
             <label for="codigo-objetivo-planejamento">Código <span>*</span></label>
@@ -351,8 +381,27 @@
         </small>
         <div class="mensagem sucesso" role="status" *ngIf="sucessoObjetivo()">{{ sucessoObjetivo() }}</div>
         <footer class="modal-acoes">
-          <button class="botao-salvar" type="submit" [disabled]="salvandoObjetivo() || carregandoObjetivos()">
-            {{ salvandoObjetivo() ? 'Salvando...' : 'Adicionar objetivo' }}
+          <button
+            class="botao-cancelar"
+            type="button"
+            *ngIf="objetivoEmEdicao()"
+            [disabled]="salvandoObjetivo() || objetivoExcluindoId() !== null"
+            (click)="cancelarEdicaoObjetivo()"
+          >
+            Cancelar edição
+          </button>
+          <button
+            class="botao-salvar"
+            type="submit"
+            [disabled]="salvandoObjetivo() || carregandoObjetivos() || objetivoExcluindoId() !== null"
+          >
+            {{
+              salvandoObjetivo()
+                ? 'Salvando...'
+                : objetivoEmEdicao()
+                  ? 'Salvar alterações'
+                  : 'Adicionar objetivo'
+            }}
           </button>
         </footer>
       </form>

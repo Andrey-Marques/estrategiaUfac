@@ -260,14 +260,13 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
   align-items: start;
 }
 
-.card-custos,
-.card-objetivos {
-  background: linear-gradient(180deg, #fff8df 0%, $branco 60%);
-  box-shadow: 0 4px 16px rgba(217, 155, 0, 0.12);
+.card-custos{
   padding: 32px 28px;
   border-radius: 8px;
   border: 1px solid $amarelo-faixa;
-
+  text-align: center;
+  border-color: $amarelo-faixa;
+  box-shadow: 0 4px 16px rgba(217, 155, 0, 0.12);
   h3 {
     margin: 0 0 12px;
     color: #946600;
@@ -277,14 +276,20 @@ $amarelo-texto: #FEF7DD;// placeholder removido abaixo
   }
 }
 
-.card-custos--destaque {
-  text-align: center;
-  background: linear-gradient(180deg, #fff8df 0%, $branco 60%);
-  border-color: $amarelo-faixa;
-  box-shadow: 0 4px 16px rgba(217, 155, 0, 0.12);
-
-  h3 { color: #946600; }
+.card-objetivos {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid $amarelo-faixa;
+  margin-top: 20px;
+  h3 {
+    margin: 0 0 12px;
+    color: #946600;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
 }
+
 
 .custos-valores {
   display: flex;

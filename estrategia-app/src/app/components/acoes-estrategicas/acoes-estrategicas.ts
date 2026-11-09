@@ -21,7 +21,7 @@ interface AbaEstrategica {
 }
 
 interface FiltroAtivo {
-  tipo: 'pesquisa' | 'unidade' | 'objetivo';
+  tipo: 'pesquisa' | 'unidade' | 'objetivo' | 'planejamento' | 'pdi';
   id?: number;
   label: string;
 }
@@ -30,6 +30,8 @@ interface Filtros {
   pesquisa: string;
   unidades: number[];
   objetivos: number[];
+  planejamento: string;
+  pdi: string;
 }
 
 type Ordenacao = 'titulo-az' | 'titulo-za' | 'data-recente' | 'data-antiga';
@@ -78,10 +80,35 @@ export class AcoesEstrategicas implements OnInit {
   readonly statusProjeto = signal<StatusExecucaoProjeto | ''>('');
   readonly unidadesSelecionadas = signal<number[]>([]);
   readonly objetivosSelecionados = signal<number[]>([]);
+  readonly planejamentoSelecionado = signal('');
+  readonly pdiSelecionado = signal('');
   readonly ordenacao = signal<Ordenacao>('titulo-az');
   readonly paginaAtual = signal(1);
   readonly tamanhoPagina = 10;
-  readonly filtrosAplicados = signal<Filtros>({ pesquisa: '', unidades: [], objetivos: [] });
+  readonly filtrosAplicados = signal<Filtros>({
+    pesquisa: '',
+    unidades: [],
+    objetivos: [],
+    planejamento: '',
+    pdi: '',
+  });
+
+  readonly planejamentos = computed(() =>
+    [...new Set(
+      this.dados().registros
+        .filter((registro) => registro.tipo === 'projetos' || registro.tipo === 'indicadores')
+        .map((registro) => registro.planejamento_nome?.trim())
+        .filter((nome): nome is string => !!nome),
+    )].sort((a, b) => a.localeCompare(b, 'pt-BR')),
+  );
+  readonly pdis = computed(() =>
+    [...new Set(
+      this.dados().registros
+        .filter((registro) => registro.tipo === 'iniciativas')
+        .map((registro) => registro.pdi_nome?.trim())
+        .filter((nome): nome is string => !!nome),
+    )].sort((a, b) => a.localeCompare(b, 'pt-BR')),
+  );
 
   readonly filtrosAtivos = computed<FiltroAtivo[]>(() => {
     const filtros = this.filtrosAplicados();
@@ -100,6 +127,12 @@ export class AcoesEstrategicas implements OnInit {
         tags.push({ tipo: 'objetivo', id: objetivo.id, label: `Objetivo: ${objetivo.codigo}` });
       }
     }
+    if (filtros.planejamento) {
+      tags.push({ tipo: 'planejamento', label: `Planejamento: ${filtros.planejamento}` });
+    }
+    if (filtros.pdi) {
+      tags.push({ tipo: 'pdi', label: `PDI: ${filtros.pdi}` });
+    }
     return tags;
   });
 
@@ -111,6 +144,12 @@ export class AcoesEstrategicas implements OnInit {
         registro.tipo === this.abaAtiva() &&
         (registro.tipo !== 'projetos' || !this.statusProjeto() || registro.status_execucao === this.statusProjeto()) &&
         (this.unidadeDoPainel() === null || registro.unidade_id === this.unidadeDoPainel()) &&
+        (registro.tipo === 'iniciativas' ||
+          !filtros.planejamento ||
+          registro.planejamento_nome === filtros.planejamento) &&
+        (registro.tipo !== 'iniciativas' ||
+          !filtros.pdi ||
+          registro.pdi_nome === filtros.pdi) &&
         (!pesquisa ||
           this.normalizar(
             `${registro.titulo} ${registro.objetivos.map((objetivo) => objetivo.codigo).join(' ')}`,
@@ -225,6 +264,14 @@ export class AcoesEstrategicas implements OnInit {
     this.objetivosSelecionados.update((ids) => this.alternarSelecao(ids, id));
   }
 
+  atualizarPlanejamento(valor: string): void {
+    this.planejamentoSelecionado.set(valor);
+  }
+
+  atualizarPdi(valor: string): void {
+    this.pdiSelecionado.set(valor);
+  }
+
   atualizarPesquisa(valor: string): void {
     this.pesquisa.set(valor);
     this.filtrosAplicados.update((atual) => ({ ...atual, pesquisa: valor.trim() }));
@@ -236,6 +283,8 @@ export class AcoesEstrategicas implements OnInit {
       pesquisa: this.pesquisa().trim(),
       unidades: [...this.unidadesSelecionadas()],
       objetivos: [...this.objetivosSelecionados()],
+      planejamento: this.planejamentoSelecionado(),
+      pdi: this.pdiSelecionado(),
     });
     this.paginaAtual.set(1);
   }
@@ -250,12 +299,18 @@ export class AcoesEstrategicas implements OnInit {
         ...atual,
         unidades: atual.unidades.filter((id) => id !== filtro.id),
       }));
-    } else {
+    } else if (filtro.tipo === 'objetivo') {
       this.objetivosSelecionados.update((ids) => ids.filter((id) => id !== filtro.id));
       this.filtrosAplicados.update((atual) => ({
         ...atual,
         objetivos: atual.objetivos.filter((id) => id !== filtro.id),
       }));
+    } else if (filtro.tipo === 'planejamento') {
+      this.planejamentoSelecionado.set('');
+      this.filtrosAplicados.update((atual) => ({ ...atual, planejamento: '' }));
+    } else {
+      this.pdiSelecionado.set('');
+      this.filtrosAplicados.update((atual) => ({ ...atual, pdi: '' }));
     }
     this.paginaAtual.set(1);
   }
@@ -265,6 +320,8 @@ export class AcoesEstrategicas implements OnInit {
     this.pesquisa.set('');
     this.unidadesSelecionadas.set([]);
     this.objetivosSelecionados.set([]);
+    this.planejamentoSelecionado.set('');
+    this.pdiSelecionado.set('');
     this.filtrar();
   }
 

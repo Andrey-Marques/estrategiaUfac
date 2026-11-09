@@ -7,12 +7,6 @@
     <ng-container *ngIf="detalhe.registro() as registro">
       <h1 class="titulo-projeto">{{ registro.nome }}</h1>
       <section class="info-cards">
-      <article class="info-card">
-        <div class="info-card-titulo">Planejamento Estratégico</div>
-        <div class="info-card-conteudo">
-          <p>{{ registro.planejamento_nome || 'Não informado' }}</p>
-        </div>
-      </article>
       <article class="info-card info-card--objetivo">
         <div class="info-card-titulo">Finalidade</div>
         <div class="info-card-conteudo">
@@ -114,18 +108,24 @@
           <p class="texto-multilinha">{{ detalheMeta.texto }}</p>
         </section>
       </div>
-      <article class="card-objetivos">
-        <h3>Objetivo estratégico relacionado</h3>
-        <ul>
-          <li *ngFor="let objetivo of registro.objetivos_detalhes">
-            {{ objetivo.codigo }} — {{ objetivo.descricao }}
-          </li>
-        </ul>
-        <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
-      </article>
-      <span class="ultima-modificacao"
-        >Data de cadastro: {{ registro.data_envio | date: 'dd/MM/yyyy' }}</span
-      >
+      <section class="rodape-projeto">
+        <article class="card-objetivos">
+          <h3>Objetivo estratégico relacionado</h3>
+          <ul>
+            <li *ngFor="let objetivo of registro.objetivos_detalhes">
+              {{ objetivo.codigo }} — {{ objetivo.descricao }}
+            </li>
+          </ul>
+          <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
+        </article>
+        <article class="info-card">
+            <div class="info-card-titulo">Planejamento Estratégico</div>
+            <div class="info-card-conteudo">
+              <p>{{ registro.planejamento_nome || 'Não informado' }}</p>
+            </div>
+        </article>
+      </section>
+      <span class="ultima-modificacao">Data de cadastro: {{ registro.data_envio | date: 'dd/MM/yyyy' }}</span>
     </ng-container>
   </main>
 </div>

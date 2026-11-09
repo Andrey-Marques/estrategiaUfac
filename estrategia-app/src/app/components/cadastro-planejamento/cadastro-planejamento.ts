@@ -37,6 +37,8 @@ export class CadastroPlanejamento implements OnInit {
   pdiEmEdicao = signal<Pdi | null>(null);
   planejamentoDosObjetivos = signal<Planejamento | null>(null);
   objetivosDoPlanejamento = signal<ObjetivoEstrategico[]>([]);
+  objetivoEmEdicao = signal<ObjetivoEstrategico | null>(null);
+  objetivoExcluindoId = signal<number | null>(null);
   pdiExcluindoId = signal<number | null>(null);
   planejamentoExcluindoId = signal<number | null>(null);
 
@@ -184,6 +186,7 @@ export class CadastroPlanejamento implements OnInit {
   abrirObjetivos(planejamento: Planejamento): void {
     this.planejamentoDosObjetivos.set(planejamento);
     this.objetivosDoPlanejamento.set([]);
+    this.objetivoEmEdicao.set(null);
     this.erroObjetivos.set('');
     this.sucessoObjetivo.set('');
     this.formularioObjetivo.reset({ codigo: '', descricao: '' });
@@ -202,45 +205,129 @@ export class CadastroPlanejamento implements OnInit {
   }
 
   fecharObjetivos(): void {
-    if (this.salvandoObjetivo()) return;
+    if (this.salvandoObjetivo() || this.objetivoExcluindoId() !== null) return;
     this.planejamentoDosObjetivos.set(null);
+    this.objetivoEmEdicao.set(null);
     this.erroObjetivos.set('');
     this.sucessoObjetivo.set('');
   }
 
   salvarObjetivo(): void {
     const planejamento = this.planejamentoDosObjetivos();
-    if (!planejamento || this.salvandoObjetivo()) return;
+    if (!planejamento || this.salvandoObjetivo() || this.objetivoExcluindoId() !== null) return;
     this.formularioObjetivo.markAllAsTouched();
     this.erroObjetivos.set('');
     this.sucessoObjetivo.set('');
     if (this.formularioObjetivo.invalid) return;
 
     const valores = this.formularioObjetivo.getRawValue();
+    const objetivoEditado = this.objetivoEmEdicao();
     this.salvandoObjetivo.set(true);
-    this.objetivoService.criar({
+    const dados = {
       codigo: valores.codigo.trim(),
       descricao: valores.descricao.trim(),
       planejamento: planejamento.id,
-    }).pipe(finalize(() => this.salvandoObjetivo.set(false))).subscribe({
+    };
+    const requisicao = objetivoEditado
+      ? this.objetivoService.atualizar(objetivoEditado.id, dados)
+      : this.objetivoService.criar(dados);
+    requisicao.pipe(finalize(() => this.salvandoObjetivo.set(false))).subscribe({
       next: objetivo => {
-        this.objetivosDoPlanejamento.update(objetivos =>
-          [...objetivos, objetivo].sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR')),
-        );
-        this.planejamentos.update(planejamentos =>
-          planejamentos.map(item => item.id === planejamento.id
-            ? { ...item, quantidade_objetivos: (item.quantidade_objetivos ?? 0) + 1 }
-            : item,
-          ),
-        );
+        if (objetivoEditado) {
+          this.objetivosDoPlanejamento.update(objetivos =>
+            objetivos
+              .map(item => item.id === objetivo.id ? objetivo : item)
+              .sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR')),
+          );
+        } else {
+          const quantidadeObjetivos = this.objetivosDoPlanejamento().length + 1;
+          this.objetivosDoPlanejamento.update(objetivos =>
+            [...objetivos, objetivo].sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR')),
+          );
+          this.planejamentos.update(planejamentos =>
+            planejamentos.map(item => item.id === planejamento.id
+              ? { ...item, quantidade_objetivos: quantidadeObjetivos }
+              : item,
+            ),
+          );
+        }
         this.formularioObjetivo.reset({ codigo: '', descricao: '' });
-        this.sucessoObjetivo.set('Objetivo cadastrado com sucesso.');
+        this.objetivoEmEdicao.set(null);
+        this.sucessoObjetivo.set(
+          objetivoEditado ? 'Objetivo atualizado com sucesso.' : 'Objetivo cadastrado com sucesso.',
+        );
       },
       error: erro => {
-        console.error('Erro ao cadastrar objetivo:', erro);
-        this.erroObjetivos.set(this.mensagemErro(erro, 'Não foi possível cadastrar o objetivo.'));
+        console.error(
+          objetivoEditado ? 'Erro ao atualizar objetivo:' : 'Erro ao cadastrar objetivo:',
+          erro,
+        );
+        this.erroObjetivos.set(
+          this.mensagemErro(
+            erro,
+            objetivoEditado
+              ? 'Não foi possível atualizar o objetivo.'
+              : 'Não foi possível cadastrar o objetivo.',
+          ),
+        );
       },
     });
+  }
+
+  editarObjetivo(objetivo: ObjetivoEstrategico): void {
+    if (this.salvandoObjetivo() || this.objetivoExcluindoId() !== null) return;
+    this.erroObjetivos.set('');
+    this.sucessoObjetivo.set('');
+    this.objetivoEmEdicao.set(objetivo);
+    this.formularioObjetivo.reset({
+      codigo: objetivo.codigo,
+      descricao: objetivo.descricao,
+    });
+  }
+
+  cancelarEdicaoObjetivo(): void {
+    this.objetivoEmEdicao.set(null);
+    this.formularioObjetivo.reset({ codigo: '', descricao: '' });
+    this.erroObjetivos.set('');
+    this.sucessoObjetivo.set('');
+  }
+
+  excluirObjetivo(objetivo: ObjetivoEstrategico): void {
+    if (this.salvandoObjetivo() || this.objetivoExcluindoId() !== null) return;
+    if (
+      !window.confirm(
+        `Excluir o objetivo "${objetivo.codigo}"? Ele será removido dos projetos e iniciativas vinculados. Indicadores associados podem impedir a exclusão.`,
+      )
+    ) return;
+
+    this.erroObjetivos.set('');
+    this.sucessoObjetivo.set('');
+    this.objetivoExcluindoId.set(objetivo.id);
+    this.objetivoService.excluir(objetivo.id)
+      .pipe(finalize(() => this.objetivoExcluindoId.set(null)))
+      .subscribe({
+        next: () => {
+          const objetivos = this.objetivosDoPlanejamento().filter(item => item.id !== objetivo.id);
+          this.objetivosDoPlanejamento.set(objetivos);
+          const planejamento = this.planejamentoDosObjetivos();
+          if (planejamento) {
+            this.planejamentos.update(planejamentos =>
+              planejamentos.map(item => item.id === planejamento.id
+                ? { ...item, quantidade_objetivos: objetivos.length }
+                : item,
+              ),
+            );
+          }
+          if (this.objetivoEmEdicao()?.id === objetivo.id) {
+            this.cancelarEdicaoObjetivo();
+          }
+          this.sucessoObjetivo.set('Objetivo excluído com sucesso.');
+        },
+        error: erro => {
+          console.error('Erro ao excluir objetivo:', erro);
+          this.erroObjetivos.set(this.mensagemErro(erro, 'Não foi possível excluir o objetivo.'));
+        },
+      });
   }
 
   excluirPlanejamento(planejamento: Planejamento): void {

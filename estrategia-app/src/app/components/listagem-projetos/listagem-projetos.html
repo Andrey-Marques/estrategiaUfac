@@ -92,7 +92,22 @@
           <option value="CONCLUIDO">Concluído</option>
         </select>
       </div>
+      <div class="filtro-planejamento">
+        <label for="filtroPlanejamentoProjeto">Planejamento</label>
+        <select
+          id="filtroPlanejamentoProjeto"
+          class="form-select"
+          [value]="filtroPlanejamento()"
+          (change)="alterarFiltroPlanejamento($event)"
+        >
+          <option value="TODOS">Todos</option>
+          <option *ngFor="let planejamento of planejamentos()" [value]="planejamento.id">
+            {{ planejamento.nome }}
+          </option>
+        </select>
+      </div>
       <div class="filtro-unidades" #dropdownUnidades *ngIf="isAdmin()">
+        
         <button type="button" class="botao-filtro-unidade" (click)="alternarMenuUnidades()">
           <i class="bi bi-building"></i>
           Unidades

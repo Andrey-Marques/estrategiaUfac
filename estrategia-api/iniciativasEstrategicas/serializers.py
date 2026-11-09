@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 
 from unidades.models import Unidade
 from usuarios.models import Usuario
@@ -136,10 +137,17 @@ class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.Model
 
         return iniciativa
 
+    @transaction.atomic
     def update(self,instance,validated_data):
         acoes = validated_data.pop('acoes',None)
         objetivos = validated_data.pop('objetivos',None)
+        pdi_alterado = (
+            'pdi' in validated_data
+            and validated_data['pdi'].pk != instance.pdi_id
+        )
 
+        if pdi_alterado and objetivos is not None:
+            instance.objetivos.clear()
         for campo, valor in validated_data.items():
             setattr(instance,  campo, valor)
         instance.save()
@@ -151,4 +159,3 @@ class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.Model
             for acao in acoes:
                 AcaoRealizada.objects.create( fk_iniciativa=instance, **acao)
         return instance
-

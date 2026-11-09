@@ -53,7 +53,7 @@
 
 
       <div class="divisor-filtros"></div>
-     <div class="linha-filtros" [class.com-status]="abaAtiva() === 'projetos'" [class.unidade-fixa]="unidadeDoPainel() !== null">
+     <div class="linha-filtros" [class.com-status]="abaAtiva() === 'projetos'" [class.com-planejamento]="abaAtiva() !== 'projetos'" [class.unidade-fixa]="unidadeDoPainel() !== null">
 
         <!-- Pesquisa -->
         <div class="campo-filtro campo-pesquisa">
@@ -81,6 +81,34 @@
               <span *ngIf="!dados().unidades.length">Nenhuma unidade disponível.</span>
             </div>
           </details>
+        </div>
+
+        <div class="campo-filtro" *ngIf="abaAtiva() !== 'iniciativas'">
+          <label for="filtro-planejamento-acoes">Planejamento</label>
+          <select
+            id="filtro-planejamento-acoes"
+            class="select-filtro"
+            [ngModel]="planejamentoSelecionado()"
+            (ngModelChange)="atualizarPlanejamento($event)"
+          >
+            <option value="">Todos os planejamentos</option>
+            <option *ngFor="let planejamento of planejamentos()" [value]="planejamento">
+              {{ planejamento }}
+            </option>
+          </select>
+        </div>
+
+        <div class="campo-filtro" *ngIf="abaAtiva() === 'iniciativas'">
+          <label for="filtro-pdi-acoes">PDI</label>
+          <select
+            id="filtro-pdi-acoes"
+            class="select-filtro"
+            [ngModel]="pdiSelecionado()"
+            (ngModelChange)="atualizarPdi($event)"
+          >
+            <option value="">Todos os PDIs</option>
+            <option *ngFor="let pdi of pdis()" [value]="pdi">{{ pdi }}</option>
+          </select>
         </div>
 
         <!-- Objetivos -->
