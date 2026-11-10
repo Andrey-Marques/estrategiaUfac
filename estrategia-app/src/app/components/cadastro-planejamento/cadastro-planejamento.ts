@@ -95,6 +95,7 @@ export class CadastroPlanejamento implements OnInit {
     this.erroPdi.set('');
     this.planejamentoEmEdicao.set(null);
     this.pdiEmEdicao.set(null);
+    this.formularioPdi.controls.planejamento.enable();
     if (tipo === 'planejamento') {
       this.formularioPlanejamento.reset({
         nome: '',
@@ -133,6 +134,7 @@ export class CadastroPlanejamento implements OnInit {
     this.erroPdi.set('');
     this.pdiEmEdicao.set(pdi);
     this.planejamentoEmEdicao.set(null);
+    this.formularioPdi.controls.planejamento.disable();
     this.formularioPdi.reset({
       nome: pdi.nome,
       data_inicio: pdi.data_inicio,

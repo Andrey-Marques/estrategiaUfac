@@ -34,4 +34,8 @@ export class AtrasosService {
   temAtraso(tipo: 'projetos' | 'iniciativas', id: number): boolean {
     return this[tipo]().some(acao => acao.registro_id === id);
   }
+
+  acaoEstaAtrasada(tipo: 'projetos' | 'iniciativas', acaoId?: number): boolean {
+    return acaoId !== undefined && this[tipo]().some(acao => acao.acao_id === acaoId);
+  }
 }

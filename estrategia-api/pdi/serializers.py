@@ -22,6 +22,15 @@ class PDISerializer(serializers.ModelSerializer):
         data_fim = attrs.get('data_fim', getattr(self.instance, 'data_fim', None))
         planejamento = attrs.get('planejamento', getattr(self.instance, 'planejamento', None))
 
+        if (
+            self.instance
+            and 'planejamento' in attrs
+            and planejamento.pk != self.instance.planejamento_id
+        ):
+            raise serializers.ValidationError({
+                'planejamento': 'O planejamento do PDI não pode ser alterado após a criação.'
+            })
+
         if data_inicio and data_fim and data_fim < data_inicio:
             raise serializers.ValidationError({
                 'data_fim': 'A data de fim não pode ser anterior à data de início.'

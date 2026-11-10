@@ -14,6 +14,7 @@ import { AcaoProjeto } from '../../../model/projetoEstrategico';
 import { MascaraReais } from '../../../directives/mascara-reais';
 import { Planejamento } from '../../../model/planejamento';
 import { PlanejamentoService } from '../../../service/planejamento.service';
+import { AtrasosService } from '../../../service/atrasos.service';
 
 @Component({
   selector: 'app-formulario-projetos',
@@ -114,6 +115,7 @@ export class FormularioProjetos {
   dadosFormularioAntesDaEdicao: any = null;
 
   private readonly changeDetector = inject(ChangeDetectorRef);
+  readonly atrasosService = inject(AtrasosService);
 
   atualizarValidacaoJustificativa(): void {
     const campo = this.formularioProjeto.get('justificativaDescontinuacao');
@@ -127,6 +129,7 @@ export class FormularioProjetos {
   }
 
   ngOnInit(): void {
+    this.atrasosService.atualizar();
     const planejamentoControl = this.formularioProjeto.get('planejamento');
     this.planejamentoSelecionadoId.set(Number(planejamentoControl?.value) || null);
     planejamentoControl?.valueChanges.subscribe(id =>
@@ -137,6 +140,10 @@ export class FormularioProjetos {
     this.buscarUnidades();
     this.buscarObjetivosEstrategicos();
     this.buscarPlanejamentos();
+  }
+
+  acaoEstaAtrasada(acaoId?: number): boolean {
+    return this.atrasosService.acaoEstaAtrasada('projetos', acaoId);
   }
 
   buscarUsuarioAtual(): void {

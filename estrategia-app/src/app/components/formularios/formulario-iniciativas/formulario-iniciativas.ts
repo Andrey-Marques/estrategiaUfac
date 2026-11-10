@@ -1,6 +1,6 @@
 import { validarStatusAcao } from '../../../model/validacao-status-acao';
 import { MascaraReais } from '../../../directives/mascara-reais';
-import { Component, computed, signal, output } from '@angular/core';
+import { Component, computed, inject, signal, output } from '@angular/core';
 import { IniciativaEstrategica } from '../../../model/iniciativaEstrategica';
 import { IniciativaService } from '../../../service/iniciativa.service';
 import { CommonModule } from '@angular/common';
@@ -13,6 +13,7 @@ import { UnidadeService } from '../../../service/unidade.service';
 import { Unidade } from '../../../model/unidade';
 import { Pdi } from '../../../model/planejamento';
 import { PlanejamentoService } from '../../../service/planejamento.service';
+import { AtrasosService } from '../../../service/atrasos.service';
 
 export interface AcaoIniciativa {
   id?: number;
@@ -33,6 +34,8 @@ export interface AcaoIniciativa {
   host: { class: 'formulario-estrategico' },
 })
 export class FormularioIniciativas {
+  readonly atrasosService = inject(AtrasosService);
+
   constructor(
     private iniciativaService: IniciativaService,
     private usuarioService: UsuarioService,
@@ -110,6 +113,7 @@ export class FormularioIniciativas {
   acaoEmEdicaoIndice: number | null = null;
 
   ngOnInit(): void {
+    this.atrasosService.atualizar();
     const pdiControl = this.formularioIniciativa.get('pdi');
     this.pdiSelecionadoId.set(Number(pdiControl?.value) || null);
     pdiControl?.valueChanges.subscribe(id =>
@@ -121,6 +125,10 @@ export class FormularioIniciativas {
     this.buscarObjetivosEstrategicos();
     this.buscarPdis();
     this.observarResponsavelSelecionado();
+  }
+
+  acaoEstaAtrasada(acaoId?: number): boolean {
+    return this.atrasosService.acaoEstaAtrasada('iniciativas', acaoId);
   }
 
   buscarUsuarioAtual(): void {
@@ -476,6 +484,7 @@ export class FormularioIniciativas {
       'nao-iniciada': 'PLANEJAMENTO',
       'em-execucao': 'ANDAMENTO',
       concluida: 'CONCLUIDA',
+      CANCELADA: 'CANCELADA',
     };
     return mapa[status] || status;
   }
@@ -485,6 +494,7 @@ export class FormularioIniciativas {
       PLANEJAMENTO: 'nao-iniciada',
       ANDAMENTO: 'em-execucao',
       CONCLUIDA: 'concluida',
+      CANCELADA: 'CANCELADA',
     };
     return mapa[status] || status;
   }
@@ -528,6 +538,7 @@ export class FormularioIniciativas {
       'nao-iniciada': 'Não iniciada',
       'em-execucao': 'Em execução',
       concluida: 'Concluída',
+      CANCELADA: 'Cancelada',
     };
     return mapa[status] || status;
   }

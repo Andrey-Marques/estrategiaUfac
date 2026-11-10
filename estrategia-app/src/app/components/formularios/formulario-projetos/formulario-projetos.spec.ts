@@ -52,6 +52,22 @@ describe('FormularioProjetos', () => {
     expect(component.formularioProjeto.invalid).toBe(true);
   });
 
+  it('marca somente ações do projeto que estão em atraso', () => {
+    component.atrasosService.projetos.set([{
+      tipo: 'projetos',
+      registro_id: 1,
+      registro_nome: 'Projeto de teste',
+      acao_id: 10,
+      acao_nome: 'Ação atrasada',
+      prazo_inicio: '2026-01-01',
+      dias_atraso: 5,
+    }]);
+
+    expect(component.acaoEstaAtrasada(10)).toBe(true);
+    expect(component.acaoEstaAtrasada(11)).toBe(false);
+    expect(component.acaoEstaAtrasada(undefined)).toBe(false);
+  });
+
   it('avisa a listagem somente depois de salvar na API', () => {
     component.criarNovoProjeto();
     component.formularioProjeto.patchValue({

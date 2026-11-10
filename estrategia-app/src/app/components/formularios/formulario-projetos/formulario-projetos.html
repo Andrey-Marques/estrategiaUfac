@@ -479,7 +479,16 @@
                 *ngFor="let acao of acoesProjeto(); let indice = index"
                 class="linha-tabela-acao"
               >
-                <div class="coluna col-acao">{{ acao.nome }}</div>
+                <div class="coluna col-acao">
+                  {{ acao.nome }}
+                  <span
+                    *ngIf="acaoEstaAtrasada(acao.id)"
+                    class="indicador-acao-atrasada"
+                    role="img"
+                    aria-label="Ação em atraso"
+                    title="Ação em atraso"
+                  ></span>
+                </div>
                 <div class="coluna col-prazo">
                   {{ acao.prazo_inicio | date: 'dd/MM/yyyy' : 'UTC' }}
                 </div>
@@ -768,6 +777,7 @@
             <option value="PLANEJAMENTO">Não iniciada</option>
             <option value="ANDAMENTO">Em execução</option>
             <option value="CONCLUIDA">Concluída</option>
+            <option value="CANCELADA">Cancelada</option>
           </select>
         </div>
         <p

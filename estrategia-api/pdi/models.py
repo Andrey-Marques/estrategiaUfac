@@ -28,5 +28,20 @@ class PDI(models.Model):
         ):
             raise ValidationError('O período do PDI deve estar dentro do período do planejamento escolhido.')
 
+    def save(self, *args, **kwargs):
+        if self.pk:
+            planejamento_original_id = type(self).objects.filter(pk=self.pk).values_list(
+                'planejamento_id',
+                flat=True,
+            ).first()
+            if (
+                planejamento_original_id is not None
+                and planejamento_original_id != self.planejamento_id
+            ):
+                raise ValidationError({
+                    'planejamento': 'O planejamento do PDI não pode ser alterado após a criação.'
+                })
+        return super().save(*args, **kwargs)
+
     def __str__(self):
         return self.nome

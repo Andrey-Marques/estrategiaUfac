@@ -260,6 +260,7 @@
               {{ planejamento.nome }} ({{ planejamento.data_inicio | date:'dd/MM/yyyy' }} a {{ planejamento.data_fim | date:'dd/MM/yyyy' }})
             </option>
           </select>
+          <small *ngIf="pdiEmEdicao()">O planejamento definido na criação não pode ser alterado.</small>
         </div>
         <div class="linha-campos">
           <div class="campo">
