@@ -663,6 +663,10 @@ class Command(BaseCommand):
         for sigla, dados_unidade in iniciativas_dados.items():
             for indice, (nome, percentual, objetivo) in enumerate(dados_unidade):
                 status = self.status_exemplo(indice)
+                iniciativa_existente = IniciativaEstrategica.objects.filter(nome=nome).first()
+                if iniciativa_existente is not None:
+                    iniciativa_existente.objetivos.clear()
+
                 iniciativa, _ = IniciativaEstrategica.objects.update_or_create(
                     nome=nome,
                     defaults={
@@ -680,7 +684,7 @@ class Command(BaseCommand):
                     }
                 )
 
-                iniciativa.objetivos.add(objetivo)
+                iniciativa.objetivos.set([objetivo])
                 if not iniciativa.acoes_realizadas.exists():
                     cenario = ('ATRASADO' if indice == 0 else 'REGULAR') if status == 'APROVADO' else 'PROPOSTA'
                     for dados in self.dados_acoes(7500 + indice * 2500, cenario):
