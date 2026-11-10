@@ -1,6 +1,6 @@
 import { validarStatusAcao } from '../../../model/validacao-status-acao';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, signal, output } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal, output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ObjetivoEstrategico } from '../../../model/objetivoEstrategico';
 import { ProjetoEstrategico } from '../../../model/projetoEstrategico';
@@ -12,6 +12,9 @@ import { UnidadeService } from '../../../service/unidade.service';
 import { UsuarioService } from '../../../service/usuario.service';
 import { AcaoProjeto } from '../../../model/projetoEstrategico';
 import { MascaraReais } from '../../../directives/mascara-reais';
+import { Planejamento } from '../../../model/planejamento';
+import { PlanejamentoService } from '../../../service/planejamento.service';
+import { AtrasosService } from '../../../service/atrasos.service';
 
 @Component({
   selector: 'app-formulario-projetos',
@@ -27,6 +30,7 @@ export class FormularioProjetos {
     private usuarioService: UsuarioService,
     private unidadeService: UnidadeService,
     private objetivoService: ObjetivoService,
+    private planejamentoService: PlanejamentoService,
   ) {
     this.formularioAcaoInterno = this.construtorFormulario.group({
       descricaoAcao: ['', [Validators.required, Validators.maxLength(255)]],
@@ -40,6 +44,7 @@ export class FormularioProjetos {
     });
     this.formularioProjeto = this.construtorFormulario.group({
       tituloProjeto: ['', Validators.required],
+      planejamento: [null, Validators.required],
       liderProjeto: ['', Validators.required],
       unidadeResponsavel: ['', Validators.required],
       descricao: [''],
@@ -72,6 +77,17 @@ export class FormularioProjetos {
 
   objetivos = signal<ObjetivoEstrategico[]>([]);
 
+  planejamentos = signal<Planejamento[]>([]);
+
+  planejamentoSelecionadoId = signal<number | null>(null);
+
+  readonly objetivosDoPlanejamento = computed(() => {
+    const planejamentoId = this.planejamentoSelecionadoId();
+    return this.objetivos().filter(
+      objetivo => Number(objetivo.planejamento) === planejamentoId,
+    );
+  });
+
   isAdmin = signal(false);
 
   usuarioAtual = signal<Usuario | null>(null);
@@ -99,6 +115,7 @@ export class FormularioProjetos {
   dadosFormularioAntesDaEdicao: any = null;
 
   private readonly changeDetector = inject(ChangeDetectorRef);
+  readonly atrasosService = inject(AtrasosService);
 
   atualizarValidacaoJustificativa(): void {
     const campo = this.formularioProjeto.get('justificativaDescontinuacao');
@@ -112,10 +129,21 @@ export class FormularioProjetos {
   }
 
   ngOnInit(): void {
+    this.atrasosService.atualizar();
+    const planejamentoControl = this.formularioProjeto.get('planejamento');
+    this.planejamentoSelecionadoId.set(Number(planejamentoControl?.value) || null);
+    planejamentoControl?.valueChanges.subscribe(id =>
+      this.planejamentoSelecionadoId.set(Number(id) || null),
+    );
     this.buscarUsuarioAtual();
     this.buscarUsuarios();
     this.buscarUnidades();
     this.buscarObjetivosEstrategicos();
+    this.buscarPlanejamentos();
+  }
+
+  acaoEstaAtrasada(acaoId?: number): boolean {
+    return this.atrasosService.acaoEstaAtrasada('projetos', acaoId);
   }
 
   buscarUsuarioAtual(): void {
@@ -165,6 +193,7 @@ export class FormularioProjetos {
         this.formularioProjeto.patchValue({
           tituloProjeto: projetoDetalhado.nome,
 
+          planejamento: projetoDetalhado.planejamento,
           liderProjeto: projetoDetalhado.responsavel,
 
           unidadeResponsavel: projetoDetalhado.unidade,
@@ -227,6 +256,7 @@ export class FormularioProjetos {
       unidade: formulario.unidadeResponsavel,
 
       objetivos: formulario.objetivos ?? [],
+      planejamento: Number(formulario.planejamento),
 
       evolucoes: this.montarEvolucoes(),
 
@@ -289,6 +319,7 @@ export class FormularioProjetos {
         this.formularioProjeto.patchValue({
           tituloProjeto: projetoDetalhado.nome,
 
+          planejamento: projetoDetalhado.planejamento,
           liderProjeto: projetoDetalhado.responsavel,
 
           unidadeResponsavel: projetoDetalhado.unidade,
@@ -446,6 +477,7 @@ export class FormularioProjetos {
       status: status,
       responsavel: formulario.liderProjeto || null,
       unidade: formulario.unidadeResponsavel,
+      planejamento: Number(formulario.planejamento),
       objetivos: formulario.objetivos ?? [],
       evolucoes: this.montarEvolucoes(),
     };
@@ -482,6 +514,7 @@ export class FormularioProjetos {
     this.formularioProjeto.enable();
     this.formularioProjeto.reset({
       tituloProjeto: '',
+      planejamento: this.planejamentoVigente()?.id ?? null,
       liderProjeto: '',
       unidadeResponsavel: '',
       descricao: '',
@@ -582,6 +615,47 @@ export class FormularioProjetos {
     this.objetivoService.get().subscribe({
       next: (dados) => this.objetivos.set(dados),
       error: (erro) => console.error('Erro ao buscar objetivos estratégicos:', erro),
+    });
+  }
+
+  buscarPlanejamentos(): void {
+    this.planejamentoService.listarPlanejamentos().subscribe({
+      next: planejamentos => {
+        this.planejamentos.set(planejamentos);
+        if (!this.formularioProjeto.get('planejamento')?.value) {
+          const planejamentoId = this.planejamentoVigente()?.id ?? null;
+          this.formularioProjeto.patchValue(
+            { planejamento: planejamentoId },
+            { emitEvent: false },
+          );
+          this.planejamentoSelecionadoId.set(planejamentoId);
+        }
+      },
+      error: erro => console.error('Erro ao carregar planejamentos:', erro),
+    });
+  }
+
+  private planejamentoVigente(): Planejamento | null {
+    const hoje = new Date().toISOString().slice(0, 10);
+    const vigentes = this.planejamentos()
+      .filter(planejamento => planejamento.status === 'Vigente')
+      .sort((a, b) => b.data_inicio.localeCompare(a.data_inicio));
+    return vigentes.find(
+      planejamento => planejamento.data_inicio <= hoje && planejamento.data_fim >= hoje,
+    ) ?? vigentes[0] ?? null;
+  }
+
+  aoSelecionarPlanejamento(): void {
+    const planejamentoId = Number(this.formularioProjeto.get('planejamento')?.value);
+    this.planejamentoSelecionadoId.set(planejamentoId || null);
+    const objetivosValidos = new Set(
+      this.objetivos()
+        .filter(objetivo => Number(objetivo.planejamento) === planejamentoId)
+        .map(objetivo => objetivo.id),
+    );
+    const selecionados = this.normalizarIds(this.formularioProjeto.get('objetivos')?.value || []);
+    this.formularioProjeto.patchValue({
+      objetivos: selecionados.filter((id: number) => objetivosValidos.has(id)),
     });
   }
 
@@ -717,6 +791,7 @@ export class FormularioProjetos {
             nome: formulario.tituloProjeto,
             descricao: formulario.descricao,
             tempo_estimado: formulario.tempoEstimado,
+            planejamento: Number(formulario.planejamento),
             responsavel: formulario.liderProjeto || null,
             unidade: formulario.unidadeResponsavel,
             objetivos: formulario.objetivos ?? [],

@@ -1,4 +1,4 @@
-import { Component, signal, output, input } from '@angular/core';
+import { Component, computed, signal, output, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IndicadorEstrategico } from '../../../model/indicadorEstrategico';
 import { IndicadorService } from '../../../service/indicador.service';
@@ -18,6 +18,8 @@ import { Unidade } from '../../../model/unidade';
 import * as katex from 'katex';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RevisaoEdicao } from '../../../model/revisaoEdicao';
+import { Planejamento } from '../../../model/planejamento';
+import { PlanejamentoService } from '../../../service/planejamento.service';
 
 @Component({
   selector: 'app-formulario-indicadores',
@@ -34,9 +36,11 @@ export class FormularioIndicadores {
     private objetivoService: ObjetivoService,
     private fb: FormBuilder,
     private sanitizer: DomSanitizer,
+    private planejamentoService: PlanejamentoService,
   ) {
     this.formularioIndicador = this.fb.group({
       nome: ['', Validators.required],
+      planejamento: [null, Validators.required],
       responsavel: [null, Validators.required],
       unidade: [null, Validators.required],
       finalidade: ['', Validators.required],
@@ -55,6 +59,17 @@ export class FormularioIndicadores {
 
   objetivos = signal<ObjetivoEstrategico[]>([]);
 
+  planejamentos = signal<Planejamento[]>([]);
+
+  planejamentoSelecionadoId = signal<number | null>(null);
+
+  readonly objetivosDoPlanejamento = computed(() => {
+    const planejamentoId = this.planejamentoSelecionadoId();
+    return this.objetivos().filter(
+      objetivo => Number(objetivo.planejamento) === planejamentoId,
+    );
+  });
+
   usuarioAtual = signal<Usuario | null>(null);
 
   isAdmin = signal(false);
@@ -72,29 +87,41 @@ export class FormularioIndicadores {
   statusIndicadorEmEdicao: string | null = null;
 
   ngOnInit(): void {
+    const planejamentoControl = this.formularioIndicador.get('planejamento');
+    this.planejamentoSelecionadoId.set(Number(planejamentoControl?.value) || null);
+    planejamentoControl?.valueChanges.subscribe(id =>
+      this.planejamentoSelecionadoId.set(Number(id) || null),
+    );
     this.buscarUsuarioAtual();
     this.buscarUsuarios();
     this.buscarUnidades();
     this.buscarObjetivos();
+    this.buscarPlanejamentos();
     this.observarResponsavelSelecionado();
   }
 
   etapaAtual = 1;
 
   metas: {
-    ano: number | null;
-    prevista: number | null;
-    alcancada: number | null;
+    id?: number;
+    ano: string;
+    prevista: string;
+    alcancada: string;
+    justificativaMetaAlcancada: string;
   }[] = [];
+
+  indiceMetaJustificativa: number | null = null;
+  justificativaMetaEmEdicao = '';
 
   editarIndicador(indicador: IndicadorEstrategico): void {
     this.formularioIndicador.enable();
     this.indicadorEmEdicao = indicador.id;
-    this.edicaoRestrita = !this.isAdmin() && indicador.status === 'APROVADO';
     this.statusIndicadorEmEdicao = indicador.status;
+    this.atualizarRestricaoEdicao();
     this.objetivoSelecionado = indicador.objetivo;
     this.formularioIndicador.patchValue({
       nome: indicador.nome,
+      planejamento: indicador.planejamento,
       responsavel: indicador.responsavel,
       unidade: indicador.unidade,
       finalidade: indicador.finalidade,
@@ -106,20 +133,17 @@ export class FormularioIndicadores {
     });
     this.renderizarFormula();
     this.metas = (indicador.evolucao_indicador || []).map((meta) => ({
-      ano: Number(meta.ano),
-      prevista:
-        meta.meta_prevista === '' || meta.meta_prevista == null ? null : Number(meta.meta_prevista),
-      alcancada:
-        meta.meta_alcancada === '' || meta.meta_alcancada == null
-          ? null
-          : Number(meta.meta_alcancada),
+      id: meta.id,
+      ano: String(meta.ano ?? ''),
+      prevista: String(meta.meta_prevista ?? ''),
+      alcancada: String(meta.meta_alcancada ?? ''),
+      justificativaMetaAlcancada: meta.justificativa_meta_alcancada ?? '',
     }));
     if (this.ehGestor() && indicador.status === 'APROVADO') {
       this.formularioIndicador.disable();
-      this.formularioIndicador.get('responsavel')?.enable();
     }
 
-    this.etapaAtual = this.ehGestor() ? 1 : this.edicaoRestrita ? 3 : 1;
+    this.etapaAtual = this.edicaoRestrita ? 4 : 1;
   }
 
   ehGestor(): boolean {
@@ -143,38 +167,36 @@ export class FormularioIndicadores {
   }
 
   avancar(): void {
-    if (this.etapaAtual < 4 && (!this.edicaoRestrita || this.ehGestor() || this.etapaAtual >= 3)) {
+    if (this.etapaAtual < 4 && !this.edicaoRestrita) {
       this.etapaAtual++;
     }
   }
 
   voltar(): void {
-    if (this.etapaAtual > (this.edicaoRestrita && !this.ehGestor() ? 3 : 1)) {
+    if (this.etapaAtual > (this.edicaoRestrita ? 4 : 1)) {
       this.etapaAtual--;
     }
   }
 
   irParaEtapa(etapa: number): void {
-    if (etapa >= 1 && etapa <= 4 && (!this.edicaoRestrita || this.ehGestor() || etapa >= 3)) {
+    if (etapa >= 1 && etapa <= 4 && (!this.edicaoRestrita || etapa === 4)) {
       this.etapaAtual = etapa;
     }
   }
 
   adicionarMeta(): void {
-    const anosPreenchidos = this.metas
-      .map((meta) => Number(meta.ano))
-      .filter((ano) => Number.isFinite(ano));
-    const ultimoAno =
-      anosPreenchidos.length > 0 ? anosPreenchidos[anosPreenchidos.length - 1] : null;
-
     this.metas.push({
-      ano: ultimoAno === null ? null : ultimoAno + 1,
-      prevista: null,
-      alcancada: null,
+      ano: '',
+      prevista: '',
+      alcancada: '',
+      justificativaMetaAlcancada: '',
     });
   }
 
   removerMeta(indice: number): void {
+    if (this.metadadosBloqueados()) {
+      return;
+    }
     const meta = this.metas[indice];
 
     const confirmar = window.confirm(
@@ -188,11 +210,66 @@ export class FormularioIndicadores {
     this.metas.splice(indice, 1);
   }
 
+  metadadosBloqueados(): boolean {
+    return this.statusIndicadorEmEdicao === 'APROVADO' && !this.isAdmin();
+  }
+
+  podeAlterarJustificativa(): boolean {
+    // A justificativa acompanha a meta alcançada e permanece editável para
+    // qualquer perfil, inclusive quando o indicador já foi aprovado.
+    return true;
+  }
+
+  abrirJustificativa(indice: number): void {
+    this.indiceMetaJustificativa = indice;
+    this.justificativaMetaEmEdicao = this.metas[indice].justificativaMetaAlcancada;
+  }
+
+  fecharJustificativa(): void {
+    this.indiceMetaJustificativa = null;
+    this.justificativaMetaEmEdicao = '';
+  }
+
+  salvarJustificativa(): void {
+    if (this.indiceMetaJustificativa === null) {
+      return;
+    }
+    this.metas[this.indiceMetaJustificativa].justificativaMetaAlcancada =
+      this.justificativaMetaEmEdicao.trim();
+    this.fecharJustificativa();
+  }
+
+  validarMetas(): boolean {
+    const anos = new Set<string>();
+    for (const meta of this.metas) {
+      const ano = meta.ano.trim();
+      const prevista = meta.prevista.trim();
+      const alcancada = meta.alcancada.trim();
+      const justificativa = meta.justificativaMetaAlcancada.trim();
+
+      if (!ano || !prevista) {
+        window.alert('Informe o ano e a meta prevista de cada linha.');
+        return false;
+      }
+      if (anos.has(ano)) {
+        window.alert('Cada ano pode ser informado apenas uma vez.');
+        return false;
+      }
+      if (alcancada && !justificativa) {
+        window.alert(`Informe a justificativa da meta alcançada no ano ${ano}.`);
+        return false;
+      }
+      anos.add(ano);
+    }
+    return true;
+  }
+
   buscarUsuarioAtual(): void {
     this.usuarioService.getAtual().subscribe({
       next: (usuario) => {
         this.usuarioAtual.set(usuario);
         this.isAdmin.set(usuario.papel === 'ADMIN');
+        this.atualizarRestricaoEdicao();
         const campoResponsavel = this.formularioIndicador.get('responsavel');
 
         if (usuario.papel === 'ADMIN') {
@@ -213,6 +290,11 @@ export class FormularioIndicadores {
       },
       error: (erro) => console.error('Erro ao buscar usuário:', erro),
     });
+  }
+
+  private atualizarRestricaoEdicao(): void {
+    this.edicaoRestrita =
+      this.statusIndicadorEmEdicao === 'APROVADO' && !this.isAdmin();
   }
 
   obterRevisao(id: number): RevisaoEdicao | null {
@@ -284,7 +366,10 @@ export class FormularioIndicadores {
   }
 
   selecionarObjetivo(objetivoId: number): void {
-    if (this.ehGestor() && this.edicaoRestrita) {
+    if (this.formularioIndicador.disabled || (this.ehGestor() && this.edicaoRestrita)) {
+      return;
+    }
+    if (!this.objetivosDoPlanejamento().some(objetivo => objetivo.id === objetivoId)) {
       return;
     }
     this.objetivoSelecionado = objetivoId;
@@ -343,6 +428,44 @@ export class FormularioIndicadores {
     });
   }
 
+  buscarPlanejamentos(): void {
+    this.planejamentoService.listarPlanejamentos().subscribe({
+      next: planejamentos => {
+        this.planejamentos.set(planejamentos);
+        if (!this.formularioIndicador.get('planejamento')?.value) {
+          const planejamentoId = this.planejamentoVigente()?.id ?? null;
+          this.formularioIndicador.patchValue(
+            { planejamento: planejamentoId },
+            { emitEvent: false },
+          );
+          this.planejamentoSelecionadoId.set(planejamentoId);
+        }
+      },
+      error: erro => console.error('Erro ao carregar planejamentos:', erro),
+    });
+  }
+
+  private planejamentoVigente(): Planejamento | null {
+    const hoje = new Date().toISOString().slice(0, 10);
+    const vigentes = this.planejamentos()
+      .filter(planejamento => planejamento.status === 'Vigente')
+      .sort((a, b) => b.data_inicio.localeCompare(a.data_inicio));
+    return vigentes.find(
+      planejamento => planejamento.data_inicio <= hoje && planejamento.data_fim >= hoje,
+    ) ?? vigentes[0] ?? null;
+  }
+
+  aoSelecionarPlanejamento(): void {
+    const planejamentoId = Number(this.formularioIndicador.get('planejamento')?.value);
+    this.planejamentoSelecionadoId.set(planejamentoId || null);
+    if (
+      this.objetivoSelecionado !== null &&
+      !this.objetivosDoPlanejamento().some(objetivo => objetivo.id === this.objetivoSelecionado)
+    ) {
+      this.objetivoSelecionado = null;
+    }
+  }
+
   salvarIndicador(status: 'EM_ESPERA' | 'APROVADO'): void {
     if (this.formularioIndicador.invalid) {
       this.formularioIndicador.markAllAsTouched();
@@ -350,15 +473,24 @@ export class FormularioIndicadores {
       return;
     }
 
-    if (!this.objetivoSelecionado) {
-      alert('Selecione um objetivo estratégico.');
+    if (
+      !this.objetivoSelecionado ||
+      !this.objetivosDoPlanejamento().some(objetivo => objetivo.id === this.objetivoSelecionado)
+    ) {
+      alert('Selecione um objetivo estratégico do planejamento escolhido.');
       this.etapaAtual = 1;
+      return;
+    }
+
+    if (!this.validarMetas()) {
+      this.etapaAtual = 4;
       return;
     }
 
     const formulario = this.formularioIndicador.getRawValue();
     const dados: any = {
       nome: formulario.nome,
+      planejamento: Number(formulario.planejamento),
       responsavel: formulario.responsavel || null,
       unidade: formulario.unidade,
       objetivo: this.objetivoSelecionado,
@@ -370,61 +502,29 @@ export class FormularioIndicadores {
       observacao: formulario.observacao || '',
       status,
       evolucao_indicador: this.metas.map((meta) => ({
-        ano: String(meta.ano ?? ''),
-        meta_prevista: String(meta.prevista ?? ''),
-        meta_alcancada: String(meta.alcancada ?? ''),
+        ano: meta.ano.trim(),
+        meta_prevista: meta.prevista.trim(),
+        meta_alcancada: meta.alcancada.trim(),
+        justificativa_meta_alcancada: meta.justificativaMetaAlcancada.trim(),
       })),
     };
 
-    if (
-      this.indicadorEmEdicao !== null &&
-      this.ehGestor() &&
-      this.statusIndicadorEmEdicao === 'APROVADO'
-    ) {
-      const dadosResponsavel = { responsavel: formulario.responsavel };
-
-      this.indicadorService.atualizarIndicador(this.indicadorEmEdicao, dadosResponsavel).subscribe({
-        next: () => {
-          window.alert('Responsável alterado com sucesso.');
-          this.salvo.emit();
-        },
-        error: (erro) => {
-          window.alert(erro.error?.detail ?? 'Não foi possível alterar o responsável.');
-        },
-      });
-      return;
-    }
-
-    if (
-      this.indicadorEmEdicao !== null &&
+    const indicadorPublicadoParaUsuario =
       !this.isAdmin() &&
-      this.statusIndicadorEmEdicao === 'APROVADO'
-    ) {
-      Object.assign(dados, {
-        evolucao_indicador: dados.evolucao_indicador,
-        observacao: formulario.observacao || '',
-      });
-      delete dados.nome;
-      delete dados.responsavel;
-      delete dados.unidade;
-      delete dados.objetivo;
-      delete dados.finalidade;
-      delete dados.unidade_medida;
-      delete dados.polaridade;
-      delete dados.metodo_calculo;
-      delete dados.formula;
-      delete dados.status;
-    }
+      this.indicadorEmEdicao !== null &&
+      this.statusIndicadorEmEdicao === 'APROVADO';
+    const dadosParaSalvar = indicadorPublicadoParaUsuario
+      ? { evolucao_indicador: dados.evolucao_indicador }
+      : dados;
 
     const operacao =
       this.indicadorEmEdicao === null
         ? this.indicadorService.criarIndicador(dados)
-        : !this.isAdmin() && this.statusIndicadorEmEdicao === 'APROVADO'
+        : indicadorPublicadoParaUsuario
           ? this.indicadorService.submeterAtualizacao(this.indicadorEmEdicao, {
-              evolucao_indicador: dados.evolucao_indicador,
-              observacao: dados.observacao,
+              evolucao_indicador: dadosParaSalvar.evolucao_indicador,
             })
-          : this.indicadorService.atualizarIndicador(this.indicadorEmEdicao, dados);
+          : this.indicadorService.atualizarIndicador(this.indicadorEmEdicao, dadosParaSalvar);
 
     operacao.subscribe({
       next: (indicador) => {
@@ -482,6 +582,7 @@ export class FormularioIndicadores {
     this.formularioIndicador.enable();
     this.formularioIndicador.reset({
       nome: '',
+      planejamento: this.planejamentoVigente()?.id ?? null,
       responsavel: null,
       unidade: null,
       finalidade: '',

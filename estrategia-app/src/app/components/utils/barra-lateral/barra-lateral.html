@@ -138,7 +138,7 @@
                     </a>
 
 
-                    <a *ngIf="podeGerenciarUsuarios"
+                    <a *ngIf="papelUsuario() === 'ADMIN'"
                     routerLink="/tela-cadastro"
                     routerLinkActive="menu-item-ativo"
                     class="menu-item" title="Lista de usuários">
@@ -184,6 +184,22 @@
                         <span>Unidades</span>
                     </a>
 
+                    <a *ngIf="podeGerenciarUsuarios"
+                       routerLink="/cadastro-planejamento"
+                       routerLinkActive="menu-item-ativo"
+                       class="menu-item"
+                       title="Planejamentos e PDIs"
+                       aria-label="Planejamentos e PDIs">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M6 3.5H14L18 7.5V20C18 20.5523 17.5523 21 17 21H6C5.44772 21 5 20.5523 5 20V4.5C5 3.94772 5.44772 3.5 6 3.5Z"
+                                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 3.5V7.5H18M8 12H15M8 15.5H15M8 8.5H10"
+                                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16.5 17.5V21M14.75 19.25H18.25"
+                                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                        </svg>
+                        <span>Planejamentos e PDIs</span>
+                    </a>
 
 
                 </div>

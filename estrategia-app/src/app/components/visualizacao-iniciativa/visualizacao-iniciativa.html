@@ -7,6 +7,7 @@
     <ng-container *ngIf="detalhe.registro() as registro">
       <h1 class="titulo-projeto">{{ registro.nome }}</h1>
       <section class="info-cards">
+        
         <article class="info-card info-card--unidade">
           <div class="info-card-titulo">Unidade Responsável</div>
           <div class="info-card-conteudo">
@@ -68,9 +69,24 @@
         </article>
       </section>
       <section class="rodape-projeto">
-        <article class="card-orcamento card-orcamento--destaque">
-          <h3>Evolução da iniciativa</h3>
+        <article class="card-custos card-custos--destaque">
+          <h3>Custos da iniciativa</h3>
+          <div class="custos-valores">
+            <div class="custos-valor-item">
+              <span class="custos-label">Custo estimado</span
+              ><span class="custos-valor">{{
+                custos().estimado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+              }}</span>
+            </div>
+            <div class="custos-valor-item">
+              <span class="custos-label">Custo total realizado</span
+              ><span class="custos-valor">{{
+                custos().realizado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+              }}</span>
+            </div>
+          </div>
           <div class="progresso">
+            <span class="progresso-titulo">Evolução da iniciativa</span>
             <div class="barra-progresso">
               <div
                 class="barra-progresso-preenchida"
@@ -83,15 +99,23 @@
             >Última modificação: {{ registro.ultima_atualizacao | date: 'dd/MM/yyyy' }}</span
           >
         </article>
-        <article class="card-objetivos">
-          <h3>Essa iniciativa contribui para o(s) seguinte(s) objetivo(s):</h3>
-          <ul class="lista-objetivos">
-            <li *ngFor="let objetivo of registro.objetivos_detalhes">
-              {{ objetivo.codigo }} — {{ objetivo.descricao }}
-            </li>
-          </ul>
-          <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
-        </article>
+        <div>
+          <article class="info-card">
+            <div class="info-card-titulo">PDI</div>
+            <div class="info-card-conteudo">
+              <p>{{ registro.pdi_nome || 'Não informado' }}</p>
+            </div>
+          </article>
+          <article class="card-objetivos">
+            <h3>Essa iniciativa contribui para o(s) seguinte(s) objetivo(s):</h3>
+            <ul class="lista-objetivos">
+              <li *ngFor="let objetivo of registro.objetivos_detalhes">
+                {{ objetivo.codigo }} — {{ objetivo.descricao }}
+              </li>
+            </ul>
+            <p *ngIf="!registro.objetivos_detalhes.length">Nenhum objetivo vinculado.</p>
+          </article>
+        </div>
       </section>
     </ng-container>
   </main>

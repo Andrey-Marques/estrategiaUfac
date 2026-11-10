@@ -92,6 +92,27 @@
               />
             </div>
 
+            <div class="campo-formulario">
+              <label for="pdiIniciativa">
+                PLANO DE DESENVOLVIMENTO INSTITUCIONAL (PDI)
+                <span class="obrigatorio">*</span>
+              </label>
+              <select
+                id="pdiIniciativa"
+                class="form-control"
+                formControlName="pdi"
+                (change)="aoSelecionarPdi()"
+              >
+                <option [ngValue]="null">Selecione um PDI vigente</option>
+                <option *ngFor="let pdi of pdis()" [ngValue]="pdi.id">
+                  {{ pdi.nome }} ({{ pdi.data_inicio | date:'dd/MM/yyyy' }} a {{ pdi.data_fim | date:'dd/MM/yyyy' }})
+                </option>
+              </select>
+              <small class="texto-ajuda" *ngIf="!pdis().length">
+                Nenhum PDI disponível. Solicite o cadastro à administração.
+              </small>
+            </div>
+
             <div class="linha-informacoes">
               <div class="linha-vinculo">
                 <!-- UNIDADE -->
@@ -155,7 +176,7 @@
               </div>
               <hr />
               <div class="container-objetivos">
-                <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivos()">
+                <label class="card-objetivo-estrategico" *ngFor="let objetivo of objetivosDoPdi()">
                   <div class="cabecalho-card-objetivo">
                     <input
                       class="form-check-input selecao-objetivo"
@@ -168,6 +189,13 @@
                   </div>
                   <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
                 </label>
+                <div class="estado-vazio-objetivos" *ngIf="!objetivosDoPdi().length" role="status" aria-live="polite">
+                  <div class="mensagem-estado-vazio">
+                    <strong>Nenhum objetivo disponível</strong>
+                    <p>Não há objetivos estratégicos cadastrados para o planejamento deste PDI.</p>
+                    <small>Cadastre objetivos estratégicos ou selecione outro PDI.</small>
+                  </div>
+                </div>
               </div>
             </section>
             <hr />
@@ -211,7 +239,16 @@
                 *ngFor="let acao of acoesIniciativa(); let indice = index"
                 class="linha-tabela-acao"
               >
-                <div class="coluna col-acao">{{ acao.descricaoAcao }}</div>
+                <div class="coluna col-acao">
+                  {{ acao.descricaoAcao }}
+                  <span
+                    *ngIf="acaoEstaAtrasada(acao.id)"
+                    class="indicador-acao-atrasada"
+                    role="img"
+                    aria-label="Ação em atraso"
+                    title="Ação em atraso"
+                  ></span>
+                </div>
                 <div class="coluna col-prazo">
                   {{ acao.prazoInicio | date: 'dd/MM/yyyy' : 'UTC' }}
                 </div>
@@ -502,6 +539,7 @@
             <option value="nao-iniciada">Não iniciada</option>
             <option value="em-execucao">Em execução</option>
             <option value="concluida">Concluída</option>
+            <option value="CANCELADA">Cancelada</option>
           </select>
         </div>
         <p

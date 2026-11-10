@@ -1,6 +1,6 @@
 import { validarStatusAcao } from '../../../model/validacao-status-acao';
 import { MascaraReais } from '../../../directives/mascara-reais';
-import { Component, signal, output } from '@angular/core';
+import { Component, computed, inject, signal, output } from '@angular/core';
 import { IniciativaEstrategica } from '../../../model/iniciativaEstrategica';
 import { IniciativaService } from '../../../service/iniciativa.service';
 import { CommonModule } from '@angular/common';
@@ -11,6 +11,9 @@ import { UsuarioService } from '../../../service/usuario.service';
 import { Usuario } from '../../../model/usuario';
 import { UnidadeService } from '../../../service/unidade.service';
 import { Unidade } from '../../../model/unidade';
+import { Pdi } from '../../../model/planejamento';
+import { PlanejamentoService } from '../../../service/planejamento.service';
+import { AtrasosService } from '../../../service/atrasos.service';
 
 export interface AcaoIniciativa {
   id?: number;
@@ -31,15 +34,19 @@ export interface AcaoIniciativa {
   host: { class: 'formulario-estrategico' },
 })
 export class FormularioIniciativas {
+  readonly atrasosService = inject(AtrasosService);
+
   constructor(
     private iniciativaService: IniciativaService,
     private usuarioService: UsuarioService,
     private unidadeService: UnidadeService,
     private objetivoService: ObjetivoService,
+    private planejamentoService: PlanejamentoService,
     private construtorFormulario: FormBuilder,
   ) {
     this.formularioIniciativa = this.construtorFormulario.group({
       tituloIniciativa: ['', Validators.required],
+      pdi: [null, Validators.required],
       responsavelPreenchimento: [null, Validators.required],
       unidadeResponsavel: [null, Validators.required],
       objetivosEstrategicos: [[], Validators.required],
@@ -69,6 +76,20 @@ export class FormularioIniciativas {
 
   objetivos = signal<ObjetivoEstrategico[]>([]);
 
+  pdis = signal<Pdi[]>([]);
+
+  pdiSelecionadoId = signal<number | null>(null);
+
+  readonly objetivosDoPdi = computed(() => {
+    const pdiId = this.pdiSelecionadoId();
+    const pdi = this.pdis().find(item => item.id === pdiId);
+    return pdi
+      ? this.objetivos().filter(
+          objetivo => Number(objetivo.planejamento) === pdi.planejamento,
+        )
+      : [];
+  });
+
   acoesIniciativa = signal<AcaoIniciativa[]>([]);
 
   formularioIniciativa: FormGroup;
@@ -92,11 +113,22 @@ export class FormularioIniciativas {
   acaoEmEdicaoIndice: number | null = null;
 
   ngOnInit(): void {
+    this.atrasosService.atualizar();
+    const pdiControl = this.formularioIniciativa.get('pdi');
+    this.pdiSelecionadoId.set(Number(pdiControl?.value) || null);
+    pdiControl?.valueChanges.subscribe(id =>
+      this.pdiSelecionadoId.set(Number(id) || null),
+    );
     this.buscarUsuarioAtual();
     this.buscarUsuarios();
     this.buscarUnidade();
     this.buscarObjetivosEstrategicos();
+    this.buscarPdis();
     this.observarResponsavelSelecionado();
+  }
+
+  acaoEstaAtrasada(acaoId?: number): boolean {
+    return this.atrasosService.acaoEstaAtrasada('iniciativas', acaoId);
   }
 
   buscarUsuarioAtual(): void {
@@ -147,6 +179,7 @@ export class FormularioIniciativas {
 
     this.formularioIniciativa.reset({
       tituloIniciativa: '',
+      pdi: this.pdiVigente()?.id ?? null,
       responsavelPreenchimento: null,
       unidadeResponsavel: this.isAdmin() ? null : unidadeUsuario,
       objetivosEstrategicos: [],
@@ -199,6 +232,43 @@ export class FormularioIniciativas {
     });
   }
 
+  buscarPdis(): void {
+    this.planejamentoService.listarPdis().subscribe({
+      next: pdis => {
+        this.pdis.set(pdis);
+        if (!this.formularioIniciativa.get('pdi')?.value) {
+          const pdiId = this.pdiVigente()?.id ?? null;
+          this.formularioIniciativa.patchValue(
+            { pdi: pdiId },
+            { emitEvent: false },
+          );
+          this.pdiSelecionadoId.set(pdiId);
+        }
+      },
+      error: erro => console.error('Erro ao carregar PDIs:', erro),
+    });
+  }
+
+  private pdiVigente(): Pdi | null {
+    const hoje = new Date().toISOString().slice(0, 10);
+    const vigentes = this.pdis()
+      .filter(pdi => pdi.status === 'Vigente')
+      .sort((a, b) => b.data_inicio.localeCompare(a.data_inicio));
+    return vigentes.find(
+      pdi => pdi.data_inicio <= hoje && pdi.data_fim >= hoje,
+    ) ?? vigentes[0] ?? null;
+  }
+
+  aoSelecionarPdi(): void {
+    const pdiId = Number(this.formularioIniciativa.get('pdi')?.value);
+    this.pdiSelecionadoId.set(pdiId || null);
+    const objetivosValidos = new Set(this.objetivosDoPdi().map(objetivo => objetivo.id));
+    const selecionados = this.formularioIniciativa.get('objetivosEstrategicos')?.value || [];
+    this.formularioIniciativa.patchValue({
+      objetivosEstrategicos: selecionados.filter((id: number) => objetivosValidos.has(id)),
+    });
+  }
+
   salvarIniciativa(statusSolicitado: 'EM_ESPERA' | 'APROVADO'): void {
     if (!this.validarDadosObrigatorios()) {
       return;
@@ -206,6 +276,7 @@ export class FormularioIniciativas {
     const formulario = this.formularioIniciativa.getRawValue();
     const dados = {
       nome: formulario.tituloIniciativa,
+      pdi: Number(formulario.pdi),
       responsavel: formulario.responsavelPreenchimento || null,
       unidade: formulario.unidadeResponsavel,
       objetivos: formulario.objetivosEstrategicos,
@@ -413,6 +484,7 @@ export class FormularioIniciativas {
       'nao-iniciada': 'PLANEJAMENTO',
       'em-execucao': 'ANDAMENTO',
       concluida: 'CONCLUIDA',
+      CANCELADA: 'CANCELADA',
     };
     return mapa[status] || status;
   }
@@ -422,6 +494,7 @@ export class FormularioIniciativas {
       PLANEJAMENTO: 'nao-iniciada',
       ANDAMENTO: 'em-execucao',
       CONCLUIDA: 'concluida',
+      CANCELADA: 'CANCELADA',
     };
     return mapa[status] || status;
   }
@@ -465,6 +538,7 @@ export class FormularioIniciativas {
       'nao-iniciada': 'Não iniciada',
       'em-execucao': 'Em execução',
       concluida: 'Concluída',
+      CANCELADA: 'Cancelada',
     };
     return mapa[status] || status;
   }
@@ -484,6 +558,12 @@ export class FormularioIniciativas {
       return false;
     }
 
+    if (!Number(formulario.pdi)) {
+      window.alert('Selecione um PDI.');
+      this.etapaAtual = 1;
+      return false;
+    }
+
     if (!this.isAdmin() && !formulario.responsavelPreenchimento) {
       window.alert('Selecione um responsável pela iniciativa.');
       return false;
@@ -497,6 +577,12 @@ export class FormularioIniciativas {
 
     if (!formulario.objetivosEstrategicos || formulario.objetivosEstrategicos.length === 0) {
       window.alert('Selecione pelo menos um objetivo estratégico.');
+      this.etapaAtual = 1;
+      return false;
+    }
+    const objetivosDisponiveis = new Set(this.objetivosDoPdi().map(objetivo => objetivo.id));
+    if (formulario.objetivosEstrategicos.some((id: number) => !objetivosDisponiveis.has(id))) {
+      window.alert('Os objetivos selecionados devem pertencer ao planejamento do PDI escolhido.');
       this.etapaAtual = 1;
       return false;
     }
@@ -519,6 +605,7 @@ export class FormularioIniciativas {
 
     this.formularioIniciativa.patchValue({
       tituloIniciativa: dados.nome,
+      pdi: dados.pdi,
       responsavelPreenchimento: dados.responsavel,
       unidadeResponsavel: dados.unidade,
       objetivosEstrategicos: dados.objetivos || [],
@@ -632,6 +719,7 @@ export class FormularioIniciativas {
     if (this.isAdmin() || this.editandoIniciativaRejeitada) {
       dados = {
         nome: formulario.tituloIniciativa,
+        pdi: Number(formulario.pdi),
         responsavel: formulario.responsavelPreenchimento,
         unidade: formulario.unidadeResponsavel,
         objetivos: formulario.objetivosEstrategicos,

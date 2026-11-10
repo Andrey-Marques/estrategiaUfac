@@ -1,11 +1,21 @@
 from rest_framework.test import APITestCase
 from usuarios.models import Usuario
+from planejamento.models import Planejamento
 from .models import ObjetivoEstrategico
 
 
 class PermissoesObjetivosTests(APITestCase):
     def setUp(self):
-        self.objetivo = ObjetivoEstrategico.objects.create(codigo='OE1', descricao='Original')
+        self.planejamento = Planejamento.objects.create(
+            nome='Planejamento de teste',
+            data_inicio='2024-01-01',
+            data_fim='2033-12-31',
+        )
+        self.objetivo = ObjetivoEstrategico.objects.create(
+            codigo='OE1',
+            descricao='Original',
+            planejamento=self.planejamento,
+        )
 
     def test_servidor_e_gestor_so_podem_ler(self):
         for papel in ('SERVIDOR', 'GESTOR'):
@@ -26,7 +36,15 @@ class PermissoesObjetivosTests(APITestCase):
 
     def test_admin_pode_criar_editar_e_excluir(self):
         self.client.force_authenticate(Usuario.objects.create_user(username='admin', papel='ADMIN'))
-        resposta = self.client.post('/api/objetivos/', {'codigo': 'OE2', 'descricao': 'Novo'}, format='json')
+        resposta = self.client.post(
+            '/api/objetivos/',
+            {
+                'codigo': 'OE2',
+                'descricao': 'Novo',
+                'planejamento': self.planejamento.pk,
+            },
+            format='json',
+        )
         self.assertEqual(resposta.status_code, 201)
         url = f"/api/objetivos/{resposta.data['id']}/"
         self.assertEqual(self.client.patch(url, {'descricao': 'Editado'}, format='json').status_code, 200)

@@ -3,7 +3,7 @@ import { ExcluirRegistro } from '../utils/excluir-registro/excluir-registro';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IniciativaEstrategica, AcaoReslizada } from '../../model/iniciativaEstrategica';
+import { IniciativaEstrategica, AcaoReslizada, totaisCustosIniciativa } from '../../model/iniciativaEstrategica';
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 
 export interface DecisaoIniciativa {
@@ -46,6 +46,10 @@ export class AvaliacaoIniciativa {
 
   @Output()
   editar = new EventEmitter<IniciativaEstrategica>();
+
+  get custos() {
+    return totaisCustosIniciativa(this.iniciativa?.acoes_realizadas);
+  }
 
   observacao = '';
   mensagemErro = '';

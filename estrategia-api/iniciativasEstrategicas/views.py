@@ -113,6 +113,7 @@ class IniciativaEstrategicaViewSet(ExclusaoRegistroMixin, ModelViewSet):
                 'responsavel',
                 'unidade',
                 'objetivos',
+                'pdi',
                 'projeto',
                 'acoes',
                 'percentual_evolucao',

@@ -72,13 +72,26 @@ class ProjetoEstrategicoSerializer(ExclusaoSerializerMixin, serializers.ModelSer
     justificativa_descontinuacao = serializers.CharField(required=False, allow_blank=True, max_length=2000)
 
     def validate(self, dados):
+        dados = super().validate(dados)
         if self.instance is None or {'status_execucao', 'justificativa_descontinuacao'} & dados.keys():
             status = dados.get('status_execucao', getattr(self.instance, 'status_execucao', 'ANDAMENTO'))
             motivo = dados.get('justificativa_descontinuacao', getattr(self.instance, 'justificativa_descontinuacao', ''))
             dados['justificativa_descontinuacao'] = validar_justificativa_descontinuacao(status, motivo)
+        planejamento = dados.get('planejamento', getattr(self.instance, 'planejamento', None))
+        objetivos = dados.get(
+            'objetivos',
+            self.instance.objetivos.all() if self.instance else [],
+        )
+        if planejamento is None:
+            raise serializers.ValidationError({'planejamento': 'Selecione um planejamento.'})
+        if any(objetivo.planejamento_id != planejamento.id for objetivo in objetivos):
+            raise serializers.ValidationError({
+                'objetivos': 'Os objetivos devem pertencer ao planejamento selecionado.'
+            })
         return dados
 
     responsavel_nome = serializers.SerializerMethodField()
+    planejamento_nome = serializers.CharField(source='planejamento.nome', read_only=True)
     custo_estimado = serializers.DecimalField(max_digits=20, decimal_places=2, read_only=True)
     custo_realizado = serializers.DecimalField(
         max_digits=20, decimal_places=2, source='custo_realizado_total', read_only=True

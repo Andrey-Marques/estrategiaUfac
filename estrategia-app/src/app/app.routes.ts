@@ -20,6 +20,8 @@ import { AcoesEstrategicas } from './components/acoes-estrategicas/acoes-estrate
 import { VisualizacaoProjeto } from './components/visualizacao-projeto/visualizacao-projeto';
 import { VisualizacaoIndicador } from './components/visualizacao-indicador/visualizacao-indicador';
 import { VisualizacaoIniciativa } from './components/visualizacao-iniciativa/visualizacao-iniciativa';
+import { CadastroPlanejamento } from './components/cadastro-planejamento/cadastro-planejamento';
+import { EquipeResponsavel } from './components/equipe-responsavel/equipe-responsavel';
 
 export const routes: Routes = [
   { path: 'redefinir-senha/:uid/:token', component: RedefinirSenha },
@@ -36,6 +38,7 @@ export const routes: Routes = [
   {path: "painel-unidades", component: PainelUnidades},
   {path: "pagina-pdi", component: PaginaPdi},
   {path: "pagina-pe", component: PaginaPe},
+  {path: "equipe-responsavel", component: EquipeResponsavel},
   {path: "acoes-estrategicas", component: AcoesEstrategicas},
   {path: "visualizacao-projeto/:id", component: VisualizacaoProjeto},
   {path: "visualizacao-indicador/:id", component: VisualizacaoIndicador},
@@ -49,6 +52,11 @@ export const routes: Routes = [
         path: 'listagem-unidades',
         canActivate: [adminGuard],
         component: ListagemUnidades,
+      },
+      {
+        path: 'cadastro-planejamento',
+        canActivate: [adminGuard],
+        component: CadastroPlanejamento,
       },
       {
         path: 'home',

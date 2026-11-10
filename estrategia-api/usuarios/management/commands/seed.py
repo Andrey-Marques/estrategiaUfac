@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 
 from django.core.management.base import BaseCommand, CommandError
@@ -11,6 +11,8 @@ from objetivosEstrategicos.models import ObjetivoEstrategico
 from projetosEstrategicos.models import AcaoProjeto, ProjetoEstrategico, EvolucaoProjeto
 from iniciativasEstrategicas.models import IniciativaEstrategica, AcaoRealizada
 from indicadoresEstrategicos.models import IndicadorEstrategico, EvolucaoIndicador
+from planejamento.models import Planejamento
+from pdi.models import PDI
 
 
 class Command(BaseCommand):
@@ -285,6 +287,32 @@ class Command(BaseCommand):
         )
 
         # =====================================================
+        # PLANEJAMENTO E PDI
+        # =====================================================
+
+        planejamento, _ = Planejamento.objects.update_or_create(
+            nome='Planejamento Estratégico 2024-2033',
+            defaults={
+                'data_inicio': date(2024, 1, 1),
+                'data_fim': date(2033, 12, 31),
+                'status': 'Vigente',
+            },
+        )
+        pdi, _ = PDI.objects.update_or_create(
+            nome='PDI 2025-2029',
+            defaults={
+                'data_inicio': date(2025, 1, 1),
+                'data_fim': date(2029, 12, 31),
+                'status': 'Vigente',
+                'planejamento': planejamento,
+            },
+        )
+
+        self.stdout.write(
+            self.style.SUCCESS('✓ Planejamento estratégico e PDI criados')
+        )
+
+        # =====================================================
         # OBJETIVOS ESTRATÉGICOS
         # =====================================================
 
@@ -405,7 +433,8 @@ class Command(BaseCommand):
             ObjetivoEstrategico.objects.update_or_create(
                 codigo=dados['codigo'],
                 defaults={
-                    'descricao': dados['descricao']
+                    'descricao': dados['descricao'],
+                    'planejamento': planejamento,
                 }
             )
 
@@ -586,6 +615,7 @@ class Command(BaseCommand):
                         'data_analise': timezone.now() - timedelta(days=5) if status in ('APROVADO', 'REJEITADO') else None,
                         'unidade': unidades[sigla],
                         'responsavel': responsaveis[sigla],
+                        'planejamento': planejamento,
                     }
                 )
 
@@ -633,6 +663,10 @@ class Command(BaseCommand):
         for sigla, dados_unidade in iniciativas_dados.items():
             for indice, (nome, percentual, objetivo) in enumerate(dados_unidade):
                 status = self.status_exemplo(indice)
+                iniciativa_existente = IniciativaEstrategica.objects.filter(nome=nome).first()
+                if iniciativa_existente is not None:
+                    iniciativa_existente.objetivos.clear()
+
                 iniciativa, _ = IniciativaEstrategica.objects.update_or_create(
                     nome=nome,
                     defaults={
@@ -646,10 +680,11 @@ class Command(BaseCommand):
                         'data_analise': timezone.now() - timedelta(days=4) if status in ('APROVADO', 'REJEITADO') else None,
                         'unidade': unidades[sigla],
                         'responsavel': responsaveis[sigla],
+                        'pdi': pdi,
                     }
                 )
 
-                iniciativa.objetivos.add(objetivo)
+                iniciativa.objetivos.set([objetivo])
                 if not iniciativa.acoes_realizadas.exists():
                     cenario = ('ATRASADO' if indice == 0 else 'REGULAR') if status == 'APROVADO' else 'PROPOSTA'
                     for dados in self.dados_acoes(7500 + indice * 2500, cenario):
@@ -714,6 +749,7 @@ class Command(BaseCommand):
                             r'\times 100',
                         'unidade': unidades[sigla],
                         'objetivo': objetivo,
+                        'planejamento': planejamento,
                         'responsavel': responsaveis[sigla],
                         'observacao':
                             'Indicador criado para dados de teste.',
@@ -727,6 +763,9 @@ class Command(BaseCommand):
                     defaults={
                         'meta_prevista': str(70 + (indice * 5)),
                         'meta_alcancada': str(50 + (indice * 5)),
+                        'justificativa_meta_alcancada': (
+                            'Resultado fictício registrado para demonstração do acompanhamento anual.'
+                        ),
                     }
                 )
 
@@ -797,6 +836,9 @@ class Command(BaseCommand):
                     defaults={
                         'meta_prevista': prevista,
                         'meta_alcancada': alcancada,
+                        'justificativa_meta_alcancada': (
+                            'Resultado fictício registrado para demonstração do acompanhamento anual.'
+                        ),
                     },
                 )
                 evolucoes_adicionadas += 1

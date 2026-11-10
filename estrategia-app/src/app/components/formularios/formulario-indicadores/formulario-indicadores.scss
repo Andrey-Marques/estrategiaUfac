@@ -207,26 +207,88 @@ textarea.descricao-metodo {
 
 .acoes-meta {
   display: flex;
+  gap: 6px;
   justify-content: center;
 }
 
+.botao-justificativa-meta,
 .botao-excluir-meta {
   width: 40px;
   height: 40px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: none;
   border-radius: 8px;
-
   background: transparent;
+}
+
+.botao-justificativa-meta {
+  color: $cor-primaria-botao;
+
+  &:hover,
+  &.tem-justificativa {
+    background-color: #eaf3ff;
+  }
+}
+
+.botao-excluir-meta {
   color: #dc3545;
 
   &:hover {
     background-color: #fff1f1;
   }
+
+  &:disabled {
+    display: none;
+  }
+}
+
+.modal-justificativa-meta {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 31, 72, .5);
+}
+
+.modal-justificativa-meta__conteudo {
+  width: min(100%, 620px);
+  padding: 24px;
+  border-radius: 12px;
+  background: $cor-fundo-branco;
+  box-shadow: 0 18px 45px rgba(8, 31, 72, .24);
+
+  textarea { min-height: 150px; resize: vertical; }
+}
+
+.modal-justificativa-meta__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  h3 { margin: 0; font-size: 18px; color: $cor-texto-rotulo; }
+  p { margin: 6px 0 0; color: $cor-texto-auxiliar; font-size: 13px; }
+}
+
+.botao-fechar-justificativa {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: $cor-texto-auxiliar;
+  &:hover { background: #f1f5f9; }
+}
+
+.modal-justificativa-meta__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .sem-metas {

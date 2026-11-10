@@ -49,6 +49,8 @@ export interface ProjetoEstrategico{
     custo_realizado: number | string;
     acoes: AcaoProjeto[];
     unidade: number;
+    planejamento: number;
+    planejamento_nome?: string;
     responsavel: number;
     objetivos: number[];
     objetivos_detalhes?: ObjetivoProjetoDetalhe[];
@@ -68,6 +70,7 @@ export interface CriarProjeto {
   tempo_estimado: string;
   percentual_progresso: number;
   status: string;
+  planejamento: number;
   acoes: Omit<AcaoProjeto, 'id'>[];
   objetivos: number[];
   evolucoes?: EvolucaoPayload[];

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 
 from unidades.models import Unidade
 from usuarios.models import Usuario
@@ -47,6 +48,7 @@ from revisoes.exclusao import ExclusaoSerializerMixin
 class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.ModelSerializer):
 
     responsavel_nome = serializers.SerializerMethodField()
+    pdi_nome = serializers.CharField(source='pdi.nome', read_only=True)
 
     unidade_sigla = serializers.CharField(source='unidade.sigla', read_only=True)
 
@@ -61,6 +63,22 @@ class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.Model
     unidade = RelatedByIdOrNameField( queryset=Unidade.objects.all())
 
     responsavel = RelatedByIdOrNameField(queryset=Usuario.objects.all(),  required=False,  allow_null=True)
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        pdi = attrs.get('pdi', getattr(self.instance, 'pdi', None))
+        objetivos = attrs.get(
+            'objetivos',
+            self.instance.objetivos.all() if self.instance else [],
+        )
+        if pdi is None:
+            raise serializers.ValidationError({'pdi': 'Selecione um PDI.'})
+        if any(objetivo.planejamento_id != pdi.planejamento_id for objetivo in objetivos):
+            raise serializers.ValidationError({
+                'objetivos': 'Os objetivos devem pertencer ao planejamento do PDI selecionado.'
+            })
+        return attrs
+
     class Meta:
         model = IniciativaEstrategica
         fields = [
@@ -75,6 +93,8 @@ class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.Model
             'responsavel_nome',
             'objetivos',
             'objetivos_detalhes',
+            'pdi',
+            'pdi_nome',
             'acoes_realizadas',
             'acoes',
             'percentual_evolucao',
@@ -117,10 +137,17 @@ class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.Model
 
         return iniciativa
 
+    @transaction.atomic
     def update(self,instance,validated_data):
         acoes = validated_data.pop('acoes',None)
         objetivos = validated_data.pop('objetivos',None)
+        pdi_alterado = (
+            'pdi' in validated_data
+            and validated_data['pdi'].pk != instance.pdi_id
+        )
 
+        if pdi_alterado and objetivos is not None:
+            instance.objetivos.clear()
         for campo, valor in validated_data.items():
             setattr(instance,  campo, valor)
         instance.save()
@@ -132,5 +159,3 @@ class IniciativaEstrategicaSerializer(ExclusaoSerializerMixin, serializers.Model
             for acao in acoes:
                 AcaoRealizada.objects.create( fk_iniciativa=instance, **acao)
         return instance
-
-

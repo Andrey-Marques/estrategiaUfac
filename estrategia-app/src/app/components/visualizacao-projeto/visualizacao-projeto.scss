@@ -83,7 +83,7 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   padding: 10px 20px;
   background-color: $azul-card-bg;
   color: $azul-escuro;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -170,7 +170,7 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   background-color: $azul-card-bg;
   color: $azul-principal;
 
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -224,14 +224,26 @@ $fonte-principal: "Inter", "Open Sans", Arial, sans-serif;
   align-items: start;
 }
 
-.card-custos,
-.card-objetivos {
-  background: linear-gradient(180deg, $azul-card-bg 0%, $branco 60%);
+.card-custos{
   box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
-  padding: 32px 28px;
+  padding: 30px ;
   border-radius: 8px;
   border: 1px solid $azul-claro;
 
+  h3 {
+    margin: 0 0 12px;
+    color: $azul-escuro;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+}
+.card-objetivos {
+  box-shadow: 0 4px 16px rgba(8, 8, 139, 0.1);
+  padding: 10px ;
+  border-radius: 8px;
+  border: 1px solid $azul-claro;
+  margin-top: 20px;
   h3 {
     margin: 0 0 12px;
     color: $azul-escuro;

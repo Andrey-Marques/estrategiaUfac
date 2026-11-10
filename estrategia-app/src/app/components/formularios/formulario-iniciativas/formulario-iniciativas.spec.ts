@@ -39,6 +39,22 @@ describe('FormularioIniciativas', () => {
     expect(component.formularioIniciativa.invalid).toBe(true);
   });
 
+  it('marca somente ações da iniciativa que estão em atraso', () => {
+    component.atrasosService.iniciativas.set([{
+      tipo: 'iniciativas',
+      registro_id: 1,
+      registro_nome: 'Iniciativa teste',
+      acao_id: 10,
+      acao_nome: 'Ação atrasada',
+      prazo_inicio: '2026-01-01',
+      dias_atraso: 5,
+    }]);
+
+    expect(component.acaoEstaAtrasada(10)).toBe(true);
+    expect(component.acaoEstaAtrasada(11)).toBe(false);
+    expect(component.acaoEstaAtrasada(undefined)).toBe(false);
+  });
+
   it('avisa a listagem somente depois de salvar na API', () => {
     component.criarNovaIniciativa();
     component.formularioIniciativa.patchValue({

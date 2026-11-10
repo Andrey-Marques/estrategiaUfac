@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'usuarios',
     'unidades',
+    'planejamento',
+    'pdi',
     'iniciativasEstrategicas',
     'projetosEstrategicos',
     'objetivosEstrategicos',

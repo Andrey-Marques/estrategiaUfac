@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { ProjetoEstrategico } from '../model/projetoEstrategico';
+import { ProjetoEstrategico, StatusExecucaoProjeto } from '../model/projetoEstrategico';
 import { IndicadorEstrategico } from '../model/indicadorEstrategico';
 import { IniciativaEstrategica } from '../model/iniciativaEstrategica';
 import { environment } from '../../environments/environment';
@@ -11,6 +11,8 @@ interface DetalhePublico {
   unidade_nome: string;
   unidade_sigla: string;
   responsavel_nome: string | null;
+  planejamento_nome: string | null;
+  pdi_nome: string | null;
   objetivos_detalhes: Array<{ id: number; codigo: string; descricao: string }>;
 }
 
@@ -26,8 +28,12 @@ export interface AcaoEstrategicaPublica {
   id: number;
   tipo: TipoAcaoEstrategica;
   titulo: string;
+  status_execucao?: StatusExecucaoProjeto | null;
+  progresso?: number | string | null;
   unidade_id: number;
   unidade_sigla: string;
+  planejamento_nome: string | null;
+  pdi_nome: string | null;
   responsavel: string | null;
   objetivos: Array<{ id: number; codigo: string }>;
   data_atualizacao: string | null;

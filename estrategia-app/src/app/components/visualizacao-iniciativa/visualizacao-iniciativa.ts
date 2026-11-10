@@ -1,6 +1,7 @@
+import { totaisCustosIniciativa } from '../../model/iniciativaEstrategica';
 import { Breadcrumb } from '../utils/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { HeaderPublico } from '../utils/header-publico/header-publico';
 import { Rodape } from '../utils/rodape/rodape';
 import { carregarDetalhePublico } from '../../service/detalhe-publico';
@@ -13,6 +14,7 @@ import { carregarDetalhePublico } from '../../service/detalhe-publico';
 })
 export class VisualizacaoIniciativa {
   readonly detalhe = carregarDetalhePublico('iniciativas');
+  readonly custos = computed(() => totaisCustosIniciativa(this.detalhe.registro()?.acoes_realizadas));
 
   statusAcao(status: string): string {
     return ({ PLANEJAMENTO: 'Não iniciada', ANDAMENTO: 'Em execução', CONCLUIDA: 'Concluída', CANCELADA: 'Cancelada' } as Record<string, string>)[status] ?? status;

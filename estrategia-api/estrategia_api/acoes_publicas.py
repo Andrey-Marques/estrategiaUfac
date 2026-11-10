@@ -16,17 +16,17 @@ class AcoesEstrategicasPublicasView(APIView):
     def get(self, request):
         projetos = (
             ProjetoEstrategico.objects.filter(status='APROVADO')
-            .select_related('unidade', 'responsavel')
+            .select_related('unidade', 'responsavel', 'planejamento')
             .prefetch_related('objetivos').order_by('id')
         )
         iniciativas = (
             IniciativaEstrategica.objects.filter(status='APROVADO')
-            .select_related('unidade', 'responsavel')
+            .select_related('unidade', 'responsavel', 'pdi')
             .prefetch_related('objetivos').order_by('id')
         )
         indicadores = (
             IndicadorEstrategico.objects.filter(status='APROVADO')
-            .select_related('unidade', 'responsavel', 'objetivo').order_by('id')
+            .select_related('unidade', 'responsavel', 'objetivo', 'planejamento').order_by('id')
         )
 
         registros = []
@@ -45,8 +45,15 @@ class AcoesEstrategicasPublicasView(APIView):
                     'id': registro.id,
                     'tipo': tipo,
                     'titulo': registro.nome,
+                    'status_execucao': getattr(registro, 'status_execucao', None),
+                    'progresso': getattr(registro, 'percentual_progresso', getattr(registro, 'percentual_evolucao', None)),
                     'unidade_id': registro.unidade_id,
                     'unidade_sigla': registro.unidade.sigla,
+                    'planejamento_nome': (
+                        registro.planejamento.nome if tipo in ('projetos', 'indicadores')
+                        else None
+                    ),
+                    'pdi_nome': registro.pdi.nome if tipo == 'iniciativas' else None,
                     'responsavel': (
                         responsavel.nome_social or responsavel.nome_completo
                     ) if responsavel else None,
@@ -85,10 +92,9 @@ class AcaoEstrategicaPublicaDetalheView(APIView):
         }
         if tipo not in modelos:
             raise NotFound()
-        registro = get_object_or_404(
-            modelos[tipo].objects.select_related('unidade', 'responsavel'),
-            pk=pk, status='APROVADO',
-        )
+        queryset = modelos[tipo].objects.select_related('unidade', 'responsavel')
+        queryset = queryset.select_related('pdi' if tipo == 'iniciativas' else 'planejamento')
+        registro = get_object_or_404(queryset, pk=pk, status='APROVADO')
         responsavel = registro.responsavel
         objetivos = [registro.objetivo] if tipo == 'indicadores' else registro.objetivos.all()
         dados = {
@@ -97,6 +103,8 @@ class AcaoEstrategicaPublicaDetalheView(APIView):
             'unidade_nome': registro.unidade.nome,
             'unidade_sigla': registro.unidade.sigla,
             'responsavel_nome': (responsavel.nome_social or responsavel.nome_completo) if responsavel else None,
+            'planejamento_nome': getattr(getattr(registro, 'planejamento', None), 'nome', None),
+            'pdi_nome': getattr(getattr(registro, 'pdi', None), 'nome', None),
             'objetivos_detalhes': [
                 {'id': objetivo.id, 'codigo': objetivo.codigo, 'descricao': objetivo.descricao}
                 for objetivo in objetivos
@@ -115,7 +123,7 @@ class AcaoEstrategicaPublicaDetalheView(APIView):
             campos = ('finalidade', 'polaridade', 'unidade_medida', 'metodo_calculo', 'formula',
                       'observacao', 'data_envio')
             dados['evolucao_indicador'] = list(registro.evolucao_indicador.order_by('ano', 'id').values(
-                'id', 'ano', 'meta_prevista', 'meta_alcancada'))
+                'id', 'ano', 'meta_prevista', 'meta_alcancada', 'justificativa_meta_alcancada'))
         else:
             campos = ('data_preenchimento', 'ultima_atualizacao', 'observacao', 'percentual_evolucao')
             dados['acoes_realizadas'] = list(registro.acoes_realizadas.order_by('prazo_inicio', 'id').values(

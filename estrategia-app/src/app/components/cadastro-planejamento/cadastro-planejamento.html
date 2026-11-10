@@ -1,0 +1,411 @@
+<main class="cadastro-planejamento listagem-privada">
+  <header class="cabecalho">
+    <div>
+      <h1 class="titulo-pagina m-0 cabecalho">Planejamentos e PDIs</h1>
+    </div>
+  </header>
+
+  <div class="mensagem sucesso" role="status" *ngIf="sucesso()">{{ sucesso() }}</div>
+  <div class="mensagem erro" role="alert" *ngIf="erroCarregamento()">
+    {{ erroCarregamento() }}
+    <button type="button" (click)="carregarPlanejamentos()">Tentar novamente</button>
+  </div>
+
+  <section class="secao-listagem" aria-labelledby="titulo-planejamentos">
+    <header class="cabecalho-secao">
+      <div>
+        <p class="sobretitulo">DOCUMENTO INSTITUCIONAL</p>
+        <h2 id="titulo-planejamentos">Planejamentos</h2>
+      </div>
+      <button class="botao-criar" type="button" (click)="abrirModal('planejamento')">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        Novo planejamento
+      </button>
+    </header>
+
+    <div class="grade-documentos" [attr.aria-busy]="carregando()">
+      <article class="documento" *ngFor="let planejamento of planejamentos()">
+        <div class="documento-icone planejamento-icone">
+          <i class="bi bi-journal-text" aria-hidden="true"></i>
+        </div>
+        <div class="documento-conteudo">
+          <div class="documento-titulo">
+            <h3>{{ planejamento.nome }}</h3>
+            <span class="status" [ngClass]="statusClass(planejamento.status)">{{ planejamento.status }}</span>
+          </div>
+          <p class="vigencia">
+            <i class="bi bi-calendar3" aria-hidden="true"></i>
+            {{ planejamento.data_inicio | date:'dd/MM/yyyy' }} – {{ planejamento.data_fim | date:'dd/MM/yyyy' }}
+          </p>
+          <p class="quantidade-pdis">
+            <i class="bi bi-diagram-3" aria-hidden="true"></i>
+            {{ quantidadePdis(planejamento.id) }} PDI(s) vinculado(s)
+          </p>
+          <p class="quantidade-objetivos">
+            <i class="bi bi-bullseye" aria-hidden="true"></i>
+            {{ quantidadeObjetivos(planejamento) }} objetivo(s) estratégico(s)
+          </p>
+        </div>
+        <div class="acoes-documento">
+          <button
+            class="botao-objetivos"
+            type="button"
+            [attr.aria-label]="'Ver e cadastrar objetivos de ' + planejamento.nome"
+            title="Ver e cadastrar objetivos"
+            (click)="abrirObjetivos(planejamento)"
+          >
+            <span>Objetivos</span>
+          </button>
+          <button
+            class="botao-editar"
+            type="button"
+            [attr.aria-label]="'Editar planejamento ' + planejamento.nome"
+            title="Editar planejamento"
+            (click)="editarPlanejamento(planejamento)"
+          >
+            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+          </button>
+          <button
+            class="botao-excluir"
+            type="button"
+            [disabled]="!podeExcluirPlanejamento(planejamento) || planejamentoExcluindoId() === planejamento.id"
+            [attr.aria-label]="'Excluir planejamento ' + planejamento.nome"
+            [title]="podeExcluirPlanejamento(planejamento) ? 'Excluir planejamento' : 'Não pode excluir: remova os objetivos e iniciativas dos PDIs vinculados'"
+            (click)="excluirPlanejamento(planejamento)"
+          >
+            <i class="bi bi-trash3" aria-hidden="true"></i>
+          </button>
+        </div>
+      </article>
+      <div class="estado-vazio" *ngIf="!carregando() && !planejamentos().length && !erroCarregamento()">
+        <i class="bi bi-journal-x" aria-hidden="true"></i>
+        <strong>Nenhum planejamento cadastrado</strong>
+        <span>Use “Novo planejamento” para adicionar o primeiro.</span>
+      </div>
+      <div class="estado-vazio" *ngIf="carregando()">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Carregando planejamentos...</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao-listagem secao-pdis" aria-labelledby="titulo-pdis">
+    <header class="cabecalho-secao">
+      <div>
+        <p class="sobretitulo">PLANOS DE DESENVOLVIMENTO INSTITUCIONAL</p>
+        <h2 id="titulo-pdis">PDIs</h2>
+      </div>
+      <button
+        class="botao-criar"
+        type="button"
+        (click)="abrirModal('pdi')"
+        [disabled]="!planejamentos().length"
+        [title]="!planejamentos().length ? 'Cadastre primeiro um planejamento' : 'Criar PDI'"
+      >
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        Novo PDI
+      </button>
+    </header>
+
+    <div class="grade-documentos" [attr.aria-busy]="carregando()">
+      <article class="documento" *ngFor="let pdi of pdisOrdenados()">
+        <div class="documento-icone pdi-icone">
+          <i class="bi bi-diagram-3" aria-hidden="true"></i>
+        </div>
+        <div class="documento-conteudo">
+          <div class="documento-titulo">
+            <h3>{{ pdi.nome }}</h3>
+            <span class="status" [ngClass]="statusClass(pdi.status)">{{ pdi.status }}</span>
+          </div>
+          <p class="vigencia">
+            <i class="bi bi-calendar3" aria-hidden="true"></i>
+            {{ pdi.data_inicio | date:'dd/MM/yyyy' }} – {{ pdi.data_fim | date:'dd/MM/yyyy' }}
+          </p>
+          <p class="quantidade-pdis">
+            <i class="bi bi-folder2" aria-hidden="true"></i>
+            Planejamento: {{ nomePlanejamento(pdi.planejamento) }}
+          </p>
+          <p class="quantidade-iniciativas">
+            <i class="bi bi-list-check" aria-hidden="true"></i>
+            {{ pdi.quantidade_iniciativas ?? 0 }} iniciativa(s) vinculada(s)
+          </p>
+        </div>
+        <div class="acoes-documento">
+          <button
+            class="botao-editar"
+            type="button"
+            [attr.aria-label]="'Editar PDI ' + pdi.nome"
+            title="Editar PDI"
+            (click)="editarPdi(pdi)"
+          >
+            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+          </button>
+          <button
+            class="botao-excluir"
+            type="button"
+            [disabled]="(pdi.quantidade_iniciativas ?? 0) > 0 || pdiExcluindoId() === pdi.id"
+            [attr.aria-label]="'Excluir PDI ' + pdi.nome"
+            [title]="(pdi.quantidade_iniciativas ?? 0) > 0 ? 'Não pode excluir: há iniciativas vinculadas' : 'Excluir PDI'"
+            (click)="excluirPdi(pdi)"
+          >
+            <i class="bi bi-trash3" aria-hidden="true"></i>
+          </button>
+        </div>
+      </article>
+      <div class="estado-vazio" *ngIf="!carregando() && !pdis().length && !erroCarregamento()">
+        <i class="bi bi-diagram-2" aria-hidden="true"></i>
+        <strong>Nenhum PDI cadastrado</strong>
+        <span>Os PDIs criados serão exibidos nesta seção.</span>
+      </div>
+      <div class="estado-vazio" *ngIf="carregando()">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Carregando PDIs...</span>
+      </div>
+    </div>
+  </section>
+
+  <div
+    class="modal-fundo"
+    *ngIf="modalAberto()"
+    (click)="fecharModal()"
+    (keydown.escape)="fecharModal()"
+  >
+    <section
+      class="modal-cartao"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="modalAberto() === 'planejamento' ? 'modal-titulo-planejamento' : 'modal-titulo-pdi'"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-cabecalho">
+        <div class="titulo-cartao">
+          <span class="documento-icone" [class.planejamento-icone]="modalAberto() === 'planejamento'" [class.pdi-icone]="modalAberto() === 'pdi'">
+            <i class="bi" [class.bi-journal-text]="modalAberto() === 'planejamento'" [class.bi-diagram-3]="modalAberto() === 'pdi'" aria-hidden="true"></i>
+          </span>
+          <div>
+            <h2 [id]="modalAberto() === 'planejamento' ? 'modal-titulo-planejamento' : 'modal-titulo-pdi'">
+              {{
+                modalAberto() === 'planejamento'
+                  ? (planejamentoEmEdicao() ? 'Editar planejamento' : 'Novo planejamento')
+                  : (pdiEmEdicao() ? 'Editar PDI' : 'Novo PDI')
+              }}
+            </h2>
+            <p>{{ modalAberto() === 'planejamento' ? 'Informe os dados e a vigência do documento.' : 'Vincule este PDI a um planejamento.' }}</p>
+          </div>
+        </div>
+        <button class="botao-fechar" type="button" aria-label="Fechar" (click)="fecharModal()">×</button>
+      </header>
+
+      <form
+        *ngIf="modalAberto() === 'planejamento'"
+        [formGroup]="formularioPlanejamento"
+        (ngSubmit)="salvarPlanejamento()"
+        novalidate
+      >
+        <div class="campo">
+          <label for="nome-planejamento">Nome do planejamento <span>*</span></label>
+          <input id="nome-planejamento" formControlName="nome" maxlength="100" autocomplete="off" />
+          <small class="erro-campo" *ngIf="formularioPlanejamento.controls.nome.touched && formularioPlanejamento.controls.nome.invalid">
+            Informe um nome (até 100 caracteres).
+          </small>
+        </div>
+        <div class="linha-campos">
+          <div class="campo">
+            <label for="inicio-planejamento">Data de início <span>*</span></label>
+            <input id="inicio-planejamento" type="date" formControlName="data_inicio" />
+          </div>
+          <div class="campo">
+            <label for="fim-planejamento">Data de fim <span>*</span></label>
+            <input id="fim-planejamento" type="date" formControlName="data_fim" />
+          </div>
+        </div>
+        <div class="campo">
+          <label for="status-planejamento">Status</label>
+          <select id="status-planejamento" formControlName="status">
+            <option value="Vigente">Vigente</option>
+            <option value="Expirado">Expirado</option>
+          </select>
+        </div>
+        <div class="mensagem erro" role="alert" *ngIf="erroPlanejamento()">{{ erroPlanejamento() }}</div>
+        <footer class="modal-acoes">
+          <button class="botao-cancelar" type="button" [disabled]="salvandoPlanejamento()" (click)="fecharModal()">Cancelar</button>
+          <button class="botao-salvar" type="submit" [disabled]="salvandoPlanejamento()">
+            {{
+              salvandoPlanejamento()
+                ? 'Salvando...'
+                : (planejamentoEmEdicao() ? 'Salvar alterações' : 'Criar planejamento')
+            }}
+          </button>
+        </footer>
+      </form>
+
+      <form
+        *ngIf="modalAberto() === 'pdi'"
+        [formGroup]="formularioPdi"
+        (ngSubmit)="salvarPdi()"
+        novalidate
+      >
+        <div class="campo">
+          <label for="nome-pdi">Nome do PDI <span>*</span></label>
+          <input id="nome-pdi" formControlName="nome" maxlength="100" autocomplete="off" />
+          <small class="erro-campo" *ngIf="formularioPdi.controls.nome.touched && formularioPdi.controls.nome.invalid">
+            Informe um nome (até 100 caracteres).
+          </small>
+        </div>
+        <div class="campo">
+          <label for="planejamento-pdi">Planejamento <span>*</span></label>
+          <select id="planejamento-pdi" formControlName="planejamento">
+            <option [ngValue]="0">Selecione um planejamento</option>
+            <option *ngFor="let planejamento of planejamentos()" [ngValue]="planejamento.id">
+              {{ planejamento.nome }} ({{ planejamento.data_inicio | date:'dd/MM/yyyy' }} a {{ planejamento.data_fim | date:'dd/MM/yyyy' }})
+            </option>
+          </select>
+          <small *ngIf="pdiEmEdicao()">O planejamento definido na criação não pode ser alterado.</small>
+        </div>
+        <div class="linha-campos">
+          <div class="campo">
+            <label for="inicio-pdi">Data de início <span>*</span></label>
+            <input id="inicio-pdi" type="date" formControlName="data_inicio" />
+          </div>
+          <div class="campo">
+            <label for="fim-pdi">Data de fim <span>*</span></label>
+            <input id="fim-pdi" type="date" formControlName="data_fim" />
+          </div>
+        </div>
+        <div class="campo">
+          <label for="status-pdi">Status</label>
+          <select id="status-pdi" formControlName="status">
+            <option value="Vigente">Vigente</option>
+            <option value="Expirado">Expirado</option>
+          </select>
+        </div>
+        <div class="mensagem erro" role="alert" *ngIf="erroPdi()">{{ erroPdi() }}</div>
+        <footer class="modal-acoes">
+          <button class="botao-cancelar" type="button" [disabled]="salvandoPdi()" (click)="fecharModal()">Cancelar</button>
+          <button class="botao-salvar" type="submit" [disabled]="salvandoPdi()">
+            {{ salvandoPdi() ? 'Salvando...' : (pdiEmEdicao() ? 'Salvar alterações' : 'Criar PDI') }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <div
+    class="modal-fundo"
+    *ngIf="planejamentoDosObjetivos() as planejamento"
+    (click)="fecharObjetivos()"
+  >
+    <section
+      class="modal-cartao modal-objetivos"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo-objetivos"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-cabecalho">
+        <div class="titulo-cartao">
+          <span class="documento-icone planejamento-icone">
+            <i class="bi bi-bullseye" aria-hidden="true"></i>
+          </span>
+          <div>
+            <h2 id="modal-titulo-objetivos">Objetivos estratégicos</h2>
+            <p>{{ planejamento.nome }}</p>
+          </div>
+        </div>
+        <button
+          class="botao-fechar"
+          type="button"
+          aria-label="Fechar"
+          [disabled]="salvandoObjetivo() || objetivoExcluindoId() !== null"
+          (click)="fecharObjetivos()"
+        >×</button>
+      </header>
+
+      <div class="lista-objetivos-planejamento" [attr.aria-busy]="carregandoObjetivos()">
+        <div class="estado-vazio" *ngIf="carregandoObjetivos()">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Carregando objetivos...</span>
+        </div>
+        <div class="mensagem erro" role="alert" *ngIf="erroObjetivos()">{{ erroObjetivos() }}</div>
+        <article class="objetivo-planejamento" *ngFor="let objetivo of objetivosDoPlanejamento()">
+          <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
+          <div class="objetivo-detalhes">
+            <p>{{ objetivo.descricao }}</p>
+          </div>
+          <div class="acoes-objetivo">
+            <button
+              class="botao-editar"
+              type="button"
+              [attr.aria-label]="'Editar objetivo ' + objetivo.codigo"
+              title="Editar objetivo"
+              [disabled]="salvandoObjetivo() || objetivoExcluindoId() !== null"
+              (click)="editarObjetivo(objetivo)"
+            >
+              <i class="bi bi-pencil" aria-hidden="true"></i>
+            </button>
+            <button
+              class="botao-excluir"
+              type="button"
+              [attr.aria-label]="'Excluir objetivo ' + objetivo.codigo"
+              [title]="objetivoExcluindoId() === objetivo.id ? 'Excluindo objetivo' : 'Excluir objetivo'"
+              [disabled]="salvandoObjetivo() || objetivoExcluindoId() !== null"
+              (click)="excluirObjetivo(objetivo)"
+            >
+              <i class="bi bi-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </article>
+        <div class="estado-vazio" *ngIf="!carregandoObjetivos() && !erroObjetivos() && !objetivosDoPlanejamento().length">
+          <i class="bi bi-bullseye" aria-hidden="true"></i>
+          <strong>Nenhum objetivo cadastrado</strong>
+          <span>Adicione o primeiro objetivo para este planejamento.</span>
+        </div>
+      </div>
+
+      <form class="formulario-objetivo" [formGroup]="formularioObjetivo" (ngSubmit)="salvarObjetivo()" novalidate>
+        <h3>{{ objetivoEmEdicao() ? 'Editar objetivo' : 'Cadastrar objetivo' }}</h3>
+        <div class="linha-campos">
+          <div class="campo">
+            <label for="codigo-objetivo-planejamento">Código <span>*</span></label>
+            <input id="codigo-objetivo-planejamento" formControlName="codigo" maxlength="8" autocomplete="off" placeholder="Ex.: OE1" />
+          </div>
+          <div class="campo campo-descricao-objetivo">
+            <label for="descricao-objetivo-planejamento">Descrição <span>*</span></label>
+            <input id="descricao-objetivo-planejamento" formControlName="descricao" autocomplete="off" placeholder="Descreva o objetivo estratégico" />
+          </div>
+        </div>
+        <small class="erro-campo" *ngIf="formularioObjetivo.controls.codigo.touched && formularioObjetivo.controls.codigo.invalid">
+          Informe um código com até 8 caracteres.
+        </small>
+        <small class="erro-campo" *ngIf="formularioObjetivo.controls.descricao.touched && formularioObjetivo.controls.descricao.invalid">
+          Informe a descrição do objetivo.
+        </small>
+        <div class="mensagem sucesso" role="status" *ngIf="sucessoObjetivo()">{{ sucessoObjetivo() }}</div>
+        <footer class="modal-acoes">
+          <button
+            class="botao-cancelar"
+            type="button"
+            *ngIf="objetivoEmEdicao()"
+            [disabled]="salvandoObjetivo() || objetivoExcluindoId() !== null"
+            (click)="cancelarEdicaoObjetivo()"
+          >
+            Cancelar edição
+          </button>
+          <button
+            class="botao-salvar"
+            type="submit"
+            [disabled]="salvandoObjetivo() || carregandoObjetivos() || objetivoExcluindoId() !== null"
+          >
+            {{
+              salvandoObjetivo()
+                ? 'Salvando...'
+                : objetivoEmEdicao()
+                  ? 'Salvar alterações'
+                  : 'Adicionar objetivo'
+            }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+</main>

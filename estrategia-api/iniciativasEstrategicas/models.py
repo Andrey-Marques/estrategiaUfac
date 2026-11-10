@@ -1,5 +1,6 @@
 from django.db import models
 from objetivosEstrategicos.models import ObjetivoEstrategico
+from django.core.exceptions import ValidationError
 
 class IniciativaEstrategica(models.Model):
     STATUS_CHOICES = [
@@ -15,6 +16,7 @@ class IniciativaEstrategica(models.Model):
     ultima_atualizacao = models.DateTimeField(auto_now=True)
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='iniciativas_estrategicas')
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='iniciativas_estrategicas', null=True, blank=True)
+    pdi = models.ForeignKey('pdi.PDI', on_delete=models.PROTECT, related_name='iniciativas_estrategicas')
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoIniciativa',related_name='iniciativas')
     observacao_analise = models.TextField(blank=True)
     analisado_por = models.ForeignKey('usuarios.Usuario', on_delete= models.SET_NULL, null=True, blank=True, related_name='iniciativas_analisadas')
@@ -23,6 +25,17 @@ class IniciativaEstrategica(models.Model):
     class Meta: 
         verbose_name = 'Iniciativa Estratégica'
         verbose_name_plural = 'Iniciativas Estratégicas'
+    
+    def clean(self):
+        super().clean()
+        if self.pk and self.pdi and self.pdi.planejamento:
+            for objetivo in self.objetivos.all():
+                if objetivo.planejamento != self.pdi.planejamento:
+                    raise ValidationError('A iniciativa só pode estar vinculada a objetivos do mesmo planejamento do PDI.')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
         
     def __str__(self):
         return self.nome
@@ -57,3 +70,12 @@ class ObjetivoIniciativa(models.Model):
     iniciativa = models.ForeignKey(IniciativaEstrategica,on_delete=models.CASCADE)
     class Meta:
         unique_together = ('objetivo', 'iniciativa')
+        
+    def clean(self):
+        super().clean()
+        if self.objetivo.planejamento != self.iniciativa.pdi.planejamento:
+            raise ValidationError('O objetivo deve pertencer ao mesmo planejamento do PDI da iniciativa.')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)

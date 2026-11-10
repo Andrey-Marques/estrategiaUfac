@@ -3,6 +3,7 @@ from django.db.models import Sum
 from decimal import Decimal
 from objetivosEstrategicos.models import ObjetivoEstrategico
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 class ProjetoEstrategico(models.Model):
     STATUS_EXECUCAO_CHOICES = [
@@ -27,6 +28,7 @@ class ProjetoEstrategico(models.Model):
     justificativa_descontinuacao = models.TextField(blank=True, default='')
     unidade = models.ForeignKey('unidades.Unidade', on_delete=models.PROTECT, related_name='projetos_estrategicos')
     responsavel = models.ForeignKey('usuarios.Usuario', on_delete=models.PROTECT, related_name='projetos_estrategicos', null=True, blank=True)
+    planejamento = models.ForeignKey('planejamento.Planejamento', on_delete=models.PROTECT, related_name='projetos_estrategicos')
     objetivos = models.ManyToManyField(ObjetivoEstrategico,through='ObjetivoProjeto',related_name='projetos')
     observacao_analise = models.TextField( blank=True, default='')
     data_analise = models.DateTimeField(null=True,blank=True)
@@ -36,7 +38,14 @@ class ProjetoEstrategico(models.Model):
     class Meta: 
         verbose_name = 'Projeto Estratégico'
         verbose_name_plural = 'Projetos Estratégicos'
-        
+    
+    def clean(self):
+        super().clean()
+        if self.planejamento:
+            for objetivo in self.objetivos.all():
+                if objetivo.planejamento != self.planejamento:
+                    raise ValidationError('O projeto só pode estar associado a objetivos do mesmo planejamento.')
+      
     def __str__(self):
         return self.nome
 
@@ -110,3 +119,12 @@ class ObjetivoProjeto(models.Model):
     projeto = models.ForeignKey(ProjetoEstrategico,on_delete=models.CASCADE)
     class Meta:
         unique_together = ('objetivo', 'projeto')
+        
+    def clean(self):
+        super().clean()
+        if self.objetivo.planejamento != self.projeto.planejamento:
+            raise ValidationError('O objetivo deve pertencer ao mesmo planejamento do projeto.')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)

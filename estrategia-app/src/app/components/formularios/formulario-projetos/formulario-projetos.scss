@@ -1,5 +1,16 @@
 @use '../../../../styles/variables' as *;
 
+.indicador-acao-atrasada {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 6px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: #dc3545;
+  vertical-align: middle;
+}
+
 .justificativa-descontinuacao-formulario {
   margin-bottom: 16px;
   padding: 14px;

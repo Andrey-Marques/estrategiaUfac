@@ -16,6 +16,8 @@ import {
 import { RevisaoEdicao } from '../../model/revisaoEdicao';
 import { RevisaoService } from '../../service/revisao.service';
 import { FormularioIniciativas } from '../formularios/formulario-iniciativas/formulario-iniciativas';
+import { PlanejamentoService } from '../../service/planejamento.service';
+import { Pdi } from '../../model/planejamento';
 
 export interface AcaoIniciativa {
   id?: number;
@@ -50,6 +52,7 @@ export class ListagemIniciativas {
     private usuarioService: UsuarioService,
     private unidadeService: UnidadeService,
     private revisaoService: RevisaoService,
+    private planejamentoService: PlanejamentoService,
   ) {}
   atrasos = inject(AtrasosService);
 
@@ -66,6 +69,8 @@ export class ListagemIniciativas {
 
   unidades = signal<Unidade[]>([]);
 
+  pdis = signal<Pdi[]>([]);
+
   iniciativaEmAnalise = signal<IniciativaEstrategica | null>(null);
 
   revisoes = signal<RevisaoEdicao[]>([]);
@@ -73,6 +78,8 @@ export class ListagemIniciativas {
   revisaoEmAnalise = signal<RevisaoEdicao | null>(null);
 
   filtroStatus = signal<string>('TODOS');
+
+  filtroPdi = signal<string>('TODOS');
 
   termoPesquisa = signal<string>('');
 
@@ -102,6 +109,7 @@ export class ListagemIniciativas {
     this.buscarIniciativa();
     this.buscarUsuarioAtual();
     this.buscarUnidade();
+    this.buscarPdis();
   }
 
   buscarUsuarioAtual(): void {
@@ -130,6 +138,11 @@ export class ListagemIniciativas {
   alterarFiltroStatus(status: string): void {
     this.paginaSelecionada.set(1);
     this.filtroStatus.set(status);
+  }
+
+  alterarFiltroPdi(evento: Event): void {
+    this.paginaSelecionada.set(1);
+    this.filtroPdi.set((evento.target as HTMLSelectElement).value);
   }
 
   pesquisarIniciativa(evento: Event): void {
@@ -165,6 +178,7 @@ export class ListagemIniciativas {
     const status = this.filtroStatus();
     const pesquisa = this.termoPesquisa();
     const unidadesSelecionadas = this.unidadesSelecionadas();
+    const pdiSelecionado = this.filtroPdi();
 
     return this.iniciativas().filter((iniciativa) => {
       const atendeStatus = status === 'TODOS' || iniciativa.status === status;
@@ -173,8 +187,10 @@ export class ListagemIniciativas {
         !this.isAdmin() ||
         unidadesSelecionadas.length === 0 ||
         unidadesSelecionadas.includes(Number(iniciativa.unidade));
+      const atendePdi =
+        pdiSelecionado === 'TODOS' || Number(iniciativa.pdi) === Number(pdiSelecionado);
 
-      return atendeStatus && atendePesquisa && atendeUnidade;
+      return atendeStatus && atendePesquisa && atendeUnidade && atendePdi;
     });
   }
 
@@ -186,6 +202,13 @@ export class ListagemIniciativas {
     this.unidadeService.get().subscribe({
       next: (dados) => this.unidades.set(dados),
       error: (erro) => console.error('erro ao buscar unidades', erro),
+    });
+  }
+
+  buscarPdis(): void {
+    this.planejamentoService.listarPdis().subscribe({
+      next: (dados) => this.pdis.set(dados),
+      error: (erro) => console.error('Erro ao buscar PDIs:', erro),
     });
   }
 

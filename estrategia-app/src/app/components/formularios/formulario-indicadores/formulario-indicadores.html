@@ -60,7 +60,7 @@
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 1"
-            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()"
+            [class.etapa-bloqueada]="edicaoRestrita"
             (click)="irParaEtapa(1)"
           >
             <span>1. Apresentação</span>
@@ -69,27 +69,27 @@
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 2"
-            [class.etapa-bloqueada]="edicaoRestrita && !ehGestor()"
+            [class.etapa-bloqueada]="edicaoRestrita"
             (click)="irParaEtapa(2)"
           >
             <span>2. Método de cálculo</span>
           </div>
-
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 3"
+            [class.etapa-bloqueada]="edicaoRestrita"
             (click)="irParaEtapa(3)"
           >
-            <span>3. Evolução</span>
+            <span>3. Premissas das metas</span>
           </div>
-
           <div
             class="etapa-formulario"
             [class.etapa-atual]="etapaAtual === 4"
             (click)="irParaEtapa(4)"
           >
-            <span>4. Observações</span>
+            <span>4. Evolução</span>
           </div>
+
         </div>
 
         <form [formGroup]="formularioIndicador">
@@ -119,6 +119,26 @@
                 placeholder="Insira o título aqui"
                 formControlName="nome"
               />
+            </div>
+
+            <div class="campo-formulario">
+              <label for="planejamentoIndicador">
+                PLANEJAMENTO ESTRATÉGICO <span class="campo-obrigatorio">*</span>
+              </label>
+              <select
+                id="planejamentoIndicador"
+                class="form-control"
+                formControlName="planejamento"
+                (change)="aoSelecionarPlanejamento()"
+              >
+                <option [ngValue]="null">Selecione um planejamento vigente</option>
+                <option *ngFor="let planejamento of planejamentos()" [ngValue]="planejamento.id">
+                  {{ planejamento.nome }} ({{ planejamento.data_inicio | date:'dd/MM/yyyy' }} a {{ planejamento.data_fim | date:'dd/MM/yyyy' }})
+                </option>
+              </select>
+              <small class="texto-ajuda" *ngIf="!planejamentos().length">
+                Nenhum planejamento disponível. Solicite o cadastro à administração.
+              </small>
             </div>
 
             <!-- RESPONSÁVEL E UNIDADE -->
@@ -175,7 +195,7 @@
               <div class="container-objetivos">
                 <div
                   class="card-objetivo-estrategico"
-                  *ngFor="let objetivo of objetivos()"
+                  *ngFor="let objetivo of objetivosDoPlanejamento()"
                   [class.objetivo-selecionado]="objetivoSelecionado === objetivo.id"
                   (click)="selecionarObjetivo(objetivo.id)"
                 >
@@ -183,6 +203,13 @@
                     <span class="codigo-objetivo">{{ objetivo.codigo }}</span>
                   </div>
                   <p class="descricao-objetivo">{{ objetivo.descricao }}</p>
+                </div>
+                <div class="estado-vazio-objetivos" *ngIf="!objetivosDoPlanejamento().length" role="status" aria-live="polite">
+                  <div class="mensagem-estado-vazio">
+                    <strong>Nenhum objetivo disponível</strong>
+                    <p>Não há objetivos estratégicos cadastrados para este planejamento.</p>
+                    <small>Cadastre objetivos estratégicos ou selecione outro planejamento.</small>
+                  </div>
                 </div>
               </div>
             </section>
@@ -251,10 +278,27 @@
             </div>
           </div>
 
-          <!-- ETAPA 3 - EVOLUÇÃO -->
+          <!-- ETAPA 3 - OBSERVAÇÕES -->
           <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 3">
             <div class="titulo-secao">
-              <h2>Passo 3: Evoluções & Metas</h2>
+              <h2>Passo 3: Premissas para definição das metas</h2>
+              <p>Explique as premissas seguidas para definição das metas previstas desse indicador estratégico.</p>
+              <hr />
+            </div>
+
+            <div class="campo-formulario campo-observacao">
+              <textarea
+                class="form-control caixa-texto-observacao observacoes-indicador"
+                placeholder="Insira sua explicação aqui!"
+                formControlName="observacao"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- ETAPA 4 - EVOLUÇÃO -->
+          <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 4">
+            <div class="titulo-secao">
+              <h2>Passo 4: Evoluções & Metas</h2>
               <p>Adicione as metas previstas e os resultados alcançados durante os exercícios.</p>
               <hr />
             </div>
@@ -265,11 +309,11 @@
                 <div>
                   <h3>METAS DE MONITORAMENTO</h3>
                   <p>
-                    Clique no botão para inserir quantos novos anos forem necessários ao
-                    planejamento.
+                    Cadastre o ano e a meta prevista. A meta alcançada pode ser informada agora
+                    ou posteriormente, com a respectiva justificativa.
                   </p>
                 </div>
-                <button type="button" class="btn botao-adicionar-ano" (click)="adicionarMeta()">
+                <button type="button" class="btn botao-adicionar-ano" (click)="adicionarMeta()" [disabled]="metadadosBloqueados()">
                   <i class="bi bi-plus-lg"></i> Adicionar ano
                 </button>
               </div>
@@ -286,34 +330,32 @@
                 <div class="linha-meta" *ngFor="let meta of metas; let indice = index">
                   <div>
                     <input
-                      type="number"
+                      type="text"
                       class="form-control"
                       [(ngModel)]="meta.ano"
                       [ngModelOptions]="{ standalone: true }"
                       placeholder="2026"
+                      [readonly]="metadadosBloqueados()"
                     />
                   </div>
 
                   <div class="campo-meta-percentual">
                     <input
-                      type="number"
+                      type="text"
                       class="form-control"
                       [(ngModel)]="meta.prevista"
                       [ngModelOptions]="{ standalone: true }"
-                      min="0"
-                      max="100"
                       placeholder="-"
+                      [readonly]="metadadosBloqueados()"
                     />
                   </div>
 
                   <div class="campo-meta-percentual">
                     <input
-                      type="number"
+                      type="text"
                       class="form-control"
                       [(ngModel)]="meta.alcancada"
                       [ngModelOptions]="{ standalone: true }"
-                      min="0"
-                      max="100"
                       placeholder="-"
                     />
                   </div>
@@ -321,9 +363,21 @@
                   <div class="acoes-meta">
                     <button
                       type="button"
+                      class="botao-justificativa-meta"
+                      [class.tem-justificativa]="meta.justificativaMetaAlcancada"
+                      title="Justificativa da meta alcançada"
+                      aria-label="Justificativa da meta alcançada"
+                      [disabled]="!podeAlterarJustificativa()"
+                      (click)="abrirJustificativa(indice)"
+                    >
+                      <i class="bi bi-chat-square-text"></i>
+                    </button>
+                    <button
+                      type="button"
                       class="botao-excluir-meta"
                       title="Excluir"
                       (click)="removerMeta(indice)"
+                      [disabled]="metadadosBloqueados()"
                     >
                       <i class="bi bi-trash3"></i>
                     </button>
@@ -337,22 +391,31 @@
             </div>
           </div>
 
-          <!-- ETAPA 4 - OBSERVAÇÕES -->
-          <div class="conteudo-formulario" [class.sumir]="etapaAtual !== 4">
-            <div class="titulo-secao">
-              <h2>Passo 4: Observações</h2>
-              <p>Adicione informações complementares sobre o indicador.</p>
-              <hr />
-            </div>
-
-            <div class="campo-formulario campo-observacao">
+          <div class="modal-justificativa-meta" *ngIf="indiceMetaJustificativa !== null">
+            <div class="modal-justificativa-meta__conteudo" role="dialog" aria-modal="true" aria-labelledby="tituloJustificativaMeta">
+              <div class="modal-justificativa-meta__cabecalho">
+                <div>
+                  <h3 id="tituloJustificativaMeta">Justificativa da meta alcançada</h3>
+                  <p>Explique como o resultado do ano {{ metas[indiceMetaJustificativa].ano || 'informado' }} foi alcançado.</p>
+                </div>
+                <button type="button" class="botao-fechar-justificativa" (click)="fecharJustificativa()" aria-label="Fechar">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
               <textarea
-                class="form-control caixa-texto-observacao observacoes-indicador"
-                placeholder="Insira suas observações aqui!"
-                formControlName="observacao"
+                class="form-control"
+                [(ngModel)]="justificativaMetaEmEdicao"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Descreva os dados, evidências ou método usado para chegar a este resultado."
               ></textarea>
+              <div class="modal-justificativa-meta__acoes">
+                <button type="button" class="btn botao-anterior" (click)="fecharJustificativa()">Cancelar</button>
+                <button type="button" class="btn botao-proximo" (click)="salvarJustificativa()">Salvar justificativa</button>
+              </div>
             </div>
           </div>
+
+          
           <hr />
           <!-- RODAPÉ -->
           <div class="rodape-formulario">
@@ -364,7 +427,7 @@
                 type="button"
                 class="btn botao-anterior"
                 (click)="voltar()"
-                [disabled]="etapaAtual === 1 || (edicaoRestrita && !ehGestor() && etapaAtual === 3)"
+                [disabled]="etapaAtual === 1 || edicaoRestrita"
               >
                 <i class="bi bi-chevron-left"></i> Anterior
               </button>

@@ -8,6 +8,8 @@ export interface IndicadorEstrategico {
     metodo_calculo: string;
     formula: string;
     unidade: number;
+    planejamento: number;
+    planejamento_nome?: string;
     objetivo: number;
     responsavel: number;
     observacao: string;
@@ -24,6 +26,7 @@ export interface EvolucaoIndicador {
     id: number;
     meta_prevista: string;
     meta_alcancada: string;
+    justificativa_meta_alcancada?: string;
     ano: string;
     indicador: number;
 }

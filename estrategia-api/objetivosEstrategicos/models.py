@@ -3,6 +3,7 @@ from django.db import models
 class ObjetivoEstrategico(models.Model):
     codigo = models.CharField(max_length=8)
     descricao = models.TextField()
+    planejamento = models.ForeignKey('planejamento.Planejamento', on_delete=models.CASCADE, related_name='objetivos_estrategicos')
     
     class Meta:
         verbose_name = 'Objetivo Estratégico'

@@ -27,6 +27,8 @@ export interface IniciativaEstrategica {
   percentual_evolucao: number | string;
   status: 'APROVADO' | 'REJEITADO' | 'EM_ESPERA';
   unidade: number;
+  pdi: number;
+  pdi_nome?: string;
   unidade_sigla?: string;
   responsavel: number;
   responsavel_nome?: string;
@@ -36,4 +38,14 @@ export interface IniciativaEstrategica {
   acoes_realizadas: AcaoReslizada[];
   observacao_analise?: string | null;
   analisado_por?: number | null;
+}
+
+export function totaisCustosIniciativa(acoes: readonly AcaoReslizada[] = []) {
+  const centavos = (valor: number | string | undefined) => {
+    const numero = Number(valor ?? 0);
+    return Number.isFinite(numero) ? Math.round(numero * 100) : 0;
+  };
+  const estimado = acoes.reduce((total, acao) => total + centavos(acao.custo), 0);
+  const realizado = acoes.reduce((total, acao) => total + centavos(acao.custo_realizado), 0);
+  return { estimado: estimado / 100, realizado: realizado / 100 };
 }
